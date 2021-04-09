@@ -18,7 +18,29 @@ package main
 type CliFlags struct {
 	performDatabaseCleanup        bool
 	performDatabaseInitialization bool
+	performDatabaseDropTables     bool
 	checkConnectionToKafka        bool
 	showVersion                   bool
 	showAuthors                   bool
+	showConfiguration             bool
 }
+
+// RequestID is used to store the request ID supplied in input Kafka records as
+// a unique identifier of payloads. Empty string represents a missing request
+// ID.
+type RequestID string
+
+// KafkaOffset type for kafka offset
+type KafkaOffset int64
+
+// DBDriver type for db driver enum
+type DBDriver int
+
+const (
+	// DBDriverSQLite3 shows that db driver is sqlite
+	DBDriverSQLite3 DBDriver = iota
+	// DBDriverPostgres shows that db driver is postgres
+	DBDriverPostgres
+	// DBDriverGeneral general sql(used for mock now)
+	DBDriverGeneral
+)
