@@ -24,3 +24,11 @@ type CliFlags struct {
 	showAuthors                   bool
 	showConfiguration             bool
 }
+
+// RequestID is used to store the request ID supplied in input Kafka records as
+// a unique identifier of payloads. Empty string represents a missing request
+// ID.
+type RequestID string
+
+// KafkaOffset type for kafka offset
+type KafkaOffset int64
