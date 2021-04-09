@@ -14,6 +14,10 @@
 
 package main
 
+import (
+	"encoding/json"
+)
+
 // CliFlags represents structure holding all command line arguments/flags.
 type CliFlags struct {
 	performDatabaseCleanup        bool
@@ -32,6 +36,29 @@ type RequestID string
 
 // KafkaOffset type for kafka offset
 type KafkaOffset int64
+
+// OrgID represents organization ID
+type OrgID uint32
+
+// ClusterName represents name of cluster in format c8590f31-e97e-4b85-b506-c45ce1911a12
+type ClusterName string
+
+// RuleID represents type for rule id
+type RuleID string
+
+// ErrorKey represents type for error key
+type ErrorKey string
+
+//SchemaVersion is just a constant integer for now, max value 255. If we one day
+//need more versions, better consider upgrading to semantic versioning.
+type SchemaVersion uint8
+
+// ReportItem represents a single (hit) rule of the string encoded report
+type ReportItem struct {
+	Module       RuleID          `json:"component"`
+	ErrorKey     ErrorKey        `json:"key"`
+	TemplateData json.RawMessage `json:"details"`
+}
 
 // DBDriver type for db driver enum
 type DBDriver int

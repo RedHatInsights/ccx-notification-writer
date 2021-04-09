@@ -37,7 +37,6 @@ import (
 
 // Storage represents an interface to almost any database or storage system
 type Storage interface {
-	Init() error
 	Close() error
 }
 
