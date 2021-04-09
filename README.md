@@ -17,7 +17,7 @@ CCX notification writer service
   -show-configuration
         show configuration
   -version
-        show cleaner version
+        show version
 ```
 
 ## Database schema

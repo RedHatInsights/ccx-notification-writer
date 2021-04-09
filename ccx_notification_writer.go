@@ -21,12 +21,19 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"os"
 
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 )
 
+// Messages
+const (
+	versionMessage = "Notification service version 1.0"
+)
+
+// Configuration-related constants
 const (
 	configFileEnvVariableName = "NOTIFICATION_SERVICE_CONFIG_FILE"
 	defaultConfigFileName     = "config"
@@ -44,7 +51,44 @@ const (
 	ExitStatusStorageError
 )
 
+// showVersion function displays version information.
+func showVersion() {
+	fmt.Println(versionMessage)
+}
+
+func startService(config ConfigStruct) int {
+	brokerConf := GetBrokerConfiguration(config)
+
+	// if broker is disabled, simply don't start it
+	if brokerConf.Enabled {
+		err := startConsumer(brokerConf)
+		if err != nil {
+			log.Error().Err(err)
+			return ExitStatusConsumerError
+		}
+	} else {
+		log.Info().Msg("Broker is disabled, not starting it")
+	}
+
+	return ExitStatusOK
+}
+
+func startConsumer(config BrokerConfiguration) error {
+	consumer, err := NewConsumer(config)
+	if err != nil {
+		log.Error().Err(err).Msg("Construct broker")
+		return err
+	}
+	consumer.Serve()
+	return nil
+}
+
 func doSelectedOperation(cliFlags CliFlags) error {
+	switch {
+	case cliFlags.showVersion:
+		showVersion()
+		return nil
+	}
 	return nil
 }
 
@@ -56,7 +100,7 @@ func main() {
 	flag.BoolVar(&cliFlags.performDatabaseCleanup, "db-clenaup", false, "perform database cleanup")
 	flag.BoolVar(&cliFlags.performDatabaseDropTables, "db-drop-tables", false, "drop all tables from database")
 	flag.BoolVar(&cliFlags.checkConnectionToKafka, "check-kafka", false, "check connection to Kafka")
-	flag.BoolVar(&cliFlags.showVersion, "version", false, "show cleaner version")
+	flag.BoolVar(&cliFlags.showVersion, "version", false, "show version")
 	flag.BoolVar(&cliFlags.showAuthors, "authors", false, "show authors")
 	flag.BoolVar(&cliFlags.showConfiguration, "show-configuration", false, "show configuration")
 	flag.Parse()
