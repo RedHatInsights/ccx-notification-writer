@@ -13,3 +13,12 @@
 // limitations under the License.
 
 package main
+
+// CliFlags represents structure holding all command line arguments/flags.
+type CliFlags struct {
+	performDatabaseCleanup        bool
+	performDatabaseInitialization bool
+	checkConnectionToKafka        bool
+	showVersion                   bool
+	showAuthors                   bool
+}
