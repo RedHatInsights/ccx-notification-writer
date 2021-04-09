@@ -63,26 +63,35 @@ func showAuthors() {
 }
 
 // startService function tries to start the notification writer service.
-func startService(config ConfigStruct) int {
-	brokerConf := GetBrokerConfiguration(config)
+func startService(config ConfigStruct) (int, error) {
+	// prepare the storage
+	storageConfiguration := GetStorageConfiguration(config)
+	storage, err := NewStorage(storageConfiguration)
+	if err != nil {
+		log.Err(err).Msg("Operation failed")
+		return ExitStatusStorageError, err
+	}
+
+	// prepare broker
+	brokerConfiguration := GetBrokerConfiguration(config)
 
 	// if broker is disabled, simply don't start it
-	if brokerConf.Enabled {
-		err := startConsumer(brokerConf)
+	if brokerConfiguration.Enabled {
+		err := startConsumer(brokerConfiguration, storage)
 		if err != nil {
 			log.Error().Err(err)
-			return ExitStatusConsumerError
+			return ExitStatusConsumerError, err
 		}
 	} else {
 		log.Info().Msg("Broker is disabled, not starting it")
 	}
 
-	return ExitStatusOK
+	return ExitStatusOK, nil
 }
 
 // startConsumer function starts the Kafka consumer.
-func startConsumer(config BrokerConfiguration) error {
-	consumer, err := NewConsumer(config)
+func startConsumer(config BrokerConfiguration, storage Storage) error {
+	consumer, err := NewConsumer(config, storage)
 	if err != nil {
 		log.Error().Err(err).Msg("Construct broker")
 		return err
@@ -94,20 +103,19 @@ func startConsumer(config BrokerConfiguration) error {
 // doSelectedOperation function perform operation selected on command line.
 // When no operation is specified, the Notification writer service is started
 // instead.
-func doSelectedOperation(configuration ConfigStruct, cliFlags CliFlags) error {
+func doSelectedOperation(configuration ConfigStruct, cliFlags CliFlags) (int, error) {
 	switch {
 	case cliFlags.showVersion:
 		showVersion()
-		return nil
+		return ExitStatusOK, nil
 	case cliFlags.showAuthors:
 		showAuthors()
-		return nil
+		return ExitStatusOK, nil
 	default:
-		brokerConfiguration := GetBrokerConfiguration(configuration)
-		err := startConsumer(brokerConfiguration)
-		return err
+		exitCode, err := startService(configuration)
+		return exitCode, err
 	}
-	return nil
+	return ExitStatusOK, nil
 }
 
 // main function is entry point to the Notification writer service.
@@ -136,16 +144,12 @@ func main() {
 
 	log.Debug().Msg("Started")
 
-	storage, err := NewStorage(GetStorageConfiguration(config))
-	fmt.Println(storage)
-	if err != nil {
-		log.Err(err).Msg("Operation failed")
-	}
-
 	// perform selected operation
-	err = doSelectedOperation(config, cliFlags)
+	exitStatus, err := doSelectedOperation(config, cliFlags)
 	if err != nil {
-		log.Err(err).Msg("Operation failed")
+		log.Err(err).Msg("Do selected operation")
+		os.Exit(exitStatus)
+		return
 	}
 
 	log.Debug().Msg("Finished")

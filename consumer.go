@@ -62,6 +62,7 @@ type KafkaConsumer struct {
 	numberOfErrorsConsumingMessages      uint64
 	ready                                chan bool
 	cancel                               context.CancelFunc
+	storage                              Storage
 }
 
 // DefaultSaramaConfig is a config which will be used by default
@@ -70,14 +71,15 @@ type KafkaConsumer struct {
 var DefaultSaramaConfig *sarama.Config
 
 // NewConsumer constructs new implementation of Consumer interface
-func NewConsumer(brokerCfg BrokerConfiguration) (*KafkaConsumer, error) {
-	return NewWithSaramaConfig(brokerCfg, DefaultSaramaConfig)
+func NewConsumer(brokerCfg BrokerConfiguration, storage Storage) (*KafkaConsumer, error) {
+	return NewWithSaramaConfig(brokerCfg, DefaultSaramaConfig, storage)
 }
 
 // NewWithSaramaConfig constructs new implementation of Consumer interface with custom sarama config
 func NewWithSaramaConfig(
 	brokerCfg BrokerConfiguration,
 	saramaConfig *sarama.Config,
+	storage Storage,
 ) (*KafkaConsumer, error) {
 	if saramaConfig == nil {
 		saramaConfig = sarama.NewConfig()
