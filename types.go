@@ -32,3 +32,15 @@ type RequestID string
 
 // KafkaOffset type for kafka offset
 type KafkaOffset int64
+
+// DBDriver type for db driver enum
+type DBDriver int
+
+const (
+	// DBDriverSQLite3 shows that db driver is sqlite
+	DBDriverSQLite3 DBDriver = iota
+	// DBDriverPostgres shows that db driver is postgres
+	DBDriverPostgres
+	// DBDriverGeneral general sql(used for mock now)
+	DBDriverGeneral
+)

@@ -136,6 +136,12 @@ func main() {
 
 	log.Debug().Msg("Started")
 
+	storage, err := NewStorage(GetStorageConfiguration(config))
+	fmt.Println(storage)
+	if err != nil {
+		log.Err(err).Msg("Operation failed")
+	}
+
 	// perform selected operation
 	err = doSelectedOperation(config, cliFlags)
 	if err != nil {
