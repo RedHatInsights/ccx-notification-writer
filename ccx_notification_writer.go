@@ -58,6 +58,7 @@ func main() {
 	flag.BoolVar(&cliFlags.checkConnectionToKafka, "check-kafka", false, "check connection to Kafka")
 	flag.BoolVar(&cliFlags.showVersion, "version", false, "show cleaner version")
 	flag.BoolVar(&cliFlags.showAuthors, "authors", false, "show authors")
+	flag.BoolVar(&cliFlags.showConfiguration, "show-configuration", false, "show configuration")
 	flag.Parse()
 
 	// perform selected operation

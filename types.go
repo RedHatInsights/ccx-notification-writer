@@ -22,4 +22,5 @@ type CliFlags struct {
 	checkConnectionToKafka        bool
 	showVersion                   bool
 	showAuthors                   bool
+	showConfiguration             bool
 }
