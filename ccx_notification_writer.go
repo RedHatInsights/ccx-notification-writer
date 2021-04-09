@@ -30,7 +30,8 @@ import (
 
 // Messages
 const (
-	versionMessage = "Notification service version 1.0"
+	versionMessage = "Notification writer version 1.0"
+	authorsMessage = "Pavel Tisnovsky, Red Hat Inc."
 )
 
 // Configuration-related constants
@@ -54,6 +55,11 @@ const (
 // showVersion function displays version information.
 func showVersion() {
 	fmt.Println(versionMessage)
+}
+
+// showAuthors function displays information about authors.
+func showAuthors() {
+	fmt.Println(authorsMessage)
 }
 
 func startService(config ConfigStruct) int {
@@ -87,6 +93,9 @@ func doSelectedOperation(cliFlags CliFlags) error {
 	switch {
 	case cliFlags.showVersion:
 		showVersion()
+		return nil
+	case cliFlags.showAuthors:
+		showAuthors()
 		return nil
 	}
 	return nil
