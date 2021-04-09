@@ -62,6 +62,7 @@ func showAuthors() {
 	fmt.Println(authorsMessage)
 }
 
+// startService function tries to start the notification writer service.
 func startService(config ConfigStruct) int {
 	brokerConf := GetBrokerConfiguration(config)
 
@@ -79,6 +80,7 @@ func startService(config ConfigStruct) int {
 	return ExitStatusOK
 }
 
+// startConsumer function starts the Kafka consumer.
 func startConsumer(config BrokerConfiguration) error {
 	consumer, err := NewConsumer(config)
 	if err != nil {
@@ -89,7 +91,10 @@ func startConsumer(config BrokerConfiguration) error {
 	return nil
 }
 
-func doSelectedOperation(cliFlags CliFlags) error {
+// doSelectedOperation function perform operation selected on command line.
+// When no operation is specified, the Notification writer service is started
+// instead.
+func doSelectedOperation(configuration ConfigStruct, cliFlags CliFlags) error {
 	switch {
 	case cliFlags.showVersion:
 		showVersion()
@@ -97,10 +102,15 @@ func doSelectedOperation(cliFlags CliFlags) error {
 	case cliFlags.showAuthors:
 		showAuthors()
 		return nil
+	default:
+		brokerConfiguration := GetBrokerConfiguration(configuration)
+		err := startConsumer(brokerConfiguration)
+		return err
 	}
 	return nil
 }
 
+// main function is entry point to the Notification writer service.
 func main() {
 	var cliFlags CliFlags
 
@@ -127,7 +137,7 @@ func main() {
 	log.Debug().Msg("Started")
 
 	// perform selected operation
-	err = doSelectedOperation(cliFlags)
+	err = doSelectedOperation(config, cliFlags)
 	if err != nil {
 		log.Err(err).Msg("Operation failed")
 	}
