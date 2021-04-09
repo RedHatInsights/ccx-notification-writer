@@ -29,6 +29,7 @@ CCX notification writer service
 ------------+-----------------------------+-----------
  org_id     | integer                     | not null
  cluster    | character(36)               | not null
+ report     | character varying           | not null
  updated_at | timestamp without time zone | not null
 Indexes:
     "new_reports_pkey" PRIMARY KEY, btree (org_id, cluster)
