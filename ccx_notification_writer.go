@@ -21,9 +21,9 @@ package main
 
 import (
 	"flag"
-	//"os"
+	"os"
 
-	//"github.com/rs/zerolog"
+	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 )
 
@@ -61,9 +61,23 @@ func main() {
 	flag.BoolVar(&cliFlags.showConfiguration, "show-configuration", false, "show configuration")
 	flag.Parse()
 
+	// config has exactly the same structure as *.toml file
+	config, err := LoadConfiguration(configFileEnvVariableName, defaultConfigFileName)
+	if err != nil {
+		log.Err(err).Msg("Load configuration")
+	}
+
+	if config.Logging.Debug {
+		log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
+	}
+
+	log.Debug().Msg("Started")
+
 	// perform selected operation
-	err := doSelectedOperation(cliFlags)
+	err = doSelectedOperation(cliFlags)
 	if err != nil {
 		log.Err(err).Msg("Operation failed")
 	}
+
+	log.Debug().Msg("Finished")
 }
