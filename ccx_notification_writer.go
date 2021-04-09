@@ -54,6 +54,7 @@ func main() {
 	// define and parse all command line options
 	flag.BoolVar(&cliFlags.performDatabaseInitialization, "db-init", false, "perform database initialization")
 	flag.BoolVar(&cliFlags.performDatabaseCleanup, "db-clenaup", false, "perform database cleanup")
+	flag.BoolVar(&cliFlags.performDatabaseDropTables, "db-drop-tables", false, "drop all tables from database")
 	flag.BoolVar(&cliFlags.checkConnectionToKafka, "check-kafka", false, "check connection to Kafka")
 	flag.BoolVar(&cliFlags.showVersion, "version", false, "show cleaner version")
 	flag.BoolVar(&cliFlags.showAuthors, "authors", false, "show authors")

@@ -18,6 +18,7 @@ package main
 type CliFlags struct {
 	performDatabaseCleanup        bool
 	performDatabaseInitialization bool
+	performDatabaseDropTables     bool
 	checkConnectionToKafka        bool
 	showVersion                   bool
 	showAuthors                   bool
