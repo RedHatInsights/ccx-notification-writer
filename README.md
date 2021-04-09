@@ -1,6 +1,24 @@
 # ccx-notification-writer
 CCX notification writer service
 
+## Usage
+
+```
+  -authors
+        show authors
+  -check-kafka
+        check connection to Kafka
+  -db-clenaup
+        perform database cleanup
+  -db-drop-tables
+        drop all tables from database
+  -db-init
+        perform database initialization
+  -show-configuration
+        show configuration
+  -version
+        show cleaner version
+```
 
 ## Database schema
 
