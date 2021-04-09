@@ -49,6 +49,9 @@ type RuleID string
 // ErrorKey represents type for error key
 type ErrorKey string
 
+// ClusterReport represents cluster report
+type ClusterReport string
+
 //SchemaVersion is just a constant integer for now, max value 255. If we one day
 //need more versions, better consider upgrading to semantic versioning.
 type SchemaVersion uint8

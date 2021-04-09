@@ -342,26 +342,22 @@ func (consumer *KafkaConsumer) ProcessMessage(msg *sarama.ConsumerMessage) (Requ
 	logMessageInfo(consumer, msg, message, "Time ok")
 	tTimeCheck := time.Now()
 
-	println(reportAsStr)
-	/*
-		err = consumer.Storage.WriteReportForCluster(
-			*message.Organization,
-			*message.ClusterName,
-			types.ClusterReport(reportAsStr),
-			message.ParsedHits,
-			lastCheckedTime,
-			types.KafkaOffset(msg.Offset),
-		)
-		if err != nil {
-			if err == types.ErrOldReport {
-				logMessageInfo(consumer, msg, message, "Skipping because a more recent report already exists for this cluster")
-				return message.RequestID, nil
-			}
-
-			logMessageError(consumer, msg, message, "Error writing report to database", err)
-			return message.RequestID, err
+	err = consumer.storage.WriteReportForCluster(
+		*message.Organization,
+		*message.ClusterName,
+		ClusterReport(reportAsStr),
+		lastCheckedTime,
+	)
+	if err != nil {
+		if err == ErrOldReport {
+			logMessageInfo(consumer, msg, message, "Skipping because a more recent report already exists for this cluster")
+			return message.RequestID, nil
 		}
-	*/
+
+		logMessageError(consumer, msg, message, "Error writing report to database", err)
+		return message.RequestID, err
+	}
+
 	logMessageInfo(consumer, msg, message, "Stored")
 	tStored := time.Now()
 
