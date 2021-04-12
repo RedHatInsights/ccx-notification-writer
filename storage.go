@@ -166,8 +166,13 @@ func (storage DBStorage) WriteReportForCluster(
 
 		// If there is one, print a warning and discard the report (don't update it).
 		if rows.Next() {
-			log.Warn().Msgf("Database already contains report for organization %d and cluster name %s more recent than %v",
-				orgID, clusterName, lastCheckedTime)
+			var updatedAt time.Time
+			err := rows.Scan(&updatedAt)
+			if err != nil {
+				log.Error().Err(err).Msg("Unable read updated_at timestamp")
+			}
+			log.Warn().Msgf("Database already contains report for organization %d and cluster name %s more recent than %v (%v)",
+				orgID, clusterName, lastCheckedTime, updatedAt)
 			return nil
 		}
 

@@ -346,7 +346,7 @@ func (consumer *KafkaConsumer) ProcessMessage(msg *sarama.ConsumerMessage) (Requ
 		*message.Organization,
 		*message.ClusterName,
 		ClusterReport(reportAsStr),
-		lastCheckedTime,
+		tTimeCheck,
 	)
 	if err != nil {
 		if err == ErrOldReport {
