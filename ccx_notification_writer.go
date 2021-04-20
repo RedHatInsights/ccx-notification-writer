@@ -102,6 +102,26 @@ func tryToConnectToKafka(config ConfigStruct) (int, error) {
 	return ExitStatusOK, nil
 }
 
+// performDatabaseCleanup function performs database cleanup - deletes content
+// of all tables in database.
+func performDatabaseCleanup(config ConfigStruct) (int, error) {
+	// prepare the storage
+	storageConfiguration := GetStorageConfiguration(config)
+	storage, err := NewStorage(storageConfiguration)
+	if err != nil {
+		log.Err(err).Msg("Operation failed")
+		return ExitStatusStorageError, err
+	}
+
+	err = storage.DatabaseCleanup()
+	if err != nil {
+		log.Err(err).Msg("Database cleanup operation failed")
+		return ExitStatusStorageError, err
+	}
+
+	return ExitStatusOK, nil
+}
+
 // startService function tries to start the notification writer service.
 func startService(config ConfigStruct) (int, error) {
 	// prepare the storage
@@ -153,6 +173,8 @@ func doSelectedOperation(configuration ConfigStruct, cliFlags CliFlags) (int, er
 		return ExitStatusOK, nil
 	case cliFlags.checkConnectionToKafka:
 		return tryToConnectToKafka(configuration)
+	case cliFlags.performDatabaseCleanup:
+		return performDatabaseCleanup(configuration)
 	default:
 		exitCode, err := startService(configuration)
 		return exitCode, err
@@ -166,7 +188,7 @@ func main() {
 
 	// define and parse all command line options
 	flag.BoolVar(&cliFlags.performDatabaseInitialization, "db-init", false, "perform database initialization")
-	flag.BoolVar(&cliFlags.performDatabaseCleanup, "db-clenaup", false, "perform database cleanup")
+	flag.BoolVar(&cliFlags.performDatabaseCleanup, "db-cleanup", false, "perform database cleanup")
 	flag.BoolVar(&cliFlags.performDatabaseDropTables, "db-drop-tables", false, "drop all tables from database")
 	flag.BoolVar(&cliFlags.checkConnectionToKafka, "check-kafka", false, "check connection to Kafka")
 	flag.BoolVar(&cliFlags.showVersion, "version", false, "show version")
