@@ -24,6 +24,8 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/Shopify/sarama"
+
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 )
@@ -48,6 +50,8 @@ const (
 	ExitStatusError
 	// ExitStatusConsumerError is returned in case of any consumer-related error
 	ExitStatusConsumerError
+	// ExitStatusKafkaError is returned in case of any Kafka-related error
+	ExitStatusKafkaError
 	// ExitStatusStorageError is returned in case of any consumer-related error
 	ExitStatusStorageError
 )
@@ -60,6 +64,42 @@ func showVersion() {
 // showAuthors function displays information about authors.
 func showAuthors() {
 	fmt.Println(authorsMessage)
+}
+
+// tryToConnectToKafka function just tries connection to Kafka broker
+func tryToConnectToKafka(config ConfigStruct) (int, error) {
+	log.Info().Msg("Checking connection to Kafka")
+
+	// prepare broker configuration
+	brokerConfiguration := GetBrokerConfiguration(config)
+
+	log.Info().Str("address", brokerConfiguration.Address).Msg("Broker address")
+
+	// create new broker instance (w/o any checks)
+	broker := sarama.NewBroker(brokerConfiguration.Address)
+
+	// check broker connection
+	err := broker.Open(nil)
+	if err != nil {
+		log.Error().Err(err).Msg("Connection to broker")
+		return ExitStatusKafkaError, err
+	}
+
+	// check if connection remain
+	connected, err := broker.Connected()
+	if err != nil {
+		log.Error().Err(err).Msg("Connection to broker")
+		return ExitStatusKafkaError, err
+	}
+	if !connected {
+		log.Error().Err(err).Msg("Not connected to broker")
+		return ExitStatusConsumerError, err
+	}
+
+	log.Info().Msg("Broker connection OK")
+
+	// everything seems to be ok
+	return ExitStatusOK, nil
 }
 
 // startService function tries to start the notification writer service.
@@ -111,6 +151,8 @@ func doSelectedOperation(configuration ConfigStruct, cliFlags CliFlags) (int, er
 	case cliFlags.showAuthors:
 		showAuthors()
 		return ExitStatusOK, nil
+	case cliFlags.checkConnectionToKafka:
+		return tryToConnectToKafka(configuration)
 	default:
 		exitCode, err := startService(configuration)
 		return exitCode, err
