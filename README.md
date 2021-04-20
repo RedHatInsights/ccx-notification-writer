@@ -8,7 +8,7 @@ CCX notification writer service
         show authors
   -check-kafka
         check connection to Kafka
-  -db-clenaup
+  -db-cleanup
         perform database cleanup
   -db-drop-tables
         drop all tables from database

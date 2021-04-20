@@ -46,6 +46,7 @@ type Storage interface {
 		report ClusterReport,
 		collectedAtTime time.Time,
 	) error
+	DatabaseCleanup() error
 }
 
 // DBStorage is an implementation of Storage interface that use selected SQL like database
@@ -244,4 +245,45 @@ func finishTransaction(tx *sql.Tx, err error) {
 
 func closeRows(rows *sql.Rows) {
 	_ = rows.Close()
+}
+
+// DatabaseCleanup method performs database cleanup - deletes content of all
+// tables in database.
+func (storage DBStorage) DatabaseCleanup() error {
+	// Begin a new transaction.
+	tx, err := storage.connection.Begin()
+	if err != nil {
+		return err
+	}
+
+	err = func(tx *sql.Tx) error {
+		tableNames := []string{
+			"states",
+			"notification_types",
+			"reported",
+			"new_reports",
+		}
+
+		// delete data from all tables
+		for _, tableName := range tableNames {
+			// it is not possible to use parameter for table name or a key
+			// disable "G202 (CWE-89): SQL string concatenation (Confidence: HIGH, Severity: MEDIUM)"
+			// #nosec G202
+			sqlStatement := "DELETE FROM " + tableName + ";"
+			log.Info().Str("Statement", sqlStatement).Msg("SQL statement")
+			// println(sqlStatement)
+
+			// perform the SQL statement in transaction
+			_, err := tx.Exec(sqlStatement)
+			if err != nil {
+				return err
+			}
+		}
+
+		return nil
+	}(tx)
+
+	finishTransaction(tx, err)
+
+	return err
 }
