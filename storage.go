@@ -47,6 +47,7 @@ type Storage interface {
 		collectedAtTime time.Time,
 	) error
 	DatabaseCleanup() error
+	DatabaseDropTables() error
 }
 
 // DBStorage is an implementation of Storage interface that use selected SQL like database
@@ -61,6 +62,9 @@ type DBStorage struct {
 // ErrOldReport is an error returned if a more recent already
 // exists on the storage while attempting to write a report for a cluster.
 var ErrOldReport = errors.New("More recent report already exists in storage")
+
+// tableNames contains names of all tables in the database.
+var tableNames []string
 
 // NewStorage function creates and initializes a new instance of Storage interface
 func NewStorage(configuration StorageConfiguration) (*DBStorage, error) {
@@ -80,6 +84,12 @@ func NewStorage(configuration StorageConfiguration) (*DBStorage, error) {
 		return nil, err
 	}
 
+	tableNames = []string{
+		"new_reports",
+		"reported",
+		"notification_types",
+		"states",
+	}
 	return NewFromConnection(connection, driverType), nil
 }
 
@@ -247,9 +257,7 @@ func closeRows(rows *sql.Rows) {
 	_ = rows.Close()
 }
 
-// DatabaseCleanup method performs database cleanup - deletes content of all
-// tables in database.
-func (storage DBStorage) DatabaseCleanup() error {
+func tablesRelatedOperation(storage DBStorage, cmd func(string) string) error {
 	// Begin a new transaction.
 	tx, err := storage.connection.Begin()
 	if err != nil {
@@ -257,19 +265,13 @@ func (storage DBStorage) DatabaseCleanup() error {
 	}
 
 	err = func(tx *sql.Tx) error {
-		tableNames := []string{
-			"states",
-			"notification_types",
-			"reported",
-			"new_reports",
-		}
 
 		// delete data from all tables
 		for _, tableName := range tableNames {
 			// it is not possible to use parameter for table name or a key
 			// disable "G202 (CWE-89): SQL string concatenation (Confidence: HIGH, Severity: MEDIUM)"
 			// #nosec G202
-			sqlStatement := "DELETE FROM " + tableName + ";"
+			sqlStatement := cmd(tableName)
 			log.Info().Str("Statement", sqlStatement).Msg("SQL statement")
 			// println(sqlStatement)
 
@@ -285,5 +287,26 @@ func (storage DBStorage) DatabaseCleanup() error {
 
 	finishTransaction(tx, err)
 
+	return err
+}
+
+func deleteFromTableStatement(tableName string) string {
+	return "DELETE FROM " + tableName + ";"
+}
+
+// DatabaseCleanup method performs database cleanup - deletes content of all
+// tables in database.
+func (storage DBStorage) DatabaseCleanup() error {
+	err := tablesRelatedOperation(storage, deleteFromTableStatement)
+	return err
+}
+
+func dropTableStatement(tableName string) string {
+	return "DROP TABLE " + tableName + ";"
+}
+
+// DatabaseDropTables method performs database drop for all tables in database.
+func (storage DBStorage) DatabaseDropTables() error {
+	err := tablesRelatedOperation(storage, dropTableStatement)
 	return err
 }
