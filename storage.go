@@ -37,6 +37,59 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+const (
+	createTableNotificationTypes = `
+                create table notification_types (
+                    id          integer not null,
+                    value       varchar not null,
+                    frequency   varchar not null,
+                    comment     varchar,
+                
+                    PRIMARY KEY (id)
+                );
+`
+
+	createTableStates = `
+                create table states (
+                    id          integer not null,
+                    value       varchar not null,
+                    comment     varchar,
+                
+                    PRIMARY KEY (id)
+                );
+`
+
+	createTableReported = `
+                create table reported (
+                    org_id            integer not null,
+                    cluster           character(36) not null,
+                    notification_type integer not null,
+                    state             integer not null,
+                    report            varchar not null,
+                    updated_at        timestamp not null,
+                
+                    PRIMARY KEY (org_id, cluster),
+                    CONSTRAINT fk_notification_type
+                        foreign key(notification_type)
+                        references notification_types(id),
+                    CONSTRAINT fk_state
+                        foreign key (state)
+                        references states(id)
+                );
+`
+
+	createTableNewReports = `
+                create table new_reports (
+                    org_id            integer not null,
+                    cluster           character(36) not null,
+                    report            varchar not null,
+                    updated_at        timestamp not null,
+                
+                    PRIMARY KEY (org_id, cluster)
+                );
+`
+)
+
 // Storage represents an interface to almost any database or storage system
 type Storage interface {
 	Close() error
@@ -46,6 +99,7 @@ type Storage interface {
 		report ClusterReport,
 		collectedAtTime time.Time,
 	) error
+	DatabaseInitialization() error
 	DatabaseCleanup() error
 	DatabaseDropTables() error
 }
@@ -65,6 +119,9 @@ var ErrOldReport = errors.New("More recent report already exists in storage")
 
 // tableNames contains names of all tables in the database.
 var tableNames []string
+
+// initStatements contains all statements used to initialize database
+var initStatements []string
 
 // NewStorage function creates and initializes a new instance of Storage interface
 func NewStorage(configuration StorageConfiguration) (*DBStorage, error) {
@@ -89,6 +146,13 @@ func NewStorage(configuration StorageConfiguration) (*DBStorage, error) {
 		"reported",
 		"notification_types",
 		"states",
+	}
+
+	initStatements = []string{
+		createTableNotificationTypes,
+		createTableStates,
+		createTableReported,
+		createTableNewReports,
 	}
 	return NewFromConnection(connection, driverType), nil
 }
@@ -266,7 +330,7 @@ func tablesRelatedOperation(storage DBStorage, cmd func(string) string) error {
 
 	err = func(tx *sql.Tx) error {
 
-		// delete data from all tables
+		// perform some operation to all tables
 		for _, tableName := range tableNames {
 			// it is not possible to use parameter for table name or a key
 			// disable "G202 (CWE-89): SQL string concatenation (Confidence: HIGH, Severity: MEDIUM)"
@@ -308,5 +372,36 @@ func dropTableStatement(tableName string) string {
 // DatabaseDropTables method performs database drop for all tables in database.
 func (storage DBStorage) DatabaseDropTables() error {
 	err := tablesRelatedOperation(storage, dropTableStatement)
+	return err
+}
+
+// DatabaseInitialization method performs database initialization - creates all
+// tables in database.
+func (storage DBStorage) DatabaseInitialization() error {
+	// Begin a new transaction.
+	tx, err := storage.connection.Begin()
+	if err != nil {
+		return err
+	}
+
+	err = func(tx *sql.Tx) error {
+
+		// databaze initialization
+		for _, sqlStatement := range initStatements {
+			log.Info().Str("Statement", sqlStatement).Msg("SQL statement")
+			// println(sqlStatement)
+
+			// perform the SQL statement in transaction
+			_, err := tx.Exec(sqlStatement)
+			if err != nil {
+				return err
+			}
+		}
+
+		return nil
+	}(tx)
+
+	finishTransaction(tx, err)
+
 	return err
 }

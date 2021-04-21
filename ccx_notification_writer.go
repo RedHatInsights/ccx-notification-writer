@@ -102,6 +102,26 @@ func tryToConnectToKafka(config ConfigStruct) (int, error) {
 	return ExitStatusOK, nil
 }
 
+// performDatabaseInitialization function performs database initialization -
+// creates all tables in database.
+func performDatabaseInitialization(config ConfigStruct) (int, error) {
+	// prepare the storage
+	storageConfiguration := GetStorageConfiguration(config)
+	storage, err := NewStorage(storageConfiguration)
+	if err != nil {
+		log.Err(err).Msg("Operation failed")
+		return ExitStatusStorageError, err
+	}
+
+	err = storage.DatabaseInitialization()
+	if err != nil {
+		log.Err(err).Msg("Database initialization operation failed")
+		return ExitStatusStorageError, err
+	}
+
+	return ExitStatusOK, nil
+}
+
 // performDatabaseCleanup function performs database cleanup - deletes content
 // of all tables in database.
 func performDatabaseCleanup(config ConfigStruct) (int, error) {
@@ -192,6 +212,8 @@ func doSelectedOperation(configuration ConfigStruct, cliFlags CliFlags) (int, er
 		return ExitStatusOK, nil
 	case cliFlags.checkConnectionToKafka:
 		return tryToConnectToKafka(configuration)
+	case cliFlags.performDatabaseInitialization:
+		return performDatabaseInitialization(configuration)
 	case cliFlags.performDatabaseCleanup:
 		return performDatabaseCleanup(configuration)
 	case cliFlags.performDatabaseDropTables:
