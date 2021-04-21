@@ -122,6 +122,25 @@ func performDatabaseCleanup(config ConfigStruct) (int, error) {
 	return ExitStatusOK, nil
 }
 
+// performDatabaseDropTables function performs drop of all databases tables.
+func performDatabaseDropTables(config ConfigStruct) (int, error) {
+	// prepare the storage
+	storageConfiguration := GetStorageConfiguration(config)
+	storage, err := NewStorage(storageConfiguration)
+	if err != nil {
+		log.Err(err).Msg("Operation failed")
+		return ExitStatusStorageError, err
+	}
+
+	err = storage.DatabaseDropTables()
+	if err != nil {
+		log.Err(err).Msg("Database drop tables operation failed")
+		return ExitStatusStorageError, err
+	}
+
+	return ExitStatusOK, nil
+}
+
 // startService function tries to start the notification writer service.
 func startService(config ConfigStruct) (int, error) {
 	// prepare the storage
@@ -175,6 +194,8 @@ func doSelectedOperation(configuration ConfigStruct, cliFlags CliFlags) (int, er
 		return tryToConnectToKafka(configuration)
 	case cliFlags.performDatabaseCleanup:
 		return performDatabaseCleanup(configuration)
+	case cliFlags.performDatabaseDropTables:
+		return performDatabaseDropTables(configuration)
 	default:
 		exitCode, err := startService(configuration)
 		return exitCode, err
