@@ -35,6 +35,7 @@ const (
 	versionMessage            = "Notification writer version 1.0"
 	authorsMessage            = "Pavel Tisnovsky, Red Hat Inc."
 	connectionToBrokerMessage = "Connection to broker"
+	operationFailedMessage    = "Operation failed"
 )
 
 // Configuration-related constants
@@ -110,7 +111,7 @@ func performDatabaseInitialization(config ConfigStruct) (int, error) {
 	storageConfiguration := GetStorageConfiguration(config)
 	storage, err := NewStorage(storageConfiguration)
 	if err != nil {
-		log.Err(err).Msg("Operation failed")
+		log.Err(err).Msg(operationFailedMessage)
 		return ExitStatusStorageError, err
 	}
 
@@ -130,7 +131,7 @@ func performDatabaseCleanup(config ConfigStruct) (int, error) {
 	storageConfiguration := GetStorageConfiguration(config)
 	storage, err := NewStorage(storageConfiguration)
 	if err != nil {
-		log.Err(err).Msg("Operation failed")
+		log.Err(err).Msg(operationFailedMessage)
 		return ExitStatusStorageError, err
 	}
 
@@ -149,7 +150,7 @@ func performDatabaseDropTables(config ConfigStruct) (int, error) {
 	storageConfiguration := GetStorageConfiguration(config)
 	storage, err := NewStorage(storageConfiguration)
 	if err != nil {
-		log.Err(err).Msg("Operation failed")
+		log.Err(err).Msg(operationFailedMessage)
 		return ExitStatusStorageError, err
 	}
 
@@ -168,7 +169,7 @@ func startService(config ConfigStruct) (int, error) {
 	storageConfiguration := GetStorageConfiguration(config)
 	storage, err := NewStorage(storageConfiguration)
 	if err != nil {
-		log.Err(err).Msg("Operation failed")
+		log.Err(err).Msg(operationFailedMessage)
 		return ExitStatusStorageError, err
 	}
 
