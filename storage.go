@@ -94,6 +94,7 @@ const (
 // Messages
 const (
 	SQLStatementMessage = "SQL statement"
+	StatementMessage    = "Statement"
 )
 
 // Storage represents an interface to almost any database or storage system
@@ -343,7 +344,7 @@ func tablesRelatedOperation(storage DBStorage, cmd func(string) string) error {
 			// disable "G202 (CWE-89): SQL string concatenation (Confidence: HIGH, Severity: MEDIUM)"
 			// #nosec G202
 			sqlStatement := cmd(tableName)
-			log.Info().Str("Statement", sqlStatement).Msg(SQLStatementMessage)
+			log.Info().Str(StatementMessage, sqlStatement).Msg(SQLStatementMessage)
 			// println(sqlStatement)
 
 			// perform the SQL statement in transaction
@@ -395,7 +396,7 @@ func (storage DBStorage) DatabaseInitialization() error {
 
 		// databaze initialization
 		for _, sqlStatement := range initStatements {
-			log.Info().Str("Statement", sqlStatement).Msg(SQLStatementMessage)
+			log.Info().Str(StatementMessage, sqlStatement).Msg(SQLStatementMessage)
 			// println(sqlStatement)
 
 			// perform the SQL statement in transaction
