@@ -32,8 +32,9 @@ import (
 
 // Messages
 const (
-	versionMessage = "Notification writer version 1.0"
-	authorsMessage = "Pavel Tisnovsky, Red Hat Inc."
+	versionMessage            = "Notification writer version 1.0"
+	authorsMessage            = "Pavel Tisnovsky, Red Hat Inc."
+	connectionToBrokerMessage = "Connection to broker"
 )
 
 // Configuration-related constants
@@ -81,14 +82,14 @@ func tryToConnectToKafka(config ConfigStruct) (int, error) {
 	// check broker connection
 	err := broker.Open(nil)
 	if err != nil {
-		log.Error().Err(err).Msg("Connection to broker")
+		log.Error().Err(err).Msg(connectionToBrokerMessage)
 		return ExitStatusKafkaError, err
 	}
 
 	// check if connection remain
 	connected, err := broker.Connected()
 	if err != nil {
-		log.Error().Err(err).Msg("Connection to broker")
+		log.Error().Err(err).Msg(connectionToBrokerMessage)
 		return ExitStatusKafkaError, err
 	}
 	if !connected {
