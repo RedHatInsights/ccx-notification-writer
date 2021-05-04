@@ -37,6 +37,7 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+// Table creation-related scripts
 const (
 	createTableNotificationTypes = `
                 create table notification_types (
@@ -90,6 +91,11 @@ const (
 `
 )
 
+// Messages
+const (
+	SqlStatementMessage = "SQL statement"
+)
+
 // Storage represents an interface to almost any database or storage system
 type Storage interface {
 	Close() error
@@ -135,6 +141,7 @@ func NewStorage(configuration StorageConfiguration) (*DBStorage, error) {
 		driverName, dataSource,
 	)
 
+	// prepare connection
 	connection, err := sql.Open(driverName, dataSource)
 	if err != nil {
 		log.Error().Err(err).Msg("Can not connect to data storage")
@@ -336,7 +343,7 @@ func tablesRelatedOperation(storage DBStorage, cmd func(string) string) error {
 			// disable "G202 (CWE-89): SQL string concatenation (Confidence: HIGH, Severity: MEDIUM)"
 			// #nosec G202
 			sqlStatement := cmd(tableName)
-			log.Info().Str("Statement", sqlStatement).Msg("SQL statement")
+			log.Info().Str("Statement", sqlStatement).Msg(SqlStatementMessage)
 			// println(sqlStatement)
 
 			// perform the SQL statement in transaction
@@ -388,7 +395,7 @@ func (storage DBStorage) DatabaseInitialization() error {
 
 		// databaze initialization
 		for _, sqlStatement := range initStatements {
-			log.Info().Str("Statement", sqlStatement).Msg("SQL statement")
+			log.Info().Str("Statement", sqlStatement).Msg(SqlStatementMessage)
 			// println(sqlStatement)
 
 			// perform the SQL statement in transaction
