@@ -223,7 +223,7 @@ func doSelectedOperation(configuration ConfigStruct, cliFlags CliFlags) (int, er
 		exitCode, err := startService(configuration)
 		return exitCode, err
 	}
-	return ExitStatusOK, nil
+	// this can not happen: return ExitStatusOK, nil
 }
 
 // main function is entry point to the Notification writer service.
