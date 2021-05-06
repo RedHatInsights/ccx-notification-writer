@@ -86,9 +86,17 @@ const (
                     report            varchar not null,
                     updated_at        timestamp not null,
                 
-                    PRIMARY KEY (org_id, cluster)
+                    PRIMARY KEY (org_id, cluster, updated_at)
                 );
 `
+)
+
+// SQL statements
+const (
+	InsertNewReportStatement = `
+		INSERT INTO new_reports(org_id, cluster, report, updated_at)
+		VALUES ($1, $2, $3, $4);
+	`
 )
 
 // Messages
@@ -235,31 +243,7 @@ func (storage DBStorage) WriteReportForCluster(
 	}
 
 	err = func(tx *sql.Tx) error {
-
-		// Check if there is a more recent report for the cluster already in the database.
-		rows, err := tx.Query(
-			"SELECT updated_at FROM new_reports WHERE org_id = $1 AND cluster = $2 AND updated_at > $3;",
-			orgID, clusterName, lastCheckedTime)
-		if err != nil {
-			log.Error().Err(err).Msg("Unable to look up the most recent report in the database")
-			return err
-		}
-
-		defer closeRows(rows)
-
-		// If there is one, print a warning and discard the report (don't update it).
-		if rows.Next() {
-			var updatedAt time.Time
-			err := rows.Scan(&updatedAt)
-			if err != nil {
-				log.Error().Err(err).Msg("Unable read updated_at timestamp")
-			}
-			log.Warn().Msgf("Database already contains report for organization %d and cluster name %s more recent than %v (%v)",
-				orgID, clusterName, lastCheckedTime, updatedAt)
-			return nil
-		}
-
-		err = storage.updateReport(tx, orgID, clusterName, report, lastCheckedTime)
+		err = storage.insertReport(tx, orgID, clusterName, report, lastCheckedTime)
 		if err != nil {
 			return err
 		}
@@ -272,42 +256,20 @@ func (storage DBStorage) WriteReportForCluster(
 	return err
 }
 
-func (storage DBStorage) updateReport(
+func (storage DBStorage) insertReport(
 	tx *sql.Tx,
 	orgID OrgID,
 	clusterName ClusterName,
 	report ClusterReport,
 	lastCheckedTime time.Time,
 ) error {
-	// Get the UPSERT query for writing a report into the database.
-	reportUpsertQuery := storage.getReportUpsertQuery()
-
-	// Perform the report upsert.
-	reportedAtTime := time.Now()
-
-	_, err := tx.Exec(reportUpsertQuery, orgID, clusterName, report, reportedAtTime)
+	_, err := tx.Exec(InsertNewReportStatement, orgID, clusterName, report, lastCheckedTime)
 	if err != nil {
 		log.Err(err).Msgf("Unable to upsert the cluster report (org: %v, cluster: %v)", orgID, clusterName)
 		return err
 	}
 
 	return nil
-}
-
-func (storage DBStorage) getReportUpsertQuery() string {
-	if storage.dbDriverType == DBDriverSQLite3 {
-		return `
-			INSERT OR REPLACE INTO new_reports(org_id, cluster, report, updated_at)
-			VALUES ($1, $2, $3, $4)
-		`
-	}
-
-	return `
-		INSERT INTO new_reports(org_id, cluster, report, updated_at)
-		VALUES ($1, $2, $3, $4)
-		ON CONFLICT (org_id, cluster)
-		DO UPDATE SET report = $3, updated_at = $4
-	`
 }
 
 // finishTransaction finishes the transaction depending on err. err == nil -> commit, err != nil -> rollback

@@ -20,6 +20,22 @@ CCX notification writer service
         show version
 ```
 
+## Database
+
+PostgreSQL database is used as a storage.
+
+### Check PostgreSQL status
+
+```
+service postgresql status
+```
+
+### Start PostgreSQL database
+
+```
+sudo service postgresql start
+```
+
 ## Database schema
 
 ### Table `new_reports`
@@ -32,7 +48,7 @@ CCX notification writer service
  report     | character varying           | not null
  updated_at | timestamp without time zone | not null
 Indexes:
-    "new_reports_pkey" PRIMARY KEY, btree (org_id, cluster)
+    "new_reports_pkey" PRIMARY KEY, btree (org_id, cluster, updated_at)
 ```
 
 ### Table `states`
