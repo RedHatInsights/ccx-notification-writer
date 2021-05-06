@@ -122,6 +122,7 @@ func LoadConfiguration(configFileEnvVariableName string, defaultConfigFile strin
 	// env. variable holding name of configuration file
 	configFile, specified := os.LookupEnv(configFileEnvVariableName)
 	if specified {
+		log.Info().Str("filename", configFile).Msg("parsing configuration file")
 		// we need to separate the directory name and filename without
 		// extension
 		directory, basename := filepath.Split(configFile)
@@ -130,7 +131,7 @@ func LoadConfiguration(configFileEnvVariableName string, defaultConfigFile strin
 		viper.SetConfigName(file)
 		viper.AddConfigPath(directory)
 	} else {
-		log.Info().Str("filename", defaultConfigFile).Msg("Parsing configuration file")
+		log.Info().Str("filename", defaultConfigFile).Msg("parsing configuration file")
 		// parse the configuration
 		viper.SetConfigName(defaultConfigFile)
 		viper.AddConfigPath(".")
@@ -145,6 +146,7 @@ func LoadConfiguration(configFileEnvVariableName string, defaultConfigFile strin
 
 		err := toml.NewEncoder(fakeTomlConfigWriter).Encode(config)
 		if err != nil {
+			// error is processed on caller side
 			return config, err
 		}
 
@@ -154,9 +156,11 @@ func LoadConfiguration(configFileEnvVariableName string, defaultConfigFile strin
 
 		err = viper.ReadConfig(strings.NewReader(fakeTomlConfig))
 		if err != nil {
+			// error is processed on caller side
 			return config, err
 		}
 	} else if err != nil {
+		// error is processed on caller side
 		return config, fmt.Errorf("fatal error config file: %s", err)
 	}
 
@@ -169,6 +173,7 @@ func LoadConfiguration(configFileEnvVariableName string, defaultConfigFile strin
 	viper.SetEnvKeyReplacer(strings.NewReplacer("-", "_", ".", "__"))
 
 	err = viper.Unmarshal(&config)
+	// error is processed on caller side
 	return config, err
 }
 
