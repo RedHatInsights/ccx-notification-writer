@@ -21,6 +21,8 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+// logMessageInfo function records log info about message consumed from given
+// topic, partition, and offset.
 func logMessageInfo(consumer *KafkaConsumer, originalMessage *sarama.ConsumerMessage, parsedMessage incomingMessage, event string) {
 	log.Info().
 		Int(offsetKey, int(originalMessage.Offset)).
@@ -32,6 +34,8 @@ func logMessageInfo(consumer *KafkaConsumer, originalMessage *sarama.ConsumerMes
 		Msg(event)
 }
 
+// logUnparsedMessageError function records log info about consumed message
+// that can not be parsed.
 func logUnparsedMessageError(consumer *KafkaConsumer, originalMessage *sarama.ConsumerMessage, event string, err error) {
 	log.Error().
 		Int(offsetKey, int(originalMessage.Offset)).
@@ -40,6 +44,8 @@ func logUnparsedMessageError(consumer *KafkaConsumer, originalMessage *sarama.Co
 		Msg(event)
 }
 
+// logMessageError function records log info about consumed message that
+// contain (any) improper data.
 func logMessageError(consumer *KafkaConsumer, originalMessage *sarama.ConsumerMessage, parsedMessage incomingMessage, event string, err error) {
 	log.Error().
 		Int(offsetKey, int(originalMessage.Offset)).
@@ -51,6 +57,8 @@ func logMessageError(consumer *KafkaConsumer, originalMessage *sarama.ConsumerMe
 		Msg(event)
 }
 
+// logMessageWarning function records log info about consumed message that
+// contain (any) data that are not 100% correct.
 func logMessageWarning(consumer *KafkaConsumer, originalMessage *sarama.ConsumerMessage, parsedMessage incomingMessage, event string) {
 	log.Warn().
 		Int(offsetKey, int(originalMessage.Offset)).
@@ -62,6 +70,7 @@ func logMessageWarning(consumer *KafkaConsumer, originalMessage *sarama.Consumer
 		Msg(event)
 }
 
+// logDuration function records log info about duration of any task/process.
 func logDuration(tStart time.Time, tEnd time.Time, offset int64, key string) {
 	duration := tEnd.Sub(tStart)
 	log.Info().Int64(durationKey, duration.Microseconds()).Int64(offsetKey, offset).Msg(key)
