@@ -32,10 +32,14 @@ import (
 
 // Messages
 const (
-	versionMessage            = "Notification writer version 1.0"
-	authorsMessage            = "Pavel Tisnovsky, Red Hat Inc."
-	connectionToBrokerMessage = "Connection to broker"
-	operationFailedMessage    = "Operation failed"
+	versionMessage                           = "Notification writer version 1.0"
+	authorsMessage                           = "Pavel Tisnovsky, Red Hat Inc."
+	connectionToBrokerMessage                = "Connection to broker"
+	operationFailedMessage                   = "Operation failed"
+	notConnectedToBrokerMessage              = "Not connected to broker"
+	brokerConnectionSuccessMessage           = "Broker connection OK"
+	databaseCleanupOperationFailedMessage    = "Database cleanup operation failed"
+	databaseDropTablesOperationFailedMessage = "Database drop tables operation failed"
 )
 
 // Configuration-related constants
@@ -94,11 +98,11 @@ func tryToConnectToKafka(config ConfigStruct) (int, error) {
 		return ExitStatusKafkaError, err
 	}
 	if !connected {
-		log.Error().Err(err).Msg("Not connected to broker")
+		log.Error().Err(err).Msg(notConnectedToBrokerMessage)
 		return ExitStatusConsumerError, err
 	}
 
-	log.Info().Msg("Broker connection OK")
+	log.Info().Msg(brokerConnectionSuccessMessage)
 
 	// everything seems to be ok
 	return ExitStatusOK, nil
@@ -137,7 +141,7 @@ func performDatabaseCleanup(config ConfigStruct) (int, error) {
 
 	err = storage.DatabaseCleanup()
 	if err != nil {
-		log.Err(err).Msg("Database cleanup operation failed")
+		log.Err(err).Msg(databaseCleanupOperationFailedMessage)
 		return ExitStatusStorageError, err
 	}
 
@@ -156,7 +160,7 @@ func performDatabaseDropTables(config ConfigStruct) (int, error) {
 
 	err = storage.DatabaseDropTables()
 	if err != nil {
-		log.Err(err).Msg("Database drop tables operation failed")
+		log.Err(err).Msg(databaseDropTablesOperationFailedMessage)
 		return ExitStatusStorageError, err
 	}
 
@@ -194,7 +198,7 @@ func startService(config ConfigStruct) (int, error) {
 func startConsumer(config BrokerConfiguration, storage Storage) error {
 	consumer, err := NewConsumer(config, storage)
 	if err != nil {
-		log.Error().Err(err).Msg("Construct broker")
+		log.Error().Err(err).Msg("Construct broker failed")
 		return err
 	}
 	consumer.Serve()

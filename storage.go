@@ -140,15 +140,18 @@ var initStatements []string
 
 // NewStorage function creates and initializes a new instance of Storage interface
 func NewStorage(configuration StorageConfiguration) (*DBStorage, error) {
+	log.Info().Msg("Initializing connection to storage")
+
 	driverType, driverName, dataSource, err := initAndGetDriver(configuration)
 	if err != nil {
+		log.Error().Err(err).Msg("Unsupported driver")
 		return nil, err
 	}
 
-	log.Info().Msgf(
-		"Making connection to data storage, driver=%s datasource=%s",
-		driverName, dataSource,
-	)
+	log.Info().
+		Str("driver", driverName).
+		Str("datasource", dataSource).
+		Msg("Making connection to data storage")
 
 	// prepare connection
 	connection, err := sql.Open(driverName, dataSource)
@@ -157,6 +160,7 @@ func NewStorage(configuration StorageConfiguration) (*DBStorage, error) {
 		return nil, err
 	}
 
+	// lazy initialization (TODO: use init function instead?)
 	tableNames = []string{
 		"new_reports",
 		"reported",
@@ -164,12 +168,15 @@ func NewStorage(configuration StorageConfiguration) (*DBStorage, error) {
 		"states",
 	}
 
+	// lazy initialization (TODO: use init function instead?)
 	initStatements = []string{
 		createTableNotificationTypes,
 		createTableStates,
 		createTableReported,
 		createTableNewReports,
 	}
+
+	log.Info().Msg("Connection to storage established")
 	return NewFromConnection(connection, driverType), nil
 }
 
@@ -233,7 +240,7 @@ func (storage DBStorage) WriteReportForCluster(
 	lastCheckedTime time.Time,
 ) error {
 	if storage.dbDriverType != DBDriverSQLite3 && storage.dbDriverType != DBDriverPostgres {
-		return fmt.Errorf("writing report with DB %v is not supported", storage.dbDriverType)
+		return fmt.Errorf("Writing report with DB %v is not supported", storage.dbDriverType)
 	}
 
 	// Begin a new transaction.
@@ -265,7 +272,11 @@ func (storage DBStorage) insertReport(
 ) error {
 	_, err := tx.Exec(InsertNewReportStatement, orgID, clusterName, report, lastCheckedTime)
 	if err != nil {
-		log.Err(err).Msgf("Unable to upsert the cluster report (org: %v, cluster: %v)", orgID, clusterName)
+		log.Err(err).
+			Int("org", int(orgID)).
+			Str("cluster", string(clusterName)).
+			Str("last checked", lastCheckedTime.String()).
+			Msg("Unable to insert the cluster report")
 		return err
 	}
 
@@ -277,12 +288,12 @@ func finishTransaction(tx *sql.Tx, err error) {
 	if err != nil {
 		rollbackError := tx.Rollback()
 		if rollbackError != nil {
-			log.Err(rollbackError).Msgf("error when trying to rollback a transaction")
+			log.Err(rollbackError).Msg("Error when trying to rollback a transaction")
 		}
 	} else {
 		commitError := tx.Commit()
 		if commitError != nil {
-			log.Err(commitError).Msgf("error when trying to commit a transaction")
+			log.Err(commitError).Msg("Error when trying to commit a transaction")
 		}
 	}
 }

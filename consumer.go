@@ -160,36 +160,37 @@ func (consumer *KafkaConsumer) Serve() {
 			// server-side rebalance happens, the consumer session will need to be
 			// recreated to get the new claims
 			if err := consumer.ConsumerGroup.Consume(ctx, []string{consumer.Configuration.Topic}, consumer); err != nil {
-				log.Fatal().Err(err).Msg("unable to recreate kafka session")
+				log.Fatal().Err(err).Msg("Unable to recreate Kafka session")
 			}
 
 			// check if context was cancelled, signaling that the consumer should stop
 			if ctx.Err() != nil {
+				log.Info().Err(ctx.Err()).Msg("Stopping consumer")
 				return
 			}
 
-			log.Info().Msg("created new kafka session")
+			log.Info().Msg("Created new kafka session")
 
 			consumer.ready = make(chan bool)
 		}
 	}()
 
 	// Await till the consumer has been set up
-	log.Info().Msg("waiting for consumer to become ready")
+	log.Info().Msg("Waiting for consumer to become ready")
 	<-consumer.ready
-	log.Info().Msg("finished waiting for consumer to become ready")
+	log.Info().Msg("Finished waiting for consumer to become ready")
 
 	// Actual processing is done in goroutine created by sarama (see ConsumeClaim below)
-	log.Info().Msg("started serving consumer")
+	log.Info().Msg("Started serving consumer")
 	<-ctx.Done()
-	log.Info().Msg("context cancelled, exiting")
+	log.Info().Msg("Context cancelled, exiting")
 
 	cancel()
 }
 
 // Setup is run at the beginning of a new session, before ConsumeClaim
 func (consumer *KafkaConsumer) Setup(sarama.ConsumerGroupSession) error {
-	log.Info().Msg("new session has been setup")
+	log.Info().Msg("New session has been setup")
 	// Mark the consumer as ready
 	close(consumer.ready)
 	return nil
@@ -197,7 +198,7 @@ func (consumer *KafkaConsumer) Setup(sarama.ConsumerGroupSession) error {
 
 // Cleanup is run at the end of a session, once all ConsumeClaim goroutines have exited
 func (consumer *KafkaConsumer) Cleanup(sarama.ConsumerGroupSession) error {
-	log.Info().Msg("new session has been finished")
+	log.Info().Msg("New session has been finished")
 	return nil
 }
 
@@ -205,12 +206,12 @@ func (consumer *KafkaConsumer) Cleanup(sarama.ConsumerGroupSession) error {
 func (consumer *KafkaConsumer) ConsumeClaim(session sarama.ConsumerGroupSession, claim sarama.ConsumerGroupClaim) error {
 	log.Info().
 		Int64(offsetKey, claim.InitialOffset()).
-		Msg("starting messages loop")
+		Msg("Starting messages loop")
 
 	/*
 		latestMessageOffset, err := consumer.Storage.GetLatestKafkaOffset()
 		if err != nil {
-			log.Error().Msg("unable to get latest offset")
+			log.Error().Msg("Unable to get latest offset")
 			latestMessageOffset = 0
 		}
 	*/
@@ -220,7 +221,7 @@ func (consumer *KafkaConsumer) ConsumeClaim(session sarama.ConsumerGroupSession,
 		if KafkaOffset(message.Offset) <= latestMessageOffset {
 			log.Warn().
 				Int64(offsetKey, message.Offset).
-				Msg("this offset was already processed by aggregator")
+				Msg("This offset was already processed by aggregator")
 		}
 
 		consumer.HandleMessage(message)
@@ -228,6 +229,9 @@ func (consumer *KafkaConsumer) ConsumeClaim(session sarama.ConsumerGroupSession,
 		session.MarkMessage(message, "")
 		if KafkaOffset(message.Offset) > latestMessageOffset {
 			latestMessageOffset = KafkaOffset(message.Offset)
+			log.Info().
+				Int64(offsetKey, int64(latestMessageOffset)).
+				Msg("Updating latest message offset")
 		}
 	}
 
@@ -242,7 +246,9 @@ func (consumer *KafkaConsumer) Close() error {
 
 	if consumer.ConsumerGroup != nil {
 		if err := consumer.ConsumerGroup.Close(); err != nil {
-			log.Error().Err(err).Msg("unable to close consumer group")
+			log.Error().
+				Err(err).
+				Msg("Unable to close consumer group")
 		}
 	}
 
@@ -268,7 +274,7 @@ func (consumer *KafkaConsumer) HandleMessage(msg *sarama.ConsumerMessage) {
 		Int32(partitionKey, msg.Partition).
 		Str(topicKey, msg.Topic).
 		Time("message_timestamp", msg.Timestamp).
-		Msgf("started processing message")
+		Msg("Started processing message")
 
 	startTime := time.Now()
 	requestID, err := consumer.ProcessMessage(msg)
@@ -280,11 +286,13 @@ func (consumer *KafkaConsumer) HandleMessage(msg *sarama.ConsumerMessage) {
 		Int32(partitionKey, msg.Partition).
 		Str("Request ID", string(requestID)).
 		Str(topicKey, msg.Topic).
-		Msgf("processing of message took '%v' seconds", messageProcessingDuration)
+		Msgf("Processing of message took '%v' seconds", messageProcessingDuration)
 
 	// Something went wrong while processing the message.
 	if err != nil {
-		log.Error().Err(err).Msg("Error processing message consumed from Kafka")
+		log.Error().
+			Err(err).
+			Msg("Error processing message consumed from Kafka")
 		consumer.numberOfErrorsConsumingMessages++
 	} else {
 		// The message was processed successfully.
@@ -292,7 +300,10 @@ func (consumer *KafkaConsumer) HandleMessage(msg *sarama.ConsumerMessage) {
 	}
 
 	totalMessageDuration := time.Since(startTime)
-	log.Info().Int64("duration", totalMessageDuration.Milliseconds()).Int64(offsetKey, msg.Offset).Msg("Message consumed")
+	log.Info().
+		Int64("duration", totalMessageDuration.Milliseconds()).
+		Int64(offsetKey, msg.Offset).
+		Msg("Message consumed")
 }
 
 // checkMessageVersion - verifies incoming data's version is the expected one
@@ -307,7 +318,11 @@ func checkMessageVersion(consumer *KafkaConsumer, message *incomingMessage, msg 
 func (consumer *KafkaConsumer) ProcessMessage(msg *sarama.ConsumerMessage) (RequestID, error) {
 	tStart := time.Now()
 
-	log.Info().Int(offsetKey, int(msg.Offset)).Str(topicKey, consumer.Configuration.Topic).Str(groupKey, consumer.Configuration.Group).Msg("Consumed")
+	log.Info().
+		Int(offsetKey, int(msg.Offset)).
+		Str(topicKey, consumer.Configuration.Topic).
+		Str(groupKey, consumer.Configuration.Group).
+		Msg("Consumed")
 	message, err := parseMessage(msg.Value)
 	if err != nil {
 		logUnparsedMessageError(consumer, msg, "Error parsing message from Kafka", err)
@@ -336,7 +351,7 @@ func (consumer *KafkaConsumer) ProcessMessage(msg *sarama.ConsumerMessage) (Requ
 
 	lastCheckedTimestampLagMinutes := time.Now().Sub(lastCheckedTime).Minutes()
 	if lastCheckedTimestampLagMinutes < 0 {
-		logMessageError(consumer, msg, message, "got a message from the future", nil)
+		logMessageError(consumer, msg, message, "Got a message from the future", nil)
 	}
 
 	logMessageInfo(consumer, msg, message, "Time ok")
@@ -362,10 +377,10 @@ func (consumer *KafkaConsumer) ProcessMessage(msg *sarama.ConsumerMessage) (Requ
 	tStored := time.Now()
 
 	// log durations for every message consumption steps
-	logDuration(tStart, tRead, msg.Offset, "read")
-	logDuration(tRead, tMarshalled, msg.Offset, "marshalling")
-	logDuration(tMarshalled, tTimeCheck, msg.Offset, "time_check")
-	logDuration(tTimeCheck, tStored, msg.Offset, "db_store")
+	logDuration(tStart, tRead, msg.Offset, "Read duration")
+	logDuration(tRead, tMarshalled, msg.Offset, "Marshalling duration")
+	logDuration(tMarshalled, tTimeCheck, msg.Offset, "Time check duration")
+	logDuration(tTimeCheck, tStored, msg.Offset, "DB store duration")
 
 	// message has been parsed and stored into storage
 	return message.RequestID, nil
@@ -411,7 +426,8 @@ func parseMessage(messageValue []byte) (incomingMessage, error) {
 
 	err = checkReportStructure(*deserialized.Report)
 	if err != nil {
-		log.Err(err).Msgf("Deserialized report read from message with improper structure: %v", *deserialized.Report)
+		log.Err(err).
+			Msgf("Deserialized report read from message with improper structure: %v", *deserialized.Report)
 		return deserialized, err
 	}
 
