@@ -67,8 +67,8 @@ import (
 )
 
 const (
-	FilenameAttribute               = "filename"
-	ParsingConfigurationFileMessage = "parsing configuration file"
+	filenameAttribute               = "filename"
+	parsingConfigurationFileMessage = "parsing configuration file"
 )
 
 // ConfigStruct is a structure holding the whole notification service
@@ -127,7 +127,7 @@ func LoadConfiguration(configFileEnvVariableName string, defaultConfigFile strin
 	// env. variable holding name of configuration file
 	configFile, specified := os.LookupEnv(configFileEnvVariableName)
 	if specified {
-		log.Info().Str(FilenameAttribute, configFile).Msg(ParsingConfigurationFileMessage)
+		log.Info().Str(filenameAttribute, configFile).Msg(parsingConfigurationFileMessage)
 		// we need to separate the directory name and filename without
 		// extension
 		directory, basename := filepath.Split(configFile)
@@ -136,7 +136,7 @@ func LoadConfiguration(configFileEnvVariableName string, defaultConfigFile strin
 		viper.SetConfigName(file)
 		viper.AddConfigPath(directory)
 	} else {
-		log.Info().Str(FilenameAttribute, defaultConfigFile).Msg(ParsingConfigurationFileMessage)
+		log.Info().Str(filenameAttribute, defaultConfigFile).Msg(parsingConfigurationFileMessage)
 		// parse the configuration
 		viper.SetConfigName(defaultConfigFile)
 		viper.AddConfigPath(".")
