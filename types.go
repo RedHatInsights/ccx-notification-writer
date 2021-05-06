@@ -18,7 +18,7 @@ import (
 	"encoding/json"
 )
 
-// CliFlags represents structure holding all command line arguments/flags.
+// CliFlags represents structure holding all command line arguments and flags.
 type CliFlags struct {
 	performDatabaseCleanup        bool
 	performDatabaseInitialization bool
@@ -29,48 +29,42 @@ type CliFlags struct {
 	showConfiguration             bool
 }
 
-// RequestID is used to store the request ID supplied in input Kafka records as
-// a unique identifier of payloads. Empty string represents a missing request
-// ID.
+// RequestID data type is used to store the request ID supplied in input Kafka
+// records as a unique identifier of payloads. Empty string represents a
+// missing request ID.
 type RequestID string
 
-// KafkaOffset type for kafka offset
+// KafkaOffset is a data type representing offset in Kafka topic.
 type KafkaOffset int64
 
-// OrgID represents organization ID
+// OrgID data type represents organization ID.
 type OrgID uint32
 
-// ClusterName represents name of cluster in format c8590f31-e97e-4b85-b506-c45ce1911a12
+// ClusterName data type represents name of cluster in format
+// c8590f31-e97e-4b85-b506-c45ce1911a12 (ie. in UUID format).
 type ClusterName string
 
-// RuleID represents type for rule id
+// RuleID represents type for rule id.
 type RuleID string
 
-// ErrorKey represents type for error key
+// ErrorKey represents type for error key.
 type ErrorKey string
 
-// ClusterReport represents cluster report
+// ClusterReport represents the whole cluster report.
 type ClusterReport string
 
-//SchemaVersion is just a constant integer for now, max value 255. If we one day
-//need more versions, better consider upgrading to semantic versioning.
+// SchemaVersion is just a constant integer for now, max value 255. If we one
+// day need more versions or combination of versions, it would be better
+// consider upgrading to semantic versioning.
 type SchemaVersion uint8
 
-// ReportItem represents a single (hit) rule of the string encoded report
+// ReportItem data structure represents a single (hit) rule of the string
+// encoded report.
 type ReportItem struct {
 	Module       RuleID          `json:"component"`
 	ErrorKey     ErrorKey        `json:"key"`
 	TemplateData json.RawMessage `json:"details"`
 }
 
-// DBDriver type for db driver enum
+// DBDriver type for db driver enum.
 type DBDriver int
-
-const (
-	// DBDriverSQLite3 shows that db driver is sqlite
-	DBDriverSQLite3 DBDriver = iota
-	// DBDriverPostgres shows that db driver is postgres
-	DBDriverPostgres
-	// DBDriverGeneral general sql(used for mock now)
-	DBDriverGeneral
-)
