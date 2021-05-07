@@ -204,6 +204,11 @@ TBD</p>
 	<div class="literal">&#34;github.com/spf13/viper&#34;</div><div class="operator"></div>
 <div class="operator">)</div><div class="operator"></div>
 
+<div class="keyword">const</div> <div class="operator">(</div>
+	<div class="ident">filenameAttribute</div>               <div class="operator">=</div> <div class="literal">&#34;filename&#34;</div><div class="operator"></div>
+	<div class="ident">parsingConfigurationFileMessage</div> <div class="operator">=</div> <div class="literal">&#34;parsing configuration file&#34;</div><div class="operator"></div>
+<div class="operator">)</div><div class="operator"></div>
+
 </code></pre></td>
       </tr>
       
@@ -320,6 +325,7 @@ configFileEnvVariableName or from env</p>
 </td>
 	<td class="code"><pre><code>	<div class="ident">configFile</div><div class="operator">,</div> <div class="ident">specified</div> <div class="operator">:=</div> <div class="ident">os</div><div class="operator">.</div><div class="ident">LookupEnv</div><div class="operator">(</div><div class="ident">configFileEnvVariableName</div><div class="operator">)</div><div class="operator"></div>
 	<div class="keyword">if</div> <div class="ident">specified</div> <div class="operator">{</div>
+		<div class="ident">log</div><div class="operator">.</div><div class="ident">Info</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Str</div><div class="operator">(</div><div class="ident">filenameAttribute</div><div class="operator">,</div> <div class="ident">configFile</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="ident">parsingConfigurationFileMessage</div><div class="operator">)</div><div class="operator"></div>
 </code></pre></td>
       </tr>
       
@@ -338,7 +344,7 @@ extension</p>
 	<td class="code"><pre><code>		<div class="ident">viper</div><div class="operator">.</div><div class="ident">SetConfigName</div><div class="operator">(</div><div class="ident">file</div><div class="operator">)</div><div class="operator"></div>
 		<div class="ident">viper</div><div class="operator">.</div><div class="ident">AddConfigPath</div><div class="operator">(</div><div class="ident">directory</div><div class="operator">)</div><div class="operator"></div>
 	<div class="operator">}</div> <div class="keyword">else</div> <div class="operator">{</div>
-		<div class="ident">log</div><div class="operator">.</div><div class="ident">Info</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Str</div><div class="operator">(</div><div class="literal">&#34;filename&#34;</div><div class="operator">,</div> <div class="ident">defaultConfigFile</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;Parsing configuration file&#34;</div><div class="operator">)</div><div class="operator"></div>
+		<div class="ident">log</div><div class="operator">.</div><div class="ident">Info</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Str</div><div class="operator">(</div><div class="ident">filenameAttribute</div><div class="operator">,</div> <div class="ident">defaultConfigFile</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="ident">parsingConfigurationFileMessage</div><div class="operator">)</div><div class="operator"></div>
 </code></pre></td>
       </tr>
       
@@ -368,7 +374,13 @@ config by itself</p>
 
 		<div class="ident">err</div> <div class="operator">:=</div> <div class="ident">toml</div><div class="operator">.</div><div class="ident">NewEncoder</div><div class="operator">(</div><div class="ident">fakeTomlConfigWriter</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Encode</div><div class="operator">(</div><div class="ident">config</div><div class="operator">)</div><div class="operator"></div>
 		<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
-			<div class="keyword">return</div> <div class="ident">config</div><div class="operator">,</div> <div class="ident">err</div><div class="operator"></div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>error is processed on caller side</p>
+</td>
+	<td class="code"><pre><code>			<div class="keyword">return</div> <div class="ident">config</div><div class="operator">,</div> <div class="ident">err</div><div class="operator"></div>
 		<div class="operator">}</div><div class="operator"></div>
 
 		<div class="ident">fakeTomlConfig</div> <div class="operator">:=</div> <div class="ident">fakeTomlConfigWriter</div><div class="operator">.</div><div class="ident">String</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
@@ -377,10 +389,22 @@ config by itself</p>
 
 		<div class="ident">err</div> <div class="operator">=</div> <div class="ident">viper</div><div class="operator">.</div><div class="ident">ReadConfig</div><div class="operator">(</div><div class="ident">strings</div><div class="operator">.</div><div class="ident">NewReader</div><div class="operator">(</div><div class="ident">fakeTomlConfig</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
 		<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
-			<div class="keyword">return</div> <div class="ident">config</div><div class="operator">,</div> <div class="ident">err</div><div class="operator"></div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>error is processed on caller side</p>
+</td>
+	<td class="code"><pre><code>			<div class="keyword">return</div> <div class="ident">config</div><div class="operator">,</div> <div class="ident">err</div><div class="operator"></div>
 		<div class="operator">}</div><div class="operator"></div>
 	<div class="operator">}</div> <div class="keyword">else</div> <div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
-		<div class="keyword">return</div> <div class="ident">config</div><div class="operator">,</div> <div class="ident">fmt</div><div class="operator">.</div><div class="ident">Errorf</div><div class="operator">(</div><div class="literal">&#34;fatal error config file: %s&#34;</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">)</div><div class="operator"></div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>error is processed on caller side</p>
+</td>
+	<td class="code"><pre><code>		<div class="keyword">return</div> <div class="ident">config</div><div class="operator">,</div> <div class="ident">fmt</div><div class="operator">.</div><div class="ident">Errorf</div><div class="operator">(</div><div class="literal">&#34;fatal error config file: %s&#34;</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">)</div><div class="operator"></div>
 	<div class="operator">}</div><div class="operator"></div>
 
 </code></pre></td>
@@ -397,7 +421,13 @@ config by itself</p>
 	<div class="ident">viper</div><div class="operator">.</div><div class="ident">SetEnvKeyReplacer</div><div class="operator">(</div><div class="ident">strings</div><div class="operator">.</div><div class="ident">NewReplacer</div><div class="operator">(</div><div class="literal">&#34;-&#34;</div><div class="operator">,</div> <div class="literal">&#34;_&#34;</div><div class="operator">,</div> <div class="literal">&#34;.&#34;</div><div class="operator">,</div> <div class="literal">&#34;__&#34;</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
 
 	<div class="ident">err</div> <div class="operator">=</div> <div class="ident">viper</div><div class="operator">.</div><div class="ident">Unmarshal</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">config</div><div class="operator">)</div><div class="operator"></div>
-	<div class="keyword">return</div> <div class="ident">config</div><div class="operator">,</div> <div class="ident">err</div><div class="operator"></div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>error is processed on caller side</p>
+</td>
+	<td class="code"><pre><code>	<div class="keyword">return</div> <div class="ident">config</div><div class="operator">,</div> <div class="ident">err</div><div class="operator"></div>
 <div class="operator">}</div><div class="operator"></div>
 
 </code></pre></td>
