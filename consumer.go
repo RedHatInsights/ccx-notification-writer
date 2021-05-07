@@ -69,7 +69,6 @@ type incomingMessage struct {
 	LastChecked string        `json:"LastChecked"`
 	Version     SchemaVersion `json:"Version"`
 	RequestID   RequestID     `json:"RequestId"`
-	ParsedHits  []ReportItem
 }
 
 // Consumer represents any consumer of insights-rules messages
@@ -428,11 +427,6 @@ func parseMessage(messageValue []byte) (incomingMessage, error) {
 	if err != nil {
 		log.Err(err).
 			Msgf("Deserialized report read from message with improper structure: %v", *deserialized.Report)
-		return deserialized, err
-	}
-
-	err = json.Unmarshal(*((*deserialized.Report)["reports"]), &deserialized.ParsedHits)
-	if err != nil {
 		return deserialized, err
 	}
 
