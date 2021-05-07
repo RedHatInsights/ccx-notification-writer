@@ -313,10 +313,32 @@ func checkMessageVersion(consumer *KafkaConsumer, message *incomingMessage, msg 
 	}
 }
 
+// shrinkMessage function shrink the original message by removing unused parts.
+func shrinkMessage(message *Report) {
+	// delete all unneeded 'root' attributes
+	tryToDeleteAttribute(message, "system")
+	tryToDeleteAttribute(message, "fingerprints")
+	tryToDeleteAttribute(message, "skips")
+	tryToDeleteAttribute(message, "info")
+	tryToDeleteAttribute(message, "pass")
+}
+
+// tryToDeleteAttribute function deletes selected attribute from input map. If
+// attribute does not exists, it is skipped silently.
+func tryToDeleteAttribute(message *Report, attributeName string) {
+	_, found := (*message)[attributeName]
+	if found {
+		delete(*message, attributeName)
+	}
+	// let's ingore 'not-found' state as we just need to remove the
+	// attribute, not to check message schema
+}
+
 // ProcessMessage processes an incoming message
 func (consumer *KafkaConsumer) ProcessMessage(msg *sarama.ConsumerMessage) (RequestID, error) {
 	tStart := time.Now()
 
+	// Step #1: parse the incomming message
 	log.Info().
 		Int(offsetKey, int(msg.Offset)).
 		Str(topicKey, consumer.Configuration.Topic).
@@ -331,9 +353,11 @@ func (consumer *KafkaConsumer) ProcessMessage(msg *sarama.ConsumerMessage) (Requ
 	logMessageInfo(consumer, msg, message, "Read")
 	tRead := time.Now()
 
+	// Step #2: check message (schema) version
 	checkMessageVersion(consumer, &message, msg)
 
-	reportAsStr, err := json.Marshal(*message.Report)
+	// Step #3: marshall report into byte slice to figure out original length
+	reportAsBytes, err := json.Marshal(*message.Report)
 	if err != nil {
 		logMessageError(consumer, msg, message, "Error marshalling report", err)
 		return message.RequestID, err
@@ -342,6 +366,19 @@ func (consumer *KafkaConsumer) ProcessMessage(msg *sarama.ConsumerMessage) (Requ
 	logMessageInfo(consumer, msg, message, "Marshalled")
 	tMarshalled := time.Now()
 
+	// Step #4: shring the Report structure
+	logMessageInfo(consumer, msg, message, "Shrinking message")
+	shrinkMessage(message.Report)
+	shrinkedAsBytes, err := json.Marshal(*message.Report)
+	if err != nil {
+		logMessageError(consumer, msg, message, "Error marshalling skrinked report", err)
+		return message.RequestID, err
+	}
+	logShrinkedMessage(reportAsBytes, shrinkedAsBytes)
+
+	tShrinked := time.Now()
+
+	// Step #5: check the last checked timestamp
 	lastCheckedTime, err := time.Parse(time.RFC3339Nano, message.LastChecked)
 	if err != nil {
 		logMessageError(consumer, msg, message, "Error parsing date from message", err)
@@ -354,12 +391,14 @@ func (consumer *KafkaConsumer) ProcessMessage(msg *sarama.ConsumerMessage) (Requ
 	}
 
 	logMessageInfo(consumer, msg, message, "Time ok")
+
 	tTimeCheck := time.Now()
 
+	// Step #6: write the shrinked report into storage (database)
 	err = consumer.storage.WriteReportForCluster(
 		*message.Organization,
 		*message.ClusterName,
-		ClusterReport(reportAsStr),
+		ClusterReport(shrinkedAsBytes),
 		tTimeCheck,
 	)
 	if err != nil {
@@ -375,14 +414,30 @@ func (consumer *KafkaConsumer) ProcessMessage(msg *sarama.ConsumerMessage) (Requ
 	logMessageInfo(consumer, msg, message, "Stored")
 	tStored := time.Now()
 
+	// Step #7: print durations of all previous steps
+
 	// log durations for every message consumption steps
 	logDuration(tStart, tRead, msg.Offset, "Read duration")
 	logDuration(tRead, tMarshalled, msg.Offset, "Marshalling duration")
-	logDuration(tMarshalled, tTimeCheck, msg.Offset, "Time check duration")
+	logDuration(tMarshalled, tShrinked, msg.Offset, "Shrinking duration")
+	logDuration(tShrinked, tTimeCheck, msg.Offset, "Time check duration")
 	logDuration(tTimeCheck, tStored, msg.Offset, "DB store duration")
 
 	// message has been parsed and stored into storage
 	return message.RequestID, nil
+}
+
+// logShrinkedMessage function prints/logs information about status of
+// shrinking the message.
+func logShrinkedMessage(reportAsBytes []byte, shrinkedAsBytes []byte) {
+	orig := len(reportAsBytes)
+	shrinked := len(shrinkedAsBytes)
+	percentage := int(100.0 * shrinked / orig)
+	log.Warn().
+		Int("Original size", len(reportAsBytes)).
+		Int("Shrinked size", len(shrinkedAsBytes)).
+		Int("Ratio (%)", percentage).
+		Msg("Message shrinked")
 }
 
 // checkReportStructure tests if the report has correct structure
