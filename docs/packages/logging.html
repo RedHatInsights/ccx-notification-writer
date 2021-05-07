@@ -140,7 +140,14 @@ limitations under the License.</p>
 	<div class="literal">&#34;github.com/rs/zerolog/log&#34;</div><div class="operator"></div>
 <div class="operator">)</div><div class="operator"></div>
 
-<div class="keyword">func</div> <div class="ident">logMessageInfo</div><div class="operator">(</div><div class="ident">consumer</div> <div class="operator">*</div><div class="ident">KafkaConsumer</div><div class="operator">,</div> <div class="ident">originalMessage</div> <div class="operator">*</div><div class="ident">sarama</div><div class="operator">.</div><div class="ident">ConsumerMessage</div><div class="operator">,</div> <div class="ident">parsedMessage</div> <div class="ident">incomingMessage</div><div class="operator">,</div> <div class="ident">event</div> <div class="ident">string</div><div class="operator">)</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>logMessageInfo function records log info about message consumed from given
+topic, partition, and offset.</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">logMessageInfo</div><div class="operator">(</div><div class="ident">consumer</div> <div class="operator">*</div><div class="ident">KafkaConsumer</div><div class="operator">,</div> <div class="ident">originalMessage</div> <div class="operator">*</div><div class="ident">sarama</div><div class="operator">.</div><div class="ident">ConsumerMessage</div><div class="operator">,</div> <div class="ident">parsedMessage</div> <div class="ident">incomingMessage</div><div class="operator">,</div> <div class="ident">event</div> <div class="ident">string</div><div class="operator">)</div> <div class="operator">{</div>
 	<div class="ident">log</div><div class="operator">.</div><div class="ident">Info</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div>
 		<div class="ident">Int</div><div class="operator">(</div><div class="ident">offsetKey</div><div class="operator">,</div> <div class="ident">int</div><div class="operator">(</div><div class="ident">originalMessage</div><div class="operator">.</div><div class="ident">Offset</div><div class="operator">)</div><div class="operator">)</div><div class="operator">.</div>
 		<div class="ident">Int</div><div class="operator">(</div><div class="ident">partitionKey</div><div class="operator">,</div> <div class="ident">int</div><div class="operator">(</div><div class="ident">originalMessage</div><div class="operator">.</div><div class="ident">Partition</div><div class="operator">)</div><div class="operator">)</div><div class="operator">.</div>
@@ -151,7 +158,14 @@ limitations under the License.</p>
 		<div class="ident">Msg</div><div class="operator">(</div><div class="ident">event</div><div class="operator">)</div><div class="operator"></div>
 <div class="operator">}</div><div class="operator"></div>
 
-<div class="keyword">func</div> <div class="ident">logUnparsedMessageError</div><div class="operator">(</div><div class="ident">consumer</div> <div class="operator">*</div><div class="ident">KafkaConsumer</div><div class="operator">,</div> <div class="ident">originalMessage</div> <div class="operator">*</div><div class="ident">sarama</div><div class="operator">.</div><div class="ident">ConsumerMessage</div><div class="operator">,</div> <div class="ident">event</div> <div class="ident">string</div><div class="operator">,</div> <div class="ident">err</div> <div class="ident">error</div><div class="operator">)</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>logUnparsedMessageError function records log info about consumed message
+that can not be parsed.</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">logUnparsedMessageError</div><div class="operator">(</div><div class="ident">consumer</div> <div class="operator">*</div><div class="ident">KafkaConsumer</div><div class="operator">,</div> <div class="ident">originalMessage</div> <div class="operator">*</div><div class="ident">sarama</div><div class="operator">.</div><div class="ident">ConsumerMessage</div><div class="operator">,</div> <div class="ident">event</div> <div class="ident">string</div><div class="operator">,</div> <div class="ident">err</div> <div class="ident">error</div><div class="operator">)</div> <div class="operator">{</div>
 	<div class="ident">log</div><div class="operator">.</div><div class="ident">Error</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div>
 		<div class="ident">Int</div><div class="operator">(</div><div class="ident">offsetKey</div><div class="operator">,</div> <div class="ident">int</div><div class="operator">(</div><div class="ident">originalMessage</div><div class="operator">.</div><div class="ident">Offset</div><div class="operator">)</div><div class="operator">)</div><div class="operator">.</div>
 		<div class="ident">Str</div><div class="operator">(</div><div class="ident">topicKey</div><div class="operator">,</div> <div class="ident">consumer</div><div class="operator">.</div><div class="ident">Configuration</div><div class="operator">.</div><div class="ident">Topic</div><div class="operator">)</div><div class="operator">.</div>
@@ -159,7 +173,14 @@ limitations under the License.</p>
 		<div class="ident">Msg</div><div class="operator">(</div><div class="ident">event</div><div class="operator">)</div><div class="operator"></div>
 <div class="operator">}</div><div class="operator"></div>
 
-<div class="keyword">func</div> <div class="ident">logMessageError</div><div class="operator">(</div><div class="ident">consumer</div> <div class="operator">*</div><div class="ident">KafkaConsumer</div><div class="operator">,</div> <div class="ident">originalMessage</div> <div class="operator">*</div><div class="ident">sarama</div><div class="operator">.</div><div class="ident">ConsumerMessage</div><div class="operator">,</div> <div class="ident">parsedMessage</div> <div class="ident">incomingMessage</div><div class="operator">,</div> <div class="ident">event</div> <div class="ident">string</div><div class="operator">,</div> <div class="ident">err</div> <div class="ident">error</div><div class="operator">)</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>logMessageError function records log info about consumed message that
+contain (any) improper data.</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">logMessageError</div><div class="operator">(</div><div class="ident">consumer</div> <div class="operator">*</div><div class="ident">KafkaConsumer</div><div class="operator">,</div> <div class="ident">originalMessage</div> <div class="operator">*</div><div class="ident">sarama</div><div class="operator">.</div><div class="ident">ConsumerMessage</div><div class="operator">,</div> <div class="ident">parsedMessage</div> <div class="ident">incomingMessage</div><div class="operator">,</div> <div class="ident">event</div> <div class="ident">string</div><div class="operator">,</div> <div class="ident">err</div> <div class="ident">error</div><div class="operator">)</div> <div class="operator">{</div>
 	<div class="ident">log</div><div class="operator">.</div><div class="ident">Error</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div>
 		<div class="ident">Int</div><div class="operator">(</div><div class="ident">offsetKey</div><div class="operator">,</div> <div class="ident">int</div><div class="operator">(</div><div class="ident">originalMessage</div><div class="operator">.</div><div class="ident">Offset</div><div class="operator">)</div><div class="operator">)</div><div class="operator">.</div>
 		<div class="ident">Str</div><div class="operator">(</div><div class="ident">topicKey</div><div class="operator">,</div> <div class="ident">consumer</div><div class="operator">.</div><div class="ident">Configuration</div><div class="operator">.</div><div class="ident">Topic</div><div class="operator">)</div><div class="operator">.</div>
@@ -170,7 +191,14 @@ limitations under the License.</p>
 		<div class="ident">Msg</div><div class="operator">(</div><div class="ident">event</div><div class="operator">)</div><div class="operator"></div>
 <div class="operator">}</div><div class="operator"></div>
 
-<div class="keyword">func</div> <div class="ident">logMessageWarning</div><div class="operator">(</div><div class="ident">consumer</div> <div class="operator">*</div><div class="ident">KafkaConsumer</div><div class="operator">,</div> <div class="ident">originalMessage</div> <div class="operator">*</div><div class="ident">sarama</div><div class="operator">.</div><div class="ident">ConsumerMessage</div><div class="operator">,</div> <div class="ident">parsedMessage</div> <div class="ident">incomingMessage</div><div class="operator">,</div> <div class="ident">event</div> <div class="ident">string</div><div class="operator">)</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>logMessageWarning function records log info about consumed message that
+contain (any) data that are not 100% correct.</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">logMessageWarning</div><div class="operator">(</div><div class="ident">consumer</div> <div class="operator">*</div><div class="ident">KafkaConsumer</div><div class="operator">,</div> <div class="ident">originalMessage</div> <div class="operator">*</div><div class="ident">sarama</div><div class="operator">.</div><div class="ident">ConsumerMessage</div><div class="operator">,</div> <div class="ident">parsedMessage</div> <div class="ident">incomingMessage</div><div class="operator">,</div> <div class="ident">event</div> <div class="ident">string</div><div class="operator">)</div> <div class="operator">{</div>
 	<div class="ident">log</div><div class="operator">.</div><div class="ident">Warn</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div>
 		<div class="ident">Int</div><div class="operator">(</div><div class="ident">offsetKey</div><div class="operator">,</div> <div class="ident">int</div><div class="operator">(</div><div class="ident">originalMessage</div><div class="operator">.</div><div class="ident">Offset</div><div class="operator">)</div><div class="operator">)</div><div class="operator">.</div>
 		<div class="ident">Int</div><div class="operator">(</div><div class="ident">partitionKey</div><div class="operator">,</div> <div class="ident">int</div><div class="operator">(</div><div class="ident">originalMessage</div><div class="operator">.</div><div class="ident">Partition</div><div class="operator">)</div><div class="operator">)</div><div class="operator">.</div>
@@ -181,7 +209,13 @@ limitations under the License.</p>
 		<div class="ident">Msg</div><div class="operator">(</div><div class="ident">event</div><div class="operator">)</div><div class="operator"></div>
 <div class="operator">}</div><div class="operator"></div>
 
-<div class="keyword">func</div> <div class="ident">logDuration</div><div class="operator">(</div><div class="ident">tStart</div> <div class="ident">time</div><div class="operator">.</div><div class="ident">Time</div><div class="operator">,</div> <div class="ident">tEnd</div> <div class="ident">time</div><div class="operator">.</div><div class="ident">Time</div><div class="operator">,</div> <div class="ident">offset</div> <div class="ident">int64</div><div class="operator">,</div> <div class="ident">key</div> <div class="ident">string</div><div class="operator">)</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>logDuration function records log info about duration of any task/process.</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">logDuration</div><div class="operator">(</div><div class="ident">tStart</div> <div class="ident">time</div><div class="operator">.</div><div class="ident">Time</div><div class="operator">,</div> <div class="ident">tEnd</div> <div class="ident">time</div><div class="operator">.</div><div class="ident">Time</div><div class="operator">,</div> <div class="ident">offset</div> <div class="ident">int64</div><div class="operator">,</div> <div class="ident">key</div> <div class="ident">string</div><div class="operator">)</div> <div class="operator">{</div>
 	<div class="ident">duration</div> <div class="operator">:=</div> <div class="ident">tEnd</div><div class="operator">.</div><div class="ident">Sub</div><div class="operator">(</div><div class="ident">tStart</div><div class="operator">)</div><div class="operator"></div>
 	<div class="ident">log</div><div class="operator">.</div><div class="ident">Info</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Int64</div><div class="operator">(</div><div class="ident">durationKey</div><div class="operator">,</div> <div class="ident">duration</div><div class="operator">.</div><div class="ident">Microseconds</div><div class="operator">(</div><div class="operator">)</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Int64</div><div class="operator">(</div><div class="ident">offsetKey</div><div class="operator">,</div> <div class="ident">offset</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="ident">key</div><div class="operator">)</div><div class="operator"></div>
 <div class="operator">}</div><div class="operator"></div>

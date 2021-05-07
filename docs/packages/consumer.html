@@ -253,7 +253,6 @@ messages. It also contains implementation of Kafka consumer.</p>
 	<td class="code"><pre><code>	<div class="ident">LastChecked</div> <div class="ident">string</div>        <div class="literal">`json:&#34;LastChecked&#34;`</div><div class="operator"></div>
 	<div class="ident">Version</div>     <div class="ident">SchemaVersion</div> <div class="literal">`json:&#34;Version&#34;`</div><div class="operator"></div>
 	<div class="ident">RequestID</div>   <div class="ident">RequestID</div>     <div class="literal">`json:&#34;RequestId&#34;`</div><div class="operator"></div>
-	<div class="ident">ParsedHits</div>  <div class="operator">[</div><div class="operator">]</div><div class="ident">ReportItem</div><div class="operator"></div>
 <div class="operator">}</div><div class="operator"></div>
 
 </code></pre></td>
@@ -379,7 +378,7 @@ server-side rebalance happens, the consumer session will need to be
 recreated to get the new claims</p>
 </td>
 	<td class="code"><pre><code>			<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">consumer</div><div class="operator">.</div><div class="ident">ConsumerGroup</div><div class="operator">.</div><div class="ident">Consume</div><div class="operator">(</div><div class="ident">ctx</div><div class="operator">,</div> <div class="operator">[</div><div class="operator">]</div><div class="ident">string</div><div class="operator">{</div><div class="ident">consumer</div><div class="operator">.</div><div class="ident">Configuration</div><div class="operator">.</div><div class="ident">Topic</div><div class="operator">}</div><div class="operator">,</div> <div class="ident">consumer</div><div class="operator">)</div><div class="operator">;</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
-				<div class="ident">log</div><div class="operator">.</div><div class="ident">Fatal</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Err</div><div class="operator">(</div><div class="ident">err</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;unable to recreate kafka session&#34;</div><div class="operator">)</div><div class="operator"></div>
+				<div class="ident">log</div><div class="operator">.</div><div class="ident">Fatal</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Err</div><div class="operator">(</div><div class="ident">err</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;Unable to recreate Kafka session&#34;</div><div class="operator">)</div><div class="operator"></div>
 			<div class="operator">}</div><div class="operator"></div>
 
 </code></pre></td>
@@ -389,10 +388,11 @@ recreated to get the new claims</p>
 	<td class="doc"><p>check if context was cancelled, signaling that the consumer should stop</p>
 </td>
 	<td class="code"><pre><code>			<div class="keyword">if</div> <div class="ident">ctx</div><div class="operator">.</div><div class="ident">Err</div><div class="operator">(</div><div class="operator">)</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
+				<div class="ident">log</div><div class="operator">.</div><div class="ident">Info</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Err</div><div class="operator">(</div><div class="ident">ctx</div><div class="operator">.</div><div class="ident">Err</div><div class="operator">(</div><div class="operator">)</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;Stopping consumer&#34;</div><div class="operator">)</div><div class="operator"></div>
 				<div class="keyword">return</div><div class="operator"></div>
 			<div class="operator">}</div><div class="operator"></div>
 
-			<div class="ident">log</div><div class="operator">.</div><div class="ident">Info</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;created new kafka session&#34;</div><div class="operator">)</div><div class="operator"></div>
+			<div class="ident">log</div><div class="operator">.</div><div class="ident">Info</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;Created new kafka session&#34;</div><div class="operator">)</div><div class="operator"></div>
 
 			<div class="ident">consumer</div><div class="operator">.</div><div class="ident">ready</div> <div class="operator">=</div> <div class="ident">make</div><div class="operator">(</div><div class="keyword">chan</div> <div class="ident">bool</div><div class="operator">)</div><div class="operator"></div>
 		<div class="operator">}</div><div class="operator"></div>
@@ -404,9 +404,9 @@ recreated to get the new claims</p>
       <tr class="section">
 	<td class="doc"><p>Await till the consumer has been set up</p>
 </td>
-	<td class="code"><pre><code>	<div class="ident">log</div><div class="operator">.</div><div class="ident">Info</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;waiting for consumer to become ready&#34;</div><div class="operator">)</div><div class="operator"></div>
+	<td class="code"><pre><code>	<div class="ident">log</div><div class="operator">.</div><div class="ident">Info</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;Waiting for consumer to become ready&#34;</div><div class="operator">)</div><div class="operator"></div>
 	<div class="operator">&lt;-</div><div class="ident">consumer</div><div class="operator">.</div><div class="ident">ready</div><div class="operator"></div>
-	<div class="ident">log</div><div class="operator">.</div><div class="ident">Info</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;finished waiting for consumer to become ready&#34;</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">log</div><div class="operator">.</div><div class="ident">Info</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;Finished waiting for consumer to become ready&#34;</div><div class="operator">)</div><div class="operator"></div>
 
 </code></pre></td>
       </tr>
@@ -414,9 +414,9 @@ recreated to get the new claims</p>
       <tr class="section">
 	<td class="doc"><p>Actual processing is done in goroutine created by sarama (see ConsumeClaim below)</p>
 </td>
-	<td class="code"><pre><code>	<div class="ident">log</div><div class="operator">.</div><div class="ident">Info</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;started serving consumer&#34;</div><div class="operator">)</div><div class="operator"></div>
+	<td class="code"><pre><code>	<div class="ident">log</div><div class="operator">.</div><div class="ident">Info</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;Started serving consumer&#34;</div><div class="operator">)</div><div class="operator"></div>
 	<div class="operator">&lt;-</div><div class="ident">ctx</div><div class="operator">.</div><div class="ident">Done</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
-	<div class="ident">log</div><div class="operator">.</div><div class="ident">Info</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;context cancelled, exiting&#34;</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">log</div><div class="operator">.</div><div class="ident">Info</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;Context cancelled, exiting&#34;</div><div class="operator">)</div><div class="operator"></div>
 
 	<div class="ident">cancel</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
 <div class="operator">}</div><div class="operator"></div>
@@ -428,7 +428,7 @@ recreated to get the new claims</p>
 	<td class="doc"><p>Setup is run at the beginning of a new session, before ConsumeClaim</p>
 </td>
 	<td class="code"><pre><code><div class="keyword">func</div> <div class="operator">(</div><div class="ident">consumer</div> <div class="operator">*</div><div class="ident">KafkaConsumer</div><div class="operator">)</div> <div class="ident">Setup</div><div class="operator">(</div><div class="ident">sarama</div><div class="operator">.</div><div class="ident">ConsumerGroupSession</div><div class="operator">)</div> <div class="ident">error</div> <div class="operator">{</div>
-	<div class="ident">log</div><div class="operator">.</div><div class="ident">Info</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;new session has been setup&#34;</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">log</div><div class="operator">.</div><div class="ident">Info</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;New session has been setup&#34;</div><div class="operator">)</div><div class="operator"></div>
 </code></pre></td>
       </tr>
       
@@ -446,7 +446,7 @@ recreated to get the new claims</p>
 	<td class="doc"><p>Cleanup is run at the end of a session, once all ConsumeClaim goroutines have exited</p>
 </td>
 	<td class="code"><pre><code><div class="keyword">func</div> <div class="operator">(</div><div class="ident">consumer</div> <div class="operator">*</div><div class="ident">KafkaConsumer</div><div class="operator">)</div> <div class="ident">Cleanup</div><div class="operator">(</div><div class="ident">sarama</div><div class="operator">.</div><div class="ident">ConsumerGroupSession</div><div class="operator">)</div> <div class="ident">error</div> <div class="operator">{</div>
-	<div class="ident">log</div><div class="operator">.</div><div class="ident">Info</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;new session has been finished&#34;</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">log</div><div class="operator">.</div><div class="ident">Info</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;New session has been finished&#34;</div><div class="operator">)</div><div class="operator"></div>
 	<div class="keyword">return</div> <div class="ident">nil</div><div class="operator"></div>
 <div class="operator">}</div><div class="operator"></div>
 
@@ -459,12 +459,12 @@ recreated to get the new claims</p>
 	<td class="code"><pre><code><div class="keyword">func</div> <div class="operator">(</div><div class="ident">consumer</div> <div class="operator">*</div><div class="ident">KafkaConsumer</div><div class="operator">)</div> <div class="ident">ConsumeClaim</div><div class="operator">(</div><div class="ident">session</div> <div class="ident">sarama</div><div class="operator">.</div><div class="ident">ConsumerGroupSession</div><div class="operator">,</div> <div class="ident">claim</div> <div class="ident">sarama</div><div class="operator">.</div><div class="ident">ConsumerGroupClaim</div><div class="operator">)</div> <div class="ident">error</div> <div class="operator">{</div>
 	<div class="ident">log</div><div class="operator">.</div><div class="ident">Info</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div>
 		<div class="ident">Int64</div><div class="operator">(</div><div class="ident">offsetKey</div><div class="operator">,</div> <div class="ident">claim</div><div class="operator">.</div><div class="ident">InitialOffset</div><div class="operator">(</div><div class="operator">)</div><div class="operator">)</div><div class="operator">.</div>
-		<div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;starting messages loop&#34;</div><div class="operator">)</div><div class="operator"></div>
+		<div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;Starting messages loop&#34;</div><div class="operator">)</div><div class="operator"></div>
 
 	<div class="comment">/*
 		latestMessageOffset, err := consumer.Storage.GetLatestKafkaOffset()
 		if err != nil {
-			log.Error().Msg(&#34;unable to get latest offset&#34;)
+			log.Error().Msg(&#34;Unable to get latest offset&#34;)
 			latestMessageOffset = 0
 		}
 	*/</div>
@@ -474,7 +474,7 @@ recreated to get the new claims</p>
 		<div class="keyword">if</div> <div class="ident">KafkaOffset</div><div class="operator">(</div><div class="ident">message</div><div class="operator">.</div><div class="ident">Offset</div><div class="operator">)</div> <div class="operator">&lt;=</div> <div class="ident">latestMessageOffset</div> <div class="operator">{</div>
 			<div class="ident">log</div><div class="operator">.</div><div class="ident">Warn</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div>
 				<div class="ident">Int64</div><div class="operator">(</div><div class="ident">offsetKey</div><div class="operator">,</div> <div class="ident">message</div><div class="operator">.</div><div class="ident">Offset</div><div class="operator">)</div><div class="operator">.</div>
-				<div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;this offset was already processed by aggregator&#34;</div><div class="operator">)</div><div class="operator"></div>
+				<div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;This offset was already processed by aggregator&#34;</div><div class="operator">)</div><div class="operator"></div>
 		<div class="operator">}</div><div class="operator"></div>
 
 		<div class="ident">consumer</div><div class="operator">.</div><div class="ident">HandleMessage</div><div class="operator">(</div><div class="ident">message</div><div class="operator">)</div><div class="operator"></div>
@@ -482,6 +482,9 @@ recreated to get the new claims</p>
 		<div class="ident">session</div><div class="operator">.</div><div class="ident">MarkMessage</div><div class="operator">(</div><div class="ident">message</div><div class="operator">,</div> <div class="literal">&#34;&#34;</div><div class="operator">)</div><div class="operator"></div>
 		<div class="keyword">if</div> <div class="ident">KafkaOffset</div><div class="operator">(</div><div class="ident">message</div><div class="operator">.</div><div class="ident">Offset</div><div class="operator">)</div> <div class="operator">&gt;</div> <div class="ident">latestMessageOffset</div> <div class="operator">{</div>
 			<div class="ident">latestMessageOffset</div> <div class="operator">=</div> <div class="ident">KafkaOffset</div><div class="operator">(</div><div class="ident">message</div><div class="operator">.</div><div class="ident">Offset</div><div class="operator">)</div><div class="operator"></div>
+			<div class="ident">log</div><div class="operator">.</div><div class="ident">Info</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div>
+				<div class="ident">Int64</div><div class="operator">(</div><div class="ident">offsetKey</div><div class="operator">,</div> <div class="ident">int64</div><div class="operator">(</div><div class="ident">latestMessageOffset</div><div class="operator">)</div><div class="operator">)</div><div class="operator">.</div>
+				<div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;Updating latest message offset&#34;</div><div class="operator">)</div><div class="operator"></div>
 		<div class="operator">}</div><div class="operator"></div>
 	<div class="operator">}</div><div class="operator"></div>
 
@@ -501,7 +504,9 @@ recreated to get the new claims</p>
 
 	<div class="keyword">if</div> <div class="ident">consumer</div><div class="operator">.</div><div class="ident">ConsumerGroup</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
 		<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">consumer</div><div class="operator">.</div><div class="ident">ConsumerGroup</div><div class="operator">.</div><div class="ident">Close</div><div class="operator">(</div><div class="operator">)</div><div class="operator">;</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
-			<div class="ident">log</div><div class="operator">.</div><div class="ident">Error</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Err</div><div class="operator">(</div><div class="ident">err</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;unable to close consumer group&#34;</div><div class="operator">)</div><div class="operator"></div>
+			<div class="ident">log</div><div class="operator">.</div><div class="ident">Error</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div>
+				<div class="ident">Err</div><div class="operator">(</div><div class="ident">err</div><div class="operator">)</div><div class="operator">.</div>
+				<div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;Unable to close consumer group&#34;</div><div class="operator">)</div><div class="operator"></div>
 		<div class="operator">}</div><div class="operator"></div>
 	<div class="operator">}</div><div class="operator"></div>
 
@@ -542,7 +547,7 @@ since creating KafkaConsumer obj</p>
 		<div class="ident">Int32</div><div class="operator">(</div><div class="ident">partitionKey</div><div class="operator">,</div> <div class="ident">msg</div><div class="operator">.</div><div class="ident">Partition</div><div class="operator">)</div><div class="operator">.</div>
 		<div class="ident">Str</div><div class="operator">(</div><div class="ident">topicKey</div><div class="operator">,</div> <div class="ident">msg</div><div class="operator">.</div><div class="ident">Topic</div><div class="operator">)</div><div class="operator">.</div>
 		<div class="ident">Time</div><div class="operator">(</div><div class="literal">&#34;message_timestamp&#34;</div><div class="operator">,</div> <div class="ident">msg</div><div class="operator">.</div><div class="ident">Timestamp</div><div class="operator">)</div><div class="operator">.</div>
-		<div class="ident">Msgf</div><div class="operator">(</div><div class="literal">&#34;started processing message&#34;</div><div class="operator">)</div><div class="operator"></div>
+		<div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;Started processing message&#34;</div><div class="operator">)</div><div class="operator"></div>
 
 	<div class="ident">startTime</div> <div class="operator">:=</div> <div class="ident">time</div><div class="operator">.</div><div class="ident">Now</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
 	<div class="ident">requestID</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">consumer</div><div class="operator">.</div><div class="ident">ProcessMessage</div><div class="operator">(</div><div class="ident">msg</div><div class="operator">)</div><div class="operator"></div>
@@ -554,7 +559,7 @@ since creating KafkaConsumer obj</p>
 		<div class="ident">Int32</div><div class="operator">(</div><div class="ident">partitionKey</div><div class="operator">,</div> <div class="ident">msg</div><div class="operator">.</div><div class="ident">Partition</div><div class="operator">)</div><div class="operator">.</div>
 		<div class="ident">Str</div><div class="operator">(</div><div class="literal">&#34;Request ID&#34;</div><div class="operator">,</div> <div class="ident">string</div><div class="operator">(</div><div class="ident">requestID</div><div class="operator">)</div><div class="operator">)</div><div class="operator">.</div>
 		<div class="ident">Str</div><div class="operator">(</div><div class="ident">topicKey</div><div class="operator">,</div> <div class="ident">msg</div><div class="operator">.</div><div class="ident">Topic</div><div class="operator">)</div><div class="operator">.</div>
-		<div class="ident">Msgf</div><div class="operator">(</div><div class="literal">&#34;processing of message took &#39;%v&#39; seconds&#34;</div><div class="operator">,</div> <div class="ident">messageProcessingDuration</div><div class="operator">)</div><div class="operator"></div>
+		<div class="ident">Msgf</div><div class="operator">(</div><div class="literal">&#34;Processing of message took &#39;%v&#39; seconds&#34;</div><div class="operator">,</div> <div class="ident">messageProcessingDuration</div><div class="operator">)</div><div class="operator"></div>
 
 </code></pre></td>
       </tr>
@@ -563,7 +568,9 @@ since creating KafkaConsumer obj</p>
 	<td class="doc"><p>Something went wrong while processing the message.</p>
 </td>
 	<td class="code"><pre><code>	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
-		<div class="ident">log</div><div class="operator">.</div><div class="ident">Error</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Err</div><div class="operator">(</div><div class="ident">err</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;Error processing message consumed from Kafka&#34;</div><div class="operator">)</div><div class="operator"></div>
+		<div class="ident">log</div><div class="operator">.</div><div class="ident">Error</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div>
+			<div class="ident">Err</div><div class="operator">(</div><div class="ident">err</div><div class="operator">)</div><div class="operator">.</div>
+			<div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;Error processing message consumed from Kafka&#34;</div><div class="operator">)</div><div class="operator"></div>
 		<div class="ident">consumer</div><div class="operator">.</div><div class="ident">numberOfErrorsConsumingMessages</div><div class="operator">&#43;&#43;</div><div class="operator"></div>
 	<div class="operator">}</div> <div class="keyword">else</div> <div class="operator">{</div>
 </code></pre></td>
@@ -576,7 +583,10 @@ since creating KafkaConsumer obj</p>
 	<div class="operator">}</div><div class="operator"></div>
 
 	<div class="ident">totalMessageDuration</div> <div class="operator">:=</div> <div class="ident">time</div><div class="operator">.</div><div class="ident">Since</div><div class="operator">(</div><div class="ident">startTime</div><div class="operator">)</div><div class="operator"></div>
-	<div class="ident">log</div><div class="operator">.</div><div class="ident">Info</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Int64</div><div class="operator">(</div><div class="literal">&#34;duration&#34;</div><div class="operator">,</div> <div class="ident">totalMessageDuration</div><div class="operator">.</div><div class="ident">Milliseconds</div><div class="operator">(</div><div class="operator">)</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Int64</div><div class="operator">(</div><div class="ident">offsetKey</div><div class="operator">,</div> <div class="ident">msg</div><div class="operator">.</div><div class="ident">Offset</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;Message consumed&#34;</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">log</div><div class="operator">.</div><div class="ident">Info</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div>
+		<div class="ident">Int64</div><div class="operator">(</div><div class="literal">&#34;duration&#34;</div><div class="operator">,</div> <div class="ident">totalMessageDuration</div><div class="operator">.</div><div class="ident">Milliseconds</div><div class="operator">(</div><div class="operator">)</div><div class="operator">)</div><div class="operator">.</div>
+		<div class="ident">Int64</div><div class="operator">(</div><div class="ident">offsetKey</div><div class="operator">,</div> <div class="ident">msg</div><div class="operator">.</div><div class="ident">Offset</div><div class="operator">)</div><div class="operator">.</div>
+		<div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;Message consumed&#34;</div><div class="operator">)</div><div class="operator"></div>
 <div class="operator">}</div><div class="operator"></div>
 
 </code></pre></td>
@@ -596,12 +606,63 @@ since creating KafkaConsumer obj</p>
       </tr>
       
       <tr class="section">
+	<td class="doc"><p>shrinkMessage function shrink the original message by removing unused parts.</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">shrinkMessage</div><div class="operator">(</div><div class="ident">message</div> <div class="operator">*</div><div class="ident">Report</div><div class="operator">)</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>delete all unneeded 'root' attributes</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">tryToDeleteAttribute</div><div class="operator">(</div><div class="ident">message</div><div class="operator">,</div> <div class="literal">&#34;system&#34;</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">tryToDeleteAttribute</div><div class="operator">(</div><div class="ident">message</div><div class="operator">,</div> <div class="literal">&#34;fingerprints&#34;</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">tryToDeleteAttribute</div><div class="operator">(</div><div class="ident">message</div><div class="operator">,</div> <div class="literal">&#34;skips&#34;</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">tryToDeleteAttribute</div><div class="operator">(</div><div class="ident">message</div><div class="operator">,</div> <div class="literal">&#34;info&#34;</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">tryToDeleteAttribute</div><div class="operator">(</div><div class="ident">message</div><div class="operator">,</div> <div class="literal">&#34;pass&#34;</div><div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>tryToDeleteAttribute function deletes selected attribute from input map. If
+attribute does not exists, it is skipped silently.</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">tryToDeleteAttribute</div><div class="operator">(</div><div class="ident">message</div> <div class="operator">*</div><div class="ident">Report</div><div class="operator">,</div> <div class="ident">attributeName</div> <div class="ident">string</div><div class="operator">)</div> <div class="operator">{</div>
+	<div class="ident">_</div><div class="operator">,</div> <div class="ident">found</div> <div class="operator">:=</div> <div class="operator">(</div><div class="operator">*</div><div class="ident">message</div><div class="operator">)</div><div class="operator">[</div><div class="ident">attributeName</div><div class="operator">]</div><div class="operator"></div>
+	<div class="keyword">if</div> <div class="ident">found</div> <div class="operator">{</div>
+		<div class="ident">delete</div><div class="operator">(</div><div class="operator">*</div><div class="ident">message</div><div class="operator">,</div> <div class="ident">attributeName</div><div class="operator">)</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>let's ingore 'not-found' state as we just need to remove the
+attribute, not to check message schema</p>
+</td>
+	<td class="code"><pre><code><div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
 	<td class="doc"><p>ProcessMessage processes an incoming message</p>
 </td>
 	<td class="code"><pre><code><div class="keyword">func</div> <div class="operator">(</div><div class="ident">consumer</div> <div class="operator">*</div><div class="ident">KafkaConsumer</div><div class="operator">)</div> <div class="ident">ProcessMessage</div><div class="operator">(</div><div class="ident">msg</div> <div class="operator">*</div><div class="ident">sarama</div><div class="operator">.</div><div class="ident">ConsumerMessage</div><div class="operator">)</div> <div class="operator">(</div><div class="ident">RequestID</div><div class="operator">,</div> <div class="ident">error</div><div class="operator">)</div> <div class="operator">{</div>
 	<div class="ident">tStart</div> <div class="operator">:=</div> <div class="ident">time</div><div class="operator">.</div><div class="ident">Now</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
 
-	<div class="ident">log</div><div class="operator">.</div><div class="ident">Info</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Int</div><div class="operator">(</div><div class="ident">offsetKey</div><div class="operator">,</div> <div class="ident">int</div><div class="operator">(</div><div class="ident">msg</div><div class="operator">.</div><div class="ident">Offset</div><div class="operator">)</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Str</div><div class="operator">(</div><div class="ident">topicKey</div><div class="operator">,</div> <div class="ident">consumer</div><div class="operator">.</div><div class="ident">Configuration</div><div class="operator">.</div><div class="ident">Topic</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Str</div><div class="operator">(</div><div class="ident">groupKey</div><div class="operator">,</div> <div class="ident">consumer</div><div class="operator">.</div><div class="ident">Configuration</div><div class="operator">.</div><div class="ident">Group</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;Consumed&#34;</div><div class="operator">)</div><div class="operator"></div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>Step #1: parse the incomming message</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">log</div><div class="operator">.</div><div class="ident">Info</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div>
+		<div class="ident">Int</div><div class="operator">(</div><div class="ident">offsetKey</div><div class="operator">,</div> <div class="ident">int</div><div class="operator">(</div><div class="ident">msg</div><div class="operator">.</div><div class="ident">Offset</div><div class="operator">)</div><div class="operator">)</div><div class="operator">.</div>
+		<div class="ident">Str</div><div class="operator">(</div><div class="ident">topicKey</div><div class="operator">,</div> <div class="ident">consumer</div><div class="operator">.</div><div class="ident">Configuration</div><div class="operator">.</div><div class="ident">Topic</div><div class="operator">)</div><div class="operator">.</div>
+		<div class="ident">Str</div><div class="operator">(</div><div class="ident">groupKey</div><div class="operator">,</div> <div class="ident">consumer</div><div class="operator">.</div><div class="ident">Configuration</div><div class="operator">.</div><div class="ident">Group</div><div class="operator">)</div><div class="operator">.</div>
+		<div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;Consumed&#34;</div><div class="operator">)</div><div class="operator"></div>
 	<div class="ident">message</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">parseMessage</div><div class="operator">(</div><div class="ident">msg</div><div class="operator">.</div><div class="ident">Value</div><div class="operator">)</div><div class="operator"></div>
 	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
 		<div class="ident">logUnparsedMessageError</div><div class="operator">(</div><div class="ident">consumer</div><div class="operator">,</div> <div class="ident">msg</div><div class="operator">,</div> <div class="literal">&#34;Error parsing message from Kafka&#34;</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">)</div><div class="operator"></div>
@@ -611,9 +672,21 @@ since creating KafkaConsumer obj</p>
 	<div class="ident">logMessageInfo</div><div class="operator">(</div><div class="ident">consumer</div><div class="operator">,</div> <div class="ident">msg</div><div class="operator">,</div> <div class="ident">message</div><div class="operator">,</div> <div class="literal">&#34;Read&#34;</div><div class="operator">)</div><div class="operator"></div>
 	<div class="ident">tRead</div> <div class="operator">:=</div> <div class="ident">time</div><div class="operator">.</div><div class="ident">Now</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
 
-	<div class="ident">checkMessageVersion</div><div class="operator">(</div><div class="ident">consumer</div><div class="operator">,</div> <div class="operator">&amp;</div><div class="ident">message</div><div class="operator">,</div> <div class="ident">msg</div><div class="operator">)</div><div class="operator"></div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>Step #2: check message (schema) version</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">checkMessageVersion</div><div class="operator">(</div><div class="ident">consumer</div><div class="operator">,</div> <div class="operator">&amp;</div><div class="ident">message</div><div class="operator">,</div> <div class="ident">msg</div><div class="operator">)</div><div class="operator"></div>
 
-	<div class="ident">reportAsStr</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">json</div><div class="operator">.</div><div class="ident">Marshal</div><div class="operator">(</div><div class="operator">*</div><div class="ident">message</div><div class="operator">.</div><div class="ident">Report</div><div class="operator">)</div><div class="operator"></div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>Step #3: marshall report into byte slice to figure out original length</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">reportAsBytes</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">json</div><div class="operator">.</div><div class="ident">Marshal</div><div class="operator">(</div><div class="operator">*</div><div class="ident">message</div><div class="operator">.</div><div class="ident">Report</div><div class="operator">)</div><div class="operator"></div>
 	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
 		<div class="ident">logMessageError</div><div class="operator">(</div><div class="ident">consumer</div><div class="operator">,</div> <div class="ident">msg</div><div class="operator">,</div> <div class="ident">message</div><div class="operator">,</div> <div class="literal">&#34;Error marshalling report&#34;</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">)</div><div class="operator"></div>
 		<div class="keyword">return</div> <div class="ident">message</div><div class="operator">.</div><div class="ident">RequestID</div><div class="operator">,</div> <div class="ident">err</div><div class="operator"></div>
@@ -622,7 +695,30 @@ since creating KafkaConsumer obj</p>
 	<div class="ident">logMessageInfo</div><div class="operator">(</div><div class="ident">consumer</div><div class="operator">,</div> <div class="ident">msg</div><div class="operator">,</div> <div class="ident">message</div><div class="operator">,</div> <div class="literal">&#34;Marshalled&#34;</div><div class="operator">)</div><div class="operator"></div>
 	<div class="ident">tMarshalled</div> <div class="operator">:=</div> <div class="ident">time</div><div class="operator">.</div><div class="ident">Now</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
 
-	<div class="ident">lastCheckedTime</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">time</div><div class="operator">.</div><div class="ident">Parse</div><div class="operator">(</div><div class="ident">time</div><div class="operator">.</div><div class="ident">RFC3339Nano</div><div class="operator">,</div> <div class="ident">message</div><div class="operator">.</div><div class="ident">LastChecked</div><div class="operator">)</div><div class="operator"></div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>Step #4: shring the Report structure</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">logMessageInfo</div><div class="operator">(</div><div class="ident">consumer</div><div class="operator">,</div> <div class="ident">msg</div><div class="operator">,</div> <div class="ident">message</div><div class="operator">,</div> <div class="literal">&#34;Shrinking message&#34;</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">shrinkMessage</div><div class="operator">(</div><div class="ident">message</div><div class="operator">.</div><div class="ident">Report</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">shrinkedAsBytes</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">json</div><div class="operator">.</div><div class="ident">Marshal</div><div class="operator">(</div><div class="operator">*</div><div class="ident">message</div><div class="operator">.</div><div class="ident">Report</div><div class="operator">)</div><div class="operator"></div>
+	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
+		<div class="ident">logMessageError</div><div class="operator">(</div><div class="ident">consumer</div><div class="operator">,</div> <div class="ident">msg</div><div class="operator">,</div> <div class="ident">message</div><div class="operator">,</div> <div class="literal">&#34;Error marshalling skrinked report&#34;</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">)</div><div class="operator"></div>
+		<div class="keyword">return</div> <div class="ident">message</div><div class="operator">.</div><div class="ident">RequestID</div><div class="operator">,</div> <div class="ident">err</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+	<div class="ident">logShrinkedMessage</div><div class="operator">(</div><div class="ident">reportAsBytes</div><div class="operator">,</div> <div class="ident">shrinkedAsBytes</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="ident">tShrinked</div> <div class="operator">:=</div> <div class="ident">time</div><div class="operator">.</div><div class="ident">Now</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>Step #5: check the last checked timestamp</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">lastCheckedTime</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">time</div><div class="operator">.</div><div class="ident">Parse</div><div class="operator">(</div><div class="ident">time</div><div class="operator">.</div><div class="ident">RFC3339Nano</div><div class="operator">,</div> <div class="ident">message</div><div class="operator">.</div><div class="ident">LastChecked</div><div class="operator">)</div><div class="operator"></div>
 	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
 		<div class="ident">logMessageError</div><div class="operator">(</div><div class="ident">consumer</div><div class="operator">,</div> <div class="ident">msg</div><div class="operator">,</div> <div class="ident">message</div><div class="operator">,</div> <div class="literal">&#34;Error parsing date from message&#34;</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">)</div><div class="operator"></div>
 		<div class="keyword">return</div> <div class="ident">message</div><div class="operator">.</div><div class="ident">RequestID</div><div class="operator">,</div> <div class="ident">err</div><div class="operator"></div>
@@ -630,16 +726,23 @@ since creating KafkaConsumer obj</p>
 
 	<div class="ident">lastCheckedTimestampLagMinutes</div> <div class="operator">:=</div> <div class="ident">time</div><div class="operator">.</div><div class="ident">Now</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Sub</div><div class="operator">(</div><div class="ident">lastCheckedTime</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Minutes</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
 	<div class="keyword">if</div> <div class="ident">lastCheckedTimestampLagMinutes</div> <div class="operator">&lt;</div> <div class="literal">0</div> <div class="operator">{</div>
-		<div class="ident">logMessageError</div><div class="operator">(</div><div class="ident">consumer</div><div class="operator">,</div> <div class="ident">msg</div><div class="operator">,</div> <div class="ident">message</div><div class="operator">,</div> <div class="literal">&#34;got a message from the future&#34;</div><div class="operator">,</div> <div class="ident">nil</div><div class="operator">)</div><div class="operator"></div>
+		<div class="ident">logMessageError</div><div class="operator">(</div><div class="ident">consumer</div><div class="operator">,</div> <div class="ident">msg</div><div class="operator">,</div> <div class="ident">message</div><div class="operator">,</div> <div class="literal">&#34;Got a message from the future&#34;</div><div class="operator">,</div> <div class="ident">nil</div><div class="operator">)</div><div class="operator"></div>
 	<div class="operator">}</div><div class="operator"></div>
 
 	<div class="ident">logMessageInfo</div><div class="operator">(</div><div class="ident">consumer</div><div class="operator">,</div> <div class="ident">msg</div><div class="operator">,</div> <div class="ident">message</div><div class="operator">,</div> <div class="literal">&#34;Time ok&#34;</div><div class="operator">)</div><div class="operator"></div>
+
 	<div class="ident">tTimeCheck</div> <div class="operator">:=</div> <div class="ident">time</div><div class="operator">.</div><div class="ident">Now</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
 
-	<div class="ident">err</div> <div class="operator">=</div> <div class="ident">consumer</div><div class="operator">.</div><div class="ident">storage</div><div class="operator">.</div><div class="ident">WriteReportForCluster</div><div class="operator">(</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>Step #6: write the shrinked report into storage (database)</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">err</div> <div class="operator">=</div> <div class="ident">consumer</div><div class="operator">.</div><div class="ident">storage</div><div class="operator">.</div><div class="ident">WriteReportForCluster</div><div class="operator">(</div>
 		<div class="operator">*</div><div class="ident">message</div><div class="operator">.</div><div class="ident">Organization</div><div class="operator">,</div>
 		<div class="operator">*</div><div class="ident">message</div><div class="operator">.</div><div class="ident">ClusterName</div><div class="operator">,</div>
-		<div class="ident">ClusterReport</div><div class="operator">(</div><div class="ident">reportAsStr</div><div class="operator">)</div><div class="operator">,</div>
+		<div class="ident">ClusterReport</div><div class="operator">(</div><div class="ident">shrinkedAsBytes</div><div class="operator">)</div><div class="operator">,</div>
 		<div class="ident">tTimeCheck</div><div class="operator">,</div>
 	<div class="operator">)</div><div class="operator"></div>
 	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
@@ -659,12 +762,20 @@ since creating KafkaConsumer obj</p>
       </tr>
       
       <tr class="section">
+	<td class="doc"><p>Step #7: print durations of all previous steps</p>
+</td>
+	<td class="code"><pre><code>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
 	<td class="doc"><p>log durations for every message consumption steps</p>
 </td>
-	<td class="code"><pre><code>	<div class="ident">logDuration</div><div class="operator">(</div><div class="ident">tStart</div><div class="operator">,</div> <div class="ident">tRead</div><div class="operator">,</div> <div class="ident">msg</div><div class="operator">.</div><div class="ident">Offset</div><div class="operator">,</div> <div class="literal">&#34;read&#34;</div><div class="operator">)</div><div class="operator"></div>
-	<div class="ident">logDuration</div><div class="operator">(</div><div class="ident">tRead</div><div class="operator">,</div> <div class="ident">tMarshalled</div><div class="operator">,</div> <div class="ident">msg</div><div class="operator">.</div><div class="ident">Offset</div><div class="operator">,</div> <div class="literal">&#34;marshalling&#34;</div><div class="operator">)</div><div class="operator"></div>
-	<div class="ident">logDuration</div><div class="operator">(</div><div class="ident">tMarshalled</div><div class="operator">,</div> <div class="ident">tTimeCheck</div><div class="operator">,</div> <div class="ident">msg</div><div class="operator">.</div><div class="ident">Offset</div><div class="operator">,</div> <div class="literal">&#34;time_check&#34;</div><div class="operator">)</div><div class="operator"></div>
-	<div class="ident">logDuration</div><div class="operator">(</div><div class="ident">tTimeCheck</div><div class="operator">,</div> <div class="ident">tStored</div><div class="operator">,</div> <div class="ident">msg</div><div class="operator">.</div><div class="ident">Offset</div><div class="operator">,</div> <div class="literal">&#34;db_store&#34;</div><div class="operator">)</div><div class="operator"></div>
+	<td class="code"><pre><code>	<div class="ident">logDuration</div><div class="operator">(</div><div class="ident">tStart</div><div class="operator">,</div> <div class="ident">tRead</div><div class="operator">,</div> <div class="ident">msg</div><div class="operator">.</div><div class="ident">Offset</div><div class="operator">,</div> <div class="literal">&#34;Read duration&#34;</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">logDuration</div><div class="operator">(</div><div class="ident">tRead</div><div class="operator">,</div> <div class="ident">tMarshalled</div><div class="operator">,</div> <div class="ident">msg</div><div class="operator">.</div><div class="ident">Offset</div><div class="operator">,</div> <div class="literal">&#34;Marshalling duration&#34;</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">logDuration</div><div class="operator">(</div><div class="ident">tMarshalled</div><div class="operator">,</div> <div class="ident">tShrinked</div><div class="operator">,</div> <div class="ident">msg</div><div class="operator">.</div><div class="ident">Offset</div><div class="operator">,</div> <div class="literal">&#34;Shrinking duration&#34;</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">logDuration</div><div class="operator">(</div><div class="ident">tShrinked</div><div class="operator">,</div> <div class="ident">tTimeCheck</div><div class="operator">,</div> <div class="ident">msg</div><div class="operator">.</div><div class="ident">Offset</div><div class="operator">,</div> <div class="literal">&#34;Time check duration&#34;</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">logDuration</div><div class="operator">(</div><div class="ident">tTimeCheck</div><div class="operator">,</div> <div class="ident">tStored</div><div class="operator">,</div> <div class="ident">msg</div><div class="operator">.</div><div class="ident">Offset</div><div class="operator">,</div> <div class="literal">&#34;DB store duration&#34;</div><div class="operator">)</div><div class="operator"></div>
 
 </code></pre></td>
       </tr>
@@ -673,6 +784,24 @@ since creating KafkaConsumer obj</p>
 	<td class="doc"><p>message has been parsed and stored into storage</p>
 </td>
 	<td class="code"><pre><code>	<div class="keyword">return</div> <div class="ident">message</div><div class="operator">.</div><div class="ident">RequestID</div><div class="operator">,</div> <div class="ident">nil</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>logShrinkedMessage function prints/logs information about status of
+shrinking the message.</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">logShrinkedMessage</div><div class="operator">(</div><div class="ident">reportAsBytes</div> <div class="operator">[</div><div class="operator">]</div><div class="ident">byte</div><div class="operator">,</div> <div class="ident">shrinkedAsBytes</div> <div class="operator">[</div><div class="operator">]</div><div class="ident">byte</div><div class="operator">)</div> <div class="operator">{</div>
+	<div class="ident">orig</div> <div class="operator">:=</div> <div class="ident">len</div><div class="operator">(</div><div class="ident">reportAsBytes</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">shrinked</div> <div class="operator">:=</div> <div class="ident">len</div><div class="operator">(</div><div class="ident">shrinkedAsBytes</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">percentage</div> <div class="operator">:=</div> <div class="ident">int</div><div class="operator">(</div><div class="literal">100.0</div> <div class="operator">*</div> <div class="ident">shrinked</div> <div class="operator">/</div> <div class="ident">orig</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">log</div><div class="operator">.</div><div class="ident">Warn</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div>
+		<div class="ident">Int</div><div class="operator">(</div><div class="literal">&#34;Original size&#34;</div><div class="operator">,</div> <div class="ident">len</div><div class="operator">(</div><div class="ident">reportAsBytes</div><div class="operator">)</div><div class="operator">)</div><div class="operator">.</div>
+		<div class="ident">Int</div><div class="operator">(</div><div class="literal">&#34;Shrinked size&#34;</div><div class="operator">,</div> <div class="ident">len</div><div class="operator">(</div><div class="ident">shrinkedAsBytes</div><div class="operator">)</div><div class="operator">)</div><div class="operator">.</div>
+		<div class="ident">Int</div><div class="operator">(</div><div class="literal">&#34;Ratio (%)&#34;</div><div class="operator">,</div> <div class="ident">percentage</div><div class="operator">)</div><div class="operator">.</div>
+		<div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;Message shrinked&#34;</div><div class="operator">)</div><div class="operator"></div>
 <div class="operator">}</div><div class="operator"></div>
 
 </code></pre></td>
@@ -730,12 +859,8 @@ since creating KafkaConsumer obj</p>
 
 	<div class="ident">err</div> <div class="operator">=</div> <div class="ident">checkReportStructure</div><div class="operator">(</div><div class="operator">*</div><div class="ident">deserialized</div><div class="operator">.</div><div class="ident">Report</div><div class="operator">)</div><div class="operator"></div>
 	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
-		<div class="ident">log</div><div class="operator">.</div><div class="ident">Err</div><div class="operator">(</div><div class="ident">err</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msgf</div><div class="operator">(</div><div class="literal">&#34;Deserialized report read from message with improper structure: %v&#34;</div><div class="operator">,</div> <div class="operator">*</div><div class="ident">deserialized</div><div class="operator">.</div><div class="ident">Report</div><div class="operator">)</div><div class="operator"></div>
-		<div class="keyword">return</div> <div class="ident">deserialized</div><div class="operator">,</div> <div class="ident">err</div><div class="operator"></div>
-	<div class="operator">}</div><div class="operator"></div>
-
-	<div class="ident">err</div> <div class="operator">=</div> <div class="ident">json</div><div class="operator">.</div><div class="ident">Unmarshal</div><div class="operator">(</div><div class="operator">*</div><div class="operator">(</div><div class="operator">(</div><div class="operator">*</div><div class="ident">deserialized</div><div class="operator">.</div><div class="ident">Report</div><div class="operator">)</div><div class="operator">[</div><div class="literal">&#34;reports&#34;</div><div class="operator">]</div><div class="operator">)</div><div class="operator">,</div> <div class="operator">&amp;</div><div class="ident">deserialized</div><div class="operator">.</div><div class="ident">ParsedHits</div><div class="operator">)</div><div class="operator"></div>
-	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
+		<div class="ident">log</div><div class="operator">.</div><div class="ident">Err</div><div class="operator">(</div><div class="ident">err</div><div class="operator">)</div><div class="operator">.</div>
+			<div class="ident">Msgf</div><div class="operator">(</div><div class="literal">&#34;Deserialized report read from message with improper structure: %v&#34;</div><div class="operator">,</div> <div class="operator">*</div><div class="ident">deserialized</div><div class="operator">.</div><div class="ident">Report</div><div class="operator">)</div><div class="operator"></div>
 		<div class="keyword">return</div> <div class="ident">deserialized</div><div class="operator">,</div> <div class="ident">err</div><div class="operator"></div>
 	<div class="operator">}</div><div class="operator"></div>
 

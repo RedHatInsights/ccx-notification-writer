@@ -141,7 +141,7 @@ limitations under the License.</p>
       </tr>
       
       <tr class="section">
-	<td class="doc"><p>CliFlags represents structure holding all command line arguments/flags.</p>
+	<td class="doc"><p>CliFlags represents structure holding all command line arguments and flags.</p>
 </td>
 	<td class="code"><pre><code><div class="keyword">type</div> <div class="ident">CliFlags</div> <div class="keyword">struct</div> <div class="operator">{</div>
 	<div class="ident">performDatabaseCleanup</div>        <div class="ident">bool</div><div class="operator"></div>
@@ -157,9 +157,9 @@ limitations under the License.</p>
       </tr>
       
       <tr class="section">
-	<td class="doc"><p>RequestID is used to store the request ID supplied in input Kafka records as
-a unique identifier of payloads. Empty string represents a missing request
-ID.</p>
+	<td class="doc"><p>RequestID data type is used to store the request ID supplied in input Kafka
+records as a unique identifier of payloads. Empty string represents a
+missing request ID.</p>
 </td>
 	<td class="code"><pre><code><div class="keyword">type</div> <div class="ident">RequestID</div> <div class="ident">string</div><div class="operator"></div>
 
@@ -167,7 +167,7 @@ ID.</p>
       </tr>
       
       <tr class="section">
-	<td class="doc"><p>KafkaOffset type for kafka offset</p>
+	<td class="doc"><p>KafkaOffset is a data type representing offset in Kafka topic.</p>
 </td>
 	<td class="code"><pre><code><div class="keyword">type</div> <div class="ident">KafkaOffset</div> <div class="ident">int64</div><div class="operator"></div>
 
@@ -175,7 +175,7 @@ ID.</p>
       </tr>
       
       <tr class="section">
-	<td class="doc"><p>OrgID represents organization ID</p>
+	<td class="doc"><p>OrgID data type represents organization ID.</p>
 </td>
 	<td class="code"><pre><code><div class="keyword">type</div> <div class="ident">OrgID</div> <div class="ident">uint32</div><div class="operator"></div>
 
@@ -183,7 +183,8 @@ ID.</p>
       </tr>
       
       <tr class="section">
-	<td class="doc"><p>ClusterName represents name of cluster in format c8590f31-e97e-4b85-b506-c45ce1911a12</p>
+	<td class="doc"><p>ClusterName data type represents name of cluster in format
+c8590f31-e97e-4b85-b506-c45ce1911a12 (ie. in UUID format).</p>
 </td>
 	<td class="code"><pre><code><div class="keyword">type</div> <div class="ident">ClusterName</div> <div class="ident">string</div><div class="operator"></div>
 
@@ -191,7 +192,7 @@ ID.</p>
       </tr>
       
       <tr class="section">
-	<td class="doc"><p>RuleID represents type for rule id</p>
+	<td class="doc"><p>RuleID represents type for rule id.</p>
 </td>
 	<td class="code"><pre><code><div class="keyword">type</div> <div class="ident">RuleID</div> <div class="ident">string</div><div class="operator"></div>
 
@@ -199,7 +200,7 @@ ID.</p>
       </tr>
       
       <tr class="section">
-	<td class="doc"><p>ErrorKey represents type for error key</p>
+	<td class="doc"><p>ErrorKey represents type for error key.</p>
 </td>
 	<td class="code"><pre><code><div class="keyword">type</div> <div class="ident">ErrorKey</div> <div class="ident">string</div><div class="operator"></div>
 
@@ -207,7 +208,7 @@ ID.</p>
       </tr>
       
       <tr class="section">
-	<td class="doc"><p>ClusterReport represents cluster report</p>
+	<td class="doc"><p>ClusterReport represents the whole cluster report.</p>
 </td>
 	<td class="code"><pre><code><div class="keyword">type</div> <div class="ident">ClusterReport</div> <div class="ident">string</div><div class="operator"></div>
 
@@ -215,8 +216,9 @@ ID.</p>
       </tr>
       
       <tr class="section">
-	<td class="doc"><p>SchemaVersion is just a constant integer for now, max value 255. If we one day
-need more versions, better consider upgrading to semantic versioning.</p>
+	<td class="doc"><p>SchemaVersion is just a constant integer for now, max value 255. If we one
+day need more versions or combination of versions, it would be better
+consider upgrading to semantic versioning.</p>
 </td>
 	<td class="code"><pre><code><div class="keyword">type</div> <div class="ident">SchemaVersion</div> <div class="ident">uint8</div><div class="operator"></div>
 
@@ -224,7 +226,8 @@ need more versions, better consider upgrading to semantic versioning.</p>
       </tr>
       
       <tr class="section">
-	<td class="doc"><p>ReportItem represents a single (hit) rule of the string encoded report</p>
+	<td class="doc"><p>ReportItem data structure represents a single (hit) rule of the string
+encoded report.</p>
 </td>
 	<td class="code"><pre><code><div class="keyword">type</div> <div class="ident">ReportItem</div> <div class="keyword">struct</div> <div class="operator">{</div>
 	<div class="ident">Module</div>       <div class="ident">RuleID</div>          <div class="literal">`json:&#34;component&#34;`</div><div class="operator"></div>
@@ -236,33 +239,9 @@ need more versions, better consider upgrading to semantic versioning.</p>
       </tr>
       
       <tr class="section">
-	<td class="doc"><p>DBDriver type for db driver enum</p>
+	<td class="doc"><p>DBDriver type for db driver enum.</p>
 </td>
 	<td class="code"><pre><code><div class="keyword">type</div> <div class="ident">DBDriver</div> <div class="ident">int</div><div class="operator"></div>
-
-<div class="keyword">const</div> <div class="operator">(</div>
-</code></pre></td>
-      </tr>
-      
-      <tr class="section">
-	<td class="doc"><p>DBDriverSQLite3 shows that db driver is sqlite</p>
-</td>
-	<td class="code"><pre><code>	<div class="ident">DBDriverSQLite3</div> <div class="ident">DBDriver</div> <div class="operator">=</div> <div class="ident">iota</div><div class="operator"></div>
-</code></pre></td>
-      </tr>
-      
-      <tr class="section">
-	<td class="doc"><p>DBDriverPostgres shows that db driver is postgres</p>
-</td>
-	<td class="code"><pre><code>	<div class="ident">DBDriverPostgres</div><div class="operator"></div>
-</code></pre></td>
-      </tr>
-      
-      <tr class="section">
-	<td class="doc"><p>DBDriverGeneral general sql(used for mock now)</p>
-</td>
-	<td class="code"><pre><code>	<div class="ident">DBDriverGeneral</div><div class="operator"></div>
-<div class="operator">)</div><div class="operator"></div>
 
 </code></pre></td>
       </tr>

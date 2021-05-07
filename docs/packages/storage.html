@@ -309,15 +309,18 @@ exists on the storage while attempting to write a report for a cluster.</p>
 	<td class="doc"><p>NewStorage function creates and initializes a new instance of Storage interface</p>
 </td>
 	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">NewStorage</div><div class="operator">(</div><div class="ident">configuration</div> <div class="ident">StorageConfiguration</div><div class="operator">)</div> <div class="operator">(</div><div class="operator">*</div><div class="ident">DBStorage</div><div class="operator">,</div> <div class="ident">error</div><div class="operator">)</div> <div class="operator">{</div>
+	<div class="ident">log</div><div class="operator">.</div><div class="ident">Info</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;Initializing connection to storage&#34;</div><div class="operator">)</div><div class="operator"></div>
+
 	<div class="ident">driverType</div><div class="operator">,</div> <div class="ident">driverName</div><div class="operator">,</div> <div class="ident">dataSource</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">initAndGetDriver</div><div class="operator">(</div><div class="ident">configuration</div><div class="operator">)</div><div class="operator"></div>
 	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
+		<div class="ident">log</div><div class="operator">.</div><div class="ident">Error</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Err</div><div class="operator">(</div><div class="ident">err</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;Unsupported driver&#34;</div><div class="operator">)</div><div class="operator"></div>
 		<div class="keyword">return</div> <div class="ident">nil</div><div class="operator">,</div> <div class="ident">err</div><div class="operator"></div>
 	<div class="operator">}</div><div class="operator"></div>
 
-	<div class="ident">log</div><div class="operator">.</div><div class="ident">Info</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msgf</div><div class="operator">(</div>
-		<div class="literal">&#34;Making connection to data storage, driver=%s datasource=%s&#34;</div><div class="operator">,</div>
-		<div class="ident">driverName</div><div class="operator">,</div> <div class="ident">dataSource</div><div class="operator">,</div>
-	<div class="operator">)</div><div class="operator"></div>
+	<div class="ident">log</div><div class="operator">.</div><div class="ident">Info</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div>
+		<div class="ident">Str</div><div class="operator">(</div><div class="literal">&#34;driver&#34;</div><div class="operator">,</div> <div class="ident">driverName</div><div class="operator">)</div><div class="operator">.</div>
+		<div class="ident">Str</div><div class="operator">(</div><div class="literal">&#34;datasource&#34;</div><div class="operator">,</div> <div class="ident">dataSource</div><div class="operator">)</div><div class="operator">.</div>
+		<div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;Making connection to data storage&#34;</div><div class="operator">)</div><div class="operator"></div>
 
 </code></pre></td>
       </tr>
@@ -331,19 +334,33 @@ exists on the storage while attempting to write a report for a cluster.</p>
 		<div class="keyword">return</div> <div class="ident">nil</div><div class="operator">,</div> <div class="ident">err</div><div class="operator"></div>
 	<div class="operator">}</div><div class="operator"></div>
 
-	<div class="ident">tableNames</div> <div class="operator">=</div> <div class="operator">[</div><div class="operator">]</div><div class="ident">string</div><div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>lazy initialization (TODO: use init function instead?)</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">tableNames</div> <div class="operator">=</div> <div class="operator">[</div><div class="operator">]</div><div class="ident">string</div><div class="operator">{</div>
 		<div class="literal">&#34;new_reports&#34;</div><div class="operator">,</div>
 		<div class="literal">&#34;reported&#34;</div><div class="operator">,</div>
 		<div class="literal">&#34;notification_types&#34;</div><div class="operator">,</div>
 		<div class="literal">&#34;states&#34;</div><div class="operator">,</div>
 	<div class="operator">}</div><div class="operator"></div>
 
-	<div class="ident">initStatements</div> <div class="operator">=</div> <div class="operator">[</div><div class="operator">]</div><div class="ident">string</div><div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>lazy initialization (TODO: use init function instead?)</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">initStatements</div> <div class="operator">=</div> <div class="operator">[</div><div class="operator">]</div><div class="ident">string</div><div class="operator">{</div>
 		<div class="ident">createTableNotificationTypes</div><div class="operator">,</div>
 		<div class="ident">createTableStates</div><div class="operator">,</div>
 		<div class="ident">createTableReported</div><div class="operator">,</div>
 		<div class="ident">createTableNewReports</div><div class="operator">,</div>
 	<div class="operator">}</div><div class="operator"></div>
+
+	<div class="ident">log</div><div class="operator">.</div><div class="ident">Info</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;Connection to storage established&#34;</div><div class="operator">)</div><div class="operator"></div>
 	<div class="keyword">return</div> <div class="ident">NewFromConnection</div><div class="operator">(</div><div class="ident">connection</div><div class="operator">,</div> <div class="ident">driverType</div><div class="operator">)</div><div class="operator">,</div> <div class="ident">nil</div><div class="operator"></div>
 <div class="operator">}</div><div class="operator"></div>
 
@@ -442,7 +459,7 @@ dataSource = configuration.SQLiteDataSource</p>
 	<div class="ident">lastCheckedTime</div> <div class="ident">time</div><div class="operator">.</div><div class="ident">Time</div><div class="operator">,</div>
 <div class="operator">)</div> <div class="ident">error</div> <div class="operator">{</div>
 	<div class="keyword">if</div> <div class="ident">storage</div><div class="operator">.</div><div class="ident">dbDriverType</div> <div class="operator">!=</div> <div class="ident">DBDriverSQLite3</div> <div class="operator">&amp;&amp;</div> <div class="ident">storage</div><div class="operator">.</div><div class="ident">dbDriverType</div> <div class="operator">!=</div> <div class="ident">DBDriverPostgres</div> <div class="operator">{</div>
-		<div class="keyword">return</div> <div class="ident">fmt</div><div class="operator">.</div><div class="ident">Errorf</div><div class="operator">(</div><div class="literal">&#34;writing report with DB %v is not supported&#34;</div><div class="operator">,</div> <div class="ident">storage</div><div class="operator">.</div><div class="ident">dbDriverType</div><div class="operator">)</div><div class="operator"></div>
+		<div class="keyword">return</div> <div class="ident">fmt</div><div class="operator">.</div><div class="ident">Errorf</div><div class="operator">(</div><div class="literal">&#34;Writing report with DB %v is not supported&#34;</div><div class="operator">,</div> <div class="ident">storage</div><div class="operator">.</div><div class="ident">dbDriverType</div><div class="operator">)</div><div class="operator"></div>
 	<div class="operator">}</div><div class="operator"></div>
 
 </code></pre></td>
@@ -479,7 +496,11 @@ dataSource = configuration.SQLiteDataSource</p>
 <div class="operator">)</div> <div class="ident">error</div> <div class="operator">{</div>
 	<div class="ident">_</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">tx</div><div class="operator">.</div><div class="ident">Exec</div><div class="operator">(</div><div class="ident">InsertNewReportStatement</div><div class="operator">,</div> <div class="ident">orgID</div><div class="operator">,</div> <div class="ident">clusterName</div><div class="operator">,</div> <div class="ident">report</div><div class="operator">,</div> <div class="ident">lastCheckedTime</div><div class="operator">)</div><div class="operator"></div>
 	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
-		<div class="ident">log</div><div class="operator">.</div><div class="ident">Err</div><div class="operator">(</div><div class="ident">err</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msgf</div><div class="operator">(</div><div class="literal">&#34;Unable to upsert the cluster report (org: %v, cluster: %v)&#34;</div><div class="operator">,</div> <div class="ident">orgID</div><div class="operator">,</div> <div class="ident">clusterName</div><div class="operator">)</div><div class="operator"></div>
+		<div class="ident">log</div><div class="operator">.</div><div class="ident">Err</div><div class="operator">(</div><div class="ident">err</div><div class="operator">)</div><div class="operator">.</div>
+			<div class="ident">Int</div><div class="operator">(</div><div class="literal">&#34;org&#34;</div><div class="operator">,</div> <div class="ident">int</div><div class="operator">(</div><div class="ident">orgID</div><div class="operator">)</div><div class="operator">)</div><div class="operator">.</div>
+			<div class="ident">Str</div><div class="operator">(</div><div class="literal">&#34;cluster&#34;</div><div class="operator">,</div> <div class="ident">string</div><div class="operator">(</div><div class="ident">clusterName</div><div class="operator">)</div><div class="operator">)</div><div class="operator">.</div>
+			<div class="ident">Str</div><div class="operator">(</div><div class="literal">&#34;last checked&#34;</div><div class="operator">,</div> <div class="ident">lastCheckedTime</div><div class="operator">.</div><div class="ident">String</div><div class="operator">(</div><div class="operator">)</div><div class="operator">)</div><div class="operator">.</div>
+			<div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;Unable to insert the cluster report&#34;</div><div class="operator">)</div><div class="operator"></div>
 		<div class="keyword">return</div> <div class="ident">err</div><div class="operator"></div>
 	<div class="operator">}</div><div class="operator"></div>
 
@@ -496,12 +517,12 @@ dataSource = configuration.SQLiteDataSource</p>
 	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
 		<div class="ident">rollbackError</div> <div class="operator">:=</div> <div class="ident">tx</div><div class="operator">.</div><div class="ident">Rollback</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
 		<div class="keyword">if</div> <div class="ident">rollbackError</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
-			<div class="ident">log</div><div class="operator">.</div><div class="ident">Err</div><div class="operator">(</div><div class="ident">rollbackError</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msgf</div><div class="operator">(</div><div class="literal">&#34;error when trying to rollback a transaction&#34;</div><div class="operator">)</div><div class="operator"></div>
+			<div class="ident">log</div><div class="operator">.</div><div class="ident">Err</div><div class="operator">(</div><div class="ident">rollbackError</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;Error when trying to rollback a transaction&#34;</div><div class="operator">)</div><div class="operator"></div>
 		<div class="operator">}</div><div class="operator"></div>
 	<div class="operator">}</div> <div class="keyword">else</div> <div class="operator">{</div>
 		<div class="ident">commitError</div> <div class="operator">:=</div> <div class="ident">tx</div><div class="operator">.</div><div class="ident">Commit</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
 		<div class="keyword">if</div> <div class="ident">commitError</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
-			<div class="ident">log</div><div class="operator">.</div><div class="ident">Err</div><div class="operator">(</div><div class="ident">commitError</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msgf</div><div class="operator">(</div><div class="literal">&#34;error when trying to commit a transaction&#34;</div><div class="operator">)</div><div class="operator"></div>
+			<div class="ident">log</div><div class="operator">.</div><div class="ident">Err</div><div class="operator">(</div><div class="ident">commitError</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;Error when trying to commit a transaction&#34;</div><div class="operator">)</div><div class="operator"></div>
 		<div class="operator">}</div><div class="operator"></div>
 	<div class="operator">}</div><div class="operator"></div>
 <div class="operator">}</div><div class="operator"></div>

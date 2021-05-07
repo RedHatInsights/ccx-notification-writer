@@ -161,10 +161,14 @@ in configured data store.</p>
 	<td class="doc"><p>Messages</p>
 </td>
 	<td class="code"><pre><code><div class="keyword">const</div> <div class="operator">(</div>
-	<div class="ident">versionMessage</div>            <div class="operator">=</div> <div class="literal">&#34;Notification writer version 1.0&#34;</div><div class="operator"></div>
-	<div class="ident">authorsMessage</div>            <div class="operator">=</div> <div class="literal">&#34;Pavel Tisnovsky, Red Hat Inc.&#34;</div><div class="operator"></div>
-	<div class="ident">connectionToBrokerMessage</div> <div class="operator">=</div> <div class="literal">&#34;Connection to broker&#34;</div><div class="operator"></div>
-	<div class="ident">operationFailedMessage</div>    <div class="operator">=</div> <div class="literal">&#34;Operation failed&#34;</div><div class="operator"></div>
+	<div class="ident">versionMessage</div>                           <div class="operator">=</div> <div class="literal">&#34;Notification writer version 1.0&#34;</div><div class="operator"></div>
+	<div class="ident">authorsMessage</div>                           <div class="operator">=</div> <div class="literal">&#34;Pavel Tisnovsky, Red Hat Inc.&#34;</div><div class="operator"></div>
+	<div class="ident">connectionToBrokerMessage</div>                <div class="operator">=</div> <div class="literal">&#34;Connection to broker&#34;</div><div class="operator"></div>
+	<div class="ident">operationFailedMessage</div>                   <div class="operator">=</div> <div class="literal">&#34;Operation failed&#34;</div><div class="operator"></div>
+	<div class="ident">notConnectedToBrokerMessage</div>              <div class="operator">=</div> <div class="literal">&#34;Not connected to broker&#34;</div><div class="operator"></div>
+	<div class="ident">brokerConnectionSuccessMessage</div>           <div class="operator">=</div> <div class="literal">&#34;Broker connection OK&#34;</div><div class="operator"></div>
+	<div class="ident">databaseCleanupOperationFailedMessage</div>    <div class="operator">=</div> <div class="literal">&#34;Database cleanup operation failed&#34;</div><div class="operator"></div>
+	<div class="ident">databaseDropTablesOperationFailedMessage</div> <div class="operator">=</div> <div class="literal">&#34;Database drop tables operation failed&#34;</div><div class="operator"></div>
 <div class="operator">)</div><div class="operator"></div>
 
 </code></pre></td>
@@ -293,11 +297,11 @@ in configured data store.</p>
 		<div class="keyword">return</div> <div class="ident">ExitStatusKafkaError</div><div class="operator">,</div> <div class="ident">err</div><div class="operator"></div>
 	<div class="operator">}</div><div class="operator"></div>
 	<div class="keyword">if</div> <div class="operator">!</div><div class="ident">connected</div> <div class="operator">{</div>
-		<div class="ident">log</div><div class="operator">.</div><div class="ident">Error</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Err</div><div class="operator">(</div><div class="ident">err</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;Not connected to broker&#34;</div><div class="operator">)</div><div class="operator"></div>
+		<div class="ident">log</div><div class="operator">.</div><div class="ident">Error</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Err</div><div class="operator">(</div><div class="ident">err</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="ident">notConnectedToBrokerMessage</div><div class="operator">)</div><div class="operator"></div>
 		<div class="keyword">return</div> <div class="ident">ExitStatusConsumerError</div><div class="operator">,</div> <div class="ident">err</div><div class="operator"></div>
 	<div class="operator">}</div><div class="operator"></div>
 
-	<div class="ident">log</div><div class="operator">.</div><div class="ident">Info</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;Broker connection OK&#34;</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">log</div><div class="operator">.</div><div class="ident">Info</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="ident">brokerConnectionSuccessMessage</div><div class="operator">)</div><div class="operator"></div>
 
 </code></pre></td>
       </tr>
@@ -361,7 +365,7 @@ of all tables in database.</p>
 
 	<div class="ident">err</div> <div class="operator">=</div> <div class="ident">storage</div><div class="operator">.</div><div class="ident">DatabaseCleanup</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
 	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
-		<div class="ident">log</div><div class="operator">.</div><div class="ident">Err</div><div class="operator">(</div><div class="ident">err</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;Database cleanup operation failed&#34;</div><div class="operator">)</div><div class="operator"></div>
+		<div class="ident">log</div><div class="operator">.</div><div class="ident">Err</div><div class="operator">(</div><div class="ident">err</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="ident">databaseCleanupOperationFailedMessage</div><div class="operator">)</div><div class="operator"></div>
 		<div class="keyword">return</div> <div class="ident">ExitStatusStorageError</div><div class="operator">,</div> <div class="ident">err</div><div class="operator"></div>
 	<div class="operator">}</div><div class="operator"></div>
 
@@ -390,7 +394,7 @@ of all tables in database.</p>
 
 	<div class="ident">err</div> <div class="operator">=</div> <div class="ident">storage</div><div class="operator">.</div><div class="ident">DatabaseDropTables</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
 	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
-		<div class="ident">log</div><div class="operator">.</div><div class="ident">Err</div><div class="operator">(</div><div class="ident">err</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;Database drop tables operation failed&#34;</div><div class="operator">)</div><div class="operator"></div>
+		<div class="ident">log</div><div class="operator">.</div><div class="ident">Err</div><div class="operator">(</div><div class="ident">err</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="ident">databaseDropTablesOperationFailedMessage</div><div class="operator">)</div><div class="operator"></div>
 		<div class="keyword">return</div> <div class="ident">ExitStatusStorageError</div><div class="operator">,</div> <div class="ident">err</div><div class="operator"></div>
 	<div class="operator">}</div><div class="operator"></div>
 
@@ -453,7 +457,7 @@ of all tables in database.</p>
 	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">startConsumer</div><div class="operator">(</div><div class="ident">config</div> <div class="ident">BrokerConfiguration</div><div class="operator">,</div> <div class="ident">storage</div> <div class="ident">Storage</div><div class="operator">)</div> <div class="ident">error</div> <div class="operator">{</div>
 	<div class="ident">consumer</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">NewConsumer</div><div class="operator">(</div><div class="ident">config</div><div class="operator">,</div> <div class="ident">storage</div><div class="operator">)</div><div class="operator"></div>
 	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
-		<div class="ident">log</div><div class="operator">.</div><div class="ident">Error</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Err</div><div class="operator">(</div><div class="ident">err</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;Construct broker&#34;</div><div class="operator">)</div><div class="operator"></div>
+		<div class="ident">log</div><div class="operator">.</div><div class="ident">Error</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Err</div><div class="operator">(</div><div class="ident">err</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;Construct broker failed&#34;</div><div class="operator">)</div><div class="operator"></div>
 		<div class="keyword">return</div> <div class="ident">err</div><div class="operator"></div>
 	<div class="operator">}</div><div class="operator"></div>
 	<div class="ident">consumer</div><div class="operator">.</div><div class="ident">Serve</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
