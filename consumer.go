@@ -366,7 +366,7 @@ func (consumer *KafkaConsumer) ProcessMessage(msg *sarama.ConsumerMessage) (Requ
 	logMessageInfo(consumer, msg, message, "Marshalled")
 	tMarshalled := time.Now()
 
-	// Step #4: shring the Report structure
+	// Step #4: shrink the Report structure
 	logMessageInfo(consumer, msg, message, "Shrinking message")
 	shrinkMessage(message.Report)
 	shrinkedAsBytes, err := json.Marshal(*message.Report)
