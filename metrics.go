@@ -23,16 +23,28 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promauto"
 )
 
+// Metrics names
+const (
+	ConsumedMessagesName = "consumed_messages"
+	ConsumingErrorsName  = "consuming_errors"
+)
+
+// Metrics helps
+const (
+	ConsumedMessagesHelp = "The total number of messages consumed from Kafka"
+	ConsumingErrorsHelp  = "The total number of errors during consuming messages from Kafka"
+)
+
 // ConsumedMessages shows number of messages consumed from Kafka by aggregator
 var ConsumedMessages = promauto.NewCounter(prometheus.CounterOpts{
-	Name: "consumed_messages",
-	Help: "The total number of messages consumed from Kafka",
+	Name: ConsumedMessagesName,
+	Help: ConsumedMessagesHelp,
 })
 
 // ConsumingErrors shows the total number of errors during consuming messages from Kafka
 var ConsumingErrors = promauto.NewCounter(prometheus.CounterOpts{
-	Name: "consuming_errors",
-	Help: "The total number of errors during consuming messages from Kafka",
+	Name: ConsumingErrorsName,
+	Help: ConsumingErrorsHelp,
 })
 
 // AddMetricsWithNamespace register the desired metrics using a given namespace
@@ -44,12 +56,12 @@ func AddMetricsWithNamespace(namespace string) {
 
 	ConsumedMessages = promauto.NewCounter(prometheus.CounterOpts{
 		Namespace: namespace,
-		Name:      "consumed_messages",
-		Help:      "The total number of messages consumed from Kafka",
+		Name:      ConsumedMessagesName,
+		Help:      ConsumedMessagesHelp,
 	})
 	ConsumingErrors = promauto.NewCounter(prometheus.CounterOpts{
 		Namespace: namespace,
-		Name:      "consuming_errors",
-		Help:      "The total number of errors during consuming messages from Kafka",
+		Name:      ConsumingErrorsName,
+		Help:      ConsumingErrorsHelp,
 	})
 }
