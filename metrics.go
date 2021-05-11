@@ -75,10 +75,16 @@ var MarshalReport = promauto.NewCounter(prometheus.CounterOpts{
 	Help: MarshalReportHelp,
 })
 
-// ShrinkReport shows the number of messages with correct schema version
+// ShrinkReport shows the number of messages with shrinked report
 var ShrinkReport = promauto.NewCounter(prometheus.CounterOpts{
 	Name: ShrinkReportName,
 	Help: ShrinkReportHelp,
+})
+
+// CheckLastCheckedTimestamp shows the number of messages with correct timestamp
+var CheckLastCheckedTimestamp = promauto.NewCounter(prometheus.CounterOpts{
+	Name: CheckLastCheckedTimestampName,
+	Help: CheckLastCheckedTimestampHelp,
 })
 
 // AddMetricsWithNamespace register the desired metrics using a given namespace
@@ -125,4 +131,11 @@ func AddMetricsWithNamespace(namespace string) {
 		Name:      ShrinkReportName,
 		Help:      ShrinkReportHelp,
 	})
+
+	CheckLastCheckedTimestamp = promauto.NewCounter(prometheus.CounterOpts{
+		Namespace: namespace,
+		Name:      CheckLastCheckedTimestampName,
+		Help:      CheckLastCheckedTimestampHelp,
+	})
+
 }
