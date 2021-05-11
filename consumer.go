@@ -433,7 +433,7 @@ func logShrinkedMessage(reportAsBytes []byte, shrinkedAsBytes []byte) {
 	orig := len(reportAsBytes)
 	shrinked := len(shrinkedAsBytes)
 	percentage := int(100.0 * shrinked / orig)
-	log.Warn().
+	log.Info().
 		Int("Original size", len(reportAsBytes)).
 		Int("Shrinked size", len(shrinkedAsBytes)).
 		Int("Ratio (%)", percentage).
