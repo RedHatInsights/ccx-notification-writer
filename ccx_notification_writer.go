@@ -22,7 +22,10 @@ package main
 import (
 	"flag"
 	"fmt"
+	"net/http"
 	"os"
+
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 
 	"github.com/Shopify/sarama"
 
@@ -60,6 +63,8 @@ const (
 	ExitStatusKafkaError
 	// ExitStatusStorageError is returned in case of any consumer-related error
 	ExitStatusStorageError
+	// ExitStatusHTTPServerError is returned in case the HTTP server can not be started
+	ExitStatusHTTPServerError
 )
 
 // showVersion function displays version information.
@@ -79,7 +84,7 @@ func tryToConnectToKafka(config ConfigStruct) (int, error) {
 	// prepare broker configuration
 	brokerConfiguration := GetBrokerConfiguration(config)
 
-	log.Info().Str("address", brokerConfiguration.Address).Msg("Broker address")
+	log.Info().Str("broker address", brokerConfiguration.Address).Msg("Broker address")
 
 	// create new broker instance (w/o any checks)
 	broker := sarama.NewBroker(brokerConfiguration.Address)
@@ -169,12 +174,26 @@ func performDatabaseDropTables(config ConfigStruct) (int, error) {
 
 // startService function tries to start the notification writer service.
 func startService(config ConfigStruct) (int, error) {
+	// configure metrics
+	metricsConfig := GetMetricsConfiguration(config)
+	if metricsConfig.Namespace != "" {
+		log.Info().Str("namespace", metricsConfig.Namespace).Msg("Setting metrics namespace")
+		AddMetricsWithNamespace(metricsConfig.Namespace)
+	}
+
 	// prepare the storage
 	storageConfiguration := GetStorageConfiguration(config)
 	storage, err := NewStorage(storageConfiguration)
 	if err != nil {
 		log.Err(err).Msg(operationFailedMessage)
 		return ExitStatusStorageError, err
+	}
+
+	// prepare HTTP server with metrics exposed
+	err = startHTTPServer(metricsConfig.Address)
+	if err != nil {
+		log.Error().Err(err)
+		return ExitStatusHTTPServerError, err
 	}
 
 	// prepare broker
@@ -202,6 +221,22 @@ func startConsumer(config BrokerConfiguration, storage Storage) error {
 		return err
 	}
 	consumer.Serve()
+	return nil
+}
+
+// startHTTP server starts server with exposed metrics
+func startHTTPServer(address string) error {
+	// setup handlers
+	http.Handle("/metrics", promhttp.Handler())
+
+	// start the server
+	go func() {
+		log.Info().Str("HTTP server address", address).Msg("Starting HTTP server")
+		err := http.ListenAndServe(address, nil)
+		if err != nil {
+			log.Error().Err(err).Msg("Listen and serve")
+		}
+	}()
 	return nil
 }
 
