@@ -275,6 +275,8 @@ func (consumer *KafkaConsumer) HandleMessage(msg *sarama.ConsumerMessage) {
 		Time("message_timestamp", msg.Timestamp).
 		Msg("Started processing message")
 
+	ConsumedMessages.Inc()
+
 	startTime := time.Now()
 	requestID, err := consumer.ProcessMessage(msg)
 	timeAfterProcessingMessage := time.Now()
@@ -289,6 +291,8 @@ func (consumer *KafkaConsumer) HandleMessage(msg *sarama.ConsumerMessage) {
 
 	// Something went wrong while processing the message.
 	if err != nil {
+		ConsumingErrors.Inc()
+
 		log.Error().
 			Err(err).
 			Msg("Error processing message consumed from Kafka")
@@ -350,11 +354,17 @@ func (consumer *KafkaConsumer) ProcessMessage(msg *sarama.ConsumerMessage) (Requ
 		return message.RequestID, err
 	}
 
+	// update metric
+	ParsedIncomingMessage.Inc()
+
 	logMessageInfo(consumer, msg, message, "Read")
 	tRead := time.Now()
 
 	// Step #2: check message (schema) version
 	checkMessageVersion(consumer, &message, msg)
+
+	// update metric
+	CheckSchemaVersion.Inc()
 
 	// Step #3: marshall report into byte slice to figure out original length
 	reportAsBytes, err := json.Marshal(*message.Report)
@@ -362,6 +372,9 @@ func (consumer *KafkaConsumer) ProcessMessage(msg *sarama.ConsumerMessage) (Requ
 		logMessageError(consumer, msg, message, "Error marshalling report", err)
 		return message.RequestID, err
 	}
+
+	// update metric
+	MarshalReport.Inc()
 
 	logMessageInfo(consumer, msg, message, "Marshalled")
 	tMarshalled := time.Now()
@@ -376,6 +389,9 @@ func (consumer *KafkaConsumer) ProcessMessage(msg *sarama.ConsumerMessage) (Requ
 	}
 	logShrinkedMessage(reportAsBytes, shrinkedAsBytes)
 
+	// update metric
+	ShrinkReport.Inc()
+
 	tShrinked := time.Now()
 
 	// Step #5: check the last checked timestamp
@@ -389,6 +405,9 @@ func (consumer *KafkaConsumer) ProcessMessage(msg *sarama.ConsumerMessage) (Requ
 	if lastCheckedTimestampLagMinutes < 0 {
 		logMessageError(consumer, msg, message, "Got a message from the future", nil)
 	}
+
+	// update metric
+	CheckLastCheckedTimestamp.Inc()
 
 	logMessageInfo(consumer, msg, message, "Time ok")
 

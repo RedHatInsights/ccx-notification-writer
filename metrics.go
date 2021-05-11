@@ -89,12 +89,16 @@ var CheckLastCheckedTimestamp = promauto.NewCounter(prometheus.CounterOpts{
 
 // AddMetricsWithNamespace register the desired metrics using a given namespace
 func AddMetricsWithNamespace(namespace string) {
+	// exposed metrics
 	metrics.AddAPIMetricsWithNamespace(namespace)
 
 	prometheus.Unregister(ConsumedMessages)
 	prometheus.Unregister(ConsumingErrors)
 	prometheus.Unregister(ParsedIncomingMessage)
 	prometheus.Unregister(CheckSchemaVersion)
+	prometheus.Unregister(MarshalReport)
+	prometheus.Unregister(ShrinkReport)
+	prometheus.Unregister(CheckLastCheckedTimestamp)
 
 	ConsumedMessages = promauto.NewCounter(prometheus.CounterOpts{
 		Namespace: namespace,
