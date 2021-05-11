@@ -77,6 +77,12 @@ type ConfigStruct struct {
 	Broker  BrokerConfiguration  `mapstructure:"broker"  toml:"broker"`
 	Storage StorageConfiguration `mapstructure:"storage" toml:"storage"`
 	Logging LoggingConfiguration `mapstructure:"logging" toml:"logging"`
+	Metrics MetricsConfiguration `mapstructure:"metrics" toml:"metrics"`
+}
+
+// MetricsConfiguration holds metrics related configuration
+type MetricsConfiguration struct {
+	Namespace string `mapstructure:"namespace" toml:"namespace"`
 }
 
 // LoggingConfiguration represents configuration for logging in general
@@ -195,4 +201,9 @@ func GetLoggingConfiguration(config ConfigStruct) LoggingConfiguration {
 // GetBrokerConfiguration returns broker configuration
 func GetBrokerConfiguration(config ConfigStruct) BrokerConfiguration {
 	return config.Broker
+}
+
+// GetMetricsConfiguration returns metrics configuration
+func GetMetricsConfiguration(config ConfigStruct) MetricsConfiguration {
+	return config.Metrics
 }

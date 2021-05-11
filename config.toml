@@ -6,8 +6,8 @@ enabled = true
 
 [storage]
 db_driver = "postgres"
-pg_username = "user"
-pg_password = "password"
+pg_username = "postgres"
+pg_password = "postgres"
 pg_host = "localhost"
 pg_port = 5432
 pg_db_name = "notification"
@@ -17,3 +17,6 @@ log_sql_queries = true
 [logging]
 debug = true
 log_level = ""
+
+[metrics]
+namespace = "notification-writer"
