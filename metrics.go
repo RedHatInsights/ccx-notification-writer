@@ -29,6 +29,7 @@ const (
 	ConsumingErrorsName       = "consuming_errors"
 	ParsedIncomingMessageName = "parse_incoming_message"
 	CheckSchemaVersionName    = "check_schema_version"
+	MarshalReportName         = "marshal_report"
 )
 
 // Metrics helps
@@ -37,6 +38,7 @@ const (
 	ConsumingErrorsHelp       = "The total number of errors during consuming messages from Kafka"
 	ParsedIncomingMessageHelp = "The total number of parsed messages"
 	CheckSchemaVersionHelp    = "The total number of messages with successfull schema check"
+	MarshalReportHelp         = "The total number of marshaled reports"
 )
 
 // ConsumedMessages shows number of messages consumed from Kafka by aggregator
@@ -61,6 +63,12 @@ var ParsedIncomingMessage = promauto.NewCounter(prometheus.CounterOpts{
 var CheckSchemaVersion = promauto.NewCounter(prometheus.CounterOpts{
 	Name: CheckSchemaVersionName,
 	Help: CheckSchemaVersionHelp,
+})
+
+// MarshalReport shows the number of messages with correct schema version
+var MarshalReport = promauto.NewCounter(prometheus.CounterOpts{
+	Name: MarshalReportName,
+	Help: MarshalReportHelp,
 })
 
 // AddMetricsWithNamespace register the desired metrics using a given namespace
@@ -96,4 +104,9 @@ func AddMetricsWithNamespace(namespace string) {
 		Help:      CheckSchemaVersionHelp,
 	})
 
+	MarshalReport = promauto.NewCounter(prometheus.CounterOpts{
+		Namespace: namespace,
+		Name:      MarshalReportName,
+		Help:      MarshalReportHelp,
+	})
 }
