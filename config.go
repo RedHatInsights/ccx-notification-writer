@@ -83,6 +83,7 @@ type ConfigStruct struct {
 // MetricsConfiguration holds metrics related configuration
 type MetricsConfiguration struct {
 	Namespace string `mapstructure:"namespace" toml:"namespace"`
+	Address   string `mapstructure:"address" toml:"address"`
 }
 
 // LoggingConfiguration represents configuration for logging in general

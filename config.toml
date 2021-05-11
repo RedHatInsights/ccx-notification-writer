@@ -19,4 +19,5 @@ debug = true
 log_level = ""
 
 [metrics]
-namespace = "notification-writer"
+namespace = "notification_writer"
+address = ":8080"
