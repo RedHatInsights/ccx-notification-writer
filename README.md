@@ -20,6 +20,12 @@ CCX notification writer service
         show version
 ```
 
+## Metrics
+
+```
+curl localhost:8080/metrics | grep ^notification_writer
+```
+
 ## Database
 
 PostgreSQL database is used as a storage.
