@@ -69,7 +69,7 @@ var CheckSchemaVersion = promauto.NewCounter(prometheus.CounterOpts{
 	Help: CheckSchemaVersionHelp,
 })
 
-// MarshalReport shows the number of messages with correct schema version
+// MarshalReport shows the number of successfully marshaled reports
 var MarshalReport = promauto.NewCounter(prometheus.CounterOpts{
 	Name: MarshalReportName,
 	Help: MarshalReportHelp,
