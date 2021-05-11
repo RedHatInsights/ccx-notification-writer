@@ -25,20 +25,24 @@ import (
 
 // Metrics names
 const (
-	ConsumedMessagesName      = "consumed_messages"
-	ConsumingErrorsName       = "consuming_errors"
-	ParsedIncomingMessageName = "parse_incoming_message"
-	CheckSchemaVersionName    = "check_schema_version"
-	MarshalReportName         = "marshal_report"
+	ConsumedMessagesName          = "consumed_messages"
+	ConsumingErrorsName           = "consuming_errors"
+	ParsedIncomingMessageName     = "parse_incoming_message"
+	CheckSchemaVersionName        = "check_schema_version"
+	MarshalReportName             = "marshal_report"
+	ShrinkReportName              = "shrink_report"
+	CheckLastCheckedTimestampName = "check_last_checked_timestamp"
 )
 
 // Metrics helps
 const (
-	ConsumedMessagesHelp      = "The total number of messages consumed from Kafka"
-	ConsumingErrorsHelp       = "The total number of errors during consuming messages from Kafka"
-	ParsedIncomingMessageHelp = "The total number of parsed messages"
-	CheckSchemaVersionHelp    = "The total number of messages with successfull schema check"
-	MarshalReportHelp         = "The total number of marshaled reports"
+	ConsumedMessagesHelp          = "The total number of messages consumed from Kafka"
+	ConsumingErrorsHelp           = "The total number of errors during consuming messages from Kafka"
+	ParsedIncomingMessageHelp     = "The total number of parsed messages"
+	CheckSchemaVersionHelp        = "The total number of messages with successfull schema check"
+	MarshalReportHelp             = "The total number of marshaled reports"
+	ShrinkReportHelp              = "The total number of shrinked reports"
+	CheckLastCheckedTimestampHelp = "The total number of messages with last checked timestamp"
 )
 
 // ConsumedMessages shows number of messages consumed from Kafka by aggregator
@@ -69,6 +73,12 @@ var CheckSchemaVersion = promauto.NewCounter(prometheus.CounterOpts{
 var MarshalReport = promauto.NewCounter(prometheus.CounterOpts{
 	Name: MarshalReportName,
 	Help: MarshalReportHelp,
+})
+
+// ShrinkReport shows the number of messages with correct schema version
+var ShrinkReport = promauto.NewCounter(prometheus.CounterOpts{
+	Name: ShrinkReportName,
+	Help: ShrinkReportHelp,
 })
 
 // AddMetricsWithNamespace register the desired metrics using a given namespace
@@ -108,5 +118,11 @@ func AddMetricsWithNamespace(namespace string) {
 		Namespace: namespace,
 		Name:      MarshalReportName,
 		Help:      MarshalReportHelp,
+	})
+
+	ShrinkReport = promauto.NewCounter(prometheus.CounterOpts{
+		Namespace: namespace,
+		Name:      ShrinkReportName,
+		Help:      ShrinkReportHelp,
 	})
 }
