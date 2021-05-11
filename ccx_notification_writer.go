@@ -84,7 +84,7 @@ func tryToConnectToKafka(config ConfigStruct) (int, error) {
 	// prepare broker configuration
 	brokerConfiguration := GetBrokerConfiguration(config)
 
-	log.Info().Str("address", brokerConfiguration.Address).Msg("Broker address")
+	log.Info().Str("broker address", brokerConfiguration.Address).Msg("Broker address")
 
 	// create new broker instance (w/o any checks)
 	broker := sarama.NewBroker(brokerConfiguration.Address)
@@ -231,7 +231,7 @@ func startHTTPServer(address string) error {
 
 	// start the server
 	go func() {
-		log.Info().Str("address", address).Msg("Starting HTTP server")
+		log.Info().Str("HTTP server address", address).Msg("Starting HTTP server")
 		err := http.ListenAndServe(address, nil)
 		if err != nil {
 			log.Error().Err(err).Msg("Listen and serve")
