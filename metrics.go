@@ -32,6 +32,7 @@ const (
 	MarshalReportName             = "marshal_report"
 	ShrinkReportName              = "shrink_report"
 	CheckLastCheckedTimestampName = "check_last_checked_timestamp"
+	StoredMessagesName            = "stored_messages"
 )
 
 // Metrics helps
@@ -43,6 +44,7 @@ const (
 	MarshalReportHelp             = "The total number of marshaled reports"
 	ShrinkReportHelp              = "The total number of shrinked reports"
 	CheckLastCheckedTimestampHelp = "The total number of messages with last checked timestamp"
+	StoredMessagesHelp            = "The total number of messages stored into database"
 )
 
 // ConsumedMessages shows number of messages consumed from Kafka by aggregator
@@ -85,6 +87,12 @@ var ShrinkReport = promauto.NewCounter(prometheus.CounterOpts{
 var CheckLastCheckedTimestamp = promauto.NewCounter(prometheus.CounterOpts{
 	Name: CheckLastCheckedTimestampName,
 	Help: CheckLastCheckedTimestampHelp,
+})
+
+// StoredMessages shows number of messages stored into database
+var StoredMessages = promauto.NewCounter(prometheus.CounterOpts{
+	Name: StoredMessagesName,
+	Help: StoredMessagesHelp,
 })
 
 // AddMetricsWithNamespace register the desired metrics using a given namespace
@@ -142,4 +150,9 @@ func AddMetricsWithNamespace(namespace string) {
 		Help:      CheckLastCheckedTimestampHelp,
 	})
 
+	StoredMessages = promauto.NewCounter(prometheus.CounterOpts{
+		Namespace: namespace,
+		Name:      StoredMessagesName,
+		Help:      StoredMessagesHelp,
+	})
 }
