@@ -22,6 +22,29 @@ CCX notification writer service
 
 ## Metrics
 
+### Exposed metrics
+
+* `notification_writer_check_last_checked_timestamp`
+    - The total number of messages with last checked timestamp
+* `notification_writer_check_schema_version`
+    - The total number of messages with successfull schema check
+* `notification_writer_consumed_messages`
+    - The total number of messages consumed from Kafka
+* `notification_writer_consuming_errors`
+    - The total number of errors during consuming messages from Kafka
+* `notification_writer_marshal_report`
+    - The total number of marshaled reports
+* `notification_writer_parse_incoming_message`
+    - The total number of parsed messages
+* `notification_writer_shrink_report`
+    - The total number of shrinked reports
+* `notification_writer_stored_messages`
+    - The total number of messages stored into database
+* `notification_writer_stored_bytes`
+    - The total number of bytes stored into database
+
+### Retriewing metrics
+
 ```
 curl localhost:8080/metrics | grep ^notification_writer
 ```

@@ -354,7 +354,7 @@ func (consumer *KafkaConsumer) ProcessMessage(msg *sarama.ConsumerMessage) (Requ
 		return message.RequestID, err
 	}
 
-	// update metric
+	// update metric - number of parsed messages
 	ParsedIncomingMessage.Inc()
 
 	logMessageInfo(consumer, msg, message, "Read")
@@ -363,7 +363,7 @@ func (consumer *KafkaConsumer) ProcessMessage(msg *sarama.ConsumerMessage) (Requ
 	// Step #2: check message (schema) version
 	checkMessageVersion(consumer, &message, msg)
 
-	// update metric
+	// update metric - number of messages with successfull schema check
 	CheckSchemaVersion.Inc()
 
 	// Step #3: marshall report into byte slice to figure out original length
@@ -373,7 +373,7 @@ func (consumer *KafkaConsumer) ProcessMessage(msg *sarama.ConsumerMessage) (Requ
 		return message.RequestID, err
 	}
 
-	// update metric
+	// update metric - number of marshaled reports
 	MarshalReport.Inc()
 
 	logMessageInfo(consumer, msg, message, "Marshalled")
@@ -389,7 +389,7 @@ func (consumer *KafkaConsumer) ProcessMessage(msg *sarama.ConsumerMessage) (Requ
 	}
 	logShrinkedMessage(reportAsBytes, shrinkedAsBytes)
 
-	// update metric
+	// update metric - number of shrinked reports
 	ShrinkReport.Inc()
 
 	tShrinked := time.Now()
@@ -406,7 +406,7 @@ func (consumer *KafkaConsumer) ProcessMessage(msg *sarama.ConsumerMessage) (Requ
 		logMessageError(consumer, msg, message, "Got a message from the future", nil)
 	}
 
-	// update metric
+	// update metric - number of messages with last checked timestamp
 	CheckLastCheckedTimestamp.Inc()
 
 	logMessageInfo(consumer, msg, message, "Time ok")
@@ -429,6 +429,13 @@ func (consumer *KafkaConsumer) ProcessMessage(msg *sarama.ConsumerMessage) (Requ
 		logMessageError(consumer, msg, message, "Error writing report to database", err)
 		return message.RequestID, err
 	}
+
+	// update metric - number of messages stored into database
+	StoredMessages.Inc()
+
+	// update metric - number of bytes stored into database
+	// beware: counter value is represented as float64, not as bytes as you'd expect
+	StoredBytes.Add(float64(len(shrinkedAsBytes)))
 
 	logMessageInfo(consumer, msg, message, "Stored")
 	tStored := time.Now()
