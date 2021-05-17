@@ -55,16 +55,17 @@ const (
 )
 
 // CurrentSchemaVersion represents the currently supported data schema version
-const CurrentSchemaVersion = SchemaVersion(1)
+const CurrentSchemaVersion = SchemaVersion(2)
 
 // Report represents report send in a message consumed from any broker
 type Report map[string]*json.RawMessage
 
 // incomingMessage is representation of message consumed from any broker
 type incomingMessage struct {
-	Organization *OrgID       `json:"OrgID"`
-	ClusterName  *ClusterName `json:"ClusterName"`
-	Report       *Report      `json:"Report"`
+	Organization  *OrgID         `json:"OrgID"`
+	AccountNumber *AccountNumber `json:"AccountNumber"`
+	ClusterName   *ClusterName   `json:"ClusterName"`
+	Report        *Report        `json:"Report"`
 	// LastChecked is a date in format "2020-01-23T16:15:59.478901889Z"
 	LastChecked string        `json:"LastChecked"`
 	Version     SchemaVersion `json:"Version"`
@@ -416,6 +417,7 @@ func (consumer *KafkaConsumer) ProcessMessage(msg *sarama.ConsumerMessage) (Requ
 	// Step #6: write the shrinked report into storage (database)
 	err = consumer.storage.WriteReportForCluster(
 		*message.Organization,
+		*message.AccountNumber,
 		*message.ClusterName,
 		ClusterReport(shrinkedAsBytes),
 		tTimeCheck,
@@ -490,6 +492,9 @@ func parseMessage(messageValue []byte) (incomingMessage, error) {
 
 	if deserialized.Organization == nil {
 		return deserialized, errors.New("missing required attribute 'OrgID'")
+	}
+	if deserialized.AccountNumber == nil {
+		return deserialized, errors.New("missing required attribute 'AccountNumber'")
 	}
 	if deserialized.ClusterName == nil {
 		return deserialized, errors.New("missing required attribute 'ClusterName'")

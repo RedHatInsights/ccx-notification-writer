@@ -65,6 +65,39 @@ service postgresql status
 sudo service postgresql start
 ```
 
+### Login into the database
+
+```
+psql --user postgres
+```
+
+List all databases:
+
+```
+\l
+```
+
+Select the right database:
+
+```
+\c notification
+```
+
+List of tables:
+
+```
+\dt
+
+               List of relations
+ Schema |        Name        | Type  |  Owner
+--------+--------------------+-------+----------
+ public | new_reports        | table | postgres
+ public | notification_types | table | postgres
+ public | reported           | table | postgres
+ public | states             | table | postgres
+(4 rows)
+```
+
 ## Database schema
 
 ### Table `new_reports`
@@ -73,6 +106,7 @@ sudo service postgresql start
    Column   |            Type             | Modifiers
 ------------+-----------------------------+-----------
  org_id     | integer                     | not null
+ account_id | integer                     | not null
  cluster    | character(36)               | not null
  report     | character varying           | not null
  updated_at | timestamp without time zone | not null
@@ -101,6 +135,7 @@ Referenced by:
       Column       |            Type             | Modifiers
 -------------------+-----------------------------+-----------
  org_id            | integer                     | not null
+ account_id        | integer                     | not null
  cluster           | character(36)               | not null
  notification_type | integer                     | not null
  state             | integer                     | not null

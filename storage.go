@@ -63,6 +63,7 @@ const (
 	createTableReported = `
                 create table reported (
                     org_id            integer not null,
+                    account_number    integer not null,
                     cluster           character(36) not null,
                     notification_type integer not null,
                     state             integer not null,
@@ -82,6 +83,7 @@ const (
 	createTableNewReports = `
                 create table new_reports (
                     org_id            integer not null,
+                    account_number    integer not null,
                     cluster           character(36) not null,
                     report            varchar not null,
                     updated_at        timestamp not null,
@@ -94,8 +96,8 @@ const (
 // SQL statements
 const (
 	InsertNewReportStatement = `
-		INSERT INTO new_reports(org_id, cluster, report, updated_at)
-		VALUES ($1, $2, $3, $4);
+		INSERT INTO new_reports(org_id, account_number, cluster, report, updated_at)
+		VALUES ($1, $2, $3, $4, $5);
 	`
 )
 
@@ -110,6 +112,7 @@ type Storage interface {
 	Close() error
 	WriteReportForCluster(
 		orgID OrgID,
+		accountNumber AccountNumber,
 		clusterName ClusterName,
 		report ClusterReport,
 		collectedAtTime time.Time,
@@ -235,6 +238,7 @@ func (storage DBStorage) Close() error {
 // WriteReportForCluster writes result (health status) for selected cluster for given organization
 func (storage DBStorage) WriteReportForCluster(
 	orgID OrgID,
+	accountNumber AccountNumber,
 	clusterName ClusterName,
 	report ClusterReport,
 	lastCheckedTime time.Time,
@@ -250,7 +254,7 @@ func (storage DBStorage) WriteReportForCluster(
 	}
 
 	err = func(tx *sql.Tx) error {
-		err = storage.insertReport(tx, orgID, clusterName, report, lastCheckedTime)
+		err = storage.insertReport(tx, orgID, accountNumber, clusterName, report, lastCheckedTime)
 		if err != nil {
 			return err
 		}
@@ -266,14 +270,16 @@ func (storage DBStorage) WriteReportForCluster(
 func (storage DBStorage) insertReport(
 	tx *sql.Tx,
 	orgID OrgID,
+	accountNumber AccountNumber,
 	clusterName ClusterName,
 	report ClusterReport,
 	lastCheckedTime time.Time,
 ) error {
-	_, err := tx.Exec(InsertNewReportStatement, orgID, clusterName, report, lastCheckedTime)
+	_, err := tx.Exec(InsertNewReportStatement, orgID, accountNumber, clusterName, report, lastCheckedTime)
 	if err != nil {
 		log.Err(err).
 			Int("org", int(orgID)).
+			Int("account", int(accountNumber)).
 			Str("cluster", string(clusterName)).
 			Str("last checked", lastCheckedTime.String()).
 			Msg("Unable to insert the cluster report")

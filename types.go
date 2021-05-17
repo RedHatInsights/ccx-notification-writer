@@ -40,6 +40,9 @@ type KafkaOffset int64
 // OrgID data type represents organization ID.
 type OrgID uint32
 
+// AccountNumber data type represents account number.
+type AccountNumber uint32
+
 // ClusterName data type represents name of cluster in format
 // c8590f31-e97e-4b85-b506-c45ce1911a12 (ie. in UUID format).
 type ClusterName string
