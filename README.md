@@ -73,6 +73,7 @@ sudo service postgresql start
    Column   |            Type             | Modifiers
 ------------+-----------------------------+-----------
  org_id     | integer                     | not null
+ account_id | integer                     | not null
  cluster    | character(36)               | not null
  report     | character varying           | not null
  updated_at | timestamp without time zone | not null
@@ -101,6 +102,7 @@ Referenced by:
       Column       |            Type             | Modifiers
 -------------------+-----------------------------+-----------
  org_id            | integer                     | not null
+ account_id        | integer                     | not null
  cluster           | character(36)               | not null
  notification_type | integer                     | not null
  state             | integer                     | not null
