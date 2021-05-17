@@ -65,6 +65,39 @@ service postgresql status
 sudo service postgresql start
 ```
 
+### Login into the database
+
+```
+psql --user postgres
+```
+
+List all databases:
+
+```
+\l
+```
+
+Select the right database:
+
+```
+\c notification
+```
+
+List of tables:
+
+```
+\dt
+
+               List of relations
+ Schema |        Name        | Type  |  Owner
+--------+--------------------+-------+----------
+ public | new_reports        | table | postgres
+ public | notification_types | table | postgres
+ public | reported           | table | postgres
+ public | states             | table | postgres
+(4 rows)
+```
+
 ## Database schema
 
 ### Table `new_reports`
