@@ -123,6 +123,7 @@ type Storage interface {
 	DatabaseInitialization() error
 	DatabaseCleanup() error
 	DatabaseDropTables() error
+	DatabaseDropIndexes() error
 }
 
 // DBStorage is an implementation of Storage interface that use selected SQL like database
@@ -140,6 +141,9 @@ var ErrOldReport = errors.New("More recent report already exists in storage")
 
 // tableNames contains names of all tables in the database.
 var tableNames []string
+
+// indexNames contains names of all indexes in the database.
+var indexNames []string
 
 // initStatements contains all statements used to initialize database
 var initStatements []string
@@ -172,6 +176,11 @@ func NewStorage(configuration StorageConfiguration) (*DBStorage, error) {
 		"reported",
 		"notification_types",
 		"states",
+	}
+
+	// lazy initialization (TODO: use init function instead?)
+	indexNames = []string{
+		"report_kafka_offset_btree_idx",
 	}
 
 	// lazy initialization (TODO: use init function instead?)
@@ -363,6 +372,16 @@ func dropTableStatement(tableName string) string {
 // DatabaseDropTables method performs database drop for all tables in database.
 func (storage DBStorage) DatabaseDropTables() error {
 	err := tablesRelatedOperation(storage, dropTableStatement)
+	return err
+}
+
+func dropIndexStatement(indexName string) string {
+	return "DROP INDEX IF EXISTS " + indexName + ";"
+}
+
+// DatabaseDropIndexes method performs database drop for all tables in database.
+func (storage DBStorage) DatabaseDropIndexes() error {
+	err := tablesRelatedOperation(storage, dropIndexStatement)
 	return err
 }
 
