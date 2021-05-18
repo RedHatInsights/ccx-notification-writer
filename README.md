@@ -103,15 +103,17 @@ List of tables:
 ### Table `new_reports`
 
 ```
-   Column   |            Type             | Modifiers
-------------+-----------------------------+-----------
- org_id     | integer                     | not null
- account_id | integer                     | not null
- cluster    | character(36)               | not null
- report     | character varying           | not null
- updated_at | timestamp without time zone | not null
+   Column     |            Type             | Modifiers
+--------------+-----------------------------+-----------
+ org_id       | integer                     | not null
+ account_id   | integer                     | not null
+ cluster      | character(36)               | not null
+ report       | character varying           | not null
+ updated_at   | timestamp without time zone | not null
+ kafka_offset | bigint                      | not null default 0
 Indexes:
     "new_reports_pkey" PRIMARY KEY, btree (org_id, cluster, updated_at)
+    "report_kafka_offset_btree_idx" btree (kafka_offset)
 ```
 
 ### Table `states`
