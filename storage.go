@@ -99,8 +99,8 @@ const (
 // SQL statements
 const (
 	InsertNewReportStatement = `
-		INSERT INTO new_reports(org_id, account_number, cluster, report, updated_at)
-		VALUES ($1, $2, $3, $4, $5);
+		INSERT INTO new_reports(org_id, account_number, cluster, report, updated_at, kafka_offset)
+		VALUES ($1, $2, $3, $4, $5, $6);
 	`
 )
 
@@ -119,11 +119,13 @@ type Storage interface {
 		clusterName ClusterName,
 		report ClusterReport,
 		collectedAtTime time.Time,
+		kafkaOffset KafkaOffset,
 	) error
 	DatabaseInitialization() error
 	DatabaseCleanup() error
 	DatabaseDropTables() error
 	DatabaseDropIndexes() error
+	GetLatestKafkaOffset() (KafkaOffset, error)
 }
 
 // DBStorage is an implementation of Storage interface that use selected SQL like database
@@ -255,6 +257,7 @@ func (storage DBStorage) WriteReportForCluster(
 	clusterName ClusterName,
 	report ClusterReport,
 	lastCheckedTime time.Time,
+	kafkaOffset KafkaOffset,
 ) error {
 	if storage.dbDriverType != DBDriverSQLite3 && storage.dbDriverType != DBDriverPostgres {
 		return fmt.Errorf("Writing report with DB %v is not supported", storage.dbDriverType)
@@ -267,7 +270,7 @@ func (storage DBStorage) WriteReportForCluster(
 	}
 
 	err = func(tx *sql.Tx) error {
-		err = storage.insertReport(tx, orgID, accountNumber, clusterName, report, lastCheckedTime)
+		err = storage.insertReport(tx, orgID, accountNumber, clusterName, report, lastCheckedTime, kafkaOffset)
 		if err != nil {
 			return err
 		}
@@ -287,12 +290,14 @@ func (storage DBStorage) insertReport(
 	clusterName ClusterName,
 	report ClusterReport,
 	lastCheckedTime time.Time,
+	kafkaOffset KafkaOffset,
 ) error {
-	_, err := tx.Exec(InsertNewReportStatement, orgID, accountNumber, clusterName, report, lastCheckedTime)
+	_, err := tx.Exec(InsertNewReportStatement, orgID, accountNumber, clusterName, report, lastCheckedTime, kafkaOffset)
 	if err != nil {
 		log.Err(err).
 			Int("org", int(orgID)).
 			Int("account", int(accountNumber)).
+			Int64("kafka offset", int64(kafkaOffset)).
 			Str("cluster", string(clusterName)).
 			Str("last checked", lastCheckedTime.String()).
 			Msg("Unable to insert the cluster report")
@@ -414,4 +419,11 @@ func (storage DBStorage) DatabaseInitialization() error {
 	finishTransaction(tx, err)
 
 	return err
+}
+
+// GetLatestKafkaOffset returns latest kafka offset from report table
+func (storage DBStorage) GetLatestKafkaOffset() (KafkaOffset, error) {
+	var offset KafkaOffset
+	err := storage.connection.QueryRow("SELECT COALESCE(MAX(kafka_offset), 0) FROM new_reports;").Scan(&offset)
+	return offset, err
 }
