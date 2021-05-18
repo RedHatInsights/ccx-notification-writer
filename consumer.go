@@ -208,14 +208,14 @@ func (consumer *KafkaConsumer) ConsumeClaim(session sarama.ConsumerGroupSession,
 		Int64(offsetKey, claim.InitialOffset()).
 		Msg("Starting messages loop")
 
-	/*
-		latestMessageOffset, err := consumer.Storage.GetLatestKafkaOffset()
-		if err != nil {
-			log.Error().Msg("Unable to get latest offset")
-			latestMessageOffset = 0
-		}
-	*/
-	latestMessageOffset := KafkaOffset(0)
+	latestMessageOffset, err := consumer.storage.GetLatestKafkaOffset()
+	if err != nil {
+		log.Error().Msg("Unable to get latest offset")
+		latestMessageOffset = 0
+	}
+	log.Info().
+		Int64("Offset in DB", int64(latestMessageOffset)).
+		Msg("Latest offset read from database")
 
 	for message := range claim.Messages() {
 		if KafkaOffset(message.Offset) <= latestMessageOffset {
@@ -414,6 +414,8 @@ func (consumer *KafkaConsumer) ProcessMessage(msg *sarama.ConsumerMessage) (Requ
 
 	tTimeCheck := time.Now()
 
+	kafkaOffset := KafkaOffset(msg.Offset)
+
 	// Step #6: write the shrinked report into storage (database)
 	err = consumer.storage.WriteReportForCluster(
 		*message.Organization,
@@ -421,6 +423,7 @@ func (consumer *KafkaConsumer) ProcessMessage(msg *sarama.ConsumerMessage) (Requ
 		*message.ClusterName,
 		ClusterReport(shrinkedAsBytes),
 		tTimeCheck,
+		kafkaOffset,
 	)
 	if err != nil {
 		if err == ErrOldReport {
