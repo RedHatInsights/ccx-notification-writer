@@ -87,10 +87,13 @@ const (
                     cluster           character(36) not null,
                     report            varchar not null,
                     updated_at        timestamp not null,
+                    kafka_offset      bigint not null default 0,
                 
                     PRIMARY KEY (org_id, cluster, updated_at)
                 );
 `
+
+	createIndexKafkaOffset = "CREATE INDEX report_kafka_offset_btree_idx ON new_reports (kafka_offset)"
 )
 
 // SQL statements
@@ -177,6 +180,7 @@ func NewStorage(configuration StorageConfiguration) (*DBStorage, error) {
 		createTableStates,
 		createTableReported,
 		createTableNewReports,
+		createIndexKafkaOffset,
 	}
 
 	log.Info().Msg("Connection to storage established")
