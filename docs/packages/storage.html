@@ -168,8 +168,16 @@ DataSource - specification of data source. The content of this parameter depends
 	<td class="doc"><p>Table creation-related scripts</p>
 </td>
 	<td class="code"><pre><code><div class="keyword">const</div> <div class="operator">(</div>
-	<div class="ident">createTableNotificationTypes</div> <div class="operator">=</div> <div class="literal">`
-                create table notification_types (
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>This table contains list of all notification types used by
+Notification service. Frequency can be specified as in <code>crontab</code> -
+https://crontab.guru/</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">createTableNotificationTypes</div> <div class="operator">=</div> <div class="literal">`
+                CREATE TABLE notification_types (
                     id          integer not null,
                     value       varchar not null,
                     frequency   varchar not null,
@@ -179,8 +187,17 @@ DataSource - specification of data source. The content of this parameter depends
                 );
 `</div><div class="operator"></div>
 
-	<div class="ident">createTableStates</div> <div class="operator">=</div> <div class="literal">`
-                create table states (
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>This table contains states for each row stored in <code>reported</code> table.
+User can be notified about the report, report can be skipped if the
+same as previous, skipped becuase of lower pripority, or can be in
+error state.</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">createTableStates</div> <div class="operator">=</div> <div class="literal">`
+                CREATE TABLE states (
                     id          integer not null,
                     value       varchar not null,
                     comment     varchar,
@@ -189,14 +206,24 @@ DataSource - specification of data source. The content of this parameter depends
                 );
 `</div><div class="operator"></div>
 
-	<div class="ident">createTableReported</div> <div class="operator">=</div> <div class="literal">`
-                create table reported (
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>Information of notifications reported to user or skipped due to some
+conditions.</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">createTableReported</div> <div class="operator">=</div> <div class="literal">`
+                CREATE TABLE reported (
                     org_id            integer not null,
+                    account_number    integer not null,
                     cluster           character(36) not null,
                     notification_type integer not null,
                     state             integer not null,
                     report            varchar not null,
                     updated_at        timestamp not null,
+                    notified_at       timestamp not null,
+		    error_log         varchar,
                 
                     PRIMARY KEY (org_id, cluster),
                     CONSTRAINT fk_notification_type
@@ -208,15 +235,98 @@ DataSource - specification of data source. The content of this parameter depends
                 );
 `</div><div class="operator"></div>
 
-	<div class="ident">createTableNewReports</div> <div class="operator">=</div> <div class="literal">`
-                create table new_reports (
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>This table contains new reports consumed from Kafka topic and stored
+to database in shrinked format (some attributes are removed).</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">createTableNewReports</div> <div class="operator">=</div> <div class="literal">`
+                CREATE TABLE new_reports (
                     org_id            integer not null,
+                    account_number    integer not null,
                     cluster           character(36) not null,
                     report            varchar not null,
                     updated_at        timestamp not null,
+                    kafka_offset      bigint not null default 0,
                 
                     PRIMARY KEY (org_id, cluster, updated_at)
                 );
+`</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>Index for the new_reports table</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">createIndexKafkaOffset</div> <div class="operator">=</div> <div class="literal">`
+                CREATE INDEX report_kafka_offset_btree_idx
+		       ON new_reports (kafka_offset)
+`</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>Value to be stored in notification_types table</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">insertInstantReport</div> <div class="operator">=</div> <div class="literal">`
+                INSERT INTO notification_types (id, value, frequency, comment)
+		            VALUES (1, &#39;instant&#39;, &#39;* * * * * *&#39;, &#39;instant notifications performed ASAP&#39;);
+`</div><div class="operator"></div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>Value to be stored in notification_types table</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">insertWeeklySummary</div> <div class="operator">=</div> <div class="literal">`
+                INSERT INTO notification_types (id, value, frequency, comment)
+		            VALUES (2, &#39;instant&#39;, &#39;@weekly&#39;, &#39;weekly summary&#39;);
+`</div><div class="operator"></div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>Value to be stored in states table</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">insertSentState</div> <div class="operator">=</div> <div class="literal">`
+                INSERT INTO states (id, value, comment)
+		            VALUES (1, &#39;sent&#39;, &#39;notification has been sent to user&#39;);
+`</div><div class="operator"></div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>Value to be stored in states table</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">insertSentSame</div> <div class="operator">=</div> <div class="literal">`
+                INSERT INTO states (id, value, comment)
+		            VALUES (2, &#39;same&#39;, &#39;skipped, report is the same as previous one&#39;);
+`</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>Value to be stored in states table</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">insertSentLowPriority</div> <div class="operator">=</div> <div class="literal">`
+                INSERT INTO states (id, value, comment)
+		            VALUES (3, &#39;lower&#39;, &#39;skipped, all issues has low priority&#39;);
+`</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>Value to be stored in states table</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">insertSentError</div> <div class="operator">=</div> <div class="literal">`
+                INSERT INTO states (id, value, comment)
+		            VALUES (4, &#39;error&#39;, &#39;notification delivery error&#39;);
 `</div><div class="operator"></div>
 <div class="operator">)</div><div class="operator"></div>
 
@@ -228,8 +338,8 @@ DataSource - specification of data source. The content of this parameter depends
 </td>
 	<td class="code"><pre><code><div class="keyword">const</div> <div class="operator">(</div>
 	<div class="ident">InsertNewReportStatement</div> <div class="operator">=</div> <div class="literal">`
-		INSERT INTO new_reports(org_id, cluster, report, updated_at)
-		VALUES ($1, $2, $3, $4);
+		INSERT INTO new_reports(org_id, account_number, cluster, report, updated_at, kafka_offset)
+		VALUES ($1, $2, $3, $4, $5, $6);
 	`</div><div class="operator"></div>
 <div class="operator">)</div><div class="operator"></div>
 
@@ -254,13 +364,17 @@ DataSource - specification of data source. The content of this parameter depends
 	<div class="ident">Close</div><div class="operator">(</div><div class="operator">)</div> <div class="ident">error</div><div class="operator"></div>
 	<div class="ident">WriteReportForCluster</div><div class="operator">(</div>
 		<div class="ident">orgID</div> <div class="ident">OrgID</div><div class="operator">,</div>
+		<div class="ident">accountNumber</div> <div class="ident">AccountNumber</div><div class="operator">,</div>
 		<div class="ident">clusterName</div> <div class="ident">ClusterName</div><div class="operator">,</div>
 		<div class="ident">report</div> <div class="ident">ClusterReport</div><div class="operator">,</div>
 		<div class="ident">collectedAtTime</div> <div class="ident">time</div><div class="operator">.</div><div class="ident">Time</div><div class="operator">,</div>
+		<div class="ident">kafkaOffset</div> <div class="ident">KafkaOffset</div><div class="operator">,</div>
 	<div class="operator">)</div> <div class="ident">error</div><div class="operator"></div>
 	<div class="ident">DatabaseInitialization</div><div class="operator">(</div><div class="operator">)</div> <div class="ident">error</div><div class="operator"></div>
 	<div class="ident">DatabaseCleanup</div><div class="operator">(</div><div class="operator">)</div> <div class="ident">error</div><div class="operator"></div>
 	<div class="ident">DatabaseDropTables</div><div class="operator">(</div><div class="operator">)</div> <div class="ident">error</div><div class="operator"></div>
+	<div class="ident">DatabaseDropIndexes</div><div class="operator">(</div><div class="operator">)</div> <div class="ident">error</div><div class="operator"></div>
+	<div class="ident">GetLatestKafkaOffset</div><div class="operator">(</div><div class="operator">)</div> <div class="operator">(</div><div class="ident">KafkaOffset</div><div class="operator">,</div> <div class="ident">error</div><div class="operator">)</div><div class="operator"></div>
 <div class="operator">}</div><div class="operator"></div>
 
 </code></pre></td>
@@ -293,6 +407,14 @@ exists on the storage while attempting to write a report for a cluster.</p>
 	<td class="doc"><p>tableNames contains names of all tables in the database.</p>
 </td>
 	<td class="code"><pre><code><div class="keyword">var</div> <div class="ident">tableNames</div> <div class="operator">[</div><div class="operator">]</div><div class="ident">string</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>indexNames contains names of all indexes in the database.</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">var</div> <div class="ident">indexNames</div> <div class="operator">[</div><div class="operator">]</div><div class="ident">string</div><div class="operator"></div>
 
 </code></pre></td>
       </tr>
@@ -353,11 +475,48 @@ exists on the storage while attempting to write a report for a cluster.</p>
       <tr class="section">
 	<td class="doc"><p>lazy initialization (TODO: use init function instead?)</p>
 </td>
+	<td class="code"><pre><code>	<div class="ident">indexNames</div> <div class="operator">=</div> <div class="operator">[</div><div class="operator">]</div><div class="ident">string</div><div class="operator">{</div>
+		<div class="literal">&#34;report_kafka_offset_btree_idx&#34;</div><div class="operator">,</div>
+	<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>lazy initialization (TODO: use init function instead?)</p>
+</td>
 	<td class="code"><pre><code>	<div class="ident">initStatements</div> <div class="operator">=</div> <div class="operator">[</div><div class="operator">]</div><div class="ident">string</div><div class="operator">{</div>
-		<div class="ident">createTableNotificationTypes</div><div class="operator">,</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>tables</p>
+</td>
+	<td class="code"><pre><code>		<div class="ident">createTableNotificationTypes</div><div class="operator">,</div>
 		<div class="ident">createTableStates</div><div class="operator">,</div>
 		<div class="ident">createTableReported</div><div class="operator">,</div>
 		<div class="ident">createTableNewReports</div><div class="operator">,</div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>offsets</p>
+</td>
+	<td class="code"><pre><code>		<div class="ident">createIndexKafkaOffset</div><div class="operator">,</div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>records</p>
+</td>
+	<td class="code"><pre><code>		<div class="ident">insertInstantReport</div><div class="operator">,</div>
+		<div class="ident">insertWeeklySummary</div><div class="operator">,</div>
+		<div class="ident">insertSentState</div><div class="operator">,</div>
+		<div class="ident">insertSentSame</div><div class="operator">,</div>
+		<div class="ident">insertSentLowPriority</div><div class="operator">,</div>
+		<div class="ident">insertSentError</div><div class="operator">,</div>
 	<div class="operator">}</div><div class="operator"></div>
 
 	<div class="ident">log</div><div class="operator">.</div><div class="ident">Info</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;Connection to storage established&#34;</div><div class="operator">)</div><div class="operator"></div>
@@ -454,9 +613,11 @@ dataSource = configuration.SQLiteDataSource</p>
 </td>
 	<td class="code"><pre><code><div class="keyword">func</div> <div class="operator">(</div><div class="ident">storage</div> <div class="ident">DBStorage</div><div class="operator">)</div> <div class="ident">WriteReportForCluster</div><div class="operator">(</div>
 	<div class="ident">orgID</div> <div class="ident">OrgID</div><div class="operator">,</div>
+	<div class="ident">accountNumber</div> <div class="ident">AccountNumber</div><div class="operator">,</div>
 	<div class="ident">clusterName</div> <div class="ident">ClusterName</div><div class="operator">,</div>
 	<div class="ident">report</div> <div class="ident">ClusterReport</div><div class="operator">,</div>
 	<div class="ident">lastCheckedTime</div> <div class="ident">time</div><div class="operator">.</div><div class="ident">Time</div><div class="operator">,</div>
+	<div class="ident">kafkaOffset</div> <div class="ident">KafkaOffset</div><div class="operator">,</div>
 <div class="operator">)</div> <div class="ident">error</div> <div class="operator">{</div>
 	<div class="keyword">if</div> <div class="ident">storage</div><div class="operator">.</div><div class="ident">dbDriverType</div> <div class="operator">!=</div> <div class="ident">DBDriverSQLite3</div> <div class="operator">&amp;&amp;</div> <div class="ident">storage</div><div class="operator">.</div><div class="ident">dbDriverType</div> <div class="operator">!=</div> <div class="ident">DBDriverPostgres</div> <div class="operator">{</div>
 		<div class="keyword">return</div> <div class="ident">fmt</div><div class="operator">.</div><div class="ident">Errorf</div><div class="operator">(</div><div class="literal">&#34;Writing report with DB %v is not supported&#34;</div><div class="operator">,</div> <div class="ident">storage</div><div class="operator">.</div><div class="ident">dbDriverType</div><div class="operator">)</div><div class="operator"></div>
@@ -474,7 +635,7 @@ dataSource = configuration.SQLiteDataSource</p>
 	<div class="operator">}</div><div class="operator"></div>
 
 	<div class="ident">err</div> <div class="operator">=</div> <div class="keyword">func</div><div class="operator">(</div><div class="ident">tx</div> <div class="operator">*</div><div class="ident">sql</div><div class="operator">.</div><div class="ident">Tx</div><div class="operator">)</div> <div class="ident">error</div> <div class="operator">{</div>
-		<div class="ident">err</div> <div class="operator">=</div> <div class="ident">storage</div><div class="operator">.</div><div class="ident">insertReport</div><div class="operator">(</div><div class="ident">tx</div><div class="operator">,</div> <div class="ident">orgID</div><div class="operator">,</div> <div class="ident">clusterName</div><div class="operator">,</div> <div class="ident">report</div><div class="operator">,</div> <div class="ident">lastCheckedTime</div><div class="operator">)</div><div class="operator"></div>
+		<div class="ident">err</div> <div class="operator">=</div> <div class="ident">storage</div><div class="operator">.</div><div class="ident">insertReport</div><div class="operator">(</div><div class="ident">tx</div><div class="operator">,</div> <div class="ident">orgID</div><div class="operator">,</div> <div class="ident">accountNumber</div><div class="operator">,</div> <div class="ident">clusterName</div><div class="operator">,</div> <div class="ident">report</div><div class="operator">,</div> <div class="ident">lastCheckedTime</div><div class="operator">,</div> <div class="ident">kafkaOffset</div><div class="operator">)</div><div class="operator"></div>
 		<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
 			<div class="keyword">return</div> <div class="ident">err</div><div class="operator"></div>
 		<div class="operator">}</div><div class="operator"></div>
@@ -490,14 +651,18 @@ dataSource = configuration.SQLiteDataSource</p>
 <div class="keyword">func</div> <div class="operator">(</div><div class="ident">storage</div> <div class="ident">DBStorage</div><div class="operator">)</div> <div class="ident">insertReport</div><div class="operator">(</div>
 	<div class="ident">tx</div> <div class="operator">*</div><div class="ident">sql</div><div class="operator">.</div><div class="ident">Tx</div><div class="operator">,</div>
 	<div class="ident">orgID</div> <div class="ident">OrgID</div><div class="operator">,</div>
+	<div class="ident">accountNumber</div> <div class="ident">AccountNumber</div><div class="operator">,</div>
 	<div class="ident">clusterName</div> <div class="ident">ClusterName</div><div class="operator">,</div>
 	<div class="ident">report</div> <div class="ident">ClusterReport</div><div class="operator">,</div>
 	<div class="ident">lastCheckedTime</div> <div class="ident">time</div><div class="operator">.</div><div class="ident">Time</div><div class="operator">,</div>
+	<div class="ident">kafkaOffset</div> <div class="ident">KafkaOffset</div><div class="operator">,</div>
 <div class="operator">)</div> <div class="ident">error</div> <div class="operator">{</div>
-	<div class="ident">_</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">tx</div><div class="operator">.</div><div class="ident">Exec</div><div class="operator">(</div><div class="ident">InsertNewReportStatement</div><div class="operator">,</div> <div class="ident">orgID</div><div class="operator">,</div> <div class="ident">clusterName</div><div class="operator">,</div> <div class="ident">report</div><div class="operator">,</div> <div class="ident">lastCheckedTime</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">_</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">tx</div><div class="operator">.</div><div class="ident">Exec</div><div class="operator">(</div><div class="ident">InsertNewReportStatement</div><div class="operator">,</div> <div class="ident">orgID</div><div class="operator">,</div> <div class="ident">accountNumber</div><div class="operator">,</div> <div class="ident">clusterName</div><div class="operator">,</div> <div class="ident">report</div><div class="operator">,</div> <div class="ident">lastCheckedTime</div><div class="operator">,</div> <div class="ident">kafkaOffset</div><div class="operator">)</div><div class="operator"></div>
 	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
 		<div class="ident">log</div><div class="operator">.</div><div class="ident">Err</div><div class="operator">(</div><div class="ident">err</div><div class="operator">)</div><div class="operator">.</div>
 			<div class="ident">Int</div><div class="operator">(</div><div class="literal">&#34;org&#34;</div><div class="operator">,</div> <div class="ident">int</div><div class="operator">(</div><div class="ident">orgID</div><div class="operator">)</div><div class="operator">)</div><div class="operator">.</div>
+			<div class="ident">Int</div><div class="operator">(</div><div class="literal">&#34;account&#34;</div><div class="operator">,</div> <div class="ident">int</div><div class="operator">(</div><div class="ident">accountNumber</div><div class="operator">)</div><div class="operator">)</div><div class="operator">.</div>
+			<div class="ident">Int64</div><div class="operator">(</div><div class="literal">&#34;kafka offset&#34;</div><div class="operator">,</div> <div class="ident">int64</div><div class="operator">(</div><div class="ident">kafkaOffset</div><div class="operator">)</div><div class="operator">)</div><div class="operator">.</div>
 			<div class="ident">Str</div><div class="operator">(</div><div class="literal">&#34;cluster&#34;</div><div class="operator">,</div> <div class="ident">string</div><div class="operator">(</div><div class="ident">clusterName</div><div class="operator">)</div><div class="operator">)</div><div class="operator">.</div>
 			<div class="ident">Str</div><div class="operator">(</div><div class="literal">&#34;last checked&#34;</div><div class="operator">,</div> <div class="ident">lastCheckedTime</div><div class="operator">.</div><div class="ident">String</div><div class="operator">(</div><div class="operator">)</div><div class="operator">)</div><div class="operator">.</div>
 			<div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;Unable to insert the cluster report&#34;</div><div class="operator">)</div><div class="operator"></div>
@@ -621,6 +786,21 @@ tables in database.</p>
 	<div class="keyword">return</div> <div class="ident">err</div><div class="operator"></div>
 <div class="operator">}</div><div class="operator"></div>
 
+<div class="keyword">func</div> <div class="ident">dropIndexStatement</div><div class="operator">(</div><div class="ident">indexName</div> <div class="ident">string</div><div class="operator">)</div> <div class="ident">string</div> <div class="operator">{</div>
+	<div class="keyword">return</div> <div class="literal">&#34;DROP INDEX IF EXISTS &#34;</div> <div class="operator">&#43;</div> <div class="ident">indexName</div> <div class="operator">&#43;</div> <div class="literal">&#34;;&#34;</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>DatabaseDropIndexes method performs database drop for all tables in database.</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="operator">(</div><div class="ident">storage</div> <div class="ident">DBStorage</div><div class="operator">)</div> <div class="ident">DatabaseDropIndexes</div><div class="operator">(</div><div class="operator">)</div> <div class="ident">error</div> <div class="operator">{</div>
+	<div class="ident">err</div> <div class="operator">:=</div> <div class="ident">tablesRelatedOperation</div><div class="operator">(</div><div class="ident">storage</div><div class="operator">,</div> <div class="ident">dropIndexStatement</div><div class="operator">)</div><div class="operator"></div>
+	<div class="keyword">return</div> <div class="ident">err</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
 </code></pre></td>
       </tr>
       
@@ -675,6 +855,18 @@ tables in database.</p>
 	<div class="ident">finishTransaction</div><div class="operator">(</div><div class="ident">tx</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">)</div><div class="operator"></div>
 
 	<div class="keyword">return</div> <div class="ident">err</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>GetLatestKafkaOffset returns latest kafka offset from report table</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="operator">(</div><div class="ident">storage</div> <div class="ident">DBStorage</div><div class="operator">)</div> <div class="ident">GetLatestKafkaOffset</div><div class="operator">(</div><div class="operator">)</div> <div class="operator">(</div><div class="ident">KafkaOffset</div><div class="operator">,</div> <div class="ident">error</div><div class="operator">)</div> <div class="operator">{</div>
+	<div class="keyword">var</div> <div class="ident">offset</div> <div class="ident">KafkaOffset</div><div class="operator"></div>
+	<div class="ident">err</div> <div class="operator">:=</div> <div class="ident">storage</div><div class="operator">.</div><div class="ident">connection</div><div class="operator">.</div><div class="ident">QueryRow</div><div class="operator">(</div><div class="literal">&#34;SELECT COALESCE(MAX(kafka_offset), 0) FROM new_reports;&#34;</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Scan</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">offset</div><div class="operator">)</div><div class="operator"></div>
+	<div class="keyword">return</div> <div class="ident">offset</div><div class="operator">,</div> <div class="ident">err</div><div class="operator"></div>
 <div class="operator">}</div><div class="operator"></div>
 
 </code></pre></td>
