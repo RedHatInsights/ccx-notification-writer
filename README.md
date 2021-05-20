@@ -116,20 +116,6 @@ Indexes:
     "report_kafka_offset_btree_idx" btree (kafka_offset)
 ```
 
-### Table `states`
-
-```
- Column  |       Type        | Modifiers
----------+-------------------+-----------
- id      | integer           | not null
- value   | character varying | not null
- comment | character varying |
-Indexes:
-    "states_pkey" PRIMARY KEY, btree (id)
-Referenced by:
-    TABLE "reported" CONSTRAINT "fk_state" FOREIGN KEY (state) REFERENCES states(id)
-```
-
 ### Table `reported`
 
 ```
@@ -165,4 +151,44 @@ Indexes:
     "notification_types_pkey" PRIMARY KEY, btree (id)
 Referenced by:
     TABLE "reported" CONSTRAINT "fk_notification_type" FOREIGN KEY (notification_type) REFERENCES notification_types(id)
+```
+
+Currently the following values are stored in this read-only table:
+
+```
+ id |  value  |  frequency  |               comment                
+----+---------+-------------+--------------------------------------
+  1 | instant | * * * * * * | instant notifications performed ASAP
+  2 | instant | @weekly     | weekly summary
+(2 rows)
+```
+
+### Table `states`
+
+This table contains states for each row stored in `reported` table. User can be
+notified about the report, report can be skipped if the same as previous,
+skipped becuase of lower pripority, or can be in error state.
+
+```
+ Column  |       Type        | Modifiers
+---------+-------------------+-----------
+ id      | integer           | not null
+ value   | character varying | not null
+ comment | character varying |
+Indexes:
+    "states_pkey" PRIMARY KEY, btree (id)
+Referenced by:
+    TABLE "reported" CONSTRAINT "fk_state" FOREIGN KEY (state) REFERENCES states(id)
+```
+
+Currently the following values are stored in this read-only table:
+
+```
+ id | value |                   comment                   
+----+-------+---------------------------------------------
+  1 | sent  | notification has been sent to user
+  2 | same  | skipped, report is the same as previous one
+  3 | lower | skipped, all issues has low priority
+  4 | error | notification delivery error
+(4 rows)
 ```

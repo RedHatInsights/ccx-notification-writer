@@ -106,6 +106,24 @@ const (
                 INSERT INTO notification_types (id, value, frequency, comment)
 		            VALUES (2, 'instant', '@weekly', 'weekly summary');
 `
+	insertSentState = `
+                INSERT INTO states (id, value, comment)
+		            VALUES (1, 'sent', 'notification has been sent to user');
+`
+	insertSentSame = `
+                INSERT INTO states (id, value, comment)
+		            VALUES (2, 'same', 'skipped, report is the same as previous one');
+`
+
+	insertSentLowPriority = `
+                INSERT INTO states (id, value, comment)
+		            VALUES (3, 'lower', 'skipped, all issues has low priority');
+`
+
+	insertSentError = `
+                INSERT INTO states (id, value, comment)
+		            VALUES (4, 'error', 'notification delivery error');
+`
 )
 
 // SQL statements
@@ -199,13 +217,22 @@ func NewStorage(configuration StorageConfiguration) (*DBStorage, error) {
 
 	// lazy initialization (TODO: use init function instead?)
 	initStatements = []string{
+		// tables
 		createTableNotificationTypes,
 		createTableStates,
 		createTableReported,
 		createTableNewReports,
+
+		// offsets
 		createIndexKafkaOffset,
+
+		// records
 		insertInstantReport,
 		insertWeeklySummary,
+		insertSentState,
+		insertSentSame,
+		insertSentLowPriority,
+		insertSentError,
 	}
 
 	log.Info().Msg("Connection to storage established")
