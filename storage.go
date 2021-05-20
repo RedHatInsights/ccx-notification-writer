@@ -39,6 +39,9 @@ import (
 
 // Table creation-related scripts
 const (
+	// This table contains list of all notification types used by
+	// Notification service. Frequency can be specified as in `crontab` -
+	// https://crontab.guru/
 	createTableNotificationTypes = `
                 CREATE TABLE notification_types (
                     id          integer not null,
@@ -50,6 +53,10 @@ const (
                 );
 `
 
+	// This table contains states for each row stored in `reported` table.
+	// User can be notified about the report, report can be skipped if the
+	// same as previous, skipped becuase of lower pripority, or can be in
+	// error state.
 	createTableStates = `
                 CREATE TABLE states (
                     id          integer not null,
@@ -60,6 +67,8 @@ const (
                 );
 `
 
+	// Information of notifications reported to user or skipped due to some
+	// conditions.
 	createTableReported = `
                 CREATE TABLE reported (
                     org_id            integer not null,
@@ -82,6 +91,8 @@ const (
                 );
 `
 
+	// This table contains new reports consumed from Kafka topic and stored
+	// to database in shrinked format (some attributes are removed).
 	createTableNewReports = `
                 CREATE TABLE new_reports (
                     org_id            integer not null,
@@ -95,33 +106,40 @@ const (
                 );
 `
 
+	// Index for the new_reports table
 	createIndexKafkaOffset = `
                 CREATE INDEX report_kafka_offset_btree_idx
 		       ON new_reports (kafka_offset)
 `
 
+	// Value to be stored in notification_types table
 	insertInstantReport = `
                 INSERT INTO notification_types (id, value, frequency, comment)
 		            VALUES (1, 'instant', '* * * * * *', 'instant notifications performed ASAP');
 `
+	// Value to be stored in notification_types table
 	insertWeeklySummary = `
                 INSERT INTO notification_types (id, value, frequency, comment)
 		            VALUES (2, 'instant', '@weekly', 'weekly summary');
 `
+	// Value to be stored in states table
 	insertSentState = `
                 INSERT INTO states (id, value, comment)
 		            VALUES (1, 'sent', 'notification has been sent to user');
 `
+	// Value to be stored in states table
 	insertSentSame = `
                 INSERT INTO states (id, value, comment)
 		            VALUES (2, 'same', 'skipped, report is the same as previous one');
 `
 
+	// Value to be stored in states table
 	insertSentLowPriority = `
                 INSERT INTO states (id, value, comment)
 		            VALUES (3, 'lower', 'skipped, all issues has low priority');
 `
 
+	// Value to be stored in states table
 	insertSentError = `
                 INSERT INTO states (id, value, comment)
 		            VALUES (4, 'error', 'notification delivery error');
