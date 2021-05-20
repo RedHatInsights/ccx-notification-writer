@@ -119,7 +119,6 @@ Indexes:
 ### Table `states`
 
 ```
-          Table "public.states"
  Column  |       Type        | Modifiers
 ---------+-------------------+-----------
  id      | integer           | not null
@@ -151,6 +150,9 @@ Foreign-key constraints:
 ```
 
 ### Table `notification_types`
+
+This table contains list of all notification types used by Notification service.
+Frequency can be specified as in `crontab` - https://crontab.guru/
 
 ```
   Column   |       Type        | Modifiers

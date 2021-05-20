@@ -40,7 +40,7 @@ import (
 // Table creation-related scripts
 const (
 	createTableNotificationTypes = `
-                create table notification_types (
+                CREATE TABLE notification_types (
                     id          integer not null,
                     value       varchar not null,
                     frequency   varchar not null,
@@ -51,7 +51,7 @@ const (
 `
 
 	createTableStates = `
-                create table states (
+                CREATE TABLE states (
                     id          integer not null,
                     value       varchar not null,
                     comment     varchar,
@@ -61,7 +61,7 @@ const (
 `
 
 	createTableReported = `
-                create table reported (
+                CREATE TABLE reported (
                     org_id            integer not null,
                     account_number    integer not null,
                     cluster           character(36) not null,
@@ -81,7 +81,7 @@ const (
 `
 
 	createTableNewReports = `
-                create table new_reports (
+                CREATE TABLE new_reports (
                     org_id            integer not null,
                     account_number    integer not null,
                     cluster           character(36) not null,
@@ -93,7 +93,19 @@ const (
                 );
 `
 
-	createIndexKafkaOffset = "CREATE INDEX report_kafka_offset_btree_idx ON new_reports (kafka_offset)"
+	createIndexKafkaOffset = `
+                CREATE INDEX report_kafka_offset_btree_idx
+		       ON new_reports (kafka_offset)
+`
+
+	insertInstantReport = `
+                INSERT INTO notification_types (id, value, frequency, comment)
+		            VALUES (1, 'instant', '* * * * * *', 'instant notifications performed ASAP');
+`
+	insertWeeklySummary = `
+                INSERT INTO notification_types (id, value, frequency, comment)
+		            VALUES (2, 'instant', '@weekly', 'weekly summary');
+`
 )
 
 // SQL statements
@@ -192,6 +204,8 @@ func NewStorage(configuration StorageConfiguration) (*DBStorage, error) {
 		createTableReported,
 		createTableNewReports,
 		createIndexKafkaOffset,
+		insertInstantReport,
+		insertWeeklySummary,
 	}
 
 	log.Info().Msg("Connection to storage established")
