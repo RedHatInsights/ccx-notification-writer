@@ -102,6 +102,9 @@ List of tables:
 
 ### Table `new_reports`
 
+This table contains new reports consumed from Kafka topic and stored to
+database in shrinked format (some attributes are removed).
+
 ```
    Column     |            Type             | Modifiers
 --------------+-----------------------------+-----------
@@ -116,22 +119,10 @@ Indexes:
     "report_kafka_offset_btree_idx" btree (kafka_offset)
 ```
 
-### Table `states`
-
-```
-          Table "public.states"
- Column  |       Type        | Modifiers
----------+-------------------+-----------
- id      | integer           | not null
- value   | character varying | not null
- comment | character varying |
-Indexes:
-    "states_pkey" PRIMARY KEY, btree (id)
-Referenced by:
-    TABLE "reported" CONSTRAINT "fk_state" FOREIGN KEY (state) REFERENCES states(id)
-```
-
 ### Table `reported`
+
+Information of notifications reported to user or skipped due to some
+conditions.
 
 ```
       Column       |            Type             | Modifiers
@@ -143,6 +134,9 @@ Referenced by:
  state             | integer                     | not null
  report            | character varying           | not null
  updated_at        | timestamp without time zone | not null
+ notified_at       | timestamp without time zone | not null
+ error_log         | character varying           | 
+
 Indexes:
     "reported_pkey" PRIMARY KEY, btree (org_id, cluster)
 Foreign-key constraints:
@@ -151,6 +145,9 @@ Foreign-key constraints:
 ```
 
 ### Table `notification_types`
+
+This table contains list of all notification types used by Notification service.
+Frequency can be specified as in `crontab` - https://crontab.guru/
 
 ```
   Column   |       Type        | Modifiers
@@ -163,4 +160,44 @@ Indexes:
     "notification_types_pkey" PRIMARY KEY, btree (id)
 Referenced by:
     TABLE "reported" CONSTRAINT "fk_notification_type" FOREIGN KEY (notification_type) REFERENCES notification_types(id)
+```
+
+Currently the following values are stored in this read-only table:
+
+```
+ id |  value  |  frequency  |               comment                
+----+---------+-------------+--------------------------------------
+  1 | instant | * * * * * * | instant notifications performed ASAP
+  2 | instant | @weekly     | weekly summary
+(2 rows)
+```
+
+### Table `states`
+
+This table contains states for each row stored in `reported` table. User can be
+notified about the report, report can be skipped if the same as previous,
+skipped becuase of lower pripority, or can be in error state.
+
+```
+ Column  |       Type        | Modifiers
+---------+-------------------+-----------
+ id      | integer           | not null
+ value   | character varying | not null
+ comment | character varying |
+Indexes:
+    "states_pkey" PRIMARY KEY, btree (id)
+Referenced by:
+    TABLE "reported" CONSTRAINT "fk_state" FOREIGN KEY (state) REFERENCES states(id)
+```
+
+Currently the following values are stored in this read-only table:
+
+```
+ id | value |                   comment                   
+----+-------+---------------------------------------------
+  1 | sent  | notification has been sent to user
+  2 | same  | skipped, report is the same as previous one
+  3 | lower | skipped, all issues has low priority
+  4 | error | notification delivery error
+(4 rows)
 ```
