@@ -55,7 +55,7 @@ const (
 
 	// This table contains states for each row stored in `reported` table.
 	// User can be notified about the report, report can be skipped if the
-	// same as previous, skipped becuase of lower pripority, or can be in
+	// same as previous, skipped because of lower pripority, or can be in
 	// error state.
 	createTableStates = `
                 CREATE TABLE states (
