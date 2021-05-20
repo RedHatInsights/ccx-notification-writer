@@ -102,6 +102,9 @@ List of tables:
 
 ### Table `new_reports`
 
+This table contains new reports consumed from Kafka topic and stored to
+database in shrinked format (some attributes are removed).
+
 ```
    Column     |            Type             | Modifiers
 --------------+-----------------------------+-----------
@@ -118,6 +121,9 @@ Indexes:
 
 ### Table `reported`
 
+Information of notifications reported to user or skipped due to some
+conditions.
+
 ```
       Column       |            Type             | Modifiers
 -------------------+-----------------------------+-----------
@@ -128,6 +134,9 @@ Indexes:
  state             | integer                     | not null
  report            | character varying           | not null
  updated_at        | timestamp without time zone | not null
+ notified_at       | timestamp without time zone | not null
+ error_log         | character varying           | 
+
 Indexes:
     "reported_pkey" PRIMARY KEY, btree (org_id, cluster)
 Foreign-key constraints:

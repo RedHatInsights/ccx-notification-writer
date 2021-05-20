@@ -69,6 +69,8 @@ const (
                     state             integer not null,
                     report            varchar not null,
                     updated_at        timestamp not null,
+                    notified_at       timestamp not null,
+		    error_log         varchar,
                 
                     PRIMARY KEY (org_id, cluster),
                     CONSTRAINT fk_notification_type
