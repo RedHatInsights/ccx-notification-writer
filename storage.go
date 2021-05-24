@@ -120,7 +120,7 @@ const (
 	// Value to be stored in notification_types table
 	insertWeeklySummary = `
                 INSERT INTO notification_types (id, value, frequency, comment)
-		            VALUES (2, 'instant', '@weekly', 'weekly summary');
+		            VALUES (2, 'weekly', '@weekly', 'weekly summary');
 `
 	// Value to be stored in states table
 	insertSentState = `
