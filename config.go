@@ -59,6 +59,8 @@ import (
 	"os"
 	"strings"
 
+	clowder "github.com/redhatinsights/app-common-go/pkg/api/v1"
+
 	"path/filepath"
 
 	"github.com/BurntSushi/toml"
@@ -185,8 +187,22 @@ func LoadConfiguration(configFileEnvVariableName string, defaultConfigFile strin
 	viper.SetEnvKeyReplacer(strings.NewReplacer("-", "_", ".", "__"))
 
 	err = viper.Unmarshal(&config)
-	// error is processed on caller side
-	return config, err
+	if err != nil {
+		return config, err
+	}
+
+	if clowder.IsClowderEnabled() {
+		// can not use Zerolog at this moment!
+		fmt.Println("Clowder is enabled")
+
+		// TODO: insert logic to replace SELECTED configuration variables
+	} else {
+		// can not use Zerolog at this moment!
+		fmt.Println("Clowder is disabled")
+	}
+
+	// everything's should be ok
+	return config, nil
 }
 
 // GetStorageConfiguration returns storage configuration
