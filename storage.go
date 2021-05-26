@@ -81,7 +81,7 @@ const (
                     notified_at       timestamp not null,
 		    error_log         varchar,
                 
-                    PRIMARY KEY (org_id, cluster),
+                    PRIMARY KEY (org_id, cluster, notified_at),
                     CONSTRAINT fk_notification_type
                         foreign key(notification_type)
                         references notification_types(id),
