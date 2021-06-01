@@ -3,7 +3,7 @@ SHELL := /bin/bash
 .PHONY: default clean build fmt lint vet cyclo ineffassign shellcheck errcheck goconst gosec abcgo json-check openapi-check style run test test-postgres cover integration_tests rest_api_tests sqlite_db license before_commit bdd_tests help godoc install_docgo install_addlicense
 
 SOURCES:=$(shell find . -name '*.go')
-BINARY:=ccx-notification-service
+BINARY:=ccx-notification-writer
 DOCFILES:=$(addprefix docs/packages/, $(addsuffix .html, $(basename ${SOURCES})))
 
 default: build
