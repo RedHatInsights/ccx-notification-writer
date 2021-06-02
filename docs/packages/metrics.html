@@ -175,9 +175,9 @@ indirectly to Grafana.</p>
 	<div class="ident">ConsumedMessagesHelp</div>          <div class="operator">=</div> <div class="literal">&#34;The total number of messages consumed from Kafka&#34;</div><div class="operator"></div>
 	<div class="ident">ConsumingErrorsHelp</div>           <div class="operator">=</div> <div class="literal">&#34;The total number of errors during consuming messages from Kafka&#34;</div><div class="operator"></div>
 	<div class="ident">ParsedIncomingMessageHelp</div>     <div class="operator">=</div> <div class="literal">&#34;The total number of parsed messages&#34;</div><div class="operator"></div>
-	<div class="ident">CheckSchemaVersionHelp</div>        <div class="operator">=</div> <div class="literal">&#34;The total number of messages with successfull schema check&#34;</div><div class="operator"></div>
+	<div class="ident">CheckSchemaVersionHelp</div>        <div class="operator">=</div> <div class="literal">&#34;The total number of messages with successful schema check&#34;</div><div class="operator"></div>
 	<div class="ident">MarshalReportHelp</div>             <div class="operator">=</div> <div class="literal">&#34;The total number of marshaled reports&#34;</div><div class="operator"></div>
-	<div class="ident">ShrinkReportHelp</div>              <div class="operator">=</div> <div class="literal">&#34;The total number of shrinked reports&#34;</div><div class="operator"></div>
+	<div class="ident">ShrinkReportHelp</div>              <div class="operator">=</div> <div class="literal">&#34;The total number of shrunk reports&#34;</div><div class="operator"></div>
 	<div class="ident">CheckLastCheckedTimestampHelp</div> <div class="operator">=</div> <div class="literal">&#34;The total number of messages with last checked timestamp&#34;</div><div class="operator"></div>
 	<div class="ident">StoredMessagesHelp</div>            <div class="operator">=</div> <div class="literal">&#34;The total number of messages stored into database&#34;</div><div class="operator"></div>
 	<div class="ident">StoredBytesHelp</div>               <div class="operator">=</div> <div class="literal">&#34;The total number of bytes stored into database&#34;</div><div class="operator"></div>
@@ -242,7 +242,7 @@ indirectly to Grafana.</p>
       </tr>
       
       <tr class="section">
-	<td class="doc"><p>ShrinkReport shows the number of messages with shrinked report</p>
+	<td class="doc"><p>ShrinkReport shows the number of messages with shrunk report</p>
 </td>
 	<td class="code"><pre><code><div class="keyword">var</div> <div class="ident">ShrinkReport</div> <div class="operator">=</div> <div class="ident">promauto</div><div class="operator">.</div><div class="ident">NewCounter</div><div class="operator">(</div><div class="ident">prometheus</div><div class="operator">.</div><div class="ident">CounterOpts</div><div class="operator">{</div>
 	<div class="ident">Name</div><div class="operator">:</div> <div class="ident">ShrinkReportName</div><div class="operator">,</div>
