@@ -41,7 +41,7 @@ const (
 	ConsumedMessagesHelp          = "The total number of messages consumed from Kafka"
 	ConsumingErrorsHelp           = "The total number of errors during consuming messages from Kafka"
 	ParsedIncomingMessageHelp     = "The total number of parsed messages"
-	CheckSchemaVersionHelp        = "The total number of messages with successfull schema check"
+	CheckSchemaVersionHelp        = "The total number of messages with successful schema check"
 	MarshalReportHelp             = "The total number of marshaled reports"
 	ShrinkReportHelp              = "The total number of shrunk reports"
 	CheckLastCheckedTimestampHelp = "The total number of messages with last checked timestamp"

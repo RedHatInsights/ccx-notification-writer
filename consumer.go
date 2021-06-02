@@ -364,7 +364,7 @@ func (consumer *KafkaConsumer) ProcessMessage(msg *sarama.ConsumerMessage) (Requ
 	// Step #2: check message (schema) version
 	checkMessageVersion(consumer, &message, msg)
 
-	// update metric - number of messages with successfull schema check
+	// update metric - number of messages with successful schema check
 	CheckSchemaVersion.Inc()
 
 	// Step #3: marshall report into byte slice to figure out original length
