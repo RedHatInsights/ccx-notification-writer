@@ -1,7 +1,7 @@
 # ccx-notification-writer
 
 [![GoDoc](https://godoc.org/github.com/RedHatInsights/ccx-notification-writer?status.svg)](https://godoc.org/github.com/RedHatInsights/ccx-notification-writer)
-[![GitHub Pages](https://img.shields.io/badge/%20-GitHub%20Pages-informational)](https://redhatinsights.github.io/notification-writer/)
+[![GitHub Pages](https://img.shields.io/badge/%20-GitHub%20Pages-informational)](https://redhatinsights.github.io/ccx-notification-writer/)
 [![Go Report Card](https://goreportcard.com/badge/github.com/RedHatInsights/ccx-notification-writer)](https://goreportcard.com/report/github.com/RedHatInsights/ccx-notification-writer)
 [![Build Status](https://travis-ci.com/RedHatInsights/ccx-notification-writer.svg?branch=master)](https://travis-ci.com/RedHatInsights/ccx-notification-writer)
 ![GitHub go.mod Go version](https://img.shields.io/github/go-mod/go-version/RedHatInsights/ccx-notification-writer)
@@ -93,7 +93,7 @@ help                 Show this help screen
 * `notification_writer_parse_incoming_message`
     - The total number of parsed messages
 * `notification_writer_shrink_report`
-    - The total number of shrinked reports
+    - The total number of shrunk reports
 * `notification_writer_stored_messages`
     - The total number of messages stored into database
 * `notification_writer_stored_bytes`
@@ -159,7 +159,7 @@ List of tables:
 ### Table `new_reports`
 
 This table contains new reports consumed from Kafka topic and stored to
-database in shrinked format (some attributes are removed).
+database in shrunk format (some attributes are removed).
 
 ```
    Column     |            Type             | Modifiers

@@ -92,7 +92,7 @@ const (
 `
 
 	// This table contains new reports consumed from Kafka topic and stored
-	// to database in shrinked format (some attributes are removed).
+	// to database in shrunk format (some attributes are removed).
 	createTableNewReports = `
                 CREATE TABLE new_reports (
                     org_id            integer not null,
