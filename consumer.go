@@ -383,17 +383,17 @@ func (consumer *KafkaConsumer) ProcessMessage(msg *sarama.ConsumerMessage) (Requ
 	// Step #4: shrink the Report structure
 	logMessageInfo(consumer, msg, message, "Shrinking message")
 	shrinkMessage(message.Report)
-	shrinkedAsBytes, err := json.Marshal(*message.Report)
+	shrunkAsBytes, err := json.Marshal(*message.Report)
 	if err != nil {
 		logMessageError(consumer, msg, message, "Error marshalling skrinked report", err)
 		return message.RequestID, err
 	}
-	logShrinkedMessage(reportAsBytes, shrinkedAsBytes)
+	logShrunkMessage(reportAsBytes, shrunkAsBytes)
 
-	// update metric - number of shrinked reports
+	// update metric - number of shrunk reports
 	ShrinkReport.Inc()
 
-	tShrinked := time.Now()
+	tShrunk := time.Now()
 
 	// Step #5: check the last checked timestamp
 	lastCheckedTime, err := time.Parse(time.RFC3339Nano, message.LastChecked)
@@ -416,12 +416,12 @@ func (consumer *KafkaConsumer) ProcessMessage(msg *sarama.ConsumerMessage) (Requ
 
 	kafkaOffset := KafkaOffset(msg.Offset)
 
-	// Step #6: write the shrinked report into storage (database)
+	// Step #6: write the shrunk report into storage (database)
 	err = consumer.storage.WriteReportForCluster(
 		*message.Organization,
 		*message.AccountNumber,
 		*message.ClusterName,
-		ClusterReport(shrinkedAsBytes),
+		ClusterReport(shrunkAsBytes),
 		tTimeCheck,
 		kafkaOffset,
 	)
@@ -440,7 +440,7 @@ func (consumer *KafkaConsumer) ProcessMessage(msg *sarama.ConsumerMessage) (Requ
 
 	// update metric - number of bytes stored into database
 	// beware: counter value is represented as float64, not as bytes as you'd expect
-	StoredBytes.Add(float64(len(shrinkedAsBytes)))
+	StoredBytes.Add(float64(len(shrunkAsBytes)))
 
 	logMessageInfo(consumer, msg, message, "Stored")
 	tStored := time.Now()
@@ -450,25 +450,25 @@ func (consumer *KafkaConsumer) ProcessMessage(msg *sarama.ConsumerMessage) (Requ
 	// log durations for every message consumption steps
 	logDuration(tStart, tRead, msg.Offset, "Read duration")
 	logDuration(tRead, tMarshalled, msg.Offset, "Marshalling duration")
-	logDuration(tMarshalled, tShrinked, msg.Offset, "Shrinking duration")
-	logDuration(tShrinked, tTimeCheck, msg.Offset, "Time check duration")
+	logDuration(tMarshalled, tShrunk, msg.Offset, "Shrinking duration")
+	logDuration(tShrunk, tTimeCheck, msg.Offset, "Time check duration")
 	logDuration(tTimeCheck, tStored, msg.Offset, "DB store duration")
 
 	// message has been parsed and stored into storage
 	return message.RequestID, nil
 }
 
-// logShrinkedMessage function prints/logs information about status of
+// logshrunkMessage function prints/logs information about status of
 // shrinking the message.
-func logShrinkedMessage(reportAsBytes []byte, shrinkedAsBytes []byte) {
+func logShrunkMessage(reportAsBytes []byte, shrunkAsBytes []byte) {
 	orig := len(reportAsBytes)
-	shrinked := len(shrinkedAsBytes)
-	percentage := int(100.0 * shrinked / orig)
+	shrunk := len(shrunkAsBytes)
+	percentage := int(100.0 * shrunk / orig)
 	log.Info().
 		Int("Original size", len(reportAsBytes)).
-		Int("Shrinked size", len(shrinkedAsBytes)).
+		Int("Shrunk size", len(shrunkAsBytes)).
 		Int("Ratio (%)", percentage).
-		Msg("Message shrinked")
+		Msg("Message shrunk")
 }
 
 // checkReportStructure tests if the report has correct structure

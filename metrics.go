@@ -43,7 +43,7 @@ const (
 	ParsedIncomingMessageHelp     = "The total number of parsed messages"
 	CheckSchemaVersionHelp        = "The total number of messages with successfull schema check"
 	MarshalReportHelp             = "The total number of marshaled reports"
-	ShrinkReportHelp              = "The total number of shrinked reports"
+	ShrinkReportHelp              = "The total number of shrunk reports"
 	CheckLastCheckedTimestampHelp = "The total number of messages with last checked timestamp"
 	StoredMessagesHelp            = "The total number of messages stored into database"
 	StoredBytesHelp               = "The total number of bytes stored into database"
@@ -79,7 +79,7 @@ var MarshalReport = promauto.NewCounter(prometheus.CounterOpts{
 	Help: MarshalReportHelp,
 })
 
-// ShrinkReport shows the number of messages with shrinked report
+// ShrinkReport shows the number of messages with shrunk report
 var ShrinkReport = promauto.NewCounter(prometheus.CounterOpts{
 	Name: ShrinkReportName,
 	Help: ShrinkReportHelp,
