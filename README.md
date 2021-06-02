@@ -1,7 +1,7 @@
 # ccx-notification-writer
 
 [![GoDoc](https://godoc.org/github.com/RedHatInsights/ccx-notification-writer?status.svg)](https://godoc.org/github.com/RedHatInsights/ccx-notification-writer)
-[![GitHub Pages](https://img.shields.io/badge/%20-GitHub%20Pages-informational)](https://redhatinsights.github.io/notification-writer/)
+[![GitHub Pages](https://img.shields.io/badge/%20-GitHub%20Pages-informational)](https://redhatinsights.github.io/ccx-notification-writer/)
 [![Go Report Card](https://goreportcard.com/badge/github.com/RedHatInsights/ccx-notification-writer)](https://goreportcard.com/report/github.com/RedHatInsights/ccx-notification-writer)
 [![Build Status](https://travis-ci.com/RedHatInsights/ccx-notification-writer.svg?branch=master)](https://travis-ci.com/RedHatInsights/ccx-notification-writer)
 ![GitHub go.mod Go version](https://img.shields.io/github/go-mod/go-version/RedHatInsights/ccx-notification-writer)
