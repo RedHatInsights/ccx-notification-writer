@@ -93,7 +93,7 @@ help                 Show this help screen
 * `notification_writer_parse_incoming_message`
     - The total number of parsed messages
 * `notification_writer_shrink_report`
-    - The total number of shrinked reports
+    - The total number of shrunk reports
 * `notification_writer_stored_messages`
     - The total number of messages stored into database
 * `notification_writer_stored_bytes`
@@ -159,7 +159,7 @@ List of tables:
 ### Table `new_reports`
 
 This table contains new reports consumed from Kafka topic and stored to
-database in shrinked format (some attributes are removed).
+database in shrunk format (some attributes are removed).
 
 ```
    Column     |            Type             | Modifiers
