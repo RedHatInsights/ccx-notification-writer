@@ -193,7 +193,7 @@ https://crontab.guru/</p>
       <tr class="section">
 	<td class="doc"><p>This table contains states for each row stored in <code>reported</code> table.
 User can be notified about the report, report can be skipped if the
-same as previous, skipped becuase of lower pripority, or can be in
+same as previous, skipped because of lower pripority, or can be in
 error state.</p>
 </td>
 	<td class="code"><pre><code>	<div class="ident">createTableStates</div> <div class="operator">=</div> <div class="literal">`
@@ -225,7 +225,7 @@ conditions.</p>
                     notified_at       timestamp not null,
 		    error_log         varchar,
                 
-                    PRIMARY KEY (org_id, cluster),
+                    PRIMARY KEY (org_id, cluster, notified_at),
                     CONSTRAINT fk_notification_type
                         foreign key(notification_type)
                         references notification_types(id),
@@ -240,7 +240,7 @@ conditions.</p>
       
       <tr class="section">
 	<td class="doc"><p>This table contains new reports consumed from Kafka topic and stored
-to database in shrinked format (some attributes are removed).</p>
+to database in shrunk format (some attributes are removed).</p>
 </td>
 	<td class="code"><pre><code>	<div class="ident">createTableNewReports</div> <div class="operator">=</div> <div class="literal">`
                 CREATE TABLE new_reports (
@@ -284,7 +284,7 @@ to database in shrinked format (some attributes are removed).</p>
 </td>
 	<td class="code"><pre><code>	<div class="ident">insertWeeklySummary</div> <div class="operator">=</div> <div class="literal">`
                 INSERT INTO notification_types (id, value, frequency, comment)
-		            VALUES (2, &#39;instant&#39;, &#39;@weekly&#39;, &#39;weekly summary&#39;);
+		            VALUES (2, &#39;weekly&#39;, &#39;@weekly&#39;, &#39;weekly summary&#39;);
 `</div><div class="operator"></div>
 </code></pre></td>
       </tr>
