@@ -70,6 +70,12 @@ help                 Show this help screen
         drop all tables from database
   -db-init
         perform database initialization
+  -max-age string
+        max age for displaying/cleaning old records
+  -new-reports-cleanup
+        perform new reports clean up
+  -print-new-reports-for-cleanup
+        print new reports to be cleaned up
   -show-configuration
         show configuration
   -version
