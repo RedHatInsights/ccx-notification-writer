@@ -33,6 +33,7 @@ package main
 import (
 	"errors"
 	"fmt"
+	"math"
 	"time"
 
 	"database/sql"
@@ -43,7 +44,7 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-// Table creation-related scripts
+// Table creation-related scripts, queries, index creation etc.
 const (
 	// This table contains list of all notification types used by
 	// Notification service. Frequency can be specified as in `crontab` -
@@ -118,6 +119,20 @@ const (
 		       ON new_reports (kafka_offset)
 `
 
+	// Display older records from new_reports table
+	displayOldRecordsFromNewReportsTable = `
+                SELECT org_id, account_number, cluster, updated_at, kafka_offset
+		  FROM new_reports
+		 WHERE updated_at < NOW() - $1::INTERVAL
+		 ORDER BY updated_at
+`
+
+	// Delete older records from new_reports table
+	deleteOldRecordsFromNewReportsTable = `
+                DELETE
+		  FROM new_reports
+		 WHERE updated_at < NOW() - $1::INTERVAL
+`
 	// Value to be stored in notification_types table
 	insertInstantReport = `
                 INSERT INTO notification_types (id, value, frequency, comment)
@@ -162,8 +177,15 @@ const (
 
 // Messages
 const (
-	SQLStatementMessage = "SQL statement"
-	StatementMessage    = "Statement"
+	SQLStatementMessage       = "SQL statement"
+	StatementMessage          = "Statement"
+	OrgIDMessage              = "Organization ID"
+	AccountNumberMessage      = "Account number"
+	ClusterNameMessage        = "Cluster name"
+	UpdatedAtMessage          = "Updated at"
+	UnableToCloseDBRowsHandle = "Unable to close the DB rows handle"
+	AgeMessage                = "Age"
+	MaxAgeAttribute           = "max age"
 )
 
 // Storage represents an interface to almost any database or storage system
@@ -182,6 +204,8 @@ type Storage interface {
 	DatabaseDropTables() error
 	DatabaseDropIndexes() error
 	GetLatestKafkaOffset() (KafkaOffset, error)
+	PrintNewReportsForCleanup(maxAge string) error
+	CleanupNewReports(maxAge string) (int, error)
 }
 
 // DBStorage is an implementation of Storage interface that use selected SQL like database
@@ -493,4 +517,79 @@ func (storage DBStorage) GetLatestKafkaOffset() (KafkaOffset, error) {
 	var offset KafkaOffset
 	err := storage.connection.QueryRow("SELECT COALESCE(MAX(kafka_offset), 0) FROM new_reports;").Scan(&offset)
 	return offset, err
+}
+
+// PrintNewReportsForCleanup method prints all reports older than specified
+// relative time
+func (storage DBStorage) PrintNewReportsForCleanup(maxAge string) error {
+	log.Info().
+		Str(MaxAgeAttribute, maxAge).
+		Str("select statement", displayOldRecordsFromNewReportsTable).
+		Msg("PrintNewReportsForCleanup operation")
+
+	query := displayOldRecordsFromNewReportsTable
+	rows, err := storage.connection.Query(query, maxAge)
+	if err != nil {
+		return err
+	}
+	// used to compute a real record age
+	now := time.Now()
+
+	// iterate over all old records
+	for rows.Next() {
+		var (
+			orgID         int
+			accountNumber int
+			clusterName   string
+			updatedAt     time.Time
+			kafkaOffset   int64
+		)
+
+		// read one old record from the report table
+		if err := rows.Scan(&orgID, &accountNumber, &clusterName, &updatedAt, &kafkaOffset); err != nil {
+			// close the result set in case of any error
+			if closeErr := rows.Close(); closeErr != nil {
+				log.Error().Err(closeErr).Msg(UnableToCloseDBRowsHandle)
+			}
+			return err
+		}
+
+		// compute the real record age
+		age := int(math.Ceil(now.Sub(updatedAt).Hours() / 24)) // in days
+
+		// prepare for the report
+		updatedAtF := updatedAt.Format(time.RFC3339)
+
+		// just print the report
+		log.Info().
+			Int(OrgIDMessage, orgID).
+			Int(AccountNumberMessage, accountNumber).
+			Str(ClusterNameMessage, clusterName).
+			Str(UpdatedAtMessage, updatedAtF).
+			Int(AgeMessage, age).
+			Msg("Old report from `new_reports` table")
+	}
+	return nil
+}
+
+// CleanupNewReports method deletes all reports older than specified
+// relative time
+func (storage DBStorage) CleanupNewReports(maxAge string) (int, error) {
+	log.Info().
+		Str(MaxAgeAttribute, maxAge).
+		Str("delete statement", deleteOldRecordsFromNewReportsTable).
+		Msg("CleanupNewReports operation")
+
+	// perform the SQL statement
+	result, err := storage.connection.Exec(deleteOldRecordsFromNewReportsTable, maxAge)
+	if err != nil {
+		return 0, err
+	}
+
+	// read number of affected (deleted) rows
+	affected, err := result.RowsAffected()
+	if err != nil {
+		return 0, err
+	}
+	return int(affected), nil
 }
