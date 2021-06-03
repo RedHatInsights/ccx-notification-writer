@@ -187,13 +187,13 @@ func printNewReportsForCleanup(config ConfigStruct, cliFlags CliFlags) (int, err
 	storageConfiguration := GetStorageConfiguration(config)
 	storage, err := NewStorage(storageConfiguration)
 	if err != nil {
-		log.Err(err).Msg(operationFailedMessage)
+		log.Error().Err(err).Msg(operationFailedMessage)
 		return ExitStatusStorageError, err
 	}
 
 	err = storage.PrintNewReportsForCleanup(cliFlags.maxAge)
 	if err != nil {
-		log.Err(err).Msg(databasePrintNewReportsForCleanupOperationFailedMessage)
+		log.Error().Err(err).Msg(databasePrintNewReportsForCleanupOperationFailedMessage)
 		return ExitStatusStorageError, err
 	}
 
@@ -205,15 +205,16 @@ func performNewReportsCleanup(config ConfigStruct, cliFlags CliFlags) (int, erro
 	storageConfiguration := GetStorageConfiguration(config)
 	storage, err := NewStorage(storageConfiguration)
 	if err != nil {
-		log.Err(err).Msg(operationFailedMessage)
+		log.Error().Err(err).Msg(operationFailedMessage)
 		return ExitStatusStorageError, err
 	}
 
-	err = storage.CleanupNewReports(cliFlags.maxAge)
+	affected, err := storage.CleanupNewReports(cliFlags.maxAge)
 	if err != nil {
-		log.Err(err).Msg(databaseCleanupNewRepoprtsOperationFailedMessage)
+		log.Error().Err(err).Msg(databaseCleanupNewRepoprtsOperationFailedMessage)
 		return ExitStatusStorageError, err
 	}
+	log.Info().Int("Rows deleted", affected).Msg("Cleanup `new_reports` finished")
 
 	return ExitStatusOK, nil
 }

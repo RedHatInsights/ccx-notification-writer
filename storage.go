@@ -44,7 +44,7 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-// Table creation-related scripts
+// Table creation-related scripts, queries, index creation etc.
 const (
 	// This table contains list of all notification types used by
 	// Notification service. Frequency can be specified as in `crontab` -
@@ -127,6 +127,12 @@ const (
 		 ORDER BY updated_at
 `
 
+	// Delete older records from new_reports table
+	deleteOldRecordsFromNewReportsTable = `
+                DELETE
+		  FROM new_reports
+		 WHERE updated_at < NOW() - $1::INTERVAL
+`
 	// Value to be stored in notification_types table
 	insertInstantReport = `
                 INSERT INTO notification_types (id, value, frequency, comment)
@@ -198,7 +204,7 @@ type Storage interface {
 	DatabaseDropIndexes() error
 	GetLatestKafkaOffset() (KafkaOffset, error)
 	PrintNewReportsForCleanup(maxAge string) error
-	CleanupNewReports(maxAge string) error
+	CleanupNewReports(maxAge string) (int, error)
 }
 
 // DBStorage is an implementation of Storage interface that use selected SQL like database
@@ -515,6 +521,11 @@ func (storage DBStorage) GetLatestKafkaOffset() (KafkaOffset, error) {
 // PrintNewReportsForCleanup method prints all reports older than specified
 // relative time
 func (storage DBStorage) PrintNewReportsForCleanup(maxAge string) error {
+	log.Info().
+		Str("max age", maxAge).
+		Str("select statement", displayOldRecordsFromNewReportsTable).
+		Msg("PrintNewReportsForCleanup operation")
+
 	query := displayOldRecordsFromNewReportsTable
 	rows, err := storage.connection.Query(query, maxAge)
 	if err != nil {
@@ -558,9 +569,26 @@ func (storage DBStorage) PrintNewReportsForCleanup(maxAge string) error {
 			Msg("Old report from `new_reports` table")
 	}
 	return nil
-
 }
 
-func (storage DBStorage) CleanupNewReports(maxAge string) error {
-	return nil
+// CleanupNewReports method deletes all reports older than specified
+// relative time
+func (storage DBStorage) CleanupNewReports(maxAge string) (int, error) {
+	log.Info().
+		Str("max age", maxAge).
+		Str("delete statement", deleteOldRecordsFromNewReportsTable).
+		Msg("CleanupNewReports operation")
+
+	// perform the SQL statement
+	result, err := storage.connection.Exec(deleteOldRecordsFromNewReportsTable, maxAge)
+	if err != nil {
+		return 0, err
+	}
+
+	// read number of affected (deleted) rows
+	affected, err := result.RowsAffected()
+	if err != nil {
+		return 0, err
+	}
+	return int(affected), nil
 }
