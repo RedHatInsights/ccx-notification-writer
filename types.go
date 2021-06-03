@@ -35,6 +35,9 @@ type CliFlags struct {
 	showVersion                   bool
 	showAuthors                   bool
 	showConfiguration             bool
+	printNewReportsForCleanup     bool
+	performNewReportsCleanup      bool
+	maxAge                        string
 }
 
 // RequestID data type is used to store the request ID supplied in input Kafka
