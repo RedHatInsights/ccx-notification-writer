@@ -23,7 +23,10 @@ package main
 // are to be used to return specific configuration options.
 
 // Generated documentation is available at:
+// https://pkg.go.dev/github.com/RedHatInsights/ccx-notification-writer/
 //
+// Documentation in literate-programming-style is available at:
+// https://redhatinsights.github.io/ccx-notification-writer/packages/config.html
 
 // Default name of configuration file is config.toml
 // It can be changed via environment variable NOTIFICATION_WRITER_CONFIG_FILE

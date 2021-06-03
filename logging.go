@@ -14,6 +14,14 @@
 
 package main
 
+// An implementation of various logging strategies supported by this service.
+
+// Generated documentation is available at:
+// https://pkg.go.dev/github.com/RedHatInsights/ccx-notification-writer/
+//
+// Documentation in literate-programming-style is available at:
+// https://redhatinsights.github.io/ccx-notification-writer/packages/logging.html
+
 import (
 	"time"
 
