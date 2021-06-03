@@ -43,14 +43,16 @@ import (
 
 // Messages
 const (
-	versionMessage                           = "Notification writer version 1.0"
-	authorsMessage                           = "Pavel Tisnovsky, Red Hat Inc."
-	connectionToBrokerMessage                = "Connection to broker"
-	operationFailedMessage                   = "Operation failed"
-	notConnectedToBrokerMessage              = "Not connected to broker"
-	brokerConnectionSuccessMessage           = "Broker connection OK"
-	databaseCleanupOperationFailedMessage    = "Database cleanup operation failed"
-	databaseDropTablesOperationFailedMessage = "Database drop tables operation failed"
+	versionMessage                                          = "Notification writer version 1.0"
+	authorsMessage                                          = "Pavel Tisnovsky, Red Hat Inc."
+	connectionToBrokerMessage                               = "Connection to broker"
+	operationFailedMessage                                  = "Operation failed"
+	notConnectedToBrokerMessage                             = "Not connected to broker"
+	brokerConnectionSuccessMessage                          = "Broker connection OK"
+	databaseCleanupOperationFailedMessage                   = "Database cleanup operation failed"
+	databaseDropTablesOperationFailedMessage                = "Database drop tables operation failed"
+	databasePrintNewReportsForCleanupOperationFailedMessage = "Print records from `new_reports` prepared for cleanup failed"
+	databaseCleanupNewRepoprtsOperationFailedMessage        = "Cleanup records from `new_reports` failed"
 )
 
 // Configuration-related constants
@@ -180,6 +182,42 @@ func performDatabaseDropTables(config ConfigStruct) (int, error) {
 	return ExitStatusOK, nil
 }
 
+func printNewReportsForCleanup(config ConfigStruct, cliFlags CliFlags) (int, error) {
+	// prepare the storage
+	storageConfiguration := GetStorageConfiguration(config)
+	storage, err := NewStorage(storageConfiguration)
+	if err != nil {
+		log.Err(err).Msg(operationFailedMessage)
+		return ExitStatusStorageError, err
+	}
+
+	err = storage.PrintNewReportsForCleanup(cliFlags.maxAge)
+	if err != nil {
+		log.Err(err).Msg(databasePrintNewReportsForCleanupOperationFailedMessage)
+		return ExitStatusStorageError, err
+	}
+
+	return ExitStatusOK, nil
+}
+
+func performNewReportsCleanup(config ConfigStruct, cliFlags CliFlags) (int, error) {
+	// prepare the storage
+	storageConfiguration := GetStorageConfiguration(config)
+	storage, err := NewStorage(storageConfiguration)
+	if err != nil {
+		log.Err(err).Msg(operationFailedMessage)
+		return ExitStatusStorageError, err
+	}
+
+	err = storage.CleanupNewReports(cliFlags.maxAge)
+	if err != nil {
+		log.Err(err).Msg(databaseCleanupNewRepoprtsOperationFailedMessage)
+		return ExitStatusStorageError, err
+	}
+
+	return ExitStatusOK, nil
+}
+
 // startService function tries to start the notification writer service.
 func startService(config ConfigStruct) (int, error) {
 	// configure metrics
@@ -267,6 +305,10 @@ func doSelectedOperation(configuration ConfigStruct, cliFlags CliFlags) (int, er
 		return performDatabaseCleanup(configuration)
 	case cliFlags.performDatabaseDropTables:
 		return performDatabaseDropTables(configuration)
+	case cliFlags.printNewReportsForCleanup:
+		return printNewReportsForCleanup(configuration, cliFlags)
+	case cliFlags.performNewReportsCleanup:
+		return performNewReportsCleanup(configuration, cliFlags)
 	default:
 		exitCode, err := startService(configuration)
 		return exitCode, err
@@ -286,6 +328,9 @@ func main() {
 	flag.BoolVar(&cliFlags.showVersion, "version", false, "show version")
 	flag.BoolVar(&cliFlags.showAuthors, "authors", false, "show authors")
 	flag.BoolVar(&cliFlags.showConfiguration, "show-configuration", false, "show configuration")
+	flag.BoolVar(&cliFlags.printNewReportsForCleanup, "print-new-reports-for-cleanup", false, "print new reports to be cleaned up")
+	flag.BoolVar(&cliFlags.performNewReportsCleanup, "new-reports-cleanup", false, "perform new reports clean up")
+	flag.StringVar(&cliFlags.maxAge, "max-age", "", "max age for displaying/cleaning old records")
 	flag.Parse()
 
 	// config has exactly the same structure as *.toml file
@@ -299,6 +344,11 @@ func main() {
 	}
 
 	log.Debug().Msg("Started")
+
+	// override default value read from configuration file
+	if cliFlags.maxAge == "" {
+		cliFlags.maxAge = "7 days"
+	}
 
 	// perform selected operation
 	exitStatus, err := doSelectedOperation(config, cliFlags)
