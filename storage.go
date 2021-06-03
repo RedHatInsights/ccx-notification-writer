@@ -183,8 +183,9 @@ const (
 	AccountNumberMessage      = "Account number"
 	ClusterNameMessage        = "Cluster name"
 	UpdatedAtMessage          = "Updated at"
-	AgeMessage                = "Age"
 	UnableToCloseDBRowsHandle = "Unable to close the DB rows handle"
+	AgeMessage                = "Age"
+	MaxAgeAttribute           = "max age"
 )
 
 // Storage represents an interface to almost any database or storage system
@@ -522,7 +523,7 @@ func (storage DBStorage) GetLatestKafkaOffset() (KafkaOffset, error) {
 // relative time
 func (storage DBStorage) PrintNewReportsForCleanup(maxAge string) error {
 	log.Info().
-		Str("max age", maxAge).
+		Str(MaxAgeAttribute, maxAge).
 		Str("select statement", displayOldRecordsFromNewReportsTable).
 		Msg("PrintNewReportsForCleanup operation")
 
@@ -575,7 +576,7 @@ func (storage DBStorage) PrintNewReportsForCleanup(maxAge string) error {
 // relative time
 func (storage DBStorage) CleanupNewReports(maxAge string) (int, error) {
 	log.Info().
-		Str("max age", maxAge).
+		Str(MaxAgeAttribute, maxAge).
 		Str("delete statement", deleteOldRecordsFromNewReportsTable).
 		Msg("CleanupNewReports operation")
 
