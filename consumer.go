@@ -17,6 +17,12 @@ package main
 // This file contains interface for any consumer that is able to process
 // messages. It also contains implementation of Kafka consumer.
 
+// Generated documentation is available at:
+// https://pkg.go.dev/github.com/RedHatInsights/ccx-notification-writer/
+//
+// Documentation in literate-programming-style is available at:
+// https://redhatinsights.github.io/ccx-notification-writer/packages/consumer.html
+
 import (
 	"context"
 	"encoding/json"

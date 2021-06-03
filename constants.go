@@ -14,6 +14,12 @@
 
 package main
 
+// Generated documentation is available at:
+// https://pkg.go.dev/github.com/RedHatInsights/ccx-notification-writer/
+//
+// Documentation in literate-programming-style is available at:
+// https://redhatinsights.github.io/ccx-notification-writer/packages/constants.html
+
 // Common constants shared among multiple files.
 const (
 	// DBDriverSQLite3 shows that db driver is sqlite

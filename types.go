@@ -14,6 +14,14 @@
 
 package main
 
+// Declaration of data types used by CCX Notification Writer.
+
+// Generated documentation is available at:
+// https://pkg.go.dev/github.com/RedHatInsights/ccx-notification-writer/
+//
+// Documentation in literate-programming-style is available at:
+// https://redhatinsights.github.io/ccx-notification-writer/packages/types.html
+
 import (
 	"encoding/json"
 )

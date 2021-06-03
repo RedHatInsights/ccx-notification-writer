@@ -16,7 +16,13 @@ package main
 
 // This source file contains an implementation of interface between Go code and
 // (almost any) SQL database like PostgreSQL, SQLite, or MariaDB.
+
+// Generated documentation is available at:
+// https://pkg.go.dev/github.com/RedHatInsights/ccx-notification-writer/
 //
+// Documentation in literate-programming-style is available at:
+// https://redhatinsights.github.io/ccx-notification-writer/packages/storage.html
+
 // It is possible to configure connection to selected database by using
 // StorageConfiguration structure. Currently that structure contains two
 // configurable parameter:
