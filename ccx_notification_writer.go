@@ -55,6 +55,7 @@ const (
 	databasePrintOldReportsForCleanupOperationFailedMessage = "Print records from `reported` table prepared for cleanup failed"
 	databaseCleanupNewReportsOperationFailedMessage         = "Cleanup records from `new_reports` table failed"
 	databaseCleanupOldReportsOperationFailedMessage         = "Cleanup records from `reported` table failed"
+	rowsDeletedMessage                                      = "Rows deleted"
 )
 
 // Configuration-related constants
@@ -220,7 +221,7 @@ func performNewReportsCleanup(config ConfigStruct, cliFlags CliFlags) (int, erro
 		log.Error().Err(err).Msg(databaseCleanupNewReportsOperationFailedMessage)
 		return ExitStatusStorageError, err
 	}
-	log.Info().Int("Rows deleted", affected).Msg("Cleanup `new_reports` finished")
+	log.Info().Int(rowsDeletedMessage, affected).Msg("Cleanup `new_reports` finished")
 
 	return ExitStatusOK, nil
 }
@@ -261,7 +262,7 @@ func performOldReportsCleanup(config ConfigStruct, cliFlags CliFlags) (int, erro
 		log.Error().Err(err).Msg(databaseCleanupOldReportsOperationFailedMessage)
 		return ExitStatusStorageError, err
 	}
-	log.Info().Int("Rows deleted", affected).Msg("Cleanup `reported` finished")
+	log.Info().Int(rowsDeletedMessage, affected).Msg("Cleanup `reported` finished")
 
 	return ExitStatusOK, nil
 }

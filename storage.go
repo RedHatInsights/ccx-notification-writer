@@ -536,8 +536,8 @@ func (storage DBStorage) GetLatestKafkaOffset() (KafkaOffset, error) {
 	return offset, err
 }
 
-// PrintNewReportsForCleanup method prints all reports older than specified
-// relative time
+// PrintNewReports method prints all reports from selected table older than
+// specified relative time
 func (storage DBStorage) PrintNewReports(maxAge string, query string, tableName string) error {
 	log.Info().
 		Str(MaxAgeAttribute, maxAge).
