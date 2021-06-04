@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package main
+package main_test
 
 import (
 	"os"
@@ -24,6 +24,8 @@ import (
 	"github.com/RedHatInsights/insights-operator-utils/tests/helpers"
 	"github.com/rs/zerolog"
 	"github.com/stretchr/testify/assert"
+
+	main "github.com/RedHatInsights/ccx-notification-writer"
 )
 
 func init() {
@@ -31,14 +33,14 @@ func init() {
 }
 
 func mustLoadConfiguration(envVar string) {
-	_, err := LoadConfiguration(envVar, "tests/config1")
+	_, err := main.LoadConfiguration(envVar, "tests/config1")
 	if err != nil {
 		panic(err)
 	}
 }
 
 func mustFailLoadingConfigurationIfWrongEnvVar(envVar string) {
-	_, err := LoadConfiguration(envVar, "ANonExistingDefaultConfigPath")
+	_, err := main.LoadConfiguration(envVar, "ANonExistingDefaultConfigPath")
 	if err == nil {
 		panic(err)
 	}
@@ -76,7 +78,7 @@ func TestLoadConfigurationFromEnvVariable(t *testing.T) {
 
 // TestLoadConfigurationNonEnvVarUnknownConfigFile tests loading an unexisting config file when no environment variable is provided
 func TestLoadConfigurationNonEnvVarUnknownConfigFile(t *testing.T) {
-	_, err := LoadConfiguration("", "foobar")
+	_, err := main.LoadConfiguration("", "foobar")
 	assert.Contains(t, err.Error(), `Config File "foobar" Not Found in`)
 }
 
@@ -86,7 +88,7 @@ func TestLoadingConfigurationEnvVariableBadValueNoDefaultConfig(t *testing.T) {
 
 	mustSetEnv(t, "CCX_NOTIFICATION_WRITER_CONFIG_FILE", "non existing file")
 
-	_, err := LoadConfiguration("CCX_NOTIFICATION_WRITER_CONFIG_FILE", "")
+	_, err := main.LoadConfiguration("CCX_NOTIFICATION_WRITER_CONFIG_FILE", "")
 	assert.Contains(t, err.Error(), `fatal error config file: Config File "non existing file" Not Found in`)
 }
 
@@ -96,7 +98,7 @@ func TestLoadingConfigurationEnvVariableBadValueDefaultConfigFailure(t *testing.
 
 	mustSetEnv(t, "CCX_NOTIFICATION_WRITER_CONFIG_FILE", "non existing file")
 
-	_, err := LoadConfiguration("CCX_NOTIFICATION_WRITER_CONFIG_FILE", "tests/config1")
+	_, err := main.LoadConfiguration("CCX_NOTIFICATION_WRITER_CONFIG_FILE", "tests/config1")
 	assert.Contains(t, err.Error(), `fatal error config file: Config File "non existing file" Not Found in`)
 }
 
@@ -107,10 +109,10 @@ func TestLoadBrokerConfiguration(t *testing.T) {
 	//helpers.FailOnError(t, os.Chdir(".."))
 
 	mustSetEnv(t, envVar, "tests/config2")
-	config, err := LoadConfiguration(envVar, "")
+	config, err := main.LoadConfiguration(envVar, "")
 	assert.Nil(t, err, "Failed loading configuration file from env var!")
 
-	brokerCfg := GetBrokerConfiguration(config)
+	brokerCfg := main.GetBrokerConfiguration(config)
 
 	assert.Equal(t, "localhost:29092", brokerCfg.Address)
 	assert.Equal(t, "ccx_test_notifications", brokerCfg.Topic)
@@ -120,10 +122,10 @@ func TestLoadBrokerConfiguration(t *testing.T) {
 func TestLoadStorageConfiguration(t *testing.T) {
 	envVar := "CCX_NOTIFICATION_WRITER_CONFIG_FILE"
 	mustSetEnv(t, envVar, "tests/config2")
-	config, err := LoadConfiguration(envVar, "")
+	config, err := main.LoadConfiguration(envVar, "")
 	assert.Nil(t, err, "Failed loading configuration file from env var!")
 
-	storageCfg := GetStorageConfiguration(config)
+	storageCfg := main.GetStorageConfiguration(config)
 
 	assert.Equal(t, "sqlite3", storageCfg.Driver)
 	assert.Equal(t, "user", storageCfg.PGUsername)
@@ -139,23 +141,23 @@ func TestLoadStorageConfiguration(t *testing.T) {
 func TestLoadLoggingConfiguration(t *testing.T) {
 	envVar := "CCX_NOTIFICATION_WRITER_CONFIG_FILE"
 	mustSetEnv(t, envVar, "tests/config2")
-	config, err := LoadConfiguration(envVar, "")
+	config, err := main.LoadConfiguration(envVar, "")
 	assert.Nil(t, err, "Failed loading configuration file from env var!")
 
-	loggingCfg := GetLoggingConfiguration(config)
+	loggingCfg := main.GetLoggingConfiguration(config)
 
 	assert.Equal(t, true, loggingCfg.Debug)
 	assert.Equal(t, "", loggingCfg.LogLevel)
 }
 
-// TestLoadMetricsConfiguraion tests loading the metrics configuration sub-tree
-func TestLoadMetricsConfiguraion(t *testing.T) {
+// TestLoadMetricsConfiguration tests loading the metrics configuration sub-tree
+func TestLoadMetricsConfiguration(t *testing.T) {
 	envVar := "CCX_NOTIFICATION_WRITER_CONFIG_FILE"
 	mustSetEnv(t, envVar, "tests/config2")
-	config, err := LoadConfiguration(envVar, "")
+	config, err := main.LoadConfiguration(envVar, "")
 	assert.Nil(t, err, "Failed loading configuration file from env var!")
 
-	metricsCfg := GetMetricsConfiguration(config)
+	metricsCfg := main.GetMetricsConfiguration(config)
 
 	assert.Equal(t, "notification_writer", metricsCfg.Namespace)
 	assert.Equal(t, ":8080", metricsCfg.Address)
