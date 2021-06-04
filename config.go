@@ -57,7 +57,6 @@ package main
 // TBD
 
 import (
-	"bytes"
 	"fmt"
 	"os"
 	"strings"
@@ -66,7 +65,6 @@ import (
 
 	"path/filepath"
 
-	"github.com/BurntSushi/toml"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/viper"
 )
@@ -128,7 +126,7 @@ type StorageConfiguration struct {
 	PGPort        int    `mapstructure:"pg_port"         toml:"pg_port"`
 	PGDBName      string `mapstructure:"pg_db_name"      toml:"pg_db_name"`
 	PGParams      string `mapstructure:"pg_params"       toml:"pg_params"`
-	LogSQLQueries string `mapstructure:"log_sql_queries" toml:"log_sql_queries"`
+	LogSQLQueries bool   `mapstructure:"log_sql_queries" toml:"log_sql_queries"`
 }
 
 // LoadConfiguration loads configuration from defaultConfigFile, file set in
@@ -157,25 +155,7 @@ func LoadConfiguration(configFileEnvVariableName string, defaultConfigFile strin
 	// try to read the whole configuration
 	err := viper.ReadInConfig()
 	if _, isNotFoundError := err.(viper.ConfigFileNotFoundError); !specified && isNotFoundError {
-		// viper is not smart enough to understand the structure of
-		// config by itself
-		fakeTomlConfigWriter := new(bytes.Buffer)
-
-		err := toml.NewEncoder(fakeTomlConfigWriter).Encode(config)
-		if err != nil {
-			// error is processed on caller side
-			return config, err
-		}
-
-		fakeTomlConfig := fakeTomlConfigWriter.String()
-
-		viper.SetConfigType("toml")
-
-		err = viper.ReadConfig(strings.NewReader(fakeTomlConfig))
-		if err != nil {
-			// error is processed on caller side
-			return config, err
-		}
+		return config, err
 	} else if err != nil {
 		// error is processed on caller side
 		return config, fmt.Errorf("fatal error config file: %s", err)
@@ -183,7 +163,7 @@ func LoadConfiguration(configFileEnvVariableName string, defaultConfigFile strin
 
 	// override config from env if there's variable in env
 
-	const envPrefix = "NOTIFICATION_SERVICE_"
+	const envPrefix = "CCX_NOTIFICATION_WRITER_"
 
 	viper.AutomaticEnv()
 	viper.SetEnvPrefix(envPrefix)
