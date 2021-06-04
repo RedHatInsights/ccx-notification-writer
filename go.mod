@@ -14,4 +14,5 @@ require (
 	github.com/rs/zerolog v1.21.0
 	github.com/spf13/viper v1.7.2-0.20210415161207-7fdb267c730d
 	github.com/stretchr/testify v1.7.0
+	github.com/tisnik/go-capture v1.0.1
 )
