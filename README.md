@@ -74,13 +74,48 @@ help                 Show this help screen
         max age for displaying/cleaning old records
   -new-reports-cleanup
         perform new reports clean up
+  -old-reports-cleanup
+        perform old reports clean up
   -print-new-reports-for-cleanup
         print new reports to be cleaned up
+  -print-old-reports-for-cleanup
+        print old reports to be cleaned up
   -show-configuration
         show configuration
   -version
         show version
 ```
+
+## Starting the service
+
+In order to start the service, just `./ccx-notification-writer` is needed to be called from CLI.
+
+## Cleanup old records
+
+It is possible to cleanup old records from `new_reports` and `reported` tables. To do it, use the following CLI options:
+
+```
+./ccx-notification-writer -old-reports-cleanup --max-age="30 days"
+```
+
+or
+
+```
+./ccx-notification-writer -new-reports-cleanup --max-age="30 days"
+```
+
+Additionally it is possible to just display old reports without touching the database tables:
+
+```
+./ccx-notification-writer -print-old-reports-for-cleanup --max-age="30 days"
+```
+
+or
+
+```
+./ccx-notification-writer -print-new-reports-for-cleanup --max-age="30 days"
+```
+
 
 ## Metrics
 
