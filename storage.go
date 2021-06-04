@@ -133,6 +133,21 @@ const (
 		  FROM new_reports
 		 WHERE updated_at < NOW() - $1::INTERVAL
 `
+
+	// Display older records from reported table
+	displayOldRecordsFromReportedTable = `
+                SELECT org_id, account_number, cluster, updated_at, 0
+		  FROM reported
+		 WHERE updated_at < NOW() - $1::INTERVAL
+		 ORDER BY updated_at
+`
+
+	// Delete older records from reported table
+	deleteOldRecordsFromReportedTable = `
+                DELETE
+		  FROM reported
+		 WHERE updated_at < NOW() - $1::INTERVAL
+`
 	// Value to be stored in notification_types table
 	insertInstantReport = `
                 INSERT INTO notification_types (id, value, frequency, comment)
@@ -206,6 +221,8 @@ type Storage interface {
 	GetLatestKafkaOffset() (KafkaOffset, error)
 	PrintNewReportsForCleanup(maxAge string) error
 	CleanupNewReports(maxAge string) (int, error)
+	PrintOldReportsForCleanup(maxAge string) error
+	CleanupOldReports(maxAge string) (int, error)
 }
 
 // DBStorage is an implementation of Storage interface that use selected SQL like database
@@ -519,15 +536,14 @@ func (storage DBStorage) GetLatestKafkaOffset() (KafkaOffset, error) {
 	return offset, err
 }
 
-// PrintNewReportsForCleanup method prints all reports older than specified
-// relative time
-func (storage DBStorage) PrintNewReportsForCleanup(maxAge string) error {
+// PrintNewReports method prints all reports from selected table older than
+// specified relative time
+func (storage DBStorage) PrintNewReports(maxAge string, query string, tableName string) error {
 	log.Info().
 		Str(MaxAgeAttribute, maxAge).
-		Str("select statement", displayOldRecordsFromNewReportsTable).
-		Msg("PrintNewReportsForCleanup operation")
+		Str("select statement", query).
+		Msg("PrintReportsForCleanup operation")
 
-	query := displayOldRecordsFromNewReportsTable
 	rows, err := storage.connection.Query(query, maxAge)
 	if err != nil {
 		return err
@@ -567,21 +583,33 @@ func (storage DBStorage) PrintNewReportsForCleanup(maxAge string) error {
 			Str(ClusterNameMessage, clusterName).
 			Str(UpdatedAtMessage, updatedAtF).
 			Int(AgeMessage, age).
-			Msg("Old report from `new_reports` table")
+			Msg("Old report from `" + tableName + "` table")
 	}
 	return nil
 }
 
-// CleanupNewReports method deletes all reports older than specified
+// PrintNewReportsForCleanup method prints all reports from `new_reports` table
+// older than specified relative time
+func (storage DBStorage) PrintNewReportsForCleanup(maxAge string) error {
+	return storage.PrintNewReports(maxAge, displayOldRecordsFromNewReportsTable, "new_reports")
+}
+
+// PrintOldReportsForCleanup method prints all reports from `reported` table
+// older than specified relative time
+func (storage DBStorage) PrintOldReportsForCleanup(maxAge string) error {
+	return storage.PrintNewReports(maxAge, displayOldRecordsFromReportedTable, "reported")
+}
+
+// Cleanup method deletes all reports older than specified
 // relative time
-func (storage DBStorage) CleanupNewReports(maxAge string) (int, error) {
+func (storage DBStorage) Cleanup(maxAge string, statement string) (int, error) {
 	log.Info().
 		Str(MaxAgeAttribute, maxAge).
-		Str("delete statement", deleteOldRecordsFromNewReportsTable).
-		Msg("CleanupNewReports operation")
+		Str("delete statement", statement).
+		Msg("Cleanup operation")
 
 	// perform the SQL statement
-	result, err := storage.connection.Exec(deleteOldRecordsFromNewReportsTable, maxAge)
+	result, err := storage.connection.Exec(statement, maxAge)
 	if err != nil {
 		return 0, err
 	}
@@ -592,4 +620,16 @@ func (storage DBStorage) CleanupNewReports(maxAge string) (int, error) {
 		return 0, err
 	}
 	return int(affected), nil
+}
+
+// CleanupNewReports method deletes all reports from `new_reports` table older
+// than specified relative time
+func (storage DBStorage) CleanupNewReports(maxAge string) (int, error) {
+	return storage.Cleanup(maxAge, deleteOldRecordsFromNewReportsTable)
+}
+
+// CleanupOldReports method deletes all reports from `reported` table older
+// than specified relative time
+func (storage DBStorage) CleanupOldReports(maxAge string) (int, error) {
+	return storage.Cleanup(maxAge, deleteOldRecordsFromReportedTable)
 }

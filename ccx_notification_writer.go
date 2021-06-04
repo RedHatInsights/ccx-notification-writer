@@ -51,8 +51,11 @@ const (
 	brokerConnectionSuccessMessage                          = "Broker connection OK"
 	databaseCleanupOperationFailedMessage                   = "Database cleanup operation failed"
 	databaseDropTablesOperationFailedMessage                = "Database drop tables operation failed"
-	databasePrintNewReportsForCleanupOperationFailedMessage = "Print records from `new_reports` prepared for cleanup failed"
-	databaseCleanupNewRepoprtsOperationFailedMessage        = "Cleanup records from `new_reports` failed"
+	databasePrintNewReportsForCleanupOperationFailedMessage = "Print records from `new_reports` table prepared for cleanup failed"
+	databasePrintOldReportsForCleanupOperationFailedMessage = "Print records from `reported` table prepared for cleanup failed"
+	databaseCleanupNewReportsOperationFailedMessage         = "Cleanup records from `new_reports` table failed"
+	databaseCleanupOldReportsOperationFailedMessage         = "Cleanup records from `reported` table failed"
+	rowsDeletedMessage                                      = "Rows deleted"
 )
 
 // Configuration-related constants
@@ -182,6 +185,8 @@ func performDatabaseDropTables(config ConfigStruct) (int, error) {
 	return ExitStatusOK, nil
 }
 
+// printNewReportsForCleanup function print all reports for `new_reports` table
+// that are older than specified max age.
 func printNewReportsForCleanup(config ConfigStruct, cliFlags CliFlags) (int, error) {
 	// prepare the storage
 	storageConfiguration := GetStorageConfiguration(config)
@@ -200,6 +205,8 @@ func printNewReportsForCleanup(config ConfigStruct, cliFlags CliFlags) (int, err
 	return ExitStatusOK, nil
 }
 
+// performNewReportsCleanup function deletes all reports from `new_reports`
+// table that are older than specified max age.
 func performNewReportsCleanup(config ConfigStruct, cliFlags CliFlags) (int, error) {
 	// prepare the storage
 	storageConfiguration := GetStorageConfiguration(config)
@@ -211,10 +218,51 @@ func performNewReportsCleanup(config ConfigStruct, cliFlags CliFlags) (int, erro
 
 	affected, err := storage.CleanupNewReports(cliFlags.maxAge)
 	if err != nil {
-		log.Error().Err(err).Msg(databaseCleanupNewRepoprtsOperationFailedMessage)
+		log.Error().Err(err).Msg(databaseCleanupNewReportsOperationFailedMessage)
 		return ExitStatusStorageError, err
 	}
-	log.Info().Int("Rows deleted", affected).Msg("Cleanup `new_reports` finished")
+	log.Info().Int(rowsDeletedMessage, affected).Msg("Cleanup `new_reports` finished")
+
+	return ExitStatusOK, nil
+}
+
+// printOldReportsForCleanup function print all reports for `reported` table
+// that are older than specified max age.
+func printOldReportsForCleanup(config ConfigStruct, cliFlags CliFlags) (int, error) {
+	// prepare the storage
+	storageConfiguration := GetStorageConfiguration(config)
+	storage, err := NewStorage(storageConfiguration)
+	if err != nil {
+		log.Error().Err(err).Msg(operationFailedMessage)
+		return ExitStatusStorageError, err
+	}
+
+	err = storage.PrintOldReportsForCleanup(cliFlags.maxAge)
+	if err != nil {
+		log.Error().Err(err).Msg(databasePrintOldReportsForCleanupOperationFailedMessage)
+		return ExitStatusStorageError, err
+	}
+
+	return ExitStatusOK, nil
+}
+
+// performOldReportsCleanup function deletes all reports from `reported` table
+// that are older than specified max age.
+func performOldReportsCleanup(config ConfigStruct, cliFlags CliFlags) (int, error) {
+	// prepare the storage
+	storageConfiguration := GetStorageConfiguration(config)
+	storage, err := NewStorage(storageConfiguration)
+	if err != nil {
+		log.Error().Err(err).Msg(operationFailedMessage)
+		return ExitStatusStorageError, err
+	}
+
+	affected, err := storage.CleanupOldReports(cliFlags.maxAge)
+	if err != nil {
+		log.Error().Err(err).Msg(databaseCleanupOldReportsOperationFailedMessage)
+		return ExitStatusStorageError, err
+	}
+	log.Info().Int(rowsDeletedMessage, affected).Msg("Cleanup `reported` finished")
 
 	return ExitStatusOK, nil
 }
@@ -310,6 +358,10 @@ func doSelectedOperation(configuration ConfigStruct, cliFlags CliFlags) (int, er
 		return printNewReportsForCleanup(configuration, cliFlags)
 	case cliFlags.performNewReportsCleanup:
 		return performNewReportsCleanup(configuration, cliFlags)
+	case cliFlags.printOldReportsForCleanup:
+		return printOldReportsForCleanup(configuration, cliFlags)
+	case cliFlags.performOldReportsCleanup:
+		return performOldReportsCleanup(configuration, cliFlags)
 	default:
 		exitCode, err := startService(configuration)
 		return exitCode, err
@@ -331,6 +383,8 @@ func main() {
 	flag.BoolVar(&cliFlags.showConfiguration, "show-configuration", false, "show configuration")
 	flag.BoolVar(&cliFlags.printNewReportsForCleanup, "print-new-reports-for-cleanup", false, "print new reports to be cleaned up")
 	flag.BoolVar(&cliFlags.performNewReportsCleanup, "new-reports-cleanup", false, "perform new reports clean up")
+	flag.BoolVar(&cliFlags.printOldReportsForCleanup, "print-old-reports-for-cleanup", false, "print old reports to be cleaned up")
+	flag.BoolVar(&cliFlags.performOldReportsCleanup, "old-reports-cleanup", false, "perform old reports clean up")
 	flag.StringVar(&cliFlags.maxAge, "max-age", "", "max age for displaying/cleaning old records")
 	flag.Parse()
 
