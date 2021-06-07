@@ -213,6 +213,11 @@ database in shrunk format (some attributes are removed).
  kafka_offset | bigint                      | not null default 0
 Indexes:
     "new_reports_pkey" PRIMARY KEY, btree (org_id, cluster, updated_at)
+    "new_reports_cluster_idx" btree (cluster)
+    "new_reports_org_id_idx" btree (org_id)
+    "new_reports_updated_at_asc_idx" btree (updated_at)
+    "new_reports_updated_at_desc_idx" btree (updated_at DESC)
+    "report_kafka_offset_btree_idx" btree (kafka_offset)
     "report_kafka_offset_btree_idx" btree (kafka_offset)
 ```
 
@@ -236,6 +241,8 @@ conditions.
 
 Indexes:
     "reported_pkey" PRIMARY KEY, btree (org_id, cluster)
+    "notified_at_desc_idx" btree (notified_at DESC)
+    "updated_at_desc_idx" btree (updated_at)
 Foreign-key constraints:
     "fk_notification_type" FOREIGN KEY (notification_type) REFERENCES notification_types(id)
     "fk_state" FOREIGN KEY (state) REFERENCES states(id)
@@ -255,6 +262,7 @@ Frequency can be specified as in `crontab` - https://crontab.guru/
  comment   | character varying |
 Indexes:
     "notification_types_pkey" PRIMARY KEY, btree (id)
+    "notification_types_id_idx" btree (id)
 Referenced by:
     TABLE "reported" CONSTRAINT "fk_notification_type" FOREIGN KEY (notification_type) REFERENCES notification_types(id)
 ```
