@@ -119,6 +119,51 @@ const (
 		       ON new_reports (kafka_offset)
 `
 
+	// Index for the new_reports table
+	createIndexNewReportsOrgID = `
+                CREATE INDEX new_reports_org_id_idx
+		    ON new_reports
+		 USING btree (org_id);
+`
+
+	// Index for the new_reports table
+	createIndexNewReportsCluster = `
+                CREATE INDEX new_reports_cluster_idx
+		    ON new_reports
+		 USING btree (cluster);
+`
+	// Index for the new_reports table
+	createIndexNewReportsUpdatedAtAsc = `
+                CREATE INDEX new_reports_updated_at_asc_idx
+		       ON new_reports USING btree (updated_at ASC);
+`
+
+	// Index for the new_reports table
+	createIndexNewReportsUpdatedAtDesc = `
+                CREATE INDEX new_reports_updated_at_desc_idx
+		       ON new_reports USING btree (updated_at DESC);
+`
+
+	// Index for the reported table
+	createIndexReportedNotifiedAtDesc = `
+                CREATE INDEX notified_at_desc_idx
+		    ON reported
+		 USING btree (notified_at DESC);
+`
+
+	// Index for the reported table
+	createIndexReportedUpdatedAtAsc = `
+                CREATE INDEX updated_at_desc_idx
+		    ON reported
+		 USING btree (updated_at ASC);
+`
+
+	// Index for the notification_types table
+	createIndexNotificationTypesID = `
+                CREATE INDEX notification_types_id_idx
+		       ON notification_types USING btree (id ASC);
+`
+
 	// Display older records from new_reports table
 	displayOldRecordsFromNewReportsTable = `
                 SELECT org_id, account_number, cluster, updated_at, kafka_offset
@@ -290,8 +335,15 @@ func NewStorage(configuration StorageConfiguration) (*DBStorage, error) {
 		createTableReported,
 		createTableNewReports,
 
-		// offsets
+		// indexes
 		createIndexKafkaOffset,
+		createIndexNewReportsOrgID,
+		createIndexNewReportsCluster,
+		createIndexNewReportsUpdatedAtAsc,
+		createIndexNewReportsUpdatedAtDesc,
+		createIndexReportedNotifiedAtDesc,
+		createIndexReportedUpdatedAtAsc,
+		createIndexNotificationTypesID,
 
 		// records
 		insertInstantReport,
