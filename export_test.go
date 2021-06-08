@@ -26,6 +26,7 @@ package main
 // https://medium.com/@robiplus/golang-trick-export-for-test-aa16cbd7b8cd
 // to see why this trick is needed.
 var (
-	LogDuration    = logDuration
-	LogMessageInfo = logMessageInfo
+	LogDuration     = logDuration
+	LogMessageInfo  = logMessageInfo
+	LogMessageError = logMessageError
 )
