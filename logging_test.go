@@ -21,12 +21,19 @@ import (
 	"testing"
 	"time"
 
+	"github.com/Shopify/sarama"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"github.com/stretchr/testify/assert"
 	"github.com/tisnik/go-capture"
 
 	main "github.com/RedHatInsights/ccx-notification-writer"
+)
+
+const (
+	testOrganizationID = 6502
+	testClusterName    = "thisIsClusterName"
+	testTopicName      = "thisIsTopicName"
 )
 
 func init() {
@@ -43,13 +50,58 @@ func checkCapture(t *testing.T, err error) {
 func TestLogDuration(t *testing.T) {
 	startTime := time.Date(2000, time.November, 10, 23, 0, 0, 0, time.UTC)
 	endTime := time.Date(2000, time.November, 10, 23, 0, 1, 0, time.UTC)
+
+	// try to call the tested function and capture its output
 	output, err := capture.ErrorOutput(func() {
 		log.Logger = log.Output(zerolog.New(os.Stderr))
 		main.LogDuration(startTime, endTime, 9999, "test message")
 	})
+
+	// check the captured text
 	checkCapture(t, err)
 	assert.Contains(t, output, "test message") // key
 	assert.Contains(t, output, "9999")         // offset
 	assert.Contains(t, output, "1000000")      // duration
 
+}
+
+// TestLogMessageInfo check the logMessageInfo function from the main module
+func TestLogMessageInfo(t *testing.T) {
+	// mocked broker configuration
+	var brokerConfiguration = main.BrokerConfiguration{
+		Address: "address",
+		Topic:   testTopicName,
+		Group:   "group",
+		Enabled: true,
+	}
+
+	// mocked consumer
+	consumer := &main.KafkaConsumer{
+		Configuration: brokerConfiguration,
+		ConsumerGroup: nil,
+	}
+
+	var originalMessage = sarama.ConsumerMessage{}
+
+	// mocked message
+	var orgID main.OrgID = main.OrgID(testOrganizationID)
+	var clusterName main.ClusterName = main.ClusterName(testClusterName)
+	var parsedMessage = main.IncomingMessage{
+		Organization: &orgID,
+		ClusterName:  &clusterName,
+		Version:      99,
+	}
+	// try to call the tested function and capture its output
+	output, err := capture.ErrorOutput(func() {
+		log.Logger = log.Output(zerolog.New(os.Stderr))
+		main.LogMessageInfo(consumer, &originalMessage, parsedMessage, "event")
+	})
+
+	// check the captured text
+	checkCapture(t, err)
+	assert.Contains(t, output, "organization")
+	assert.Contains(t, output, testClusterName)
+	assert.Contains(t, output, testTopicName)
+	assert.Contains(t, output, "6502")
+	assert.Contains(t, output, "99") // version
 }
