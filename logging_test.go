@@ -49,6 +49,37 @@ func checkCapture(t *testing.T, err error) {
 	}
 }
 
+// Construct consumer used only for tests.
+func constructTestConsumer() *main.KafkaConsumer {
+	// mocked broker configuration
+	var brokerConfiguration = main.BrokerConfiguration{
+		Address: "address",
+		Topic:   testTopicName,
+		Group:   "group",
+		Enabled: true,
+	}
+
+	// mocked consumer
+	return &main.KafkaConsumer{
+		Configuration: brokerConfiguration,
+		ConsumerGroup: nil,
+	}
+}
+
+// Construct parsed message used only for tests.
+func constructParsedMessage() main.IncomingMessage {
+	// mocked message
+	var orgID main.OrgID = main.OrgID(testOrganizationID)
+	var clusterName main.ClusterName = main.ClusterName(testClusterName)
+
+	// mocked parsed message
+	return main.IncomingMessage{
+		Organization: &orgID,
+		ClusterName:  &clusterName,
+		Version:      99,
+	}
+}
+
 // TestLogDuration check the logDuration function from the main module
 func TestLogDuration(t *testing.T) {
 	startTime := time.Date(2000, time.November, 10, 23, 0, 0, 0, time.UTC)
@@ -70,30 +101,10 @@ func TestLogDuration(t *testing.T) {
 
 // TestLogMessageInfo check the logMessageInfo function from the main module
 func TestLogMessageInfo(t *testing.T) {
-	// mocked broker configuration
-	var brokerConfiguration = main.BrokerConfiguration{
-		Address: "address",
-		Topic:   testTopicName,
-		Group:   "group",
-		Enabled: true,
-	}
+	consumer := constructTestConsumer()
+	originalMessage := sarama.ConsumerMessage{}
+	parsedMessage := constructParsedMessage()
 
-	// mocked consumer
-	consumer := &main.KafkaConsumer{
-		Configuration: brokerConfiguration,
-		ConsumerGroup: nil,
-	}
-
-	var originalMessage = sarama.ConsumerMessage{}
-
-	// mocked message
-	var orgID main.OrgID = main.OrgID(testOrganizationID)
-	var clusterName main.ClusterName = main.ClusterName(testClusterName)
-	var parsedMessage = main.IncomingMessage{
-		Organization: &orgID,
-		ClusterName:  &clusterName,
-		Version:      99,
-	}
 	// try to call the tested function and capture its output
 	output, err := capture.ErrorOutput(func() {
 		log.Logger = log.Output(zerolog.New(os.Stderr))
@@ -112,30 +123,10 @@ func TestLogMessageInfo(t *testing.T) {
 
 // TestLogMessageError check the logMessageError function from the main module
 func TestLogMessageError(t *testing.T) {
-	// mocked broker configuration
-	var brokerConfiguration = main.BrokerConfiguration{
-		Address: "address",
-		Topic:   testTopicName,
-		Group:   "group",
-		Enabled: true,
-	}
+	consumer := constructTestConsumer()
+	originalMessage := sarama.ConsumerMessage{}
+	parsedMessage := constructParsedMessage()
 
-	// mocked consumer
-	consumer := &main.KafkaConsumer{
-		Configuration: brokerConfiguration,
-		ConsumerGroup: nil,
-	}
-
-	var originalMessage = sarama.ConsumerMessage{}
-
-	// mocked message
-	var orgID main.OrgID = main.OrgID(testOrganizationID)
-	var clusterName main.ClusterName = main.ClusterName(testClusterName)
-	var parsedMessage = main.IncomingMessage{
-		Organization: &orgID,
-		ClusterName:  &clusterName,
-		Version:      99,
-	}
 	// try to call the tested function and capture its output
 	output, err := capture.ErrorOutput(func() {
 		log.Logger = log.Output(zerolog.New(os.Stderr))
@@ -155,21 +146,8 @@ func TestLogMessageError(t *testing.T) {
 
 // TestLogUnparsedMessageError check the logUnparsedMessageError function from the main module
 func TestLogUnparsedMessageError(t *testing.T) {
-	// mocked broker configuration
-	var brokerConfiguration = main.BrokerConfiguration{
-		Address: "address",
-		Topic:   testTopicName,
-		Group:   "group",
-		Enabled: true,
-	}
-
-	// mocked consumer
-	consumer := &main.KafkaConsumer{
-		Configuration: brokerConfiguration,
-		ConsumerGroup: nil,
-	}
-
-	var originalMessage = sarama.ConsumerMessage{}
+	consumer := constructTestConsumer()
+	originalMessage := sarama.ConsumerMessage{}
 
 	// try to call the tested function and capture its output
 	output, err := capture.ErrorOutput(func() {
@@ -186,30 +164,10 @@ func TestLogUnparsedMessageError(t *testing.T) {
 
 // TestLogMessageWarning check the logMessageWarning function from the main module
 func TestLogMessageWarning(t *testing.T) {
-	// mocked broker configuration
-	var brokerConfiguration = main.BrokerConfiguration{
-		Address: "address",
-		Topic:   testTopicName,
-		Group:   "group",
-		Enabled: true,
-	}
+	consumer := constructTestConsumer()
+	originalMessage := sarama.ConsumerMessage{}
+	parsedMessage := constructParsedMessage()
 
-	// mocked consumer
-	consumer := &main.KafkaConsumer{
-		Configuration: brokerConfiguration,
-		ConsumerGroup: nil,
-	}
-
-	var originalMessage = sarama.ConsumerMessage{}
-
-	// mocked message
-	var orgID main.OrgID = main.OrgID(testOrganizationID)
-	var clusterName main.ClusterName = main.ClusterName(testClusterName)
-	var parsedMessage = main.IncomingMessage{
-		Organization: &orgID,
-		ClusterName:  &clusterName,
-		Version:      99,
-	}
 	// try to call the tested function and capture its output
 	output, err := capture.ErrorOutput(func() {
 		log.Logger = log.Output(zerolog.New(os.Stderr))
