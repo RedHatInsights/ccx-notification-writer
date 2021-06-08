@@ -152,3 +152,34 @@ func TestLogMessageError(t *testing.T) {
 	assert.Contains(t, output, "6502")
 	assert.Contains(t, output, "99") // version
 }
+
+// TestLogUnparsedMessageError check the logUnparsedMessageError function from the main module
+func TestLogUnparsedMessageError(t *testing.T) {
+	// mocked broker configuration
+	var brokerConfiguration = main.BrokerConfiguration{
+		Address: "address",
+		Topic:   testTopicName,
+		Group:   "group",
+		Enabled: true,
+	}
+
+	// mocked consumer
+	consumer := &main.KafkaConsumer{
+		Configuration: brokerConfiguration,
+		ConsumerGroup: nil,
+	}
+
+	var originalMessage = sarama.ConsumerMessage{}
+
+	// try to call the tested function and capture its output
+	output, err := capture.ErrorOutput(func() {
+		log.Logger = log.Output(zerolog.New(os.Stderr))
+		main.LogUnparsedMessageError(consumer, &originalMessage, testEventMessage, errors.New(testError))
+	})
+
+	// check the captured text
+	checkCapture(t, err)
+	assert.Contains(t, output, testTopicName)
+	assert.Contains(t, output, testError)
+	assert.Contains(t, output, testEventMessage)
+}
