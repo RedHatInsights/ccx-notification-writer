@@ -31,7 +31,7 @@ import (
 
 // logMessageInfo function records log info about message consumed from given
 // topic, partition, and offset.
-func logMessageInfo(consumer *KafkaConsumer, originalMessage *sarama.ConsumerMessage, parsedMessage incomingMessage, event string) {
+func logMessageInfo(consumer *KafkaConsumer, originalMessage *sarama.ConsumerMessage, parsedMessage IncomingMessage, event string) {
 	log.Info().
 		Int(offsetKey, int(originalMessage.Offset)).
 		Int(partitionKey, int(originalMessage.Partition)).
@@ -54,7 +54,7 @@ func logUnparsedMessageError(consumer *KafkaConsumer, originalMessage *sarama.Co
 
 // logMessageError function records log info about consumed message that
 // contain (any) improper data.
-func logMessageError(consumer *KafkaConsumer, originalMessage *sarama.ConsumerMessage, parsedMessage incomingMessage, event string, err error) {
+func logMessageError(consumer *KafkaConsumer, originalMessage *sarama.ConsumerMessage, parsedMessage IncomingMessage, event string, err error) {
 	log.Error().
 		Int(offsetKey, int(originalMessage.Offset)).
 		Str(topicKey, consumer.Configuration.Topic).
@@ -67,7 +67,7 @@ func logMessageError(consumer *KafkaConsumer, originalMessage *sarama.ConsumerMe
 
 // logMessageWarning function records log info about consumed message that
 // contain (any) data that are not 100% correct.
-func logMessageWarning(consumer *KafkaConsumer, originalMessage *sarama.ConsumerMessage, parsedMessage incomingMessage, event string) {
+func logMessageWarning(consumer *KafkaConsumer, originalMessage *sarama.ConsumerMessage, parsedMessage IncomingMessage, event string) {
 	log.Warn().
 		Int(offsetKey, int(originalMessage.Offset)).
 		Int(partitionKey, int(originalMessage.Partition)).

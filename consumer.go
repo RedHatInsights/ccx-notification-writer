@@ -66,8 +66,9 @@ const CurrentSchemaVersion = SchemaVersion(2)
 // Report represents report send in a message consumed from any broker
 type Report map[string]*json.RawMessage
 
-// incomingMessage is representation of message consumed from any broker
-type incomingMessage struct {
+// IncomingMessage data structure is representation of message consumed from
+// any broker
+type IncomingMessage struct {
 	Organization  *OrgID         `json:"OrgID"`
 	AccountNumber *AccountNumber `json:"AccountNumber"`
 	ClusterName   *ClusterName   `json:"ClusterName"`
@@ -317,7 +318,7 @@ func (consumer *KafkaConsumer) HandleMessage(msg *sarama.ConsumerMessage) {
 }
 
 // checkMessageVersion - verifies incoming data's version is the expected one
-func checkMessageVersion(consumer *KafkaConsumer, message *incomingMessage, msg *sarama.ConsumerMessage) {
+func checkMessageVersion(consumer *KafkaConsumer, message *IncomingMessage, msg *sarama.ConsumerMessage) {
 	if message.Version != CurrentSchemaVersion {
 		const warning = "Received data with unexpected version."
 		logMessageWarning(consumer, msg, *message, warning)
@@ -491,8 +492,8 @@ func checkReportStructure(r Report) error {
 }
 
 // parseMessage tries to parse incoming message and read all required attributes from it
-func parseMessage(messageValue []byte) (incomingMessage, error) {
-	var deserialized incomingMessage
+func parseMessage(messageValue []byte) (IncomingMessage, error) {
+	var deserialized IncomingMessage
 
 	err := json.Unmarshal(messageValue, &deserialized)
 	if err != nil {
