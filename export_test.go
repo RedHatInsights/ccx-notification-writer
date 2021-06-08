@@ -30,4 +30,5 @@ var (
 	LogMessageInfo          = logMessageInfo
 	LogMessageError         = logMessageError
 	LogUnparsedMessageError = logUnparsedMessageError
+	LogMessageWarning       = logMessageWarning
 )

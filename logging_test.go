@@ -183,3 +183,45 @@ func TestLogUnparsedMessageError(t *testing.T) {
 	assert.Contains(t, output, testError)
 	assert.Contains(t, output, testEventMessage)
 }
+
+// TestLogMessageWarning check the logMessageWarning function from the main module
+func TestLogMessageWarning(t *testing.T) {
+	// mocked broker configuration
+	var brokerConfiguration = main.BrokerConfiguration{
+		Address: "address",
+		Topic:   testTopicName,
+		Group:   "group",
+		Enabled: true,
+	}
+
+	// mocked consumer
+	consumer := &main.KafkaConsumer{
+		Configuration: brokerConfiguration,
+		ConsumerGroup: nil,
+	}
+
+	var originalMessage = sarama.ConsumerMessage{}
+
+	// mocked message
+	var orgID main.OrgID = main.OrgID(testOrganizationID)
+	var clusterName main.ClusterName = main.ClusterName(testClusterName)
+	var parsedMessage = main.IncomingMessage{
+		Organization: &orgID,
+		ClusterName:  &clusterName,
+		Version:      99,
+	}
+	// try to call the tested function and capture its output
+	output, err := capture.ErrorOutput(func() {
+		log.Logger = log.Output(zerolog.New(os.Stderr))
+		main.LogMessageWarning(consumer, &originalMessage, parsedMessage, testEventMessage)
+	})
+
+	// check the captured text
+	checkCapture(t, err)
+	assert.Contains(t, output, "organization")
+	assert.Contains(t, output, testClusterName)
+	assert.Contains(t, output, testTopicName)
+	assert.Contains(t, output, testEventMessage)
+	assert.Contains(t, output, "6502")
+	assert.Contains(t, output, "99") // version
+}
