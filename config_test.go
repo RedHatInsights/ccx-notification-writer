@@ -82,6 +82,12 @@ func TestLoadConfigurationNonEnvVarUnknownConfigFile(t *testing.T) {
 	assert.Contains(t, err.Error(), `Config File "foobar" Not Found in`)
 }
 
+// TestLoadConfigurationBadConfigFile tests loading an unexisting config file when no environment variable is provided
+func TestLoadConfigurationBadConfigFile(t *testing.T) {
+	_, err := main.LoadConfiguration("", "tests/config3")
+	assert.Contains(t, err.Error(), `fatal error config file: While parsing config:`)
+}
+
 // TestLoadingConfigurationEnvVariableBadValueNoDefaultConfig tests loading a non-existent configuration file set in environment
 func TestLoadingConfigurationEnvVariableBadValueNoDefaultConfig(t *testing.T) {
 	os.Clearenv()
@@ -161,4 +167,15 @@ func TestLoadMetricsConfiguration(t *testing.T) {
 
 	assert.Equal(t, "notification_writer", metricsCfg.Namespace)
 	assert.Equal(t, ":8080", metricsCfg.Address)
+}
+
+// TestLoadConfigurationFromEnvVariableClowderEnabled tests loading the config.
+// file for testing from an environment variable. Clowder config is enabled in
+// this case.
+func TestLoadConfigurationFromEnvVariableClowderEnabled(t *testing.T) {
+	os.Clearenv()
+
+	mustSetEnv(t, "CCX_NOTIFICATION_WRITER_CONFIG_FILE", "tests/config2")
+	mustSetEnv(t, "ACG_CONFIG", "tests/clowder_config.json")
+	mustLoadConfiguration("CCX_NOTIFICATION_WRITER_CONFIG_FILE")
 }
