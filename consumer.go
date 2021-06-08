@@ -66,7 +66,8 @@ const CurrentSchemaVersion = SchemaVersion(2)
 // Report represents report send in a message consumed from any broker
 type Report map[string]*json.RawMessage
 
-// incomingMessage is representation of message consumed from any broker
+// IncomingMessage data structure is representation of message consumed from
+// any broker
 type IncomingMessage struct {
 	Organization  *OrgID         `json:"OrgID"`
 	AccountNumber *AccountNumber `json:"AccountNumber"`
