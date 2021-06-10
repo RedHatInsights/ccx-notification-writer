@@ -182,14 +182,19 @@ https://redhatinsights.github.io/ccx-notification-writer/packages/ccx<em>notific
 	<td class="doc"><p>Messages</p>
 </td>
 	<td class="code"><pre><code><div class="keyword">const</div> <div class="operator">(</div>
-	<div class="ident">versionMessage</div>                           <div class="operator">=</div> <div class="literal">&#34;Notification writer version 1.0&#34;</div><div class="operator"></div>
-	<div class="ident">authorsMessage</div>                           <div class="operator">=</div> <div class="literal">&#34;Pavel Tisnovsky, Red Hat Inc.&#34;</div><div class="operator"></div>
-	<div class="ident">connectionToBrokerMessage</div>                <div class="operator">=</div> <div class="literal">&#34;Connection to broker&#34;</div><div class="operator"></div>
-	<div class="ident">operationFailedMessage</div>                   <div class="operator">=</div> <div class="literal">&#34;Operation failed&#34;</div><div class="operator"></div>
-	<div class="ident">notConnectedToBrokerMessage</div>              <div class="operator">=</div> <div class="literal">&#34;Not connected to broker&#34;</div><div class="operator"></div>
-	<div class="ident">brokerConnectionSuccessMessage</div>           <div class="operator">=</div> <div class="literal">&#34;Broker connection OK&#34;</div><div class="operator"></div>
-	<div class="ident">databaseCleanupOperationFailedMessage</div>    <div class="operator">=</div> <div class="literal">&#34;Database cleanup operation failed&#34;</div><div class="operator"></div>
-	<div class="ident">databaseDropTablesOperationFailedMessage</div> <div class="operator">=</div> <div class="literal">&#34;Database drop tables operation failed&#34;</div><div class="operator"></div>
+	<div class="ident">versionMessage</div>                                          <div class="operator">=</div> <div class="literal">&#34;Notification writer version 1.0&#34;</div><div class="operator"></div>
+	<div class="ident">authorsMessage</div>                                          <div class="operator">=</div> <div class="literal">&#34;Pavel Tisnovsky, Red Hat Inc.&#34;</div><div class="operator"></div>
+	<div class="ident">connectionToBrokerMessage</div>                               <div class="operator">=</div> <div class="literal">&#34;Connection to broker&#34;</div><div class="operator"></div>
+	<div class="ident">operationFailedMessage</div>                                  <div class="operator">=</div> <div class="literal">&#34;Operation failed&#34;</div><div class="operator"></div>
+	<div class="ident">notConnectedToBrokerMessage</div>                             <div class="operator">=</div> <div class="literal">&#34;Not connected to broker&#34;</div><div class="operator"></div>
+	<div class="ident">brokerConnectionSuccessMessage</div>                          <div class="operator">=</div> <div class="literal">&#34;Broker connection OK&#34;</div><div class="operator"></div>
+	<div class="ident">databaseCleanupOperationFailedMessage</div>                   <div class="operator">=</div> <div class="literal">&#34;Database cleanup operation failed&#34;</div><div class="operator"></div>
+	<div class="ident">databaseDropTablesOperationFailedMessage</div>                <div class="operator">=</div> <div class="literal">&#34;Database drop tables operation failed&#34;</div><div class="operator"></div>
+	<div class="ident">databasePrintNewReportsForCleanupOperationFailedMessage</div> <div class="operator">=</div> <div class="literal">&#34;Print records from `new_reports` table prepared for cleanup failed&#34;</div><div class="operator"></div>
+	<div class="ident">databasePrintOldReportsForCleanupOperationFailedMessage</div> <div class="operator">=</div> <div class="literal">&#34;Print records from `reported` table prepared for cleanup failed&#34;</div><div class="operator"></div>
+	<div class="ident">databaseCleanupNewReportsOperationFailedMessage</div>         <div class="operator">=</div> <div class="literal">&#34;Cleanup records from `new_reports` table failed&#34;</div><div class="operator"></div>
+	<div class="ident">databaseCleanupOldReportsOperationFailedMessage</div>         <div class="operator">=</div> <div class="literal">&#34;Cleanup records from `reported` table failed&#34;</div><div class="operator"></div>
+	<div class="ident">rowsDeletedMessage</div>                                      <div class="operator">=</div> <div class="literal">&#34;Rows deleted&#34;</div><div class="operator"></div>
 <div class="operator">)</div><div class="operator"></div>
 
 </code></pre></td>
@@ -433,6 +438,128 @@ of all tables in database.</p>
       </tr>
       
       <tr class="section">
+	<td class="doc"><p>printNewReportsForCleanup function print all reports for <code>new_reports</code> table
+that are older than specified max age.</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">printNewReportsForCleanup</div><div class="operator">(</div><div class="ident">config</div> <div class="ident">ConfigStruct</div><div class="operator">,</div> <div class="ident">cliFlags</div> <div class="ident">CliFlags</div><div class="operator">)</div> <div class="operator">(</div><div class="ident">int</div><div class="operator">,</div> <div class="ident">error</div><div class="operator">)</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>prepare the storage</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">storageConfiguration</div> <div class="operator">:=</div> <div class="ident">GetStorageConfiguration</div><div class="operator">(</div><div class="ident">config</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">storage</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">NewStorage</div><div class="operator">(</div><div class="ident">storageConfiguration</div><div class="operator">)</div><div class="operator"></div>
+	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
+		<div class="ident">log</div><div class="operator">.</div><div class="ident">Error</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Err</div><div class="operator">(</div><div class="ident">err</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="ident">operationFailedMessage</div><div class="operator">)</div><div class="operator"></div>
+		<div class="keyword">return</div> <div class="ident">ExitStatusStorageError</div><div class="operator">,</div> <div class="ident">err</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+
+	<div class="ident">err</div> <div class="operator">=</div> <div class="ident">storage</div><div class="operator">.</div><div class="ident">PrintNewReportsForCleanup</div><div class="operator">(</div><div class="ident">cliFlags</div><div class="operator">.</div><div class="ident">MaxAge</div><div class="operator">)</div><div class="operator"></div>
+	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
+		<div class="ident">log</div><div class="operator">.</div><div class="ident">Error</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Err</div><div class="operator">(</div><div class="ident">err</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="ident">databasePrintNewReportsForCleanupOperationFailedMessage</div><div class="operator">)</div><div class="operator"></div>
+		<div class="keyword">return</div> <div class="ident">ExitStatusStorageError</div><div class="operator">,</div> <div class="ident">err</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+
+	<div class="keyword">return</div> <div class="ident">ExitStatusOK</div><div class="operator">,</div> <div class="ident">nil</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>performNewReportsCleanup function deletes all reports from <code>new_reports</code>
+table that are older than specified max age.</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">performNewReportsCleanup</div><div class="operator">(</div><div class="ident">config</div> <div class="ident">ConfigStruct</div><div class="operator">,</div> <div class="ident">cliFlags</div> <div class="ident">CliFlags</div><div class="operator">)</div> <div class="operator">(</div><div class="ident">int</div><div class="operator">,</div> <div class="ident">error</div><div class="operator">)</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>prepare the storage</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">storageConfiguration</div> <div class="operator">:=</div> <div class="ident">GetStorageConfiguration</div><div class="operator">(</div><div class="ident">config</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">storage</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">NewStorage</div><div class="operator">(</div><div class="ident">storageConfiguration</div><div class="operator">)</div><div class="operator"></div>
+	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
+		<div class="ident">log</div><div class="operator">.</div><div class="ident">Error</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Err</div><div class="operator">(</div><div class="ident">err</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="ident">operationFailedMessage</div><div class="operator">)</div><div class="operator"></div>
+		<div class="keyword">return</div> <div class="ident">ExitStatusStorageError</div><div class="operator">,</div> <div class="ident">err</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+
+	<div class="ident">affected</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">storage</div><div class="operator">.</div><div class="ident">CleanupNewReports</div><div class="operator">(</div><div class="ident">cliFlags</div><div class="operator">.</div><div class="ident">MaxAge</div><div class="operator">)</div><div class="operator"></div>
+	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
+		<div class="ident">log</div><div class="operator">.</div><div class="ident">Error</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Err</div><div class="operator">(</div><div class="ident">err</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="ident">databaseCleanupNewReportsOperationFailedMessage</div><div class="operator">)</div><div class="operator"></div>
+		<div class="keyword">return</div> <div class="ident">ExitStatusStorageError</div><div class="operator">,</div> <div class="ident">err</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+	<div class="ident">log</div><div class="operator">.</div><div class="ident">Info</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Int</div><div class="operator">(</div><div class="ident">rowsDeletedMessage</div><div class="operator">,</div> <div class="ident">affected</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;Cleanup `new_reports` finished&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="keyword">return</div> <div class="ident">ExitStatusOK</div><div class="operator">,</div> <div class="ident">nil</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>printOldReportsForCleanup function print all reports for <code>reported</code> table
+that are older than specified max age.</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">printOldReportsForCleanup</div><div class="operator">(</div><div class="ident">config</div> <div class="ident">ConfigStruct</div><div class="operator">,</div> <div class="ident">cliFlags</div> <div class="ident">CliFlags</div><div class="operator">)</div> <div class="operator">(</div><div class="ident">int</div><div class="operator">,</div> <div class="ident">error</div><div class="operator">)</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>prepare the storage</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">storageConfiguration</div> <div class="operator">:=</div> <div class="ident">GetStorageConfiguration</div><div class="operator">(</div><div class="ident">config</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">storage</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">NewStorage</div><div class="operator">(</div><div class="ident">storageConfiguration</div><div class="operator">)</div><div class="operator"></div>
+	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
+		<div class="ident">log</div><div class="operator">.</div><div class="ident">Error</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Err</div><div class="operator">(</div><div class="ident">err</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="ident">operationFailedMessage</div><div class="operator">)</div><div class="operator"></div>
+		<div class="keyword">return</div> <div class="ident">ExitStatusStorageError</div><div class="operator">,</div> <div class="ident">err</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+
+	<div class="ident">err</div> <div class="operator">=</div> <div class="ident">storage</div><div class="operator">.</div><div class="ident">PrintOldReportsForCleanup</div><div class="operator">(</div><div class="ident">cliFlags</div><div class="operator">.</div><div class="ident">MaxAge</div><div class="operator">)</div><div class="operator"></div>
+	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
+		<div class="ident">log</div><div class="operator">.</div><div class="ident">Error</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Err</div><div class="operator">(</div><div class="ident">err</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="ident">databasePrintOldReportsForCleanupOperationFailedMessage</div><div class="operator">)</div><div class="operator"></div>
+		<div class="keyword">return</div> <div class="ident">ExitStatusStorageError</div><div class="operator">,</div> <div class="ident">err</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+
+	<div class="keyword">return</div> <div class="ident">ExitStatusOK</div><div class="operator">,</div> <div class="ident">nil</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>performOldReportsCleanup function deletes all reports from <code>reported</code> table
+that are older than specified max age.</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">performOldReportsCleanup</div><div class="operator">(</div><div class="ident">config</div> <div class="ident">ConfigStruct</div><div class="operator">,</div> <div class="ident">cliFlags</div> <div class="ident">CliFlags</div><div class="operator">)</div> <div class="operator">(</div><div class="ident">int</div><div class="operator">,</div> <div class="ident">error</div><div class="operator">)</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>prepare the storage</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">storageConfiguration</div> <div class="operator">:=</div> <div class="ident">GetStorageConfiguration</div><div class="operator">(</div><div class="ident">config</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">storage</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">NewStorage</div><div class="operator">(</div><div class="ident">storageConfiguration</div><div class="operator">)</div><div class="operator"></div>
+	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
+		<div class="ident">log</div><div class="operator">.</div><div class="ident">Error</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Err</div><div class="operator">(</div><div class="ident">err</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="ident">operationFailedMessage</div><div class="operator">)</div><div class="operator"></div>
+		<div class="keyword">return</div> <div class="ident">ExitStatusStorageError</div><div class="operator">,</div> <div class="ident">err</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+
+	<div class="ident">affected</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">storage</div><div class="operator">.</div><div class="ident">CleanupOldReports</div><div class="operator">(</div><div class="ident">cliFlags</div><div class="operator">.</div><div class="ident">MaxAge</div><div class="operator">)</div><div class="operator"></div>
+	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
+		<div class="ident">log</div><div class="operator">.</div><div class="ident">Error</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Err</div><div class="operator">(</div><div class="ident">err</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="ident">databaseCleanupOldReportsOperationFailedMessage</div><div class="operator">)</div><div class="operator"></div>
+		<div class="keyword">return</div> <div class="ident">ExitStatusStorageError</div><div class="operator">,</div> <div class="ident">err</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+	<div class="ident">log</div><div class="operator">.</div><div class="ident">Info</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Int</div><div class="operator">(</div><div class="ident">rowsDeletedMessage</div><div class="operator">,</div> <div class="ident">affected</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;Cleanup `reported` finished&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="keyword">return</div> <div class="ident">ExitStatusOK</div><div class="operator">,</div> <div class="ident">nil</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
 	<td class="doc"><p>startService function tries to start the notification writer service.</p>
 </td>
 	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">startService</div><div class="operator">(</div><div class="ident">config</div> <div class="ident">ConfigStruct</div><div class="operator">)</div> <div class="operator">(</div><div class="ident">int</div><div class="operator">,</div> <div class="ident">error</div><div class="operator">)</div> <div class="operator">{</div>
@@ -557,20 +684,28 @@ instead.</p>
 </td>
 	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">doSelectedOperation</div><div class="operator">(</div><div class="ident">configuration</div> <div class="ident">ConfigStruct</div><div class="operator">,</div> <div class="ident">cliFlags</div> <div class="ident">CliFlags</div><div class="operator">)</div> <div class="operator">(</div><div class="ident">int</div><div class="operator">,</div> <div class="ident">error</div><div class="operator">)</div> <div class="operator">{</div>
 	<div class="keyword">switch</div> <div class="operator">{</div>
-	<div class="keyword">case</div> <div class="ident">cliFlags</div><div class="operator">.</div><div class="ident">showVersion</div><div class="operator">:</div>
+	<div class="keyword">case</div> <div class="ident">cliFlags</div><div class="operator">.</div><div class="ident">ShowVersion</div><div class="operator">:</div>
 		<div class="ident">showVersion</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
 		<div class="keyword">return</div> <div class="ident">ExitStatusOK</div><div class="operator">,</div> <div class="ident">nil</div><div class="operator"></div>
-	<div class="keyword">case</div> <div class="ident">cliFlags</div><div class="operator">.</div><div class="ident">showAuthors</div><div class="operator">:</div>
+	<div class="keyword">case</div> <div class="ident">cliFlags</div><div class="operator">.</div><div class="ident">ShowAuthors</div><div class="operator">:</div>
 		<div class="ident">showAuthors</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
 		<div class="keyword">return</div> <div class="ident">ExitStatusOK</div><div class="operator">,</div> <div class="ident">nil</div><div class="operator"></div>
-	<div class="keyword">case</div> <div class="ident">cliFlags</div><div class="operator">.</div><div class="ident">checkConnectionToKafka</div><div class="operator">:</div>
+	<div class="keyword">case</div> <div class="ident">cliFlags</div><div class="operator">.</div><div class="ident">CheckConnectionToKafka</div><div class="operator">:</div>
 		<div class="keyword">return</div> <div class="ident">tryToConnectToKafka</div><div class="operator">(</div><div class="ident">configuration</div><div class="operator">)</div><div class="operator"></div>
-	<div class="keyword">case</div> <div class="ident">cliFlags</div><div class="operator">.</div><div class="ident">performDatabaseInitialization</div><div class="operator">:</div>
+	<div class="keyword">case</div> <div class="ident">cliFlags</div><div class="operator">.</div><div class="ident">PerformDatabaseInitialization</div><div class="operator">:</div>
 		<div class="keyword">return</div> <div class="ident">performDatabaseInitialization</div><div class="operator">(</div><div class="ident">configuration</div><div class="operator">)</div><div class="operator"></div>
-	<div class="keyword">case</div> <div class="ident">cliFlags</div><div class="operator">.</div><div class="ident">performDatabaseCleanup</div><div class="operator">:</div>
+	<div class="keyword">case</div> <div class="ident">cliFlags</div><div class="operator">.</div><div class="ident">PerformDatabaseCleanup</div><div class="operator">:</div>
 		<div class="keyword">return</div> <div class="ident">performDatabaseCleanup</div><div class="operator">(</div><div class="ident">configuration</div><div class="operator">)</div><div class="operator"></div>
-	<div class="keyword">case</div> <div class="ident">cliFlags</div><div class="operator">.</div><div class="ident">performDatabaseDropTables</div><div class="operator">:</div>
+	<div class="keyword">case</div> <div class="ident">cliFlags</div><div class="operator">.</div><div class="ident">PerformDatabaseDropTables</div><div class="operator">:</div>
 		<div class="keyword">return</div> <div class="ident">performDatabaseDropTables</div><div class="operator">(</div><div class="ident">configuration</div><div class="operator">)</div><div class="operator"></div>
+	<div class="keyword">case</div> <div class="ident">cliFlags</div><div class="operator">.</div><div class="ident">PrintNewReportsForCleanup</div><div class="operator">:</div>
+		<div class="keyword">return</div> <div class="ident">printNewReportsForCleanup</div><div class="operator">(</div><div class="ident">configuration</div><div class="operator">,</div> <div class="ident">cliFlags</div><div class="operator">)</div><div class="operator"></div>
+	<div class="keyword">case</div> <div class="ident">cliFlags</div><div class="operator">.</div><div class="ident">PerformNewReportsCleanup</div><div class="operator">:</div>
+		<div class="keyword">return</div> <div class="ident">performNewReportsCleanup</div><div class="operator">(</div><div class="ident">configuration</div><div class="operator">,</div> <div class="ident">cliFlags</div><div class="operator">)</div><div class="operator"></div>
+	<div class="keyword">case</div> <div class="ident">cliFlags</div><div class="operator">.</div><div class="ident">PrintOldReportsForCleanup</div><div class="operator">:</div>
+		<div class="keyword">return</div> <div class="ident">printOldReportsForCleanup</div><div class="operator">(</div><div class="ident">configuration</div><div class="operator">,</div> <div class="ident">cliFlags</div><div class="operator">)</div><div class="operator"></div>
+	<div class="keyword">case</div> <div class="ident">cliFlags</div><div class="operator">.</div><div class="ident">PerformOldReportsCleanup</div><div class="operator">:</div>
+		<div class="keyword">return</div> <div class="ident">performOldReportsCleanup</div><div class="operator">(</div><div class="ident">configuration</div><div class="operator">,</div> <div class="ident">cliFlags</div><div class="operator">)</div><div class="operator"></div>
 	<div class="keyword">default</div><div class="operator">:</div>
 		<div class="ident">exitCode</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">startService</div><div class="operator">(</div><div class="ident">configuration</div><div class="operator">)</div><div class="operator"></div>
 		<div class="keyword">return</div> <div class="ident">exitCode</div><div class="operator">,</div> <div class="ident">err</div><div class="operator"></div>
@@ -598,13 +733,18 @@ instead.</p>
       <tr class="section">
 	<td class="doc"><p>define and parse all command line options</p>
 </td>
-	<td class="code"><pre><code>	<div class="ident">flag</div><div class="operator">.</div><div class="ident">BoolVar</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">cliFlags</div><div class="operator">.</div><div class="ident">performDatabaseInitialization</div><div class="operator">,</div> <div class="literal">&#34;db-init&#34;</div><div class="operator">,</div> <div class="ident">false</div><div class="operator">,</div> <div class="literal">&#34;perform database initialization&#34;</div><div class="operator">)</div><div class="operator"></div>
-	<div class="ident">flag</div><div class="operator">.</div><div class="ident">BoolVar</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">cliFlags</div><div class="operator">.</div><div class="ident">performDatabaseCleanup</div><div class="operator">,</div> <div class="literal">&#34;db-cleanup&#34;</div><div class="operator">,</div> <div class="ident">false</div><div class="operator">,</div> <div class="literal">&#34;perform database cleanup&#34;</div><div class="operator">)</div><div class="operator"></div>
-	<div class="ident">flag</div><div class="operator">.</div><div class="ident">BoolVar</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">cliFlags</div><div class="operator">.</div><div class="ident">performDatabaseDropTables</div><div class="operator">,</div> <div class="literal">&#34;db-drop-tables&#34;</div><div class="operator">,</div> <div class="ident">false</div><div class="operator">,</div> <div class="literal">&#34;drop all tables from database&#34;</div><div class="operator">)</div><div class="operator"></div>
-	<div class="ident">flag</div><div class="operator">.</div><div class="ident">BoolVar</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">cliFlags</div><div class="operator">.</div><div class="ident">checkConnectionToKafka</div><div class="operator">,</div> <div class="literal">&#34;check-kafka&#34;</div><div class="operator">,</div> <div class="ident">false</div><div class="operator">,</div> <div class="literal">&#34;check connection to Kafka&#34;</div><div class="operator">)</div><div class="operator"></div>
-	<div class="ident">flag</div><div class="operator">.</div><div class="ident">BoolVar</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">cliFlags</div><div class="operator">.</div><div class="ident">showVersion</div><div class="operator">,</div> <div class="literal">&#34;version&#34;</div><div class="operator">,</div> <div class="ident">false</div><div class="operator">,</div> <div class="literal">&#34;show version&#34;</div><div class="operator">)</div><div class="operator"></div>
-	<div class="ident">flag</div><div class="operator">.</div><div class="ident">BoolVar</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">cliFlags</div><div class="operator">.</div><div class="ident">showAuthors</div><div class="operator">,</div> <div class="literal">&#34;authors&#34;</div><div class="operator">,</div> <div class="ident">false</div><div class="operator">,</div> <div class="literal">&#34;show authors&#34;</div><div class="operator">)</div><div class="operator"></div>
-	<div class="ident">flag</div><div class="operator">.</div><div class="ident">BoolVar</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">cliFlags</div><div class="operator">.</div><div class="ident">showConfiguration</div><div class="operator">,</div> <div class="literal">&#34;show-configuration&#34;</div><div class="operator">,</div> <div class="ident">false</div><div class="operator">,</div> <div class="literal">&#34;show configuration&#34;</div><div class="operator">)</div><div class="operator"></div>
+	<td class="code"><pre><code>	<div class="ident">flag</div><div class="operator">.</div><div class="ident">BoolVar</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">cliFlags</div><div class="operator">.</div><div class="ident">PerformDatabaseInitialization</div><div class="operator">,</div> <div class="literal">&#34;db-init&#34;</div><div class="operator">,</div> <div class="ident">false</div><div class="operator">,</div> <div class="literal">&#34;perform database initialization&#34;</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">flag</div><div class="operator">.</div><div class="ident">BoolVar</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">cliFlags</div><div class="operator">.</div><div class="ident">PerformDatabaseCleanup</div><div class="operator">,</div> <div class="literal">&#34;db-cleanup&#34;</div><div class="operator">,</div> <div class="ident">false</div><div class="operator">,</div> <div class="literal">&#34;perform database cleanup&#34;</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">flag</div><div class="operator">.</div><div class="ident">BoolVar</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">cliFlags</div><div class="operator">.</div><div class="ident">PerformDatabaseDropTables</div><div class="operator">,</div> <div class="literal">&#34;db-drop-tables&#34;</div><div class="operator">,</div> <div class="ident">false</div><div class="operator">,</div> <div class="literal">&#34;drop all tables from database&#34;</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">flag</div><div class="operator">.</div><div class="ident">BoolVar</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">cliFlags</div><div class="operator">.</div><div class="ident">CheckConnectionToKafka</div><div class="operator">,</div> <div class="literal">&#34;check-kafka&#34;</div><div class="operator">,</div> <div class="ident">false</div><div class="operator">,</div> <div class="literal">&#34;check connection to Kafka&#34;</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">flag</div><div class="operator">.</div><div class="ident">BoolVar</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">cliFlags</div><div class="operator">.</div><div class="ident">ShowVersion</div><div class="operator">,</div> <div class="literal">&#34;version&#34;</div><div class="operator">,</div> <div class="ident">false</div><div class="operator">,</div> <div class="literal">&#34;show version&#34;</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">flag</div><div class="operator">.</div><div class="ident">BoolVar</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">cliFlags</div><div class="operator">.</div><div class="ident">ShowAuthors</div><div class="operator">,</div> <div class="literal">&#34;authors&#34;</div><div class="operator">,</div> <div class="ident">false</div><div class="operator">,</div> <div class="literal">&#34;show authors&#34;</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">flag</div><div class="operator">.</div><div class="ident">BoolVar</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">cliFlags</div><div class="operator">.</div><div class="ident">ShowConfiguration</div><div class="operator">,</div> <div class="literal">&#34;show-configuration&#34;</div><div class="operator">,</div> <div class="ident">false</div><div class="operator">,</div> <div class="literal">&#34;show configuration&#34;</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">flag</div><div class="operator">.</div><div class="ident">BoolVar</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">cliFlags</div><div class="operator">.</div><div class="ident">PrintNewReportsForCleanup</div><div class="operator">,</div> <div class="literal">&#34;print-new-reports-for-cleanup&#34;</div><div class="operator">,</div> <div class="ident">false</div><div class="operator">,</div> <div class="literal">&#34;print new reports to be cleaned up&#34;</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">flag</div><div class="operator">.</div><div class="ident">BoolVar</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">cliFlags</div><div class="operator">.</div><div class="ident">PerformNewReportsCleanup</div><div class="operator">,</div> <div class="literal">&#34;new-reports-cleanup&#34;</div><div class="operator">,</div> <div class="ident">false</div><div class="operator">,</div> <div class="literal">&#34;perform new reports clean up&#34;</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">flag</div><div class="operator">.</div><div class="ident">BoolVar</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">cliFlags</div><div class="operator">.</div><div class="ident">PrintOldReportsForCleanup</div><div class="operator">,</div> <div class="literal">&#34;print-old-reports-for-cleanup&#34;</div><div class="operator">,</div> <div class="ident">false</div><div class="operator">,</div> <div class="literal">&#34;print old reports to be cleaned up&#34;</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">flag</div><div class="operator">.</div><div class="ident">BoolVar</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">cliFlags</div><div class="operator">.</div><div class="ident">PerformOldReportsCleanup</div><div class="operator">,</div> <div class="literal">&#34;old-reports-cleanup&#34;</div><div class="operator">,</div> <div class="ident">false</div><div class="operator">,</div> <div class="literal">&#34;perform old reports clean up&#34;</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">flag</div><div class="operator">.</div><div class="ident">StringVar</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">cliFlags</div><div class="operator">.</div><div class="ident">MaxAge</div><div class="operator">,</div> <div class="literal">&#34;max-age&#34;</div><div class="operator">,</div> <div class="literal">&#34;&#34;</div><div class="operator">,</div> <div class="literal">&#34;max age for displaying/cleaning old records&#34;</div><div class="operator">)</div><div class="operator"></div>
 	<div class="ident">flag</div><div class="operator">.</div><div class="ident">Parse</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
 
 </code></pre></td>
@@ -623,6 +763,16 @@ instead.</p>
 	<div class="operator">}</div><div class="operator"></div>
 
 	<div class="ident">log</div><div class="operator">.</div><div class="ident">Debug</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;Started&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>override default value read from configuration file</p>
+</td>
+	<td class="code"><pre><code>	<div class="keyword">if</div> <div class="ident">cliFlags</div><div class="operator">.</div><div class="ident">MaxAge</div> <div class="operator">==</div> <div class="literal">&#34;&#34;</div> <div class="operator">{</div>
+		<div class="ident">cliFlags</div><div class="operator">.</div><div class="ident">MaxAge</div> <div class="operator">=</div> <div class="literal">&#34;7 days&#34;</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
 
 </code></pre></td>
       </tr>

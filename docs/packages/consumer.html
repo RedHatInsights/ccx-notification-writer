@@ -249,9 +249,10 @@ https://redhatinsights.github.io/ccx-notification-writer/packages/consumer.html<
       </tr>
       
       <tr class="section">
-	<td class="doc"><p>incomingMessage is representation of message consumed from any broker</p>
+	<td class="doc"><p>IncomingMessage data structure is representation of message consumed from
+any broker</p>
 </td>
-	<td class="code"><pre><code><div class="keyword">type</div> <div class="ident">incomingMessage</div> <div class="keyword">struct</div> <div class="operator">{</div>
+	<td class="code"><pre><code><div class="keyword">type</div> <div class="ident">IncomingMessage</div> <div class="keyword">struct</div> <div class="operator">{</div>
 	<div class="ident">Organization</div>  <div class="operator">*</div><div class="ident">OrgID</div>         <div class="literal">`json:&#34;OrgID&#34;`</div><div class="operator"></div>
 	<div class="ident">AccountNumber</div> <div class="operator">*</div><div class="ident">AccountNumber</div> <div class="literal">`json:&#34;AccountNumber&#34;`</div><div class="operator"></div>
 	<div class="ident">ClusterName</div>   <div class="operator">*</div><div class="ident">ClusterName</div>   <div class="literal">`json:&#34;ClusterName&#34;`</div><div class="operator"></div>
@@ -611,7 +612,7 @@ since creating KafkaConsumer obj</p>
       <tr class="section">
 	<td class="doc"><p>checkMessageVersion - verifies incoming data's version is the expected one</p>
 </td>
-	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">checkMessageVersion</div><div class="operator">(</div><div class="ident">consumer</div> <div class="operator">*</div><div class="ident">KafkaConsumer</div><div class="operator">,</div> <div class="ident">message</div> <div class="operator">*</div><div class="ident">incomingMessage</div><div class="operator">,</div> <div class="ident">msg</div> <div class="operator">*</div><div class="ident">sarama</div><div class="operator">.</div><div class="ident">ConsumerMessage</div><div class="operator">)</div> <div class="operator">{</div>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">checkMessageVersion</div><div class="operator">(</div><div class="ident">consumer</div> <div class="operator">*</div><div class="ident">KafkaConsumer</div><div class="operator">,</div> <div class="ident">message</div> <div class="operator">*</div><div class="ident">IncomingMessage</div><div class="operator">,</div> <div class="ident">msg</div> <div class="operator">*</div><div class="ident">sarama</div><div class="operator">.</div><div class="ident">ConsumerMessage</div><div class="operator">)</div> <div class="operator">{</div>
 	<div class="keyword">if</div> <div class="ident">message</div><div class="operator">.</div><div class="ident">Version</div> <div class="operator">!=</div> <div class="ident">CurrentSchemaVersion</div> <div class="operator">{</div>
 		<div class="keyword">const</div> <div class="ident">warning</div> <div class="operator">=</div> <div class="literal">&#34;Received data with unexpected version.&#34;</div><div class="operator"></div>
 		<div class="ident">logMessageWarning</div><div class="operator">(</div><div class="ident">consumer</div><div class="operator">,</div> <div class="ident">msg</div><div class="operator">,</div> <div class="operator">*</div><div class="ident">message</div><div class="operator">,</div> <div class="ident">warning</div><div class="operator">)</div><div class="operator"></div>
@@ -910,8 +911,8 @@ shrinking the message.</p>
       <tr class="section">
 	<td class="doc"><p>parseMessage tries to parse incoming message and read all required attributes from it</p>
 </td>
-	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">parseMessage</div><div class="operator">(</div><div class="ident">messageValue</div> <div class="operator">[</div><div class="operator">]</div><div class="ident">byte</div><div class="operator">)</div> <div class="operator">(</div><div class="ident">incomingMessage</div><div class="operator">,</div> <div class="ident">error</div><div class="operator">)</div> <div class="operator">{</div>
-	<div class="keyword">var</div> <div class="ident">deserialized</div> <div class="ident">incomingMessage</div><div class="operator"></div>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">parseMessage</div><div class="operator">(</div><div class="ident">messageValue</div> <div class="operator">[</div><div class="operator">]</div><div class="ident">byte</div><div class="operator">)</div> <div class="operator">(</div><div class="ident">IncomingMessage</div><div class="operator">,</div> <div class="ident">error</div><div class="operator">)</div> <div class="operator">{</div>
+	<div class="keyword">var</div> <div class="ident">deserialized</div> <div class="ident">IncomingMessage</div><div class="operator"></div>
 
 	<div class="ident">err</div> <div class="operator">:=</div> <div class="ident">json</div><div class="operator">.</div><div class="ident">Unmarshal</div><div class="operator">(</div><div class="ident">messageValue</div><div class="operator">,</div> <div class="operator">&amp;</div><div class="ident">deserialized</div><div class="operator">)</div><div class="operator"></div>
 	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
