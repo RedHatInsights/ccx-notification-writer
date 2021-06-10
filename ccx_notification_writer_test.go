@@ -68,7 +68,9 @@ func TestDoSelectedOperationShowVersion(t *testing.T) {
 
 	// try to call the tested function and capture its output
 	output, err := capture.StandardOutput(func() {
-		main.DoSelectedOperation(configuration, cliFlags)
+		code, err := main.DoSelectedOperation(configuration, cliFlags)
+		assert.Equal(t, code, main.ExitStatusOK)
+		assert.Nil(t, err)
 	})
 
 	// check the captured text
@@ -89,7 +91,9 @@ func TestDoSelectedOperationShowAuthors(t *testing.T) {
 
 	// try to call the tested function and capture its output
 	output, err := capture.StandardOutput(func() {
-		main.DoSelectedOperation(configuration, cliFlags)
+		code, err := main.DoSelectedOperation(configuration, cliFlags)
+		assert.Equal(t, code, main.ExitStatusOK)
+		assert.Nil(t, err)
 	})
 
 	// check the captured text
