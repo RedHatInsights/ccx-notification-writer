@@ -26,11 +26,14 @@ package main
 // https://medium.com/@robiplus/golang-trick-export-for-test-aa16cbd7b8cd
 // to see why this trick is needed.
 var (
+	// functions from the logging.go source file
 	LogDuration             = logDuration
 	LogMessageInfo          = logMessageInfo
 	LogMessageError         = logMessageError
 	LogUnparsedMessageError = logUnparsedMessageError
 	LogMessageWarning       = logMessageWarning
 
+	// functions from the ccx_notification_writer.go source file
 	ShowVersion = showVersion
+	ShowAuthors = showAuthors
 )

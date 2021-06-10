@@ -42,3 +42,17 @@ func TestShowVersion(t *testing.T) {
 
 	assert.Contains(t, output, "Notification writer version")
 }
+
+// TestShowAuthors checks the function showAuthors
+func TestShowAuthors(t *testing.T) {
+	// try to call the tested function and capture its output
+	output, err := capture.StandardOutput(func() {
+		main.ShowAuthors()
+	})
+
+	// check the captured text
+	checkCapture(t, err)
+
+	assert.Contains(t, output, "Pavel Tisnovsky")
+	assert.Contains(t, output, "Red Hat Inc.")
+}
