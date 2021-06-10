@@ -196,7 +196,7 @@ func printNewReportsForCleanup(config ConfigStruct, cliFlags CliFlags) (int, err
 		return ExitStatusStorageError, err
 	}
 
-	err = storage.PrintNewReportsForCleanup(cliFlags.maxAge)
+	err = storage.PrintNewReportsForCleanup(cliFlags.MaxAge)
 	if err != nil {
 		log.Error().Err(err).Msg(databasePrintNewReportsForCleanupOperationFailedMessage)
 		return ExitStatusStorageError, err
@@ -216,7 +216,7 @@ func performNewReportsCleanup(config ConfigStruct, cliFlags CliFlags) (int, erro
 		return ExitStatusStorageError, err
 	}
 
-	affected, err := storage.CleanupNewReports(cliFlags.maxAge)
+	affected, err := storage.CleanupNewReports(cliFlags.MaxAge)
 	if err != nil {
 		log.Error().Err(err).Msg(databaseCleanupNewReportsOperationFailedMessage)
 		return ExitStatusStorageError, err
@@ -237,7 +237,7 @@ func printOldReportsForCleanup(config ConfigStruct, cliFlags CliFlags) (int, err
 		return ExitStatusStorageError, err
 	}
 
-	err = storage.PrintOldReportsForCleanup(cliFlags.maxAge)
+	err = storage.PrintOldReportsForCleanup(cliFlags.MaxAge)
 	if err != nil {
 		log.Error().Err(err).Msg(databasePrintOldReportsForCleanupOperationFailedMessage)
 		return ExitStatusStorageError, err
@@ -257,7 +257,7 @@ func performOldReportsCleanup(config ConfigStruct, cliFlags CliFlags) (int, erro
 		return ExitStatusStorageError, err
 	}
 
-	affected, err := storage.CleanupOldReports(cliFlags.maxAge)
+	affected, err := storage.CleanupOldReports(cliFlags.MaxAge)
 	if err != nil {
 		log.Error().Err(err).Msg(databaseCleanupOldReportsOperationFailedMessage)
 		return ExitStatusStorageError, err
@@ -340,27 +340,27 @@ func startHTTPServer(address string) error {
 // instead.
 func doSelectedOperation(configuration ConfigStruct, cliFlags CliFlags) (int, error) {
 	switch {
-	case cliFlags.showVersion:
+	case cliFlags.ShowVersion:
 		showVersion()
 		return ExitStatusOK, nil
-	case cliFlags.showAuthors:
+	case cliFlags.ShowAuthors:
 		showAuthors()
 		return ExitStatusOK, nil
-	case cliFlags.checkConnectionToKafka:
+	case cliFlags.CheckConnectionToKafka:
 		return tryToConnectToKafka(configuration)
-	case cliFlags.performDatabaseInitialization:
+	case cliFlags.PerformDatabaseInitialization:
 		return performDatabaseInitialization(configuration)
-	case cliFlags.performDatabaseCleanup:
+	case cliFlags.PerformDatabaseCleanup:
 		return performDatabaseCleanup(configuration)
-	case cliFlags.performDatabaseDropTables:
+	case cliFlags.PerformDatabaseDropTables:
 		return performDatabaseDropTables(configuration)
-	case cliFlags.printNewReportsForCleanup:
+	case cliFlags.PrintNewReportsForCleanup:
 		return printNewReportsForCleanup(configuration, cliFlags)
-	case cliFlags.performNewReportsCleanup:
+	case cliFlags.PerformNewReportsCleanup:
 		return performNewReportsCleanup(configuration, cliFlags)
-	case cliFlags.printOldReportsForCleanup:
+	case cliFlags.PrintOldReportsForCleanup:
 		return printOldReportsForCleanup(configuration, cliFlags)
-	case cliFlags.performOldReportsCleanup:
+	case cliFlags.PerformOldReportsCleanup:
 		return performOldReportsCleanup(configuration, cliFlags)
 	default:
 		exitCode, err := startService(configuration)
@@ -374,18 +374,18 @@ func main() {
 	var cliFlags CliFlags
 
 	// define and parse all command line options
-	flag.BoolVar(&cliFlags.performDatabaseInitialization, "db-init", false, "perform database initialization")
-	flag.BoolVar(&cliFlags.performDatabaseCleanup, "db-cleanup", false, "perform database cleanup")
-	flag.BoolVar(&cliFlags.performDatabaseDropTables, "db-drop-tables", false, "drop all tables from database")
-	flag.BoolVar(&cliFlags.checkConnectionToKafka, "check-kafka", false, "check connection to Kafka")
-	flag.BoolVar(&cliFlags.showVersion, "version", false, "show version")
-	flag.BoolVar(&cliFlags.showAuthors, "authors", false, "show authors")
-	flag.BoolVar(&cliFlags.showConfiguration, "show-configuration", false, "show configuration")
-	flag.BoolVar(&cliFlags.printNewReportsForCleanup, "print-new-reports-for-cleanup", false, "print new reports to be cleaned up")
-	flag.BoolVar(&cliFlags.performNewReportsCleanup, "new-reports-cleanup", false, "perform new reports clean up")
-	flag.BoolVar(&cliFlags.printOldReportsForCleanup, "print-old-reports-for-cleanup", false, "print old reports to be cleaned up")
-	flag.BoolVar(&cliFlags.performOldReportsCleanup, "old-reports-cleanup", false, "perform old reports clean up")
-	flag.StringVar(&cliFlags.maxAge, "max-age", "", "max age for displaying/cleaning old records")
+	flag.BoolVar(&cliFlags.PerformDatabaseInitialization, "db-init", false, "perform database initialization")
+	flag.BoolVar(&cliFlags.PerformDatabaseCleanup, "db-cleanup", false, "perform database cleanup")
+	flag.BoolVar(&cliFlags.PerformDatabaseDropTables, "db-drop-tables", false, "drop all tables from database")
+	flag.BoolVar(&cliFlags.CheckConnectionToKafka, "check-kafka", false, "check connection to Kafka")
+	flag.BoolVar(&cliFlags.ShowVersion, "version", false, "show version")
+	flag.BoolVar(&cliFlags.ShowAuthors, "authors", false, "show authors")
+	flag.BoolVar(&cliFlags.ShowConfiguration, "show-configuration", false, "show configuration")
+	flag.BoolVar(&cliFlags.PrintNewReportsForCleanup, "print-new-reports-for-cleanup", false, "print new reports to be cleaned up")
+	flag.BoolVar(&cliFlags.PerformNewReportsCleanup, "new-reports-cleanup", false, "perform new reports clean up")
+	flag.BoolVar(&cliFlags.PrintOldReportsForCleanup, "print-old-reports-for-cleanup", false, "print old reports to be cleaned up")
+	flag.BoolVar(&cliFlags.PerformOldReportsCleanup, "old-reports-cleanup", false, "perform old reports clean up")
+	flag.StringVar(&cliFlags.MaxAge, "max-age", "", "max age for displaying/cleaning old records")
 	flag.Parse()
 
 	// config has exactly the same structure as *.toml file
@@ -401,8 +401,8 @@ func main() {
 	log.Debug().Msg("Started")
 
 	// override default value read from configuration file
-	if cliFlags.maxAge == "" {
-		cliFlags.maxAge = "7 days"
+	if cliFlags.MaxAge == "" {
+		cliFlags.MaxAge = "7 days"
 	}
 
 	// perform selected operation

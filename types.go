@@ -28,18 +28,18 @@ import (
 
 // CliFlags represents structure holding all command line arguments and flags.
 type CliFlags struct {
-	performDatabaseCleanup        bool
-	performDatabaseInitialization bool
-	performDatabaseDropTables     bool
-	checkConnectionToKafka        bool
-	showVersion                   bool
-	showAuthors                   bool
-	showConfiguration             bool
-	printNewReportsForCleanup     bool
-	performNewReportsCleanup      bool
-	printOldReportsForCleanup     bool
-	performOldReportsCleanup      bool
-	maxAge                        string
+	PerformDatabaseCleanup        bool
+	PerformDatabaseInitialization bool
+	PerformDatabaseDropTables     bool
+	CheckConnectionToKafka        bool
+	ShowVersion                   bool
+	ShowAuthors                   bool
+	ShowConfiguration             bool
+	PrintNewReportsForCleanup     bool
+	PerformNewReportsCleanup      bool
+	PrintOldReportsForCleanup     bool
+	PerformOldReportsCleanup      bool
+	MaxAge                        string
 }
 
 // RequestID data type is used to store the request ID supplied in input Kafka
