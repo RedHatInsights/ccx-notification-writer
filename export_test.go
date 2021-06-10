@@ -34,6 +34,7 @@ var (
 	LogMessageWarning       = logMessageWarning
 
 	// functions from the ccx_notification_writer.go source file
-	ShowVersion = showVersion
-	ShowAuthors = showAuthors
+	ShowVersion         = showVersion
+	ShowAuthors         = showAuthors
+	DoSelectedOperation = doSelectedOperation
 )
