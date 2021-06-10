@@ -162,13 +162,18 @@ https://redhatinsights.github.io/ccx-notification-writer/packages/types.html</p>
 	<td class="doc"><p>CliFlags represents structure holding all command line arguments and flags.</p>
 </td>
 	<td class="code"><pre><code><div class="keyword">type</div> <div class="ident">CliFlags</div> <div class="keyword">struct</div> <div class="operator">{</div>
-	<div class="ident">performDatabaseCleanup</div>        <div class="ident">bool</div><div class="operator"></div>
-	<div class="ident">performDatabaseInitialization</div> <div class="ident">bool</div><div class="operator"></div>
-	<div class="ident">performDatabaseDropTables</div>     <div class="ident">bool</div><div class="operator"></div>
-	<div class="ident">checkConnectionToKafka</div>        <div class="ident">bool</div><div class="operator"></div>
-	<div class="ident">showVersion</div>                   <div class="ident">bool</div><div class="operator"></div>
-	<div class="ident">showAuthors</div>                   <div class="ident">bool</div><div class="operator"></div>
-	<div class="ident">showConfiguration</div>             <div class="ident">bool</div><div class="operator"></div>
+	<div class="ident">PerformDatabaseCleanup</div>        <div class="ident">bool</div><div class="operator"></div>
+	<div class="ident">PerformDatabaseInitialization</div> <div class="ident">bool</div><div class="operator"></div>
+	<div class="ident">PerformDatabaseDropTables</div>     <div class="ident">bool</div><div class="operator"></div>
+	<div class="ident">CheckConnectionToKafka</div>        <div class="ident">bool</div><div class="operator"></div>
+	<div class="ident">ShowVersion</div>                   <div class="ident">bool</div><div class="operator"></div>
+	<div class="ident">ShowAuthors</div>                   <div class="ident">bool</div><div class="operator"></div>
+	<div class="ident">ShowConfiguration</div>             <div class="ident">bool</div><div class="operator"></div>
+	<div class="ident">PrintNewReportsForCleanup</div>     <div class="ident">bool</div><div class="operator"></div>
+	<div class="ident">PerformNewReportsCleanup</div>      <div class="ident">bool</div><div class="operator"></div>
+	<div class="ident">PrintOldReportsForCleanup</div>     <div class="ident">bool</div><div class="operator"></div>
+	<div class="ident">PerformOldReportsCleanup</div>      <div class="ident">bool</div><div class="operator"></div>
+	<div class="ident">MaxAge</div>                        <div class="ident">string</div><div class="operator"></div>
 <div class="operator">}</div><div class="operator"></div>
 
 </code></pre></td>
