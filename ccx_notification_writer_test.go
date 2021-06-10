@@ -63,7 +63,8 @@ func TestDoSelectedOperationShowVersion(t *testing.T) {
 	// stub for structures needed to call the tested function
 	configuration := main.ConfigStruct{}
 	cliFlags := main.CliFlags{
-		ShowVersion: true}
+		ShowVersion: true,
+	}
 
 	// try to call the tested function and capture its output
 	output, err := capture.StandardOutput(func() {
@@ -74,4 +75,26 @@ func TestDoSelectedOperationShowVersion(t *testing.T) {
 	checkCapture(t, err)
 
 	assert.Contains(t, output, "Notification writer version")
+}
+
+// TestDoSelectedOperationShowAuthors checks the function showAuthors called
+// via doSelectedOperation function
+func TestDoSelectedOperationShowAuthors(t *testing.T) {
+	// stub for structures needed to call the tested function
+	configuration := main.ConfigStruct{}
+	cliFlags := main.CliFlags{
+		ShowVersion: false,
+		ShowAuthors: true,
+	}
+
+	// try to call the tested function and capture its output
+	output, err := capture.StandardOutput(func() {
+		main.DoSelectedOperation(configuration, cliFlags)
+	})
+
+	// check the captured text
+	checkCapture(t, err)
+
+	assert.Contains(t, output, "Pavel Tisnovsky")
+	assert.Contains(t, output, "Red Hat Inc.")
 }
