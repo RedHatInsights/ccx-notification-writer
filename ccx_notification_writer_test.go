@@ -15,3 +15,30 @@ limitations under the License.
 */
 
 package main_test
+
+import (
+	"testing"
+
+	"github.com/rs/zerolog"
+	"github.com/stretchr/testify/assert"
+	"github.com/tisnik/go-capture"
+
+	main "github.com/RedHatInsights/ccx-notification-writer"
+)
+
+func init() {
+	zerolog.SetGlobalLevel(zerolog.WarnLevel)
+}
+
+// TestShowVersion checks the function showVersion
+func TestShowVersion(t *testing.T) {
+	// try to call the tested function and capture its output
+	output, err := capture.StandardOutput(func() {
+		main.ShowVersion()
+	})
+
+	// check the captured text
+	checkCapture(t, err)
+
+	assert.Contains(t, output, "Notification writer version")
+}

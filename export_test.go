@@ -31,4 +31,6 @@ var (
 	LogMessageError         = logMessageError
 	LogUnparsedMessageError = logUnparsedMessageError
 	LogMessageWarning       = logMessageWarning
+
+	ShowVersion = showVersion
 )
