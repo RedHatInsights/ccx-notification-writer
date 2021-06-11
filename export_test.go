@@ -37,4 +37,7 @@ var (
 	ShowVersion         = showVersion
 	ShowAuthors         = showAuthors
 	DoSelectedOperation = doSelectedOperation
+
+	// functions from consumer.go source file
+	ParseMessage = parseMessage
 )
