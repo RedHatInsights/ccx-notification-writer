@@ -21,6 +21,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/Shopify/sarama"
 	"github.com/stretchr/testify/assert"
 
 	main "github.com/RedHatInsights/ccx-notification-writer"
@@ -346,4 +347,136 @@ func TestParseMessageNullReport(t *testing.T) {
 
 	// check for error - it should be reported
 	assert.EqualError(t, err, "missing required attribute 'Report'")
+}
+
+// NewDummyConsumer function constructs new instance of (not running)
+// KafkaConsumer.
+func NewDummyConsumer(s main.Storage) *main.KafkaConsumer {
+	brokerCfg := main.BrokerConfiguration{
+		Address: "localhost:1234",
+		Topic:   "topic",
+		Group:   "group",
+	}
+	return &main.KafkaConsumer{
+		Configuration: brokerCfg,
+		Storage:       s,
+	}
+}
+
+// TestProcessEmptyMessage check the behaviour of function ProcessMessage with
+// empty message on input.
+func TestProcessEmptyMessage(t *testing.T) {
+	// construct mock storage
+	mockStorage := NewMockStorage()
+
+	// construct dummy consumer
+	dummyConsumer := NewDummyConsumer(&mockStorage)
+
+	// prepare an empty message
+	message := sarama.ConsumerMessage{}
+
+	// try to process the message
+	_, err := dummyConsumer.ProcessMessage(&message)
+
+	// check for errors - it should be reported
+	assert.EqualError(t, err, "unexpected end of JSON input")
+
+	// nothing should be written into storage
+	assert.Equal(t, 0, mockStorage.writeReportCalled)
+}
+
+// TestProcessMessageWithWrongDateFormat check the behaviour of function
+// ProcessMessage with message with wrong date.
+func TestProcessMessageWithWrongDateFormat(t *testing.T) {
+	// construct mock storage
+	mockStorage := NewMockStorage()
+
+	// construct dummy consumer
+	dummyConsumer := NewDummyConsumer(&mockStorage)
+
+	// prepare a message
+	message := sarama.ConsumerMessage{}
+
+	// fill in a message payload
+	ConsumerMessage := `{
+		"OrgID": ` + fmt.Sprint(ExpectedOrgID) + `,
+		"AccountNumber": ` + fmt.Sprint(ExpectedAccountNumber) + `,
+		"ClusterName": "` + string(ExpectedClusterName) + `",
+		"Report":` + ConsumerReport + `,
+		"LastChecked": "2020.01.23 16:15:59"
+	}`
+	message.Value = []byte(ConsumerMessage)
+
+	// try to process the message
+	_, err := dummyConsumer.ProcessMessage(&message)
+
+	// check for errors - it should be reported
+	assert.EqualError(t, err, "parsing time \"2020.01.23 16:15:59\" as \"2006-01-02T15:04:05.999999999Z07:00\": cannot parse \".01.23 16:15:59\" as \"-\"")
+
+	// nothing should be written into storage
+	assert.Equal(t, 0, mockStorage.writeReportCalled)
+}
+
+// TestProcessMessageFromFuture check the behaviour of function ProcessMessage
+// with message with wrong date.
+func TestProcessMessageFromFuture(t *testing.T) {
+	// construct mock storage
+	mockStorage := NewMockStorage()
+
+	// construct dummy consumer
+	dummyConsumer := NewDummyConsumer(&mockStorage)
+
+	// prepare a message
+	message := sarama.ConsumerMessage{}
+
+	// fill in a message payload
+	ConsumerMessage := `{
+		"OrgID": ` + fmt.Sprint(ExpectedOrgID) + `,
+		"AccountNumber": ` + fmt.Sprint(ExpectedAccountNumber) + `,
+		"ClusterName": "` + string(ExpectedClusterName) + `",
+		"Report":` + ConsumerReport + `,
+		"LastChecked": "2099-01-01T23:59:59.999999999Z"
+	}`
+	message.Value = []byte(ConsumerMessage)
+
+	// try to process the message
+	_, err := dummyConsumer.ProcessMessage(&message)
+
+	// check for errors - it should be reported
+	assert.EqualError(t, err, "Got a message from the future")
+
+	// nothing should be written into storage
+	assert.Equal(t, 0, mockStorage.writeReportCalled)
+}
+
+// TestProcessCorrectMessage check the behaviour of function ProcessMessage for
+// correct message.
+func TestProcessCorrectMessage(t *testing.T) {
+	// construct mock storage
+	mockStorage := NewMockStorage()
+
+	// construct dummy consumer
+	dummyConsumer := NewDummyConsumer(&mockStorage)
+
+	// prepare a message
+	message := sarama.ConsumerMessage{}
+
+	// fill in a message payload
+	ConsumerMessage := `{
+		"OrgID": ` + fmt.Sprint(ExpectedOrgID) + `,
+		"AccountNumber": ` + fmt.Sprint(ExpectedAccountNumber) + `,
+		"ClusterName": "` + string(ExpectedClusterName) + `",
+		"Report":` + ConsumerReport + `,
+		"LastChecked": "` + LastCheckedAt.UTC().Format(time.RFC3339) + `"
+	}`
+	message.Value = []byte(ConsumerMessage)
+
+	// message is correct -> one record should be written into the database
+	_, err := dummyConsumer.ProcessMessage(&message)
+
+	// check for error - it should not be reported
+	assert.Nil(t, err)
+
+	// one record should be written into the storage
+	assert.Equal(t, 1, mockStorage.writeReportCalled)
 }
