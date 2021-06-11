@@ -411,7 +411,9 @@ func (consumer *KafkaConsumer) ProcessMessage(msg *sarama.ConsumerMessage) (Requ
 
 	lastCheckedTimestampLagMinutes := time.Now().Sub(lastCheckedTime).Minutes()
 	if lastCheckedTimestampLagMinutes < 0 {
-		logMessageError(consumer, msg, message, "Got a message from the future", nil)
+		errorMessage := "Got a message from the future"
+		logMessageError(consumer, msg, message, errorMessage, nil)
+		return message.RequestID, errors.New(errorMessage)
 	}
 
 	// update metric - number of messages with last checked timestamp
