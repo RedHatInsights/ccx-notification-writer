@@ -103,7 +103,7 @@ type Consumer interface {
 type KafkaConsumer struct {
 	Configuration                        BrokerConfiguration
 	ConsumerGroup                        sarama.ConsumerGroup
-	storage                              Storage
+	Storage                              Storage
 	numberOfSuccessfullyConsumedMessages uint64
 	numberOfErrorsConsumingMessages      uint64
 	ready                                chan bool
@@ -147,7 +147,7 @@ func NewWithSaramaConfig(
 	consumer := &KafkaConsumer{
 		Configuration:                        brokerCfg,
 		ConsumerGroup:                        consumerGroup,
-		storage:                              storage,
+		Storage:                              storage,
 		numberOfSuccessfullyConsumedMessages: 0,
 		numberOfErrorsConsumingMessages:      0,
 		ready:                                make(chan bool),
@@ -215,7 +215,7 @@ func (consumer *KafkaConsumer) ConsumeClaim(session sarama.ConsumerGroupSession,
 		Int64(offsetKey, claim.InitialOffset()).
 		Msg("Starting messages loop")
 
-	latestMessageOffset, err := consumer.storage.GetLatestKafkaOffset()
+	latestMessageOffset, err := consumer.Storage.GetLatestKafkaOffset()
 	if err != nil {
 		log.Error().Msg("Unable to get latest offset")
 		latestMessageOffset = 0
@@ -424,7 +424,7 @@ func (consumer *KafkaConsumer) ProcessMessage(msg *sarama.ConsumerMessage) (Requ
 	kafkaOffset := KafkaOffset(msg.Offset)
 
 	// Step #6: write the shrunk report into storage (database)
-	err = consumer.storage.WriteReportForCluster(
+	err = consumer.Storage.WriteReportForCluster(
 		*message.Organization,
 		*message.AccountNumber,
 		*message.ClusterName,
