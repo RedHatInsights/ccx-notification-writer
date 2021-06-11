@@ -56,77 +56,77 @@ func NewMockStorage() MockStorage {
 }
 
 // Close is a mocked reimplementation of the real Close method.
-func (storage MockStorage) Close() error {
+func (storage *MockStorage) Close() error {
 	storage.closeCalled++
 	return nil
 }
 
 // WriteReportForCluster is a mocked reimplementation of the real
 // WriteReportForCluster method.
-func (storage MockStorage) WriteReportForCluster(orgID main.OrgID, accountNumber main.AccountNumber, clusterName main.ClusterName, report main.ClusterReport, collectedAtTime time.Time, kafkaOffset main.KafkaOffset) error {
+func (storage *MockStorage) WriteReportForCluster(orgID main.OrgID, accountNumber main.AccountNumber, clusterName main.ClusterName, report main.ClusterReport, collectedAtTime time.Time, kafkaOffset main.KafkaOffset) error {
 	storage.writeReportCalled++
 	return nil
 }
 
 // DatabaseInitialization is a mocked reimplementation of the real
 // DatabaseInitialization method.
-func (storage MockStorage) DatabaseInitialization() error {
+func (storage *MockStorage) DatabaseInitialization() error {
 	storage.databaseInitializationCalled++
 	return nil
 }
 
 // DatabaseCleanup is a mocked reimplementation of the real DatabaseCleanup
 // method.
-func (storage MockStorage) DatabaseCleanup() error {
+func (storage *MockStorage) DatabaseCleanup() error {
 	storage.databaseCleanupCalled++
 	return nil
 }
 
 // DatabaseDropTables is a mocked reimplementation of the real
 // DatabaseDropTables method.
-func (storage MockStorage) DatabaseDropTables() error {
+func (storage *MockStorage) DatabaseDropTables() error {
 	storage.databaseDropTablesCalled++
 	return nil
 }
 
 // DatabaseDropIndexes is a mocked reimplementation of the real
 // DatabaseDropIndexes method.
-func (storage MockStorage) DatabaseDropIndexes() error {
+func (storage *MockStorage) DatabaseDropIndexes() error {
 	storage.databaseDropIndexesCalled++
 	return nil
 }
 
 // GetLatestKafkaOffset is a mocked reimplementation of the real
 // GetLatestKafkaOffset method.
-func (storage MockStorage) GetLatestKafkaOffset() (main.KafkaOffset, error) {
+func (storage *MockStorage) GetLatestKafkaOffset() (main.KafkaOffset, error) {
 	storage.getLatestKafkaOffsetCalled++
 	return 1, nil
 }
 
 // PrintNewReportsForCleanup is a mocked reimplementation of the real
 // PrintNewReportsForCleanup method.
-func (storage MockStorage) PrintNewReportsForCleanup(maxAge string) error {
+func (storage *MockStorage) PrintNewReportsForCleanup(maxAge string) error {
 	storage.printNewReportsForCleanupCalled++
 	return nil
 }
 
 // CleanupNewReports is a mocked reimplementation of the real CleanupNewReports
 // method.
-func (storage MockStorage) CleanupNewReports(maxAge string) (int, error) {
+func (storage *MockStorage) CleanupNewReports(maxAge string) (int, error) {
 	storage.cleanupNewReportsCalled++
 	return 1, nil
 }
 
 // PrintOldReportsForCleanup is a mocked reimplementation of the real
 // PrintOldReportsForCleanup method.
-func (storage MockStorage) PrintOldReportsForCleanup(maxAge string) error {
+func (storage *MockStorage) PrintOldReportsForCleanup(maxAge string) error {
 	storage.printOldReportsForCleanupCalled++
 	return nil
 }
 
 // CleanupOldReports is a mocked reimplementation of the real CleanupOldReports
 // method.
-func (storage MockStorage) CleanupOldReports(maxAge string) (int, error) {
+func (storage *MockStorage) CleanupOldReports(maxAge string) (int, error) {
 	storage.cleanupOldReportsCalled++
 	return 1, nil
 }
