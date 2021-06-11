@@ -311,7 +311,7 @@ func TestParseMessageWithoutReport(t *testing.T) {
 	assert.EqualError(t, err, "missing required attribute 'Report'")
 }
 
-// TestParseMessageWithoutReport checks the parsing of improperly
+// TestParseMessageEmptyReport checks the parsing of improperly
 // declared message - report attribute is empty.
 func TestParseMessageEmptyReport(t *testing.T) {
 	// message with empty Report attribute
