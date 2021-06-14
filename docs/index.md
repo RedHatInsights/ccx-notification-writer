@@ -20,3 +20,6 @@ CCX Notification Writer
 * [storage.go](./packages/storage.html)
 * [types.go](./packages/types.html)
 
+# Class diagram
+
+![class_diagram.png](class_diagram.png)
