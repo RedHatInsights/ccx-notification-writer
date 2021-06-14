@@ -23,3 +23,5 @@ CCX Notification Writer
 # Class diagram
 
 ![class_diagram.png](class_diagram.png)
+
+[Class diagram, full scale](class_diagram.png)
