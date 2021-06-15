@@ -461,3 +461,66 @@ func TestCleanupOldReportsOnError(t *testing.T) {
 	// check if all expectations were met
 	checkAllExpectations(t, mock)
 }
+
+// TestWriteReportForCluster function checks the method
+// Storage.WriteReportForCluster.
+func TestWriteReportForCluster(t *testing.T) {
+	// prepare new mocked connection to database
+	connection, mock := mustCreateMockConnection(t)
+
+	// expected query performed by tested function
+	expectedStatement := "INSERT INTO new_reports\\(org_id, account_number, cluster, report, updated_at, kafka_offset\\) VALUES \\(\\$1, \\$2, \\$3, \\$4, \\$5, \\$6\\);"
+
+	mock.ExpectBegin()
+	mock.ExpectExec(expectedStatement).WillReturnResult(sqlmock.NewResult(1, 1))
+	mock.ExpectCommit()
+	mock.ExpectClose()
+
+	// prepare connection to mocked database
+	storage := main.NewFromConnection(connection, 1)
+
+	// call the tested method
+	err := storage.WriteReportForCluster(1, 2, "foo", "", time.Now(), 42)
+	if err != nil {
+		t.Errorf("error was not expected while writing report for cluster: %s", err)
+	}
+
+	// connection to mocked DB needs to be closed properly
+	checkConnectionClose(t, connection)
+
+	// check if all expectations were met
+	checkAllExpectations(t, mock)
+}
+
+// TestWriteReportForClusterOnError function checks the method
+// Storage.WriteReportForCluster.
+func TestWriteReportForClusterOnError(t *testing.T) {
+	// error to be thrown
+	mockedError := errors.New("mocked error")
+
+	// prepare new mocked connection to database
+	connection, mock := mustCreateMockConnection(t)
+
+	// expected query performed by tested function
+	expectedStatement := "INSERT INTO new_reports\\(org_id, account_number, cluster, report, updated_at, kafka_offset\\) VALUES \\(\\$1, \\$2, \\$3, \\$4, \\$5, \\$6\\);"
+
+	mock.ExpectBegin()
+	mock.ExpectExec(expectedStatement).WillReturnError(mockedError)
+	mock.ExpectRollback()
+	mock.ExpectClose()
+
+	// prepare connection to mocked database
+	storage := main.NewFromConnection(connection, 1)
+
+	// call the tested method
+	err := storage.WriteReportForCluster(1, 2, "foo", "", time.Now(), 42)
+	if err == nil {
+		t.Errorf("error was not expected while writing report for cluster: %s", err)
+	}
+
+	// connection to mocked DB needs to be closed properly
+	checkConnectionClose(t, connection)
+
+	// check if all expectations were met
+	checkAllExpectations(t, mock)
+}
