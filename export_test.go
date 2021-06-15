@@ -40,4 +40,9 @@ var (
 
 	// functions from consumer.go source file
 	ParseMessage = parseMessage
+
+	// functions from storage.go source file
+	DropTableStatement       = dropTableStatement
+	DropIndexStatement       = dropIndexStatement
+	DeleteFromTableStatement = deleteFromTableStatement
 )
