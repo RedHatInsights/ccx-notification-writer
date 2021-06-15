@@ -238,3 +238,100 @@ func TestPrintNewReportsForCleanupOnError(t *testing.T) {
 	// check if all expectations were met
 	checkAllExpectations(t, mock)
 }
+
+// TestPrintOldReportsForCleanup function checks the method
+// Storage.PrintOldReportsForCleanup.
+func TestPrintOldReportsForCleanup(t *testing.T) {
+	// prepare new mocked connection to database
+	connection, mock := mustCreateMockConnection(t)
+
+	// prepare mocked result for SQL query
+	rows := sqlmock.NewRows([]string{"org_id", "account_number", "cluster", "updated_at", "kafka_offset"})
+	updatedAt := time.Now()
+	rows.AddRow(1, 1000, "cluster_name", updatedAt, 42)
+
+	// expected query performed by tested function
+	expectedQuery := "SELECT org_id, account_number, cluster, updated_at, 0 FROM reported WHERE updated_at < NOW\\(\\) - \\$1::INTERVAL ORDER BY updated_at"
+
+	mock.ExpectQuery(expectedQuery).WillReturnRows(rows)
+	mock.ExpectClose()
+
+	// prepare connection to mocked database
+	storage := main.NewFromConnection(connection, 1)
+
+	// call the tested method
+	err := storage.PrintOldReportsForCleanup("1 day")
+	if err != nil {
+		t.Errorf("error was not expected while printing old reports: %s", err)
+	}
+
+	// connection to mocked DB needs to be closed properly
+	checkConnectionClose(t, connection)
+
+	// check if all expectations were met
+	checkAllExpectations(t, mock)
+}
+
+// TestPrintOldReportsForCleanupOnScanError function checks the method
+// Storage.PrintOldReportsForCleanup.
+func TestPrintOldReportsForCleanupOnScanError(t *testing.T) {
+	// prepare new mocked connection to database
+	connection, mock := mustCreateMockConnection(t)
+
+	// prepare mocked result for SQL query
+	rows := sqlmock.NewRows([]string{"org_id", "account_number", "cluster", "updated_at", "kafka_offset"})
+	updatedAt := time.Now()
+	rows.AddRow(1, "this is not integer", "cluster_name", updatedAt, 42)
+
+	// expected query performed by tested function
+	expectedQuery := "SELECT org_id, account_number, cluster, updated_at, 0 FROM reported WHERE updated_at < NOW\\(\\) - \\$1::INTERVAL ORDER BY updated_at"
+
+	mock.ExpectQuery(expectedQuery).WillReturnRows(rows)
+	mock.ExpectClose()
+
+	// prepare connection to mocked database
+	storage := main.NewFromConnection(connection, 1)
+
+	// call the tested method
+	err := storage.PrintOldReportsForCleanup("1 day")
+	if err == nil {
+		t.Errorf("error was expected while printing old reports: %s", err)
+	}
+
+	// connection to mocked DB needs to be closed properly
+	checkConnectionClose(t, connection)
+
+	// check if all expectations were met
+	checkAllExpectations(t, mock)
+}
+
+// TestPrintOldReportsForCleanupOnError function checks the method
+// Storage.PrintOldReportsForCleanup.
+func TestPrintOldReportsForCleanupOnError(t *testing.T) {
+	// error to be thrown
+	mockedError := errors.New("mocked error")
+
+	// prepare new mocked connection to database
+	connection, mock := mustCreateMockConnection(t)
+
+	// expected query performed by tested function
+	expectedQuery := "SELECT org_id, account_number, cluster, updated_at, 0 FROM reported WHERE updated_at < NOW\\(\\) - \\$1::INTERVAL ORDER BY updated_at"
+
+	mock.ExpectQuery(expectedQuery).WillReturnError(mockedError)
+	mock.ExpectClose()
+
+	// prepare connection to mocked database
+	storage := main.NewFromConnection(connection, 1)
+
+	// call the tested method
+	err := storage.PrintOldReportsForCleanup("1 day")
+	if err == nil {
+		t.Errorf("error was expected while printing old reports: %s", err)
+	}
+
+	// connection to mocked DB needs to be closed properly
+	checkConnectionClose(t, connection)
+
+	// check if all expectations were met
+	checkAllExpectations(t, mock)
+}
