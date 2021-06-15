@@ -520,6 +520,9 @@ func tablesRelatedOperation(storage DBStorage, cmd func(string) string) error {
 }
 
 func deleteFromTableStatement(tableName string) string {
+	// it is not possible to use parameter for table name or a key
+	// disable "G202 (CWE-89): SQL string concatenation (Confidence: HIGH, Severity: MEDIUM)"
+	// #nosec G202
 	return "DELETE FROM " + tableName + ";"
 }
 
