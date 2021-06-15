@@ -633,3 +633,27 @@ func TestDatabaseDropIndexes(t *testing.T) {
 	// check if all expectations were met
 	checkAllExpectations(t, mock)
 }
+
+// TestDropTableStatement function checks the helper function
+// dropTableStatement.
+func TestDropTableStatement(t *testing.T) {
+	const expected = "DROP TABLE FOOBAR;"
+	actual := main.DropTableStatement("FOOBAR")
+	assert.Equal(t, actual, expected)
+}
+
+// TestDropIndexStatement function checks the helper function
+// dropIndexStatement.
+func TestDropIndexStatement(t *testing.T) {
+	const expected = "DROP INDEX IF EXISTS FOOBAR;"
+	actual := main.DropIndexStatement("FOOBAR")
+	assert.Equal(t, actual, expected)
+}
+
+// TestDeleteFromTableStatement functions checks the helper function
+// deleteFromTableStatement.
+func TestDeleteFromTableStatement(t *testing.T) {
+	const expected = "DELETE FROM FOOBAR;"
+	actual := main.DeleteFromTableStatement("FOOBAR")
+	assert.Equal(t, actual, expected)
+}
