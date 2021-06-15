@@ -524,3 +524,112 @@ func TestWriteReportForClusterOnError(t *testing.T) {
 	// check if all expectations were met
 	checkAllExpectations(t, mock)
 }
+
+// TestDatabaseInitialization function checks the method
+// Storage.DatabaseInitialization.
+func TestDatabaseInitialization(t *testing.T) {
+	// prepare new mocked connection to database
+	connection, mock := mustCreateMockConnection(t)
+
+	mock.ExpectBegin()
+	mock.ExpectCommit()
+	mock.ExpectClose()
+
+	// prepare connection to mocked database
+	storage := main.NewFromConnection(connection, 1)
+
+	// call the tested method
+	err := storage.DatabaseInitialization()
+	if err != nil {
+		t.Errorf("error was not expected while initializing database: %s", err)
+	}
+
+	// connection to mocked DB needs to be closed properly
+	checkConnectionClose(t, connection)
+
+	// check if all expectations were met
+	checkAllExpectations(t, mock)
+}
+
+// TestDatabaseCleanup function checks the method Storage.DatabaseCleanup.
+func TestDatabaseCleanup(t *testing.T) {
+	// prepare new mocked connection to database
+	connection, mock := mustCreateMockConnection(t)
+
+	// note that list of statements is not initialized so just empty
+	// transaction operations are expected there
+	mock.ExpectBegin()
+	mock.ExpectCommit()
+	mock.ExpectClose()
+
+	// prepare connection to mocked database
+	storage := main.NewFromConnection(connection, 1)
+
+	// call the tested method
+	err := storage.DatabaseCleanup()
+	if err != nil {
+		t.Errorf("error was not expected while cleaning up database: %s", err)
+	}
+
+	// connection to mocked DB needs to be closed properly
+	checkConnectionClose(t, connection)
+
+	// check if all expectations were met
+	checkAllExpectations(t, mock)
+}
+
+// TestDatabaseDropTables function checks the method
+// Storage.DatabaseDropTables.
+func TestDatabaseDropTables(t *testing.T) {
+	// prepare new mocked connection to database
+	connection, mock := mustCreateMockConnection(t)
+
+	// note that list of statements is not initialized so just empty
+	// transaction operations are expected there
+	mock.ExpectBegin()
+	mock.ExpectCommit()
+	mock.ExpectClose()
+
+	// prepare connection to mocked database
+	storage := main.NewFromConnection(connection, 1)
+
+	// call the tested method
+	err := storage.DatabaseDropTables()
+	if err != nil {
+		t.Errorf("error was not expected while cleaning up database: %s", err)
+	}
+
+	// connection to mocked DB needs to be closed properly
+	checkConnectionClose(t, connection)
+
+	// check if all expectations were met
+	checkAllExpectations(t, mock)
+}
+
+// TestDatabaseDropIndexes function checks the method
+// Storage.DatabaseDropIndexes.
+func TestDatabaseDropIndexes(t *testing.T) {
+	// prepare new mocked connection to database
+	connection, mock := mustCreateMockConnection(t)
+
+	// note that list of statements is not initialized so just empty
+	// transaction operations are expected there
+	mock.ExpectBegin()
+	mock.ExpectCommit()
+	mock.ExpectClose()
+
+	// prepare connection to mocked database
+	storage := main.NewFromConnection(connection, 1)
+
+	// call the tested method
+	err := storage.DatabaseDropIndexes()
+	if err != nil {
+		t.Errorf("error was not expected while cleaning up database: %s", err)
+	}
+
+	// connection to mocked DB needs to be closed properly
+	checkConnectionClose(t, connection)
+
+	// check if all expectations were met
+	checkAllExpectations(t, mock)
+}
