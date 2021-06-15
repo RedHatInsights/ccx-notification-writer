@@ -335,3 +335,66 @@ func TestPrintOldReportsForCleanupOnError(t *testing.T) {
 	// check if all expectations were met
 	checkAllExpectations(t, mock)
 }
+
+// TestCleanupNewReports function checks the method Storage.CleanupNewReports.
+func TestCleanupNewReports(t *testing.T) {
+	// prepare new mocked connection to database
+	connection, mock := mustCreateMockConnection(t)
+
+	// expected query performed by tested function
+	expectedStatement := "DELETE FROM new_reports WHERE updated_at < NOW\\(\\) - \\$1::INTERVAL"
+
+	mock.ExpectExec(expectedStatement).WillReturnResult(sqlmock.NewResult(1, 1))
+	mock.ExpectClose()
+
+	// prepare connection to mocked database
+	storage := main.NewFromConnection(connection, 1)
+
+	// call the tested method
+	deleted, err := storage.CleanupNewReports("1 day")
+	if err != nil {
+		t.Errorf("error was not expected while cleaning old reports: %s", err)
+	}
+
+	// check number of returned rows
+	if deleted != 1 {
+		t.Errorf("one row should be deleted, but %d rows were deleted", deleted)
+	}
+
+	// connection to mocked DB needs to be closed properly
+	checkConnectionClose(t, connection)
+
+	// check if all expectations were met
+	checkAllExpectations(t, mock)
+}
+
+// TestCleanupNewReportsOnError function checks the method
+// Storage.CleanupNewReports.
+func TestCleanupNewReportsOnError(t *testing.T) {
+	// error to be thrown
+	mockedError := errors.New("mocked error")
+
+	// prepare new mocked connection to database
+	connection, mock := mustCreateMockConnection(t)
+
+	// expected query performed by tested function
+	expectedStatement := "DELETE FROM new_reports WHERE updated_at < NOW\\(\\) - \\$1::INTERVAL"
+
+	mock.ExpectExec(expectedStatement).WillReturnError(mockedError)
+	mock.ExpectClose()
+
+	// prepare connection to mocked database
+	storage := main.NewFromConnection(connection, 1)
+
+	// call the tested method
+	_, err := storage.CleanupNewReports("1 day")
+	if err == nil {
+		t.Errorf("error was not expected while cleaning old reports: %s", err)
+	}
+
+	// connection to mocked DB needs to be closed properly
+	checkConnectionClose(t, connection)
+
+	// check if all expectations were met
+	checkAllExpectations(t, mock)
+}
