@@ -66,3 +66,78 @@ func checkAllExpectations(t *testing.T, mock sqlmock.Sqlmock) {
 		t.Errorf("there were unfulfilled expectations: %s", err)
 	}
 }
+
+// TestGetLatestKafkaOffset function checks the method
+// Storage.GetLatestKafkaOffset.
+func TestGetLatestKafkaOffset(t *testing.T) {
+	// prepare new mocked connection to database
+	connection, mock := mustCreateMockConnection(t)
+
+	// prepare mocked result for SQL query
+	rows := sqlmock.NewRows([]string{"kafka_offset"})
+	rows.AddRow(42)
+
+	// expected query performed by tested function
+	expectedQuery := "SELECT COALESCE\\(MAX\\(kafka_offset\\), 0\\) FROM new_reports;"
+	mock.ExpectQuery(expectedQuery).WillReturnRows(rows)
+	mock.ExpectClose()
+
+	// prepare connection to mocked database
+	storage := main.NewFromConnection(connection, 1)
+
+	// call the tested method
+	offset, err := storage.GetLatestKafkaOffset()
+	if err != nil {
+		t.Errorf("error was not expected while getting latest Kafka offset: %s", err)
+	}
+
+	// check the org ID returned from tested function
+	if offset != 42 {
+		t.Errorf("wrong Kafka offset returned: %d", offset)
+	}
+
+	// connection to mocked DB needs to be closed properly
+	checkConnectionClose(t, connection)
+
+	// check if all expectations were met
+	checkAllExpectations(t, mock)
+}
+
+// TestGetLatestKafkaOffset function checks the method
+// Storage.GetLatestKafkaOffset.
+func TestGetLatestKafkaOffsetOnError(t *testing.T) {
+	// error to be thrown
+	mockedError := errors.New("mocked error")
+
+	// prepare new mocked connection to database
+	connection, mock := mustCreateMockConnection(t)
+
+	// prepare mocked result for SQL query
+	rows := sqlmock.NewRows([]string{"kafka_offset"})
+	rows.AddRow(42)
+
+	// expected query performed by tested function
+	expectedQuery := "SELECT COALESCE\\(MAX\\(kafka_offset\\), 0\\) FROM new_reports;"
+	mock.ExpectQuery(expectedQuery).WillReturnError(mockedError)
+	mock.ExpectClose()
+
+	// prepare connection to mocked database
+	storage := main.NewFromConnection(connection, 0)
+
+	// call the tested method
+	_, err := storage.GetLatestKafkaOffset()
+	if err == nil {
+		t.Errorf("error was expected while getting latest Kafka offset: %s", err)
+	}
+
+	// check if the error is correct
+	if err != mockedError {
+		t.Errorf("different error was returned: %v", err)
+	}
+
+	// connection to mocked DB needs to be closed properly
+	checkConnectionClose(t, connection)
+
+	// check if all expectations were met
+	checkAllExpectations(t, mock)
+}
