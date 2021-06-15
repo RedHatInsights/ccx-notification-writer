@@ -103,8 +103,8 @@ func TestGetLatestKafkaOffset(t *testing.T) {
 	checkAllExpectations(t, mock)
 }
 
-// TestGetLatestKafkaOffset function checks the method
-// Storage.GetLatestKafkaOffset.
+// TestGetLatestKafkaOffsetOnError function checks the method
+// Storage.GetLatestKafkaOffset when error is returned.
 func TestGetLatestKafkaOffsetOnError(t *testing.T) {
 	// error to be thrown
 	mockedError := errors.New("mocked error")
@@ -596,7 +596,7 @@ func TestDatabaseDropTables(t *testing.T) {
 	// call the tested method
 	err := storage.DatabaseDropTables()
 	if err != nil {
-		t.Errorf("error was not expected while cleaning up database: %s", err)
+		t.Errorf("error was not expected while dropping database tables: %s", err)
 	}
 
 	// connection to mocked DB needs to be closed properly
@@ -624,7 +624,7 @@ func TestDatabaseDropIndexes(t *testing.T) {
 	// call the tested method
 	err := storage.DatabaseDropIndexes()
 	if err != nil {
-		t.Errorf("error was not expected while cleaning up database: %s", err)
+		t.Errorf("error was not expected while dropping database indexes: %s", err)
 	}
 
 	// connection to mocked DB needs to be closed properly
