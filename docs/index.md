@@ -18,6 +18,18 @@ Additionally this service exposes several metrics about consumed and processed
 messages. These metrics can be aggregated by Prometheus and displayed by
 Grafana tools.
 
+## Class diagram
+
+![class_diagram.png](class_diagram.png)
+
+[Class diagram, full scale](class_diagram.png)
+
+## Sequence diagram
+
+![sequence_diagram.png](sequence_diagram.png)
+
+[Sequence diagram, full scale](sequence_diagram.png)
+
 ## Database description
 
 * PostgreSQL database is used as a storage.
@@ -44,9 +56,3 @@ Grafana tools.
 * [metrics_test.go](./packages/metrics_test.html)
 * [storage_test.go](./packages/storage_test.html)
 * [export_test.go](./packages/export_test.html)
-
-## Class diagram
-
-![class_diagram.png](class_diagram.png)
-
-[Class diagram, full scale](class_diagram.png)
