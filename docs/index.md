@@ -21,7 +21,7 @@ Grafana tools.
 ## Data flow
 
 1. Customer cluster with *Insights Operator* installed sends new data with info about cluster into *Ingress service*
-1. That service consumes such data, writes them into S3 Bucked and produce new message into Kafka topic named `platform.upload.buckit`.
+1. That service consumes such data, writes them into S3 Bucket and produce new message into Kafka topic named `platform.upload.buckit`.
 1. Event about new data sent by *Insights Operator* is consumed from Kafka topic `platform.upload.buckit` by *CCX Data pipeline* service.
 1. That event contains (among other things) an URL to S3 Bucket.
 1. Insights operator data is read from S3 Bucket and *insights rules* are applied to that data in `ccx-data-pipeline` service.
