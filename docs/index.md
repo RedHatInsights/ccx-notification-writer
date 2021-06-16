@@ -18,6 +18,18 @@ Additionally this service exposes several metrics about consumed and processed
 messages. These metrics can be aggregated by Prometheus and displayed by
 Grafana tools.
 
+## Data flow
+
+1. Customer cluster with *Insights Operator* installed sends new data with info about cluster into *Ingress service*
+1. That service consumes such data, writes them into S3 Bucked and produce new message into Kafka topic named `platform.upload.buckit`.
+1. Event about new data sent by *Insights Operator* is consumed from Kafka topic `platform.upload.buckit` by *CCX Data pipeline* service.
+1. That event contains (among other things) an URL to S3 Bucket.
+1. Insights operator data is read from S3 Bucket and *insights rules* are applied to that data in `ccx-data-pipeline` service.
+1.  Results (basically `organization ID` + `cluster name` + `insights results JSON`) are stored back into Kafka, but into different topic named `ccx.ocp.results`.
+1. That results are consumed by `ccx-notification-writer` service.
+1. `ccx-notification-writer` servicestores insights results into AWS RDS database into `new_reports` table.
+1. Content of that table is ready to be consumed by `ccx-notification-service`.
+
 ## Class diagram
 
 ![class_diagram.png](class_diagram.png)
