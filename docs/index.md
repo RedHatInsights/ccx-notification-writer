@@ -18,6 +18,12 @@ Additionally this service exposes several metrics about consumed and processed
 messages. These metrics can be aggregated by Prometheus and displayed by
 Grafana tools.
 
+## Architecture
+
+![architecture_diagram.png](architecture_diagram.png)
+
+[Architecture diagram, full scale](architecture_diagram.png)
+
 ## Data flow
 
 1. Customer cluster with *Insights Operator* installed sends new data with info about cluster into *Ingress service*
