@@ -24,8 +24,8 @@ import (
 	main "github.com/RedHatInsights/ccx-notification-writer"
 )
 
-// TestDropTableStatement function checks the helper function
-// dropTableStatement.
+// TestAddMetricsWithNamespace function checks the basic behaviour of function
+// AddMetricsWithNamespace from `metrics.go`
 func TestAddMetricsWithNamespace(t *testing.T) {
 	// add all metrics into the namespace "foobar"
 	main.AddMetricsWithNamespace("foobar")
