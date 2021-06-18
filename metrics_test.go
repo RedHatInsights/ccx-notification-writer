@@ -15,3 +15,30 @@ limitations under the License.
 */
 
 package main_test
+
+import (
+	"testing"
+
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/stretchr/testify/assert"
+
+	main "github.com/RedHatInsights/ccx-notification-writer"
+)
+
+// TestDropTableStatement function checks the helper function
+// dropTableStatement.
+func TestAddMetricsWithNamespace(t *testing.T) {
+	// add all metrics into the namespace "foobar"
+	main.AddMetricsWithNamespace("foobar")
+
+	// check the registration
+	assert.NotNil(t, main.ConsumedMessages)
+	assert.NotNil(t, main.ConsumingErrors)
+	assert.NotNil(t, main.ParsedIncomingMessage)
+	assert.NotNil(t, main.CheckSchemaVersion)
+	assert.NotNil(t, main.MarshalReport)
+	assert.NotNil(t, main.ShrinkReport)
+	assert.NotNil(t, main.CheckLastCheckedTimestamp)
+	assert.NotNil(t, main.StoredMessages)
+	assert.NotNil(t, main.StoredBytes)
+}
