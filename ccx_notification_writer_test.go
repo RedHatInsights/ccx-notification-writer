@@ -40,7 +40,7 @@ func TestShowVersion(t *testing.T) {
 	// check the captured text
 	checkCapture(t, err)
 
-	assert.Contains(t, output, "Notification writer version")
+	assert.Contains(t, output, "CCX Notification Writer version")
 }
 
 // TestShowAuthors checks the function showAuthors
@@ -76,7 +76,7 @@ func TestDoSelectedOperationShowVersion(t *testing.T) {
 	// check the captured text
 	checkCapture(t, err)
 
-	assert.Contains(t, output, "Notification writer version")
+	assert.Contains(t, output, "CCX Notification Writer version")
 }
 
 // TestDoSelectedOperationShowAuthors checks the function showAuthors called

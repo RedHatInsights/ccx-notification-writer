@@ -108,8 +108,8 @@ type KafkaConsumer struct {
 	Storage                              Storage
 	numberOfSuccessfullyConsumedMessages uint64
 	numberOfErrorsConsumingMessages      uint64
-	ready                                chan bool
-	cancel                               context.CancelFunc
+	Ready                                chan bool
+	Cancel                               context.CancelFunc
 }
 
 // DefaultSaramaConfig is a config which will be used by default
@@ -152,7 +152,7 @@ func NewWithSaramaConfig(
 		Storage:                              storage,
 		numberOfSuccessfullyConsumedMessages: 0,
 		numberOfErrorsConsumingMessages:      0,
-		ready:                                make(chan bool),
+		Ready:                                make(chan bool),
 	}
 
 	return consumer, nil
@@ -161,7 +161,7 @@ func NewWithSaramaConfig(
 // Serve starts listening for messages and processing them. It blocks current thread.
 func (consumer *KafkaConsumer) Serve() {
 	ctx, cancel := context.WithCancel(context.Background())
-	consumer.cancel = cancel
+	consumer.Cancel = cancel
 
 	go func() {
 		for {
@@ -180,13 +180,13 @@ func (consumer *KafkaConsumer) Serve() {
 
 			log.Info().Msg("Created new kafka session")
 
-			consumer.ready = make(chan bool)
+			consumer.Ready = make(chan bool)
 		}
 	}()
 
 	// Await till the consumer has been set up
 	log.Info().Msg("Waiting for consumer to become ready")
-	<-consumer.ready
+	<-consumer.Ready
 	log.Info().Msg("Finished waiting for consumer to become ready")
 
 	// Actual processing is done in goroutine created by sarama (see ConsumeClaim below)
@@ -201,7 +201,7 @@ func (consumer *KafkaConsumer) Serve() {
 func (consumer *KafkaConsumer) Setup(sarama.ConsumerGroupSession) error {
 	log.Info().Msg("New session has been setup")
 	// Mark the consumer as ready
-	close(consumer.ready)
+	close(consumer.Ready)
 	return nil
 }
 
@@ -249,8 +249,8 @@ func (consumer *KafkaConsumer) ConsumeClaim(session sarama.ConsumerGroupSession,
 
 // Close method closes all resources used by consumer
 func (consumer *KafkaConsumer) Close() error {
-	if consumer.cancel != nil {
-		consumer.cancel()
+	if consumer.Cancel != nil {
+		consumer.Cancel()
 	}
 
 	if consumer.ConsumerGroup != nil {
@@ -278,6 +278,11 @@ func (consumer *KafkaConsumer) GetNumberOfErrorsConsumingMessages() uint64 {
 
 // HandleMessage handles the message and does all logging, metrics, etc
 func (consumer *KafkaConsumer) HandleMessage(msg *sarama.ConsumerMessage) {
+	if msg == nil {
+		log.Error().Msg("nil message")
+		return
+	}
+
 	log.Info().
 		Int64(offsetKey, msg.Offset).
 		Int32(partitionKey, msg.Partition).

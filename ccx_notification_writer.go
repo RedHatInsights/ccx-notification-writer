@@ -45,7 +45,7 @@ import (
 
 // Messages
 const (
-	versionMessage                                          = "Notification writer version 1.0"
+	versionMessage                                          = "CCX Notification Writer version 1.0"
 	authorsMessage                                          = "Pavel Tisnovsky, Red Hat Inc."
 	connectionToBrokerMessage                               = "Connection to broker"
 	operationFailedMessage                                  = "Operation failed"
