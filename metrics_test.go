@@ -19,7 +19,6 @@ package main_test
 import (
 	"testing"
 
-	"github.com/prometheus/client_golang/prometheus"
 	"github.com/stretchr/testify/assert"
 
 	main "github.com/RedHatInsights/ccx-notification-writer"
