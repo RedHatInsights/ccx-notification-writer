@@ -278,6 +278,11 @@ func (consumer *KafkaConsumer) GetNumberOfErrorsConsumingMessages() uint64 {
 
 // HandleMessage handles the message and does all logging, metrics, etc
 func (consumer *KafkaConsumer) HandleMessage(msg *sarama.ConsumerMessage) {
+	if msg == nil {
+		log.Error().Msg("nil message")
+		return
+	}
+
 	log.Info().
 		Int64(offsetKey, msg.Offset).
 		Int32(partitionKey, msg.Partition).
