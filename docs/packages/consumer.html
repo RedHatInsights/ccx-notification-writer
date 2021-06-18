@@ -116,22 +116,24 @@
     <tbody>
       
       <tr class="section">
-	<td class="doc"><p>Copyright 2021 Red Hat, Inc</p>
+	<td class="doc"></td>
+	<td class="code"><pre><code><div class="comment">/*
+Copyright © 2021 Red Hat, Inc.
 
-<p>Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+Licensed under the Apache License, Version 2.0 (the &#34;License&#34;);
 you may not use this file except in compliance with the License.
-You may obtain a copy of the License at</p>
+You may obtain a copy of the License at
 
-<pre><code> http://www.apache.org/licenses/LICENSE-2.0
-</code></pre>
+    http://www.apache.org/licenses/LICENSE-2.0
 
-<p>Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an &#34;AS IS&#34; BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
-limitations under the License.</p>
-</td>
-	<td class="code"><pre><code><div class="keyword">package</div> <div class="ident">main</div><div class="operator"></div>
+limitations under the License.
+*/</div>
+
+<div class="keyword">package</div> <div class="ident">main</div><div class="operator"></div>
 
 </code></pre></td>
       </tr>
@@ -302,7 +304,7 @@ if err != nil {
 	<td class="code"><pre><code><div class="keyword">type</div> <div class="ident">KafkaConsumer</div> <div class="keyword">struct</div> <div class="operator">{</div>
 	<div class="ident">Configuration</div>                        <div class="ident">BrokerConfiguration</div><div class="operator"></div>
 	<div class="ident">ConsumerGroup</div>                        <div class="ident">sarama</div><div class="operator">.</div><div class="ident">ConsumerGroup</div><div class="operator"></div>
-	<div class="ident">storage</div>                              <div class="ident">Storage</div><div class="operator"></div>
+	<div class="ident">Storage</div>                              <div class="ident">Storage</div><div class="operator"></div>
 	<div class="ident">numberOfSuccessfullyConsumedMessages</div> <div class="ident">uint64</div><div class="operator"></div>
 	<div class="ident">numberOfErrorsConsumingMessages</div>      <div class="ident">uint64</div><div class="operator"></div>
 	<div class="ident">ready</div>                                <div class="keyword">chan</div> <div class="ident">bool</div><div class="operator"></div>
@@ -361,7 +363,7 @@ useful for testing</p>
 	<div class="ident">consumer</div> <div class="operator">:=</div> <div class="operator">&amp;</div><div class="ident">KafkaConsumer</div><div class="operator">{</div>
 		<div class="ident">Configuration</div><div class="operator">:</div>                        <div class="ident">brokerCfg</div><div class="operator">,</div>
 		<div class="ident">ConsumerGroup</div><div class="operator">:</div>                        <div class="ident">consumerGroup</div><div class="operator">,</div>
-		<div class="ident">storage</div><div class="operator">:</div>                              <div class="ident">storage</div><div class="operator">,</div>
+		<div class="ident">Storage</div><div class="operator">:</div>                              <div class="ident">storage</div><div class="operator">,</div>
 		<div class="ident">numberOfSuccessfullyConsumedMessages</div><div class="operator">:</div> <div class="literal">0</div><div class="operator">,</div>
 		<div class="ident">numberOfErrorsConsumingMessages</div><div class="operator">:</div>      <div class="literal">0</div><div class="operator">,</div>
 		<div class="ident">ready</div><div class="operator">:</div>                                <div class="ident">make</div><div class="operator">(</div><div class="keyword">chan</div> <div class="ident">bool</div><div class="operator">)</div><div class="operator">,</div>
@@ -474,7 +476,7 @@ recreated to get the new claims</p>
 		<div class="ident">Int64</div><div class="operator">(</div><div class="ident">offsetKey</div><div class="operator">,</div> <div class="ident">claim</div><div class="operator">.</div><div class="ident">InitialOffset</div><div class="operator">(</div><div class="operator">)</div><div class="operator">)</div><div class="operator">.</div>
 		<div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;Starting messages loop&#34;</div><div class="operator">)</div><div class="operator"></div>
 
-	<div class="ident">latestMessageOffset</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">consumer</div><div class="operator">.</div><div class="ident">storage</div><div class="operator">.</div><div class="ident">GetLatestKafkaOffset</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">latestMessageOffset</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">consumer</div><div class="operator">.</div><div class="ident">Storage</div><div class="operator">.</div><div class="ident">GetLatestKafkaOffset</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
 	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
 		<div class="ident">log</div><div class="operator">.</div><div class="ident">Error</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;Unable to get latest offset&#34;</div><div class="operator">)</div><div class="operator"></div>
 		<div class="ident">latestMessageOffset</div> <div class="operator">=</div> <div class="literal">0</div><div class="operator"></div>
@@ -775,7 +777,9 @@ attribute, not to check message schema</p>
 
 	<div class="ident">lastCheckedTimestampLagMinutes</div> <div class="operator">:=</div> <div class="ident">time</div><div class="operator">.</div><div class="ident">Now</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Sub</div><div class="operator">(</div><div class="ident">lastCheckedTime</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Minutes</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
 	<div class="keyword">if</div> <div class="ident">lastCheckedTimestampLagMinutes</div> <div class="operator">&lt;</div> <div class="literal">0</div> <div class="operator">{</div>
-		<div class="ident">logMessageError</div><div class="operator">(</div><div class="ident">consumer</div><div class="operator">,</div> <div class="ident">msg</div><div class="operator">,</div> <div class="ident">message</div><div class="operator">,</div> <div class="literal">&#34;Got a message from the future&#34;</div><div class="operator">,</div> <div class="ident">nil</div><div class="operator">)</div><div class="operator"></div>
+		<div class="ident">errorMessage</div> <div class="operator">:=</div> <div class="literal">&#34;Got a message from the future&#34;</div><div class="operator"></div>
+		<div class="ident">logMessageError</div><div class="operator">(</div><div class="ident">consumer</div><div class="operator">,</div> <div class="ident">msg</div><div class="operator">,</div> <div class="ident">message</div><div class="operator">,</div> <div class="ident">errorMessage</div><div class="operator">,</div> <div class="ident">nil</div><div class="operator">)</div><div class="operator"></div>
+		<div class="keyword">return</div> <div class="ident">message</div><div class="operator">.</div><div class="ident">RequestID</div><div class="operator">,</div> <div class="ident">errors</div><div class="operator">.</div><div class="ident">New</div><div class="operator">(</div><div class="ident">errorMessage</div><div class="operator">)</div><div class="operator"></div>
 	<div class="operator">}</div><div class="operator"></div>
 
 </code></pre></td>
@@ -798,7 +802,7 @@ attribute, not to check message schema</p>
       <tr class="section">
 	<td class="doc"><p>Step #6: write the shrunk report into storage (database)</p>
 </td>
-	<td class="code"><pre><code>	<div class="ident">err</div> <div class="operator">=</div> <div class="ident">consumer</div><div class="operator">.</div><div class="ident">storage</div><div class="operator">.</div><div class="ident">WriteReportForCluster</div><div class="operator">(</div>
+	<td class="code"><pre><code>	<div class="ident">err</div> <div class="operator">=</div> <div class="ident">consumer</div><div class="operator">.</div><div class="ident">Storage</div><div class="operator">.</div><div class="ident">WriteReportForCluster</div><div class="operator">(</div>
 		<div class="operator">*</div><div class="ident">message</div><div class="operator">.</div><div class="ident">Organization</div><div class="operator">,</div>
 		<div class="operator">*</div><div class="ident">message</div><div class="operator">.</div><div class="ident">AccountNumber</div><div class="operator">,</div>
 		<div class="operator">*</div><div class="ident">message</div><div class="operator">.</div><div class="ident">ClusterName</div><div class="operator">,</div>
