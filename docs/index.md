@@ -64,7 +64,7 @@ Grafana tools.
 * [storage.go](./packages/storage.html)
 * [types.go](./packages/types.html)
 
-## Documentation for unit tests files fro this repository
+## Documentation for unit tests files for this repository
 
 * [ccx_notification_writer_test.go](./packages/ccx_notification_writer_test.html)
 * [config_test.go](./packages/config_test.html)
