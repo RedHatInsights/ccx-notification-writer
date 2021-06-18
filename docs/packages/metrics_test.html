@@ -135,6 +135,47 @@ limitations under the License.
 
 <div class="keyword">package</div> <div class="ident">main_test</div><div class="operator"></div>
 
+<div class="keyword">import</div> <div class="operator">(</div>
+	<div class="literal">&#34;testing&#34;</div><div class="operator"></div>
+
+	<div class="literal">&#34;github.com/stretchr/testify/assert&#34;</div><div class="operator"></div>
+
+	<div class="ident">main</div> <div class="literal">&#34;github.com/RedHatInsights/ccx-notification-writer&#34;</div><div class="operator"></div>
+<div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>TestAddMetricsWithNamespace function checks the basic behaviour of function
+AddMetricsWithNamespace from <code>metrics.go</code></p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">TestAddMetricsWithNamespace</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>add all metrics into the namespace &quot;foobar&quot;</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">main</div><div class="operator">.</div><div class="ident">AddMetricsWithNamespace</div><div class="operator">(</div><div class="literal">&#34;foobar&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>check the registration</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">assert</div><div class="operator">.</div><div class="ident">NotNil</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">ConsumedMessages</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">NotNil</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">ConsumingErrors</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">NotNil</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">ParsedIncomingMessage</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">NotNil</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">CheckSchemaVersion</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">NotNil</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">MarshalReport</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">NotNil</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">ShrinkReport</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">NotNil</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">CheckLastCheckedTimestamp</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">NotNil</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">StoredMessages</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">NotNil</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">StoredBytes</div><div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
 </code></pre></td>
       </tr>
       
