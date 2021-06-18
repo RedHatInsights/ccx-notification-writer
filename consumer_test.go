@@ -17,6 +17,7 @@ limitations under the License.
 package main_test
 
 import (
+	"context"
 	"fmt"
 	"testing"
 	"time"
@@ -360,6 +361,7 @@ func NewDummyConsumer(s main.Storage) *main.KafkaConsumer {
 	return &main.KafkaConsumer{
 		Configuration: brokerCfg,
 		Storage:       s,
+		Ready:         make(chan bool),
 	}
 }
 
@@ -372,6 +374,10 @@ func TestProcessEmptyMessage(t *testing.T) {
 	// construct dummy consumer
 	dummyConsumer := NewDummyConsumer(&mockStorage)
 
+	// counter checks
+	assert.Equal(t, uint64(0), dummyConsumer.GetNumberOfSuccessfullyConsumedMessages())
+	assert.Equal(t, uint64(0), dummyConsumer.GetNumberOfErrorsConsumingMessages())
+
 	// prepare an empty message
 	message := sarama.ConsumerMessage{}
 
@@ -383,6 +389,10 @@ func TestProcessEmptyMessage(t *testing.T) {
 
 	// nothing should be written into storage
 	assert.Equal(t, 0, mockStorage.writeReportCalled)
+
+	// counter checks
+	assert.Equal(t, uint64(0), dummyConsumer.GetNumberOfSuccessfullyConsumedMessages())
+	assert.Equal(t, uint64(0), dummyConsumer.GetNumberOfErrorsConsumingMessages())
 }
 
 // TestProcessMessageWithWrongDateFormat check the behaviour of function
@@ -393,6 +403,10 @@ func TestProcessMessageWithWrongDateFormat(t *testing.T) {
 
 	// construct dummy consumer
 	dummyConsumer := NewDummyConsumer(&mockStorage)
+
+	// counter checks
+	assert.Equal(t, uint64(0), dummyConsumer.GetNumberOfSuccessfullyConsumedMessages())
+	assert.Equal(t, uint64(0), dummyConsumer.GetNumberOfErrorsConsumingMessages())
 
 	// prepare a message
 	message := sarama.ConsumerMessage{}
@@ -415,6 +429,10 @@ func TestProcessMessageWithWrongDateFormat(t *testing.T) {
 
 	// nothing should be written into storage
 	assert.Equal(t, 0, mockStorage.writeReportCalled)
+
+	// counter checks
+	assert.Equal(t, uint64(0), dummyConsumer.GetNumberOfSuccessfullyConsumedMessages())
+	assert.Equal(t, uint64(0), dummyConsumer.GetNumberOfErrorsConsumingMessages())
 }
 
 // TestProcessMessageFromFuture check the behaviour of function ProcessMessage
@@ -425,6 +443,10 @@ func TestProcessMessageFromFuture(t *testing.T) {
 
 	// construct dummy consumer
 	dummyConsumer := NewDummyConsumer(&mockStorage)
+
+	// counter checks
+	assert.Equal(t, uint64(0), dummyConsumer.GetNumberOfSuccessfullyConsumedMessages())
+	assert.Equal(t, uint64(0), dummyConsumer.GetNumberOfErrorsConsumingMessages())
 
 	// prepare a message
 	message := sarama.ConsumerMessage{}
@@ -447,6 +469,10 @@ func TestProcessMessageFromFuture(t *testing.T) {
 
 	// nothing should be written into storage
 	assert.Equal(t, 0, mockStorage.writeReportCalled)
+
+	// counter checks
+	assert.Equal(t, uint64(0), dummyConsumer.GetNumberOfSuccessfullyConsumedMessages())
+	assert.Equal(t, uint64(0), dummyConsumer.GetNumberOfErrorsConsumingMessages())
 }
 
 // TestProcessCorrectMessage check the behaviour of function ProcessMessage for
@@ -457,6 +483,10 @@ func TestProcessCorrectMessage(t *testing.T) {
 
 	// construct dummy consumer
 	dummyConsumer := NewDummyConsumer(&mockStorage)
+
+	// counter checks
+	assert.Equal(t, uint64(0), dummyConsumer.GetNumberOfSuccessfullyConsumedMessages())
+	assert.Equal(t, uint64(0), dummyConsumer.GetNumberOfErrorsConsumingMessages())
 
 	// prepare a message
 	message := sarama.ConsumerMessage{}
@@ -479,4 +509,145 @@ func TestProcessCorrectMessage(t *testing.T) {
 
 	// one record should be written into the storage
 	assert.Equal(t, 1, mockStorage.writeReportCalled)
+
+	// counter checks
+	assert.Equal(t, uint64(0), dummyConsumer.GetNumberOfSuccessfullyConsumedMessages())
+	assert.Equal(t, uint64(0), dummyConsumer.GetNumberOfErrorsConsumingMessages())
+}
+
+// TestConsumerSetup function checks the method KafkaConsumer.Cleanup().
+func TestConsumerSetup(t *testing.T) {
+	// construct mock storage
+	mockStorage := NewMockStorage()
+
+	// construct dummy consumer
+	dummyConsumer := NewDummyConsumer(&mockStorage)
+
+	// channel that needs to be closed in Setup
+	dummyConsumer.Ready = make(chan bool)
+
+	// try to setup the consumer (without consumer group)
+	err := dummyConsumer.Setup(nil)
+
+	// and check for any error
+	assert.Nil(t, err)
+}
+
+// TestConsumerCleanup function checks the method KafkaConsumer.Cleanup().
+func TestConsumerCleanup(t *testing.T) {
+	// construct mock storage
+	mockStorage := NewMockStorage()
+
+	// construct dummy consumer
+	dummyConsumer := NewDummyConsumer(&mockStorage)
+
+	// try to cleanup the consumer (without consumer group)
+	err := dummyConsumer.Cleanup(nil)
+
+	// and check for any error
+	assert.Nil(t, err)
+}
+
+// TestConsumerClose function checks the method KafkaConsumer.Close().
+func TestConsumerClose(t *testing.T) {
+	// construct mock storage
+	mockStorage := NewMockStorage()
+
+	// construct dummy consumer
+	dummyConsumer := NewDummyConsumer(&mockStorage)
+
+	// try to close the consumer (without consumer group)
+	err := dummyConsumer.Close()
+
+	// and check for any error
+	assert.Nil(t, err)
+}
+
+// TestConsumerCloseCancel function checks the method KafkaConsumer.Close().
+func TestConsumerCloseCancel(t *testing.T) {
+	// construct mock storage
+	mockStorage := NewMockStorage()
+
+	// construct dummy consumer
+	dummyConsumer := NewDummyConsumer(&mockStorage)
+
+	// setup cancel hook
+	_, cancel := context.WithCancel(context.Background())
+	dummyConsumer.Cancel = cancel
+
+	// try to close the consumer (without consumer group)
+	err := dummyConsumer.Close()
+
+	// and check for any error
+	assert.Nil(t, err)
+}
+
+// TestHandleNilMessage function checks the method
+// KafkaConsumer.HandleMessage() for nil input.
+func TestHandleNilMessage(t *testing.T) {
+	// construct mock storage
+	mockStorage := NewMockStorage()
+
+	// construct dummy consumer
+	dummyConsumer := NewDummyConsumer(&mockStorage)
+
+	// nil message
+	dummyConsumer.HandleMessage(nil)
+}
+
+// TestHandleEmptyMessage function checks the method
+// KafkaConsumer.HandleMessage() for empty message value.
+func TestHandleEmptyMessage(t *testing.T) {
+	// construct mock storage
+	mockStorage := NewMockStorage()
+
+	// construct dummy consumer
+	dummyConsumer := NewDummyConsumer(&mockStorage)
+
+	message := sarama.ConsumerMessage{}
+
+	message.Value = []byte("")
+
+	// counter checks
+	assert.Equal(t, uint64(0), dummyConsumer.GetNumberOfSuccessfullyConsumedMessages())
+	assert.Equal(t, uint64(0), dummyConsumer.GetNumberOfErrorsConsumingMessages())
+
+	// empty message
+	dummyConsumer.HandleMessage(&message)
+
+	// counter checks
+	assert.Equal(t, uint64(0), dummyConsumer.GetNumberOfSuccessfullyConsumedMessages())
+	assert.Equal(t, uint64(1), dummyConsumer.GetNumberOfErrorsConsumingMessages())
+}
+
+// TestHandleCorrectMessage function checks the method
+// KafkaConsumer.HandleMessage() for correct input.
+func TestHandleCorrectMessage(t *testing.T) {
+	// construct mock storage
+	mockStorage := NewMockStorage()
+
+	// construct dummy consumer
+	dummyConsumer := NewDummyConsumer(&mockStorage)
+
+	message := sarama.ConsumerMessage{}
+	value := `{
+		"OrgID": ` + fmt.Sprint(ExpectedOrgID) + `,
+		"AccountNumber": ` + fmt.Sprint(ExpectedAccountNumber) + `,
+		"ClusterName": "` + string(ExpectedClusterName) + `",
+		"Report":` + ConsumerReport + `,
+		"LastChecked": "` + LastCheckedAt.UTC().Format(time.RFC3339) + `"
+	}`
+
+	message.Value = []byte(value)
+
+	// counter checks
+	assert.Equal(t, uint64(0), dummyConsumer.GetNumberOfSuccessfullyConsumedMessages())
+	assert.Equal(t, uint64(0), dummyConsumer.GetNumberOfErrorsConsumingMessages())
+
+	// correct message
+	dummyConsumer.HandleMessage(&message)
+
+	// counter checks
+	assert.Equal(t, uint64(1), dummyConsumer.GetNumberOfSuccessfullyConsumedMessages())
+	assert.Equal(t, uint64(0), dummyConsumer.GetNumberOfErrorsConsumingMessages())
 }
