@@ -114,6 +114,7 @@ func AddMetricsWithNamespace(namespace string) {
 	// exposed metrics
 	metrics.AddAPIMetricsWithNamespace(namespace)
 
+	// first unregister all metrics
 	prometheus.Unregister(ConsumedMessages)
 	prometheus.Unregister(ConsumingErrors)
 	prometheus.Unregister(ParsedIncomingMessage)
@@ -122,6 +123,7 @@ func AddMetricsWithNamespace(namespace string) {
 	prometheus.Unregister(ShrinkReport)
 	prometheus.Unregister(CheckLastCheckedTimestamp)
 
+	// and registrer them again
 	ConsumedMessages = promauto.NewCounter(prometheus.CounterOpts{
 		Namespace: namespace,
 		Name:      ConsumedMessagesName,
