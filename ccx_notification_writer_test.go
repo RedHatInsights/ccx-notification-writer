@@ -17,9 +17,11 @@ limitations under the License.
 package main_test
 
 import (
+	"os"
 	"testing"
 
 	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
 	"github.com/stretchr/testify/assert"
 	"github.com/tisnik/go-capture"
 
@@ -27,7 +29,7 @@ import (
 )
 
 func init() {
-	zerolog.SetGlobalLevel(zerolog.WarnLevel)
+	zerolog.SetGlobalLevel(zerolog.InfoLevel)
 }
 
 // TestShowVersion checks the function showVersion
@@ -57,13 +59,41 @@ func TestShowAuthors(t *testing.T) {
 	assert.Contains(t, output, "Red Hat Inc.")
 }
 
+// TestShowConfiguration checks the function ShowConfiguration
+func TestShowConfiguration(t *testing.T) {
+	// fill in configuration structure
+	configuration := main.ConfigStruct{}
+	configuration.Broker = main.BrokerConfiguration{
+		Address: "broker_address",
+		Topic:   "broker_topic",
+	}
+	configuration.Metrics = main.MetricsConfiguration{
+		Namespace: "metrics_namespace",
+	}
+
+	// try to call the tested function and capture its output
+	output, err := capture.ErrorOutput(func() {
+		log.Logger = log.Output(zerolog.New(os.Stderr))
+		main.ShowConfiguration(configuration)
+	})
+
+	// check the captured text
+	checkCapture(t, err)
+
+	assert.Contains(t, output, "broker_address")
+	assert.Contains(t, output, "broker_topic")
+	assert.Contains(t, output, "metrics_namespace")
+}
+
 // TestDoSelectedOperationShowVersion checks the function showVersion called
 // via doSelectedOperation function
 func TestDoSelectedOperationShowVersion(t *testing.T) {
 	// stub for structures needed to call the tested function
 	configuration := main.ConfigStruct{}
 	cliFlags := main.CliFlags{
-		ShowVersion: true,
+		ShowVersion:       true,
+		ShowAuthors:       false,
+		ShowConfiguration: false,
 	}
 
 	// try to call the tested function and capture its output
@@ -85,8 +115,9 @@ func TestDoSelectedOperationShowAuthors(t *testing.T) {
 	// stub for structures needed to call the tested function
 	configuration := main.ConfigStruct{}
 	cliFlags := main.CliFlags{
-		ShowVersion: false,
-		ShowAuthors: true,
+		ShowVersion:       false,
+		ShowAuthors:       true,
+		ShowConfiguration: false,
 	}
 
 	// try to call the tested function and capture its output
@@ -101,4 +132,39 @@ func TestDoSelectedOperationShowAuthors(t *testing.T) {
 
 	assert.Contains(t, output, "Pavel Tisnovsky")
 	assert.Contains(t, output, "Red Hat Inc.")
+}
+
+// TestDoSelectedOperationShowConfiguration checks the function
+// showConfiguration called via doSelectedOperation function
+func TestDoSelectedOperationShowConfiguration(t *testing.T) {
+	// fill in configuration structure
+	configuration := main.ConfigStruct{}
+	configuration.Broker = main.BrokerConfiguration{
+		Address: "broker_address",
+		Topic:   "broker_topic",
+	}
+	configuration.Metrics = main.MetricsConfiguration{
+		Namespace: "metrics_namespace",
+	}
+
+	cliFlags := main.CliFlags{
+		ShowVersion:       false,
+		ShowAuthors:       false,
+		ShowConfiguration: true,
+	}
+
+	// try to call the tested function and capture its output
+	output, err := capture.ErrorOutput(func() {
+		log.Logger = log.Output(zerolog.New(os.Stderr))
+		code, err := main.DoSelectedOperation(configuration, cliFlags)
+		assert.Equal(t, code, main.ExitStatusOK)
+		assert.Nil(t, err)
+	})
+
+	// check the captured text
+	checkCapture(t, err)
+
+	assert.Contains(t, output, "broker_address")
+	assert.Contains(t, output, "broker_topic")
+	assert.Contains(t, output, "metrics_namespace")
 }
