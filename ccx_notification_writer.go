@@ -58,6 +58,7 @@ const (
 	databaseCleanupNewReportsOperationFailedMessage         = "Cleanup records from `new_reports` table failed"
 	databaseCleanupOldReportsOperationFailedMessage         = "Cleanup records from `reported` table failed"
 	rowsDeletedMessage                                      = "Rows deleted"
+	brokerAddress                                           = "Broker address"
 )
 
 // Configuration-related constants
@@ -96,7 +97,7 @@ func showAuthors() {
 func showConfiguration(config ConfigStruct) {
 	brokerConfig := GetBrokerConfiguration(config)
 	log.Info().
-		Str("Address", brokerConfig.Address).
+		Str(brokerAddress, brokerConfig.Address).
 		Str("Topic", brokerConfig.Topic).
 		Str("Group", brokerConfig.Group).
 		Bool("Enabled", brokerConfig.Enabled).
@@ -132,7 +133,7 @@ func tryToConnectToKafka(config ConfigStruct) (int, error) {
 	// prepare broker configuration
 	brokerConfiguration := GetBrokerConfiguration(config)
 
-	log.Info().Str("broker address", brokerConfiguration.Address).Msg("Broker address")
+	log.Info().Str("broker address", brokerConfiguration.Address).Msg(brokerAddress)
 
 	// create new broker instance (w/o any checks)
 	broker := sarama.NewBroker(brokerConfiguration.Address)
