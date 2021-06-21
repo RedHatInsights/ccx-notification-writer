@@ -92,6 +92,39 @@ func showAuthors() {
 	fmt.Println(authorsMessage)
 }
 
+// showConfiguration function displays actual configuration.
+func showConfiguration(config ConfigStruct) {
+	brokerConfig := GetBrokerConfiguration(config)
+	log.Info().
+		Str("Address", brokerConfig.Address).
+		Str("Topic", brokerConfig.Topic).
+		Str("Group", brokerConfig.Group).
+		Bool("Enabled", brokerConfig.Enabled).
+		Msg("Broker configuration")
+
+	storageConfig := GetStorageConfiguration(config)
+	log.Info().
+		Str("Driver", storageConfig.Driver).
+		Str("DB Name", storageConfig.PGDBName).
+		Str("Username", storageConfig.PGUsername). // password is omitted on purpose
+		Str("Host", storageConfig.PGHost).
+		Int("Port", storageConfig.PGPort).
+		Bool("LogSQLQueries", storageConfig.LogSQLQueries).
+		Msg("Storage configuration")
+
+	loggingConfig := GetLoggingConfiguration(config)
+	log.Info().
+		Str("Level", loggingConfig.LogLevel).
+		Bool("Pretty colored debug logging", loggingConfig.Debug).
+		Msg("Logging configuration")
+
+	metricsConfig := GetMetricsConfiguration(config)
+	log.Info().
+		Str("Namespace", metricsConfig.Namespace).
+		Str("Address", metricsConfig.Address).
+		Msg("Metrics configuration")
+}
+
 // tryToConnectToKafka function just tries connection to Kafka broker
 func tryToConnectToKafka(config ConfigStruct) (int, error) {
 	log.Info().Msg("Checking connection to Kafka")
@@ -347,6 +380,9 @@ func doSelectedOperation(configuration ConfigStruct, cliFlags CliFlags) (int, er
 		return ExitStatusOK, nil
 	case cliFlags.ShowAuthors:
 		showAuthors()
+		return ExitStatusOK, nil
+	case cliFlags.ShowConfiguration:
+		showConfiguration(configuration)
 		return ExitStatusOK, nil
 	case cliFlags.CheckConnectionToKafka:
 		return tryToConnectToKafka(configuration)
