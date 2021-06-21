@@ -307,8 +307,8 @@ if err != nil {
 	<div class="ident">Storage</div>                              <div class="ident">Storage</div><div class="operator"></div>
 	<div class="ident">numberOfSuccessfullyConsumedMessages</div> <div class="ident">uint64</div><div class="operator"></div>
 	<div class="ident">numberOfErrorsConsumingMessages</div>      <div class="ident">uint64</div><div class="operator"></div>
-	<div class="ident">ready</div>                                <div class="keyword">chan</div> <div class="ident">bool</div><div class="operator"></div>
-	<div class="ident">cancel</div>                               <div class="ident">context</div><div class="operator">.</div><div class="ident">CancelFunc</div><div class="operator"></div>
+	<div class="ident">Ready</div>                                <div class="keyword">chan</div> <div class="ident">bool</div><div class="operator"></div>
+	<div class="ident">Cancel</div>                               <div class="ident">context</div><div class="operator">.</div><div class="ident">CancelFunc</div><div class="operator"></div>
 <div class="operator">}</div><div class="operator"></div>
 
 </code></pre></td>
@@ -366,7 +366,7 @@ useful for testing</p>
 		<div class="ident">Storage</div><div class="operator">:</div>                              <div class="ident">storage</div><div class="operator">,</div>
 		<div class="ident">numberOfSuccessfullyConsumedMessages</div><div class="operator">:</div> <div class="literal">0</div><div class="operator">,</div>
 		<div class="ident">numberOfErrorsConsumingMessages</div><div class="operator">:</div>      <div class="literal">0</div><div class="operator">,</div>
-		<div class="ident">ready</div><div class="operator">:</div>                                <div class="ident">make</div><div class="operator">(</div><div class="keyword">chan</div> <div class="ident">bool</div><div class="operator">)</div><div class="operator">,</div>
+		<div class="ident">Ready</div><div class="operator">:</div>                                <div class="ident">make</div><div class="operator">(</div><div class="keyword">chan</div> <div class="ident">bool</div><div class="operator">)</div><div class="operator">,</div>
 	<div class="operator">}</div><div class="operator"></div>
 
 	<div class="keyword">return</div> <div class="ident">consumer</div><div class="operator">,</div> <div class="ident">nil</div><div class="operator"></div>
@@ -380,7 +380,7 @@ useful for testing</p>
 </td>
 	<td class="code"><pre><code><div class="keyword">func</div> <div class="operator">(</div><div class="ident">consumer</div> <div class="operator">*</div><div class="ident">KafkaConsumer</div><div class="operator">)</div> <div class="ident">Serve</div><div class="operator">(</div><div class="operator">)</div> <div class="operator">{</div>
 	<div class="ident">ctx</div><div class="operator">,</div> <div class="ident">cancel</div> <div class="operator">:=</div> <div class="ident">context</div><div class="operator">.</div><div class="ident">WithCancel</div><div class="operator">(</div><div class="ident">context</div><div class="operator">.</div><div class="ident">Background</div><div class="operator">(</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
-	<div class="ident">consumer</div><div class="operator">.</div><div class="ident">cancel</div> <div class="operator">=</div> <div class="ident">cancel</div><div class="operator"></div>
+	<div class="ident">consumer</div><div class="operator">.</div><div class="ident">Cancel</div> <div class="operator">=</div> <div class="ident">cancel</div><div class="operator"></div>
 
 	<div class="keyword">go</div> <div class="keyword">func</div><div class="operator">(</div><div class="operator">)</div> <div class="operator">{</div>
 		<div class="keyword">for</div> <div class="operator">{</div>
@@ -409,7 +409,7 @@ recreated to get the new claims</p>
 
 			<div class="ident">log</div><div class="operator">.</div><div class="ident">Info</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;Created new kafka session&#34;</div><div class="operator">)</div><div class="operator"></div>
 
-			<div class="ident">consumer</div><div class="operator">.</div><div class="ident">ready</div> <div class="operator">=</div> <div class="ident">make</div><div class="operator">(</div><div class="keyword">chan</div> <div class="ident">bool</div><div class="operator">)</div><div class="operator"></div>
+			<div class="ident">consumer</div><div class="operator">.</div><div class="ident">Ready</div> <div class="operator">=</div> <div class="ident">make</div><div class="operator">(</div><div class="keyword">chan</div> <div class="ident">bool</div><div class="operator">)</div><div class="operator"></div>
 		<div class="operator">}</div><div class="operator"></div>
 	<div class="operator">}</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
 
@@ -420,7 +420,7 @@ recreated to get the new claims</p>
 	<td class="doc"><p>Await till the consumer has been set up</p>
 </td>
 	<td class="code"><pre><code>	<div class="ident">log</div><div class="operator">.</div><div class="ident">Info</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;Waiting for consumer to become ready&#34;</div><div class="operator">)</div><div class="operator"></div>
-	<div class="operator">&lt;-</div><div class="ident">consumer</div><div class="operator">.</div><div class="ident">ready</div><div class="operator"></div>
+	<div class="operator">&lt;-</div><div class="ident">consumer</div><div class="operator">.</div><div class="ident">Ready</div><div class="operator"></div>
 	<div class="ident">log</div><div class="operator">.</div><div class="ident">Info</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;Finished waiting for consumer to become ready&#34;</div><div class="operator">)</div><div class="operator"></div>
 
 </code></pre></td>
@@ -450,7 +450,7 @@ recreated to get the new claims</p>
       <tr class="section">
 	<td class="doc"><p>Mark the consumer as ready</p>
 </td>
-	<td class="code"><pre><code>	<div class="ident">close</div><div class="operator">(</div><div class="ident">consumer</div><div class="operator">.</div><div class="ident">ready</div><div class="operator">)</div><div class="operator"></div>
+	<td class="code"><pre><code>	<div class="ident">close</div><div class="operator">(</div><div class="ident">consumer</div><div class="operator">.</div><div class="ident">Ready</div><div class="operator">)</div><div class="operator"></div>
 	<div class="keyword">return</div> <div class="ident">nil</div><div class="operator"></div>
 <div class="operator">}</div><div class="operator"></div>
 
@@ -513,8 +513,8 @@ recreated to get the new claims</p>
 	<td class="doc"><p>Close method closes all resources used by consumer</p>
 </td>
 	<td class="code"><pre><code><div class="keyword">func</div> <div class="operator">(</div><div class="ident">consumer</div> <div class="operator">*</div><div class="ident">KafkaConsumer</div><div class="operator">)</div> <div class="ident">Close</div><div class="operator">(</div><div class="operator">)</div> <div class="ident">error</div> <div class="operator">{</div>
-	<div class="keyword">if</div> <div class="ident">consumer</div><div class="operator">.</div><div class="ident">cancel</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
-		<div class="ident">consumer</div><div class="operator">.</div><div class="ident">cancel</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+	<div class="keyword">if</div> <div class="ident">consumer</div><div class="operator">.</div><div class="ident">Cancel</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
+		<div class="ident">consumer</div><div class="operator">.</div><div class="ident">Cancel</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
 	<div class="operator">}</div><div class="operator"></div>
 
 	<div class="keyword">if</div> <div class="ident">consumer</div><div class="operator">.</div><div class="ident">ConsumerGroup</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
@@ -557,6 +557,11 @@ since creating KafkaConsumer obj</p>
 	<td class="doc"><p>HandleMessage handles the message and does all logging, metrics, etc</p>
 </td>
 	<td class="code"><pre><code><div class="keyword">func</div> <div class="operator">(</div><div class="ident">consumer</div> <div class="operator">*</div><div class="ident">KafkaConsumer</div><div class="operator">)</div> <div class="ident">HandleMessage</div><div class="operator">(</div><div class="ident">msg</div> <div class="operator">*</div><div class="ident">sarama</div><div class="operator">.</div><div class="ident">ConsumerMessage</div><div class="operator">)</div> <div class="operator">{</div>
+	<div class="keyword">if</div> <div class="ident">msg</div> <div class="operator">==</div> <div class="ident">nil</div> <div class="operator">{</div>
+		<div class="ident">log</div><div class="operator">.</div><div class="ident">Error</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;nil message&#34;</div><div class="operator">)</div><div class="operator"></div>
+		<div class="keyword">return</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+
 	<div class="ident">log</div><div class="operator">.</div><div class="ident">Info</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div>
 		<div class="ident">Int64</div><div class="operator">(</div><div class="ident">offsetKey</div><div class="operator">,</div> <div class="ident">msg</div><div class="operator">.</div><div class="ident">Offset</div><div class="operator">)</div><div class="operator">.</div>
 		<div class="ident">Int32</div><div class="operator">(</div><div class="ident">partitionKey</div><div class="operator">,</div> <div class="ident">msg</div><div class="operator">.</div><div class="ident">Partition</div><div class="operator">)</div><div class="operator">.</div>

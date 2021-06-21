@@ -136,6 +136,7 @@ limitations under the License.
 <div class="keyword">package</div> <div class="ident">main_test</div><div class="operator"></div>
 
 <div class="keyword">import</div> <div class="operator">(</div>
+	<div class="literal">&#34;context&#34;</div><div class="operator"></div>
 	<div class="literal">&#34;fmt&#34;</div><div class="operator"></div>
 	<div class="literal">&#34;testing&#34;</div><div class="operator"></div>
 	<div class="literal">&#34;time&#34;</div><div class="operator"></div>
@@ -814,6 +815,7 @@ KafkaConsumer.</p>
 	<div class="keyword">return</div> <div class="operator">&amp;</div><div class="ident">main</div><div class="operator">.</div><div class="ident">KafkaConsumer</div><div class="operator">{</div>
 		<div class="ident">Configuration</div><div class="operator">:</div> <div class="ident">brokerCfg</div><div class="operator">,</div>
 		<div class="ident">Storage</div><div class="operator">:</div>       <div class="ident">s</div><div class="operator">,</div>
+		<div class="ident">Ready</div><div class="operator">:</div>         <div class="ident">make</div><div class="operator">(</div><div class="keyword">chan</div> <div class="ident">bool</div><div class="operator">)</div><div class="operator">,</div>
 	<div class="operator">}</div><div class="operator"></div>
 <div class="operator">}</div><div class="operator"></div>
 
@@ -840,6 +842,15 @@ empty message on input.</p>
 	<td class="doc"><p>construct dummy consumer</p>
 </td>
 	<td class="code"><pre><code>	<div class="ident">dummyConsumer</div> <div class="operator">:=</div> <div class="ident">NewDummyConsumer</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">mockStorage</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>counter checks</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">uint64</div><div class="operator">(</div><div class="literal">0</div><div class="operator">)</div><div class="operator">,</div> <div class="ident">dummyConsumer</div><div class="operator">.</div><div class="ident">GetNumberOfSuccessfullyConsumedMessages</div><div class="operator">(</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">uint64</div><div class="operator">(</div><div class="literal">0</div><div class="operator">)</div><div class="operator">,</div> <div class="ident">dummyConsumer</div><div class="operator">.</div><div class="ident">GetNumberOfErrorsConsumingMessages</div><div class="operator">(</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
 
 </code></pre></td>
       </tr>
@@ -872,6 +883,15 @@ empty message on input.</p>
 	<td class="doc"><p>nothing should be written into storage</p>
 </td>
 	<td class="code"><pre><code>	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="literal">0</div><div class="operator">,</div> <div class="ident">mockStorage</div><div class="operator">.</div><div class="ident">writeReportCalled</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>counter checks</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">uint64</div><div class="operator">(</div><div class="literal">0</div><div class="operator">)</div><div class="operator">,</div> <div class="ident">dummyConsumer</div><div class="operator">.</div><div class="ident">GetNumberOfSuccessfullyConsumedMessages</div><div class="operator">(</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">uint64</div><div class="operator">(</div><div class="literal">0</div><div class="operator">)</div><div class="operator">,</div> <div class="ident">dummyConsumer</div><div class="operator">.</div><div class="ident">GetNumberOfErrorsConsumingMessages</div><div class="operator">(</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
 <div class="operator">}</div><div class="operator"></div>
 
 </code></pre></td>
@@ -897,6 +917,15 @@ ProcessMessage with message with wrong date.</p>
 	<td class="doc"><p>construct dummy consumer</p>
 </td>
 	<td class="code"><pre><code>	<div class="ident">dummyConsumer</div> <div class="operator">:=</div> <div class="ident">NewDummyConsumer</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">mockStorage</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>counter checks</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">uint64</div><div class="operator">(</div><div class="literal">0</div><div class="operator">)</div><div class="operator">,</div> <div class="ident">dummyConsumer</div><div class="operator">.</div><div class="ident">GetNumberOfSuccessfullyConsumedMessages</div><div class="operator">(</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">uint64</div><div class="operator">(</div><div class="literal">0</div><div class="operator">)</div><div class="operator">,</div> <div class="ident">dummyConsumer</div><div class="operator">.</div><div class="ident">GetNumberOfErrorsConsumingMessages</div><div class="operator">(</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
 
 </code></pre></td>
       </tr>
@@ -944,6 +973,15 @@ ProcessMessage with message with wrong date.</p>
 	<td class="doc"><p>nothing should be written into storage</p>
 </td>
 	<td class="code"><pre><code>	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="literal">0</div><div class="operator">,</div> <div class="ident">mockStorage</div><div class="operator">.</div><div class="ident">writeReportCalled</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>counter checks</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">uint64</div><div class="operator">(</div><div class="literal">0</div><div class="operator">)</div><div class="operator">,</div> <div class="ident">dummyConsumer</div><div class="operator">.</div><div class="ident">GetNumberOfSuccessfullyConsumedMessages</div><div class="operator">(</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">uint64</div><div class="operator">(</div><div class="literal">0</div><div class="operator">)</div><div class="operator">,</div> <div class="ident">dummyConsumer</div><div class="operator">.</div><div class="ident">GetNumberOfErrorsConsumingMessages</div><div class="operator">(</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
 <div class="operator">}</div><div class="operator"></div>
 
 </code></pre></td>
@@ -969,6 +1007,15 @@ with message with wrong date.</p>
 	<td class="doc"><p>construct dummy consumer</p>
 </td>
 	<td class="code"><pre><code>	<div class="ident">dummyConsumer</div> <div class="operator">:=</div> <div class="ident">NewDummyConsumer</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">mockStorage</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>counter checks</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">uint64</div><div class="operator">(</div><div class="literal">0</div><div class="operator">)</div><div class="operator">,</div> <div class="ident">dummyConsumer</div><div class="operator">.</div><div class="ident">GetNumberOfSuccessfullyConsumedMessages</div><div class="operator">(</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">uint64</div><div class="operator">(</div><div class="literal">0</div><div class="operator">)</div><div class="operator">,</div> <div class="ident">dummyConsumer</div><div class="operator">.</div><div class="ident">GetNumberOfErrorsConsumingMessages</div><div class="operator">(</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
 
 </code></pre></td>
       </tr>
@@ -1016,6 +1063,15 @@ with message with wrong date.</p>
 	<td class="doc"><p>nothing should be written into storage</p>
 </td>
 	<td class="code"><pre><code>	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="literal">0</div><div class="operator">,</div> <div class="ident">mockStorage</div><div class="operator">.</div><div class="ident">writeReportCalled</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>counter checks</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">uint64</div><div class="operator">(</div><div class="literal">0</div><div class="operator">)</div><div class="operator">,</div> <div class="ident">dummyConsumer</div><div class="operator">.</div><div class="ident">GetNumberOfSuccessfullyConsumedMessages</div><div class="operator">(</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">uint64</div><div class="operator">(</div><div class="literal">0</div><div class="operator">)</div><div class="operator">,</div> <div class="ident">dummyConsumer</div><div class="operator">.</div><div class="ident">GetNumberOfErrorsConsumingMessages</div><div class="operator">(</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
 <div class="operator">}</div><div class="operator"></div>
 
 </code></pre></td>
@@ -1041,6 +1097,15 @@ correct message.</p>
 	<td class="doc"><p>construct dummy consumer</p>
 </td>
 	<td class="code"><pre><code>	<div class="ident">dummyConsumer</div> <div class="operator">:=</div> <div class="ident">NewDummyConsumer</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">mockStorage</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>counter checks</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">uint64</div><div class="operator">(</div><div class="literal">0</div><div class="operator">)</div><div class="operator">,</div> <div class="ident">dummyConsumer</div><div class="operator">.</div><div class="ident">GetNumberOfSuccessfullyConsumedMessages</div><div class="operator">(</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">uint64</div><div class="operator">(</div><div class="literal">0</div><div class="operator">)</div><div class="operator">,</div> <div class="ident">dummyConsumer</div><div class="operator">.</div><div class="ident">GetNumberOfErrorsConsumingMessages</div><div class="operator">(</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
 
 </code></pre></td>
       </tr>
@@ -1088,6 +1153,342 @@ correct message.</p>
 	<td class="doc"><p>one record should be written into the storage</p>
 </td>
 	<td class="code"><pre><code>	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="literal">1</div><div class="operator">,</div> <div class="ident">mockStorage</div><div class="operator">.</div><div class="ident">writeReportCalled</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>counter checks</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">uint64</div><div class="operator">(</div><div class="literal">0</div><div class="operator">)</div><div class="operator">,</div> <div class="ident">dummyConsumer</div><div class="operator">.</div><div class="ident">GetNumberOfSuccessfullyConsumedMessages</div><div class="operator">(</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">uint64</div><div class="operator">(</div><div class="literal">0</div><div class="operator">)</div><div class="operator">,</div> <div class="ident">dummyConsumer</div><div class="operator">.</div><div class="ident">GetNumberOfErrorsConsumingMessages</div><div class="operator">(</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>TestConsumerSetup function checks the method KafkaConsumer.Cleanup().</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">TestConsumerSetup</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>construct mock storage</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">mockStorage</div> <div class="operator">:=</div> <div class="ident">NewMockStorage</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>construct dummy consumer</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">dummyConsumer</div> <div class="operator">:=</div> <div class="ident">NewDummyConsumer</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">mockStorage</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>channel that needs to be closed in Setup</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">dummyConsumer</div><div class="operator">.</div><div class="ident">Ready</div> <div class="operator">=</div> <div class="ident">make</div><div class="operator">(</div><div class="keyword">chan</div> <div class="ident">bool</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>try to setup the consumer (without consumer group)</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">err</div> <div class="operator">:=</div> <div class="ident">dummyConsumer</div><div class="operator">.</div><div class="ident">Setup</div><div class="operator">(</div><div class="ident">nil</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>and check for any error</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Nil</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>TestConsumerCleanup function checks the method KafkaConsumer.Cleanup().</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">TestConsumerCleanup</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>construct mock storage</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">mockStorage</div> <div class="operator">:=</div> <div class="ident">NewMockStorage</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>construct dummy consumer</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">dummyConsumer</div> <div class="operator">:=</div> <div class="ident">NewDummyConsumer</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">mockStorage</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>try to cleanup the consumer (without consumer group)</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">err</div> <div class="operator">:=</div> <div class="ident">dummyConsumer</div><div class="operator">.</div><div class="ident">Cleanup</div><div class="operator">(</div><div class="ident">nil</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>and check for any error</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Nil</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>TestConsumerClose function checks the method KafkaConsumer.Close().</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">TestConsumerClose</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>construct mock storage</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">mockStorage</div> <div class="operator">:=</div> <div class="ident">NewMockStorage</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>construct dummy consumer</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">dummyConsumer</div> <div class="operator">:=</div> <div class="ident">NewDummyConsumer</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">mockStorage</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>try to close the consumer (without consumer group)</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">err</div> <div class="operator">:=</div> <div class="ident">dummyConsumer</div><div class="operator">.</div><div class="ident">Close</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>and check for any error</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Nil</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>TestConsumerCloseCancel function checks the method KafkaConsumer.Close().</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">TestConsumerCloseCancel</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>construct mock storage</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">mockStorage</div> <div class="operator">:=</div> <div class="ident">NewMockStorage</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>construct dummy consumer</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">dummyConsumer</div> <div class="operator">:=</div> <div class="ident">NewDummyConsumer</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">mockStorage</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>setup cancel hook</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">_</div><div class="operator">,</div> <div class="ident">cancel</div> <div class="operator">:=</div> <div class="ident">context</div><div class="operator">.</div><div class="ident">WithCancel</div><div class="operator">(</div><div class="ident">context</div><div class="operator">.</div><div class="ident">Background</div><div class="operator">(</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">dummyConsumer</div><div class="operator">.</div><div class="ident">Cancel</div> <div class="operator">=</div> <div class="ident">cancel</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>try to close the consumer (without consumer group)</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">err</div> <div class="operator">:=</div> <div class="ident">dummyConsumer</div><div class="operator">.</div><div class="ident">Close</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>and check for any error</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Nil</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>TestHandleNilMessage function checks the method
+KafkaConsumer.HandleMessage() for nil input.</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">TestHandleNilMessage</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>construct mock storage</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">mockStorage</div> <div class="operator">:=</div> <div class="ident">NewMockStorage</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>construct dummy consumer</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">dummyConsumer</div> <div class="operator">:=</div> <div class="ident">NewDummyConsumer</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">mockStorage</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>nil message</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">dummyConsumer</div><div class="operator">.</div><div class="ident">HandleMessage</div><div class="operator">(</div><div class="ident">nil</div><div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>TestHandleEmptyMessage function checks the method
+KafkaConsumer.HandleMessage() for empty message value.</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">TestHandleEmptyMessage</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>construct mock storage</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">mockStorage</div> <div class="operator">:=</div> <div class="ident">NewMockStorage</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>construct dummy consumer</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">dummyConsumer</div> <div class="operator">:=</div> <div class="ident">NewDummyConsumer</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">mockStorage</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="ident">message</div> <div class="operator">:=</div> <div class="ident">sarama</div><div class="operator">.</div><div class="ident">ConsumerMessage</div><div class="operator">{</div><div class="operator">}</div><div class="operator"></div>
+
+	<div class="ident">message</div><div class="operator">.</div><div class="ident">Value</div> <div class="operator">=</div> <div class="operator">[</div><div class="operator">]</div><div class="ident">byte</div><div class="operator">(</div><div class="literal">&#34;&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>counter checks</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">uint64</div><div class="operator">(</div><div class="literal">0</div><div class="operator">)</div><div class="operator">,</div> <div class="ident">dummyConsumer</div><div class="operator">.</div><div class="ident">GetNumberOfSuccessfullyConsumedMessages</div><div class="operator">(</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">uint64</div><div class="operator">(</div><div class="literal">0</div><div class="operator">)</div><div class="operator">,</div> <div class="ident">dummyConsumer</div><div class="operator">.</div><div class="ident">GetNumberOfErrorsConsumingMessages</div><div class="operator">(</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>empty message</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">dummyConsumer</div><div class="operator">.</div><div class="ident">HandleMessage</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">message</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>counter checks</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">uint64</div><div class="operator">(</div><div class="literal">0</div><div class="operator">)</div><div class="operator">,</div> <div class="ident">dummyConsumer</div><div class="operator">.</div><div class="ident">GetNumberOfSuccessfullyConsumedMessages</div><div class="operator">(</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">uint64</div><div class="operator">(</div><div class="literal">1</div><div class="operator">)</div><div class="operator">,</div> <div class="ident">dummyConsumer</div><div class="operator">.</div><div class="ident">GetNumberOfErrorsConsumingMessages</div><div class="operator">(</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>TestHandleCorrectMessage function checks the method
+KafkaConsumer.HandleMessage() for correct input.</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">TestHandleCorrectMessage</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>construct mock storage</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">mockStorage</div> <div class="operator">:=</div> <div class="ident">NewMockStorage</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>construct dummy consumer</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">dummyConsumer</div> <div class="operator">:=</div> <div class="ident">NewDummyConsumer</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">mockStorage</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="ident">message</div> <div class="operator">:=</div> <div class="ident">sarama</div><div class="operator">.</div><div class="ident">ConsumerMessage</div><div class="operator">{</div><div class="operator">}</div><div class="operator"></div>
+	<div class="ident">value</div> <div class="operator">:=</div> <div class="literal">`{
+		&#34;OrgID&#34;: `</div> <div class="operator">&#43;</div> <div class="ident">fmt</div><div class="operator">.</div><div class="ident">Sprint</div><div class="operator">(</div><div class="ident">ExpectedOrgID</div><div class="operator">)</div> <div class="operator">&#43;</div> <div class="literal">`,
+		&#34;AccountNumber&#34;: `</div> <div class="operator">&#43;</div> <div class="ident">fmt</div><div class="operator">.</div><div class="ident">Sprint</div><div class="operator">(</div><div class="ident">ExpectedAccountNumber</div><div class="operator">)</div> <div class="operator">&#43;</div> <div class="literal">`,
+		&#34;ClusterName&#34;: &#34;`</div> <div class="operator">&#43;</div> <div class="ident">string</div><div class="operator">(</div><div class="ident">ExpectedClusterName</div><div class="operator">)</div> <div class="operator">&#43;</div> <div class="literal">`&#34;,
+		&#34;Report&#34;:`</div> <div class="operator">&#43;</div> <div class="ident">ConsumerReport</div> <div class="operator">&#43;</div> <div class="literal">`,
+		&#34;LastChecked&#34;: &#34;`</div> <div class="operator">&#43;</div> <div class="ident">LastCheckedAt</div><div class="operator">.</div><div class="ident">UTC</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Format</div><div class="operator">(</div><div class="ident">time</div><div class="operator">.</div><div class="ident">RFC3339</div><div class="operator">)</div> <div class="operator">&#43;</div> <div class="literal">`&#34;
+	}`</div><div class="operator"></div>
+
+	<div class="ident">message</div><div class="operator">.</div><div class="ident">Value</div> <div class="operator">=</div> <div class="operator">[</div><div class="operator">]</div><div class="ident">byte</div><div class="operator">(</div><div class="ident">value</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>counter checks</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">uint64</div><div class="operator">(</div><div class="literal">0</div><div class="operator">)</div><div class="operator">,</div> <div class="ident">dummyConsumer</div><div class="operator">.</div><div class="ident">GetNumberOfSuccessfullyConsumedMessages</div><div class="operator">(</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">uint64</div><div class="operator">(</div><div class="literal">0</div><div class="operator">)</div><div class="operator">,</div> <div class="ident">dummyConsumer</div><div class="operator">.</div><div class="ident">GetNumberOfErrorsConsumingMessages</div><div class="operator">(</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>correct message</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">dummyConsumer</div><div class="operator">.</div><div class="ident">HandleMessage</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">message</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>counter checks</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">uint64</div><div class="operator">(</div><div class="literal">1</div><div class="operator">)</div><div class="operator">,</div> <div class="ident">dummyConsumer</div><div class="operator">.</div><div class="ident">GetNumberOfSuccessfullyConsumedMessages</div><div class="operator">(</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">uint64</div><div class="operator">(</div><div class="literal">0</div><div class="operator">)</div><div class="operator">,</div> <div class="ident">dummyConsumer</div><div class="operator">.</div><div class="ident">GetNumberOfErrorsConsumingMessages</div><div class="operator">(</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
 <div class="operator">}</div><div class="operator"></div>
 
 </code></pre></td>

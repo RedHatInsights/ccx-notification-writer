@@ -184,7 +184,7 @@ https://redhatinsights.github.io/ccx-notification-writer/packages/ccx<em>notific
 	<td class="doc"><p>Messages</p>
 </td>
 	<td class="code"><pre><code><div class="keyword">const</div> <div class="operator">(</div>
-	<div class="ident">versionMessage</div>                                          <div class="operator">=</div> <div class="literal">&#34;Notification writer version 1.0&#34;</div><div class="operator"></div>
+	<div class="ident">versionMessage</div>                                          <div class="operator">=</div> <div class="literal">&#34;CCX Notification Writer version 1.0&#34;</div><div class="operator"></div>
 	<div class="ident">authorsMessage</div>                                          <div class="operator">=</div> <div class="literal">&#34;Pavel Tisnovsky, Red Hat Inc.&#34;</div><div class="operator"></div>
 	<div class="ident">connectionToBrokerMessage</div>                               <div class="operator">=</div> <div class="literal">&#34;Connection to broker&#34;</div><div class="operator"></div>
 	<div class="ident">operationFailedMessage</div>                                  <div class="operator">=</div> <div class="literal">&#34;Operation failed&#34;</div><div class="operator"></div>
@@ -279,6 +279,44 @@ https://redhatinsights.github.io/ccx-notification-writer/packages/ccx<em>notific
 </td>
 	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">showAuthors</div><div class="operator">(</div><div class="operator">)</div> <div class="operator">{</div>
 	<div class="ident">fmt</div><div class="operator">.</div><div class="ident">Println</div><div class="operator">(</div><div class="ident">authorsMessage</div><div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>showConfiguration function displays actual configuration.</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">showConfiguration</div><div class="operator">(</div><div class="ident">config</div> <div class="ident">ConfigStruct</div><div class="operator">)</div> <div class="operator">{</div>
+	<div class="ident">brokerConfig</div> <div class="operator">:=</div> <div class="ident">GetBrokerConfiguration</div><div class="operator">(</div><div class="ident">config</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">log</div><div class="operator">.</div><div class="ident">Info</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div>
+		<div class="ident">Str</div><div class="operator">(</div><div class="literal">&#34;Address&#34;</div><div class="operator">,</div> <div class="ident">brokerConfig</div><div class="operator">.</div><div class="ident">Address</div><div class="operator">)</div><div class="operator">.</div>
+		<div class="ident">Str</div><div class="operator">(</div><div class="literal">&#34;Topic&#34;</div><div class="operator">,</div> <div class="ident">brokerConfig</div><div class="operator">.</div><div class="ident">Topic</div><div class="operator">)</div><div class="operator">.</div>
+		<div class="ident">Str</div><div class="operator">(</div><div class="literal">&#34;Group&#34;</div><div class="operator">,</div> <div class="ident">brokerConfig</div><div class="operator">.</div><div class="ident">Group</div><div class="operator">)</div><div class="operator">.</div>
+		<div class="ident">Bool</div><div class="operator">(</div><div class="literal">&#34;Enabled&#34;</div><div class="operator">,</div> <div class="ident">brokerConfig</div><div class="operator">.</div><div class="ident">Enabled</div><div class="operator">)</div><div class="operator">.</div>
+		<div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;Broker configuration&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="ident">storageConfig</div> <div class="operator">:=</div> <div class="ident">GetStorageConfiguration</div><div class="operator">(</div><div class="ident">config</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">log</div><div class="operator">.</div><div class="ident">Info</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div>
+		<div class="ident">Str</div><div class="operator">(</div><div class="literal">&#34;Driver&#34;</div><div class="operator">,</div> <div class="ident">storageConfig</div><div class="operator">.</div><div class="ident">Driver</div><div class="operator">)</div><div class="operator">.</div>
+		<div class="ident">Str</div><div class="operator">(</div><div class="literal">&#34;DB Name&#34;</div><div class="operator">,</div> <div class="ident">storageConfig</div><div class="operator">.</div><div class="ident">PGDBName</div><div class="operator">)</div><div class="operator">.</div>
+		<div class="ident">Str</div><div class="operator">(</div><div class="literal">&#34;Username&#34;</div><div class="operator">,</div> <div class="ident">storageConfig</div><div class="operator">.</div><div class="ident">PGUsername</div><div class="operator">)</div><div class="operator">.</div> <div class="comment">// password is omitted on purpose</div>
+		<div class="ident">Str</div><div class="operator">(</div><div class="literal">&#34;Host&#34;</div><div class="operator">,</div> <div class="ident">storageConfig</div><div class="operator">.</div><div class="ident">PGHost</div><div class="operator">)</div><div class="operator">.</div>
+		<div class="ident">Int</div><div class="operator">(</div><div class="literal">&#34;Port&#34;</div><div class="operator">,</div> <div class="ident">storageConfig</div><div class="operator">.</div><div class="ident">PGPort</div><div class="operator">)</div><div class="operator">.</div>
+		<div class="ident">Bool</div><div class="operator">(</div><div class="literal">&#34;LogSQLQueries&#34;</div><div class="operator">,</div> <div class="ident">storageConfig</div><div class="operator">.</div><div class="ident">LogSQLQueries</div><div class="operator">)</div><div class="operator">.</div>
+		<div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;Storage configuration&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="ident">loggingConfig</div> <div class="operator">:=</div> <div class="ident">GetLoggingConfiguration</div><div class="operator">(</div><div class="ident">config</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">log</div><div class="operator">.</div><div class="ident">Info</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div>
+		<div class="ident">Str</div><div class="operator">(</div><div class="literal">&#34;Level&#34;</div><div class="operator">,</div> <div class="ident">loggingConfig</div><div class="operator">.</div><div class="ident">LogLevel</div><div class="operator">)</div><div class="operator">.</div>
+		<div class="ident">Bool</div><div class="operator">(</div><div class="literal">&#34;Pretty colored debug logging&#34;</div><div class="operator">,</div> <div class="ident">loggingConfig</div><div class="operator">.</div><div class="ident">Debug</div><div class="operator">)</div><div class="operator">.</div>
+		<div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;Logging configuration&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="ident">metricsConfig</div> <div class="operator">:=</div> <div class="ident">GetMetricsConfiguration</div><div class="operator">(</div><div class="ident">config</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">log</div><div class="operator">.</div><div class="ident">Info</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div>
+		<div class="ident">Str</div><div class="operator">(</div><div class="literal">&#34;Namespace&#34;</div><div class="operator">,</div> <div class="ident">metricsConfig</div><div class="operator">.</div><div class="ident">Namespace</div><div class="operator">)</div><div class="operator">.</div>
+		<div class="ident">Str</div><div class="operator">(</div><div class="literal">&#34;Address&#34;</div><div class="operator">,</div> <div class="ident">metricsConfig</div><div class="operator">.</div><div class="ident">Address</div><div class="operator">)</div><div class="operator">.</div>
+		<div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;Metrics configuration&#34;</div><div class="operator">)</div><div class="operator"></div>
 <div class="operator">}</div><div class="operator"></div>
 
 </code></pre></td>
@@ -691,6 +729,9 @@ instead.</p>
 		<div class="keyword">return</div> <div class="ident">ExitStatusOK</div><div class="operator">,</div> <div class="ident">nil</div><div class="operator"></div>
 	<div class="keyword">case</div> <div class="ident">cliFlags</div><div class="operator">.</div><div class="ident">ShowAuthors</div><div class="operator">:</div>
 		<div class="ident">showAuthors</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+		<div class="keyword">return</div> <div class="ident">ExitStatusOK</div><div class="operator">,</div> <div class="ident">nil</div><div class="operator"></div>
+	<div class="keyword">case</div> <div class="ident">cliFlags</div><div class="operator">.</div><div class="ident">ShowConfiguration</div><div class="operator">:</div>
+		<div class="ident">showConfiguration</div><div class="operator">(</div><div class="ident">configuration</div><div class="operator">)</div><div class="operator"></div>
 		<div class="keyword">return</div> <div class="ident">ExitStatusOK</div><div class="operator">,</div> <div class="ident">nil</div><div class="operator"></div>
 	<div class="keyword">case</div> <div class="ident">cliFlags</div><div class="operator">.</div><div class="ident">CheckConnectionToKafka</div><div class="operator">:</div>
 		<div class="keyword">return</div> <div class="ident">tryToConnectToKafka</div><div class="operator">(</div><div class="ident">configuration</div><div class="operator">)</div><div class="operator"></div>
