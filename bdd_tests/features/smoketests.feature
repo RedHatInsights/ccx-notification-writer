@@ -13,6 +13,12 @@ Feature: Basic set of smoke tests - checks if all required tools are available a
      Then I should find that file on PATH
 
 
+  Scenario: Check if jps utility is available
+    Given the system is in default state
+     When I look for executable file jps
+     Then I should find that file on PATH
+
+
   Scenario: Check if Postgres database is available
     Given Postgres is running
      When I connect to database named postgres as user postgres with password postgres
