@@ -1,1 +1,3 @@
 features/smoketests.feature
+features/cli_flags.feature
+features/display_old_records.feature

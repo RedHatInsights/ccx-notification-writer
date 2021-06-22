@@ -45,6 +45,7 @@ def process_ccx_notification_writer_output(context, out, return_code):
     context.output = output
     context.stdout = stdout
     context.stderr = stderr
+    context.returncode = out.returncode
 
 
 @when(u"I start the CCX Notification Writer with the {flag} command line flag")
@@ -124,3 +125,40 @@ def check_authors_info_from_ccx_notification_writer(context):
     # check the output
     assert "Pavel Tisnovsky, Red Hat Inc." in context.output, \
         "Caught output: {}".format(context.output)
+
+
+@then(u"the process should exit with status code set to {expected_code:d}")
+def check_status_code(context, expected_code):
+    """Check the status code of the last started process."""
+    # check the return code of a process
+    assert context.returncode == expected_code, \
+        "Return code is {}, but {} is expected".format(context.returncode, expected_code)
+
+
+@given(u"CCX Notification Writer database is empty")
+def notification_writer_db_empty(context):
+    """Ensure that the CCX Notification Writer database is empty, but with all tables."""
+    # first step - drop all tables, together with theirs content
+    out = subprocess.Popen(["ccx-notification-writer", "--db-drop-tables"],
+                           stdout=subprocess.PIPE,
+                           stderr=subprocess.STDOUT)
+
+    # check the Popen state
+    assert out is not None
+
+    out.communicate()
+
+    # wait to finish the process - needed there (transactions)
+    out.wait()
+
+    # second step - create tables, create indexes, fill in table of keys
+    out = subprocess.Popen(["ccx-notification-writer", "--db-init"],
+                           stdout=subprocess.PIPE,
+                           stderr=subprocess.STDOUT)
+
+    # check the Popen state
+    assert out is not None
+    out.communicate()
+
+    # wait to finish the process - needed there (transactions)
+    out.wait()
