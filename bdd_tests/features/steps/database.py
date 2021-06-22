@@ -74,6 +74,30 @@ def database_contains_all_tables(context):
     raise NotImplementedError(u'STEP: Given CXX Notification Writer database contains all tables')
 
 
+@given(u"CCX Notification Writer database is not set up")
+def ensure_database_emptiness(context):
+    """Check that the tables do not exist in the DB."""
+    # at least following tables should not exists
+    tables = ("report",
+              "cluster_rule_toggle",
+              "cluster_rule_user_feedback",
+              "cluster_user_rule_disable_feedback",
+              "rule_hit")
+
+    cursor = context.connection.cursor()
+    for table in tables:
+        try:
+            cursor.execute("SELECT 1 from {}".format(table))
+            v = cursor.fetchone()
+            context.connection.commit()
+            raise Exception("Table '{}' exists".format(table))
+        except UndefinedTable as e:
+            # exception means that the table does not exists
+            # which is expected behaviour
+            context.connection.rollback()
+            pass
+
+
 @when(u"I select all rows from table {table}")
 def select_all_rows_from_table(context, table):
     """Select number of all rows from given table."""
