@@ -52,7 +52,7 @@ def retrieve_broker_metadata(context, hostname, port):
     context.broker_metadata = encoded
 
 
-@then(u"I should found at least one available broker")
+@then(u"I should find at least one available broker")
 def find_available_brokers(context):
     """Find available brokers returned from Kafka metadata."""
     assert "brokers" in context.broker_metadata, "'brokers' attribute expected"
