@@ -63,6 +63,7 @@ def check_disconnection(context):
 
 
 @given(u"CCX Notification Writer database is created for user {user} with password {password}")
+@when(u"CCX Notification Writer database is created for user {user} with password {password}")
 def database_is_created(context, user, password):
     """Perform connection to CCX Notification Writer database to check its ability."""
     connect_to_database(context, "notification", user, password)
@@ -111,8 +112,10 @@ def select_all_rows_from_table(context, table):
         raise e
 
 
+@then(u"I should get {expected_count:d} row")
 @then(u"I should get {expected_count:d} rows")
 def check_rows_count(context, expected_count):
     """Check if expected number of rows were returned."""
     assert context.query_count == expected_count, \
-        "Wrong number of rows returned: {} instead of {}".format(context.query_count, expected_count)
+        "Wrong number of rows returned: {} instead of {}".format(
+                context.query_count, expected_count)
