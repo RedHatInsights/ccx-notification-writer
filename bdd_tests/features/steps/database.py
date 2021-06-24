@@ -119,3 +119,78 @@ def check_rows_count(context, expected_count):
     assert context.query_count == expected_count, \
         "Wrong number of rows returned: {} instead of {}".format(
                 context.query_count, expected_count)
+
+
+@given(u"I insert following row into table new_reports")
+@given(u"I insert following rows into table new_reports")
+def insert_rows_into_new_reports_table(context):
+    """Insert rows into table new_reports."""
+    cursor = context.connection.cursor()
+
+    try:
+        # retrieve table data from feature file
+        for row in context.table:
+            org_id = int(row["org id"])
+            account_number = int(row["account number"])
+            cluster_name = row["cluster name"]
+            updated_at = row["updated at"]
+            kafka_offset = int(row["kafka offset"])
+
+            # check the input table
+            assert org_id is not None, "Organization ID should be set"
+            assert account_number is not None, "Account number should be set"
+            assert cluster_name is not None, "Cluster name should be set"
+            assert updated_at is not None, "Timestamp updated_at should be set"
+            assert kafka_offset is not None, "Kafka offset should be set"
+
+            # try to perform insert statement
+            insertStatement = """INSERT INTO new_reports
+                                 (org_id, account_number, cluster, report, updated_at, kafka_offset)
+                                 VALUES(%s, %s, %s, '', %s, %s);"""
+            cursor.execute(insertStatement, (
+                org_id, account_number, cluster_name, updated_at, kafka_offset))
+
+        context.connection.commit()
+    except Exception as e:
+        context.connection.rollback()
+        raise e
+
+
+@given(u"I insert following row into table reported")
+@given(u"I insert following rows into table reported")
+def insert_rows_into_reported_table(context):
+    """Insert rows into table reported."""
+    cursor = context.connection.cursor()
+
+    try:
+        # retrieve table data from feature file
+        for row in context.table:
+            org_id = int(row["org id"])
+            account_number = int(row["account number"])
+            cluster_name = row["cluster name"]
+            notification_type = int(row["notification type"])
+            state = int(row["state"])
+            updated_at = row["updated at"]
+            notified_at = row["notified at"]
+            error_log = row["error log"]
+
+            # check the input table
+            assert org_id is not None, "Organization ID should be set"
+            assert account_number is not None, "Account number should be set"
+            assert cluster_name is not None, "Cluster name should be set"
+            assert updated_at is not None, "Timestamp updated_at should be set"
+            assert notified_at is not None, "Timestamp notified_at should be set"
+            assert error_log is not None, "Kafka offset should be set"
+
+            # try to perform insert statement
+            insertStatement = """INSERT INTO reported
+                                 (org_id, account_number, cluster, notification_type, state, report, updated_at, notified_at, error_log)
+                                 VALUES(%s, %s, %s, %s, %s, '', %s, %s, %s);"""
+            cursor.execute(insertStatement, (
+                org_id, account_number, cluster_name,
+                notification_type, state, updated_at, notified_at, error_log))
+
+        context.connection.commit()
+    except Exception as e:
+        context.connection.rollback()
+        raise e
