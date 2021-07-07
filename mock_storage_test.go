@@ -25,33 +25,35 @@ import (
 // MockStorage structure represents a mocked implementation of Storage
 // interface to be used by tested consumer
 type MockStorage struct {
-	databaseInitializationCalled    int
-	databaseCleanupCalled           int
-	databaseDropTablesCalled        int
-	databaseDropIndexesCalled       int
-	getLatestKafkaOffsetCalled      int
-	printNewReportsForCleanupCalled int
-	cleanupNewReportsCalled         int
-	printOldReportsForCleanupCalled int
-	cleanupOldReportsCalled         int
-	closeCalled                     int
-	writeReportCalled               int
+	databaseInitializationMigrationCalled int
+	databaseInitializationCalled          int
+	databaseCleanupCalled                 int
+	databaseDropTablesCalled              int
+	databaseDropIndexesCalled             int
+	getLatestKafkaOffsetCalled            int
+	printNewReportsForCleanupCalled       int
+	cleanupNewReportsCalled               int
+	printOldReportsForCleanupCalled       int
+	cleanupOldReportsCalled               int
+	closeCalled                           int
+	writeReportCalled                     int
 }
 
 // NewMockStorage constructs new mock storage instance
 func NewMockStorage() MockStorage {
 	return MockStorage{
-		databaseInitializationCalled:    0,
-		databaseCleanupCalled:           0,
-		databaseDropTablesCalled:        0,
-		databaseDropIndexesCalled:       0,
-		getLatestKafkaOffsetCalled:      0,
-		printNewReportsForCleanupCalled: 0,
-		cleanupNewReportsCalled:         0,
-		printOldReportsForCleanupCalled: 0,
-		cleanupOldReportsCalled:         0,
-		closeCalled:                     0,
-		writeReportCalled:               0,
+		databaseInitializationMigrationCalled: 0,
+		databaseInitializationCalled:          0,
+		databaseCleanupCalled:                 0,
+		databaseDropTablesCalled:              0,
+		databaseDropIndexesCalled:             0,
+		getLatestKafkaOffsetCalled:            0,
+		printNewReportsForCleanupCalled:       0,
+		cleanupNewReportsCalled:               0,
+		printOldReportsForCleanupCalled:       0,
+		cleanupOldReportsCalled:               0,
+		closeCalled:                           0,
+		writeReportCalled:                     0,
 	}
 }
 
@@ -72,6 +74,13 @@ func (storage *MockStorage) WriteReportForCluster(orgID main.OrgID, accountNumbe
 // DatabaseInitialization method.
 func (storage *MockStorage) DatabaseInitialization() error {
 	storage.databaseInitializationCalled++
+	return nil
+}
+
+// DatabaseInitMigration is a mocked reimplementation of the real
+// DatabaseInitMigration method.
+func (storage *MockStorage) DatabaseInitMigration() error {
+	storage.databaseInitializationMigrationCalled++
 	return nil
 }
 
