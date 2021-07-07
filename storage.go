@@ -174,8 +174,11 @@ const (
 		       ON notification_types USING btree (id ASC);
 `
 
+	// Get 0 if DB version is not inserted, 1 instead
+	isDatabaseVersionExist = `SELECT count(*) FROM migration_info;`
+
 	// Retrieve DB version
-	getDatabaseVersion = `SELECT version from migration_info LIMIT 1;`
+	getDatabaseVersion = `SELECT version FROM migration_info LIMIT 1;`
 
 	// Display older records from new_reports table
 	displayOldRecordsFromNewReportsTable = `
@@ -582,11 +585,21 @@ func (storage DBStorage) DatabaseDropIndexes() error {
 // getDatabaseVersionInfo method tries to retrieve database version from
 // migration table.
 func (storage DBStorage) getDatabaseVersionInfo() (int, error) {
-	versionResult := storage.connection.QueryRow(getDatabaseVersion)
+	// check if version info is stored in the database
+	var count int
+	err := storage.connection.QueryRow(isDatabaseVersionExist).Scan(&count)
+	if err != nil {
+		return -1, err
+	}
+
+	// table exists, but does not containg DB version
+	if count == 0 {
+		return -1, nil
+	}
 
 	// process version info
 	var version int
-	err := versionResult.Scan(&version)
+	err = storage.connection.QueryRow(getDatabaseVersion).Scan(&version)
 	if err != nil {
 		return -1, err
 	}
@@ -645,6 +658,19 @@ func (storage DBStorage) DatabaseInitialization() error {
 	}
 
 	err = func(tx *sql.Tx) error {
+		// try to retrieve database version info
+		version, err := storage.getDatabaseVersionInfo()
+		if err != nil {
+			log.Error().Err(err).Msg("DB version can not be retrieved")
+			log.Error().Msg("Try to run CCX Notification service with --db-init-migration")
+			return err
+		}
+
+		// skip rest of DB initialization, if already initialized
+		if version == DatabaseVersion {
+			log.Info().Msg("Database is already initialized")
+			return nil
+		}
 
 		// databaze initialization
 		for _, sqlStatement := range initStatements {
