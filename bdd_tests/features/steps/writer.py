@@ -74,6 +74,8 @@ Usage of ccx-notification-writer:
         drop all tables from database
   -db-init
         perform database initialization
+  -db-init-migration
+        initialize migration
   -max-age string
         max age for displaying/cleaning old records
   -new-reports-cleanup
