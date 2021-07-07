@@ -48,6 +48,14 @@ import (
 
 // Table creation-related scripts, queries, index creation etc.
 const (
+	// This table contains information about DB schema version and about
+	// migration status.
+	createTableMigrationInfo = `
+                CREATE TABLE IF NOT EXISTS migration_info (
+                    version     integer not null
+                );
+`
+
 	// This table contains list of all notification types used by
 	// Notification service. Frequency can be specified as in `crontab` -
 	// https://crontab.guru/
@@ -166,6 +174,12 @@ const (
 		       ON notification_types USING btree (id ASC);
 `
 
+	// Get 0 if DB version is not inserted, 1 instead
+	isDatabaseVersionExist = `SELECT count(*) FROM migration_info;`
+
+	// Retrieve DB version
+	getDatabaseVersion = `SELECT version FROM migration_info LIMIT 1;`
+
 	// Display older records from new_reports table
 	displayOldRecordsFromNewReportsTable = `
                 SELECT org_id, account_number, cluster, updated_at, kafka_offset
@@ -194,6 +208,11 @@ const (
                 DELETE
 		  FROM reported
 		 WHERE updated_at < NOW() - $1::INTERVAL
+`
+	// Value to be stored in migration_info table
+	insertMigrationVersion = `
+                INSERT INTO migration_info (version)
+		            VALUES (1);
 `
 	// Value to be stored in notification_types table
 	insertInstantReport = `
@@ -248,6 +267,12 @@ const (
 	UnableToCloseDBRowsHandle = "Unable to close the DB rows handle"
 	AgeMessage                = "Age"
 	MaxAgeAttribute           = "max age"
+	VersionMessage            = "Retrieve database version"
+)
+
+// Other constants
+const (
+	DatabaseVersion = 1
 )
 
 // Storage represents an interface to almost any database or storage system
@@ -265,6 +290,7 @@ type Storage interface {
 	DatabaseCleanup() error
 	DatabaseDropTables() error
 	DatabaseDropIndexes() error
+	DatabaseInitMigration() error
 	GetLatestKafkaOffset() (KafkaOffset, error)
 	PrintNewReportsForCleanup(maxAge string) error
 	CleanupNewReports(maxAge string) (int, error)
@@ -318,6 +344,7 @@ func NewStorage(configuration StorageConfiguration) (*DBStorage, error) {
 
 	// lazy initialization (TODO: use init function instead?)
 	tableNames = []string{
+		"migration_info",
 		"new_reports",
 		"reported",
 		"notification_types",
@@ -348,6 +375,7 @@ func NewStorage(configuration StorageConfiguration) (*DBStorage, error) {
 		createIndexNotificationTypesID,
 
 		// records
+		insertMigrationVersion,
 		insertInstantReport,
 		insertWeeklySummary,
 		insertSentState,
@@ -504,7 +532,6 @@ func tablesRelatedOperation(storage DBStorage, cmd func(string) string) error {
 			// #nosec G202
 			sqlStatement := cmd(tableName)
 			log.Info().Str(StatementMessage, sqlStatement).Msg(SQLStatementMessage)
-			// println(sqlStatement)
 
 			// perform the SQL statement in transaction
 			_, err := tx.Exec(sqlStatement)
@@ -555,6 +582,70 @@ func (storage DBStorage) DatabaseDropIndexes() error {
 	return err
 }
 
+// getDatabaseVersionInfo method tries to retrieve database version from
+// migration table.
+func (storage DBStorage) getDatabaseVersionInfo() (int, error) {
+	// check if version info is stored in the database
+	var count int
+	err := storage.connection.QueryRow(isDatabaseVersionExist).Scan(&count)
+	if err != nil {
+		return -1, err
+	}
+
+	// table exists, but does not containg DB version
+	if count == 0 {
+		return -1, nil
+	}
+
+	// process version info
+	var version int
+	err = storage.connection.QueryRow(getDatabaseVersion).Scan(&version)
+	if err != nil {
+		return -1, err
+	}
+
+	return version, nil
+}
+
+// DatabaseInitMigration method initializes migration_info table
+func (storage DBStorage) DatabaseInitMigration() error {
+	// Begin a new transaction.
+	tx, err := storage.connection.Begin()
+	if err != nil {
+		return err
+	}
+
+	err = func(tx *sql.Tx) error {
+		// try to retrieve database version info
+		version, err := storage.getDatabaseVersionInfo()
+
+		// it is possible (and expected) that version can not be read
+		if err != nil {
+			// just log the error - it is expected
+			log.Info().Str(VersionMessage, createTableMigrationInfo).Msg(SQLStatementMessage)
+		} else {
+			// migration table already exists and contains the right version
+			if version == DatabaseVersion {
+				return nil
+			}
+		}
+
+		// migration_info table initialization
+		log.Info().Str(StatementMessage, createTableMigrationInfo).Msg(SQLStatementMessage)
+
+		// perform the SQL statement in transaction
+		_, err = tx.Exec(createTableMigrationInfo)
+		if err != nil {
+			return err
+		}
+		return nil
+	}(tx)
+
+	finishTransaction(tx, err)
+
+	return err
+}
+
 // DatabaseInitialization method performs database initialization - creates all
 // tables in database.
 func (storage DBStorage) DatabaseInitialization() error {
@@ -565,11 +656,23 @@ func (storage DBStorage) DatabaseInitialization() error {
 	}
 
 	err = func(tx *sql.Tx) error {
+		// try to retrieve database version info
+		version, err := storage.getDatabaseVersionInfo()
+		if err != nil {
+			log.Error().Err(err).Msg("DB version can not be retrieved")
+			log.Error().Msg("Try to run CCX Notification service with --db-init-migration")
+			return err
+		}
+
+		// skip rest of DB initialization, if already initialized
+		if version == DatabaseVersion {
+			log.Info().Msg("Database is already initialized")
+			return nil
+		}
 
 		// databaze initialization
 		for _, sqlStatement := range initStatements {
 			log.Info().Str(StatementMessage, sqlStatement).Msg(SQLStatementMessage)
-			// println(sqlStatement)
 
 			// perform the SQL statement in transaction
 			_, err := tx.Exec(sqlStatement)

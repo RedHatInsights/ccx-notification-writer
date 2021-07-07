@@ -25,6 +25,7 @@ import (
 // MockStorage structure represents a mocked implementation of Storage
 // interface to be used by tested consumer
 type MockStorage struct {
+	databaseInitMigrationCalled     int
 	databaseInitializationCalled    int
 	databaseCleanupCalled           int
 	databaseDropTablesCalled        int
@@ -41,6 +42,7 @@ type MockStorage struct {
 // NewMockStorage constructs new mock storage instance
 func NewMockStorage() MockStorage {
 	return MockStorage{
+		databaseInitMigrationCalled:     0,
 		databaseInitializationCalled:    0,
 		databaseCleanupCalled:           0,
 		databaseDropTablesCalled:        0,
@@ -72,6 +74,13 @@ func (storage *MockStorage) WriteReportForCluster(orgID main.OrgID, accountNumbe
 // DatabaseInitialization method.
 func (storage *MockStorage) DatabaseInitialization() error {
 	storage.databaseInitializationCalled++
+	return nil
+}
+
+// DatabaseInitMigration is a mocked reimplementation of the real
+// DatabaseInitMigration method.
+func (storage *MockStorage) DatabaseInitMigration() error {
+	storage.databaseInitMigrationCalled++
 	return nil
 }
 

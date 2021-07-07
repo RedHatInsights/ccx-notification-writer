@@ -74,6 +74,8 @@ Usage of ccx-notification-writer:
         drop all tables from database
   -db-init
         perform database initialization
+  -db-init-migration
+        initialize migration
   -max-age string
         max age for displaying/cleaning old records
   -new-reports-cleanup
@@ -151,7 +153,19 @@ def notification_writer_db_empty(context):
     # wait to finish the process - needed there (transactions)
     out.wait()
 
-    # second step - create tables, create indexes, fill in table of keys
+    # second step - initialize migration info
+    out = subprocess.Popen(["ccx-notification-writer", "--db-init-migration"],
+                           stdout=subprocess.PIPE,
+                           stderr=subprocess.STDOUT)
+
+    # check the Popen state
+    assert out is not None
+    out.communicate()
+
+    # wait to finish the process - needed there (transactions)
+    out.wait()
+
+    # third step - create tables, create indexes, fill in table of keys
     out = subprocess.Popen(["ccx-notification-writer", "--db-init"],
                            stdout=subprocess.PIPE,
                            stderr=subprocess.STDOUT)

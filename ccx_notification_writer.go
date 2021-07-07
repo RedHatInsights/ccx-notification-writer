@@ -182,6 +182,25 @@ func performDatabaseInitialization(config ConfigStruct) (int, error) {
 	return ExitStatusOK, nil
 }
 
+// performDatabaseInitMigration function initialize migration table
+func performDatabaseInitMigration(config ConfigStruct) (int, error) {
+	// prepare the storage
+	storageConfiguration := GetStorageConfiguration(config)
+	storage, err := NewStorage(storageConfiguration)
+	if err != nil {
+		log.Err(err).Msg(operationFailedMessage)
+		return ExitStatusStorageError, err
+	}
+
+	err = storage.DatabaseInitMigration()
+	if err != nil {
+		log.Err(err).Msg("Database migration initialization operation failed")
+		return ExitStatusStorageError, err
+	}
+
+	return ExitStatusOK, nil
+}
+
 // performDatabaseCleanup function performs database cleanup - deletes content
 // of all tables in database.
 func performDatabaseCleanup(config ConfigStruct) (int, error) {
@@ -393,6 +412,8 @@ func doSelectedOperation(configuration ConfigStruct, cliFlags CliFlags) (int, er
 		return performDatabaseCleanup(configuration)
 	case cliFlags.PerformDatabaseDropTables:
 		return performDatabaseDropTables(configuration)
+	case cliFlags.PerformDatabaseInitMigration:
+		return performDatabaseInitMigration(configuration)
 	case cliFlags.PrintNewReportsForCleanup:
 		return printNewReportsForCleanup(configuration, cliFlags)
 	case cliFlags.PerformNewReportsCleanup:
@@ -416,6 +437,7 @@ func main() {
 	flag.BoolVar(&cliFlags.PerformDatabaseInitialization, "db-init", false, "perform database initialization")
 	flag.BoolVar(&cliFlags.PerformDatabaseCleanup, "db-cleanup", false, "perform database cleanup")
 	flag.BoolVar(&cliFlags.PerformDatabaseDropTables, "db-drop-tables", false, "drop all tables from database")
+	flag.BoolVar(&cliFlags.PerformDatabaseInitMigration, "db-init-migration", false, "initialize migration")
 	flag.BoolVar(&cliFlags.CheckConnectionToKafka, "check-kafka", false, "check connection to Kafka")
 	flag.BoolVar(&cliFlags.ShowVersion, "version", false, "show version")
 	flag.BoolVar(&cliFlags.ShowAuthors, "authors", false, "show authors")

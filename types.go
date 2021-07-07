@@ -32,6 +32,7 @@ import (
 type CliFlags struct {
 	PerformDatabaseCleanup        bool
 	PerformDatabaseInitialization bool
+	PerformDatabaseInitMigration  bool
 	PerformDatabaseDropTables     bool
 	CheckConnectionToKafka        bool
 	ShowVersion                   bool

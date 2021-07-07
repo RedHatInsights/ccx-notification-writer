@@ -70,6 +70,8 @@ help                 Show this help screen
         drop all tables from database
   -db-init
         perform database initialization
+  -db-init-migration
+        initialize migration
   -max-age string
         max age for displaying/cleaning old records
   -new-reports-cleanup
@@ -192,10 +194,22 @@ List of tables:
  public | notification_types | table | postgres
  public | reported           | table | postgres
  public | states             | table | postgres
+ public | migration_info     | table | postgres
 (4 rows)
 ```
 
 ## Database schema
+
+### Table `migration_info`
+
+This table contains information about the latest DB schema and migration status.
+
+```
+ Column  |  Type   | Modifiers
+---------+---------+-----------
+ version | integer | not null
+
+```
 
 ### Table `new_reports`
 
