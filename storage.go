@@ -48,6 +48,14 @@ import (
 
 // Table creation-related scripts, queries, index creation etc.
 const (
+	// This table contains information about DB schema version and about
+	// migration status.
+	createTableMigrationInfo = `
+                CREATE TABLE migration_info (
+                    version     integer not null
+                );
+`
+
 	// This table contains list of all notification types used by
 	// Notification service. Frequency can be specified as in `crontab` -
 	// https://crontab.guru/
@@ -195,6 +203,11 @@ const (
 		  FROM reported
 		 WHERE updated_at < NOW() - $1::INTERVAL
 `
+	// Value to be stored in migration_info table
+	insertMigrationVersion = `
+                INSERT INTO migration_info (version)
+		            VALUES (1);
+`
 	// Value to be stored in notification_types table
 	insertInstantReport = `
                 INSERT INTO notification_types (id, value, frequency, comment)
@@ -265,6 +278,7 @@ type Storage interface {
 	DatabaseCleanup() error
 	DatabaseDropTables() error
 	DatabaseDropIndexes() error
+	DatabaseInitMigration() error
 	GetLatestKafkaOffset() (KafkaOffset, error)
 	PrintNewReportsForCleanup(maxAge string) error
 	CleanupNewReports(maxAge string) (int, error)
@@ -318,6 +332,7 @@ func NewStorage(configuration StorageConfiguration) (*DBStorage, error) {
 
 	// lazy initialization (TODO: use init function instead?)
 	tableNames = []string{
+		"migration_info",
 		"new_reports",
 		"reported",
 		"notification_types",
@@ -348,6 +363,7 @@ func NewStorage(configuration StorageConfiguration) (*DBStorage, error) {
 		createIndexNotificationTypesID,
 
 		// records
+		insertMigrationVersion,
 		insertInstantReport,
 		insertWeeklySummary,
 		insertSentState,
@@ -504,7 +520,6 @@ func tablesRelatedOperation(storage DBStorage, cmd func(string) string) error {
 			// #nosec G202
 			sqlStatement := cmd(tableName)
 			log.Info().Str(StatementMessage, sqlStatement).Msg(SQLStatementMessage)
-			// println(sqlStatement)
 
 			// perform the SQL statement in transaction
 			_, err := tx.Exec(sqlStatement)
@@ -555,9 +570,36 @@ func (storage DBStorage) DatabaseDropIndexes() error {
 	return err
 }
 
+// DatabaseInitMigration method initializes migration_info table
+func (storage DBStorage) DatabaseInitMigration() error {
+	// Begin a new transaction.
+	tx, err := storage.connection.Begin()
+	if err != nil {
+		return err
+	}
+	// TODO: if the table already exists and contains the right version, return nil
+	err = func(tx *sql.Tx) error {
+		// migration_info table initialization
+		log.Info().Str(StatementMessage, createTableMigrationInfo).Msg(SQLStatementMessage)
+
+		// perform the SQL statement in transaction
+		_, err := tx.Exec(createTableMigrationInfo)
+		if err != nil {
+			return err
+		}
+		return nil
+	}(tx)
+
+	finishTransaction(tx, err)
+
+	return err
+}
+
 // DatabaseInitialization method performs database initialization - creates all
 // tables in database.
 func (storage DBStorage) DatabaseInitialization() error {
+	// TODO: if the migration_info table already exists and contains the right version, return nil
+
 	// Begin a new transaction.
 	tx, err := storage.connection.Begin()
 	if err != nil {
@@ -569,7 +611,6 @@ func (storage DBStorage) DatabaseInitialization() error {
 		// databaze initialization
 		for _, sqlStatement := range initStatements {
 			log.Info().Str(StatementMessage, sqlStatement).Msg(SQLStatementMessage)
-			// println(sqlStatement)
 
 			// perform the SQL statement in transaction
 			_, err := tx.Exec(sqlStatement)
