@@ -19,6 +19,14 @@ Feature: Check command line options provided by CCX Notification Writer
      Then I should see info about authors displayed on standard output
 
 
+  Scenario: Check the ability to initialize migration info table
+    Given Postgres is running
+      And CCX Notification Writer database is created for user postgres with password postgres
+      And CCX Notification Writer database is not set up
+     When I start the CCX Notification Writer with the --db-init-migration command line flag
+     Then the process should exit with status code set to 0
+
+
   Scenario: Check the ability to initialize all database tables
     Given Postgres is running
       And CCX Notification Writer database is created for user postgres with password postgres
