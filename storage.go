@@ -51,7 +51,7 @@ const (
 	// This table contains information about DB schema version and about
 	// migration status.
 	createTableMigrationInfo = `
-                CREATE TABLE migration_info (
+                CREATE TABLE IF NOT EXISTS migration_info (
                     version     integer not null
                 );
 `
@@ -174,6 +174,9 @@ const (
 		       ON notification_types USING btree (id ASC);
 `
 
+	// Retrieve DB version
+	getDatabaseVersion = `SELECT version from migration_info LIMIT 1;`
+
 	// Display older records from new_reports table
 	displayOldRecordsFromNewReportsTable = `
                 SELECT org_id, account_number, cluster, updated_at, kafka_offset
@@ -261,6 +264,12 @@ const (
 	UnableToCloseDBRowsHandle = "Unable to close the DB rows handle"
 	AgeMessage                = "Age"
 	MaxAgeAttribute           = "max age"
+	VersionMessage            = "Retrieve database version"
+)
+
+// Other constants
+const (
+	DatabaseVersion = 1
 )
 
 // Storage represents an interface to almost any database or storage system
@@ -570,6 +579,21 @@ func (storage DBStorage) DatabaseDropIndexes() error {
 	return err
 }
 
+// getDatabaseVersionInfo method tries to retrieve database version from
+// migration table.
+func (storage DBStorage) getDatabaseVersionInfo() (int, error) {
+	versionResult := storage.connection.QueryRow(getDatabaseVersion)
+
+	// process version info
+	var version int
+	err := versionResult.Scan(&version)
+	if err != nil {
+		return -1, err
+	}
+
+	return version, nil
+}
+
 // DatabaseInitMigration method initializes migration_info table
 func (storage DBStorage) DatabaseInitMigration() error {
 	// Begin a new transaction.
@@ -579,11 +603,25 @@ func (storage DBStorage) DatabaseInitMigration() error {
 	}
 	// TODO: if the table already exists and contains the right version, return nil
 	err = func(tx *sql.Tx) error {
+		// try to retrieve database version info
+		version, err := storage.getDatabaseVersionInfo()
+
+		// it is possible (and expected) that version can not be read
+		if err != nil {
+			// just log the error - it is expected
+			log.Info().Str(VersionMessage, createTableMigrationInfo).Msg(SQLStatementMessage)
+		} else {
+			// migration table already exists and contains the right version
+			if version == DatabaseVersion {
+				return nil
+			}
+		}
+
 		// migration_info table initialization
 		log.Info().Str(StatementMessage, createTableMigrationInfo).Msg(SQLStatementMessage)
 
 		// perform the SQL statement in transaction
-		_, err := tx.Exec(createTableMigrationInfo)
+		_, err = tx.Exec(createTableMigrationInfo)
 		if err != nil {
 			return err
 		}
