@@ -531,9 +531,13 @@ func TestDatabaseInitialization(t *testing.T) {
 	// prepare new mocked connection to database
 	connection, mock := mustCreateMockConnection(t)
 
+	// prepare mocked result for SQL query
+	rows := sqlmock.NewRows([]string{"version"})
+	rows.AddRow(0)
+
 	mock.ExpectBegin()
+	mock.ExpectQuery("SELECT count\\(\\*\\) FROM migration_info;").WillReturnRows(rows)
 	mock.ExpectCommit()
-	mock.ExpectClose()
 
 	// prepare connection to mocked database
 	storage := main.NewFromConnection(connection, 1)
@@ -543,9 +547,6 @@ func TestDatabaseInitialization(t *testing.T) {
 	if err != nil {
 		t.Errorf("error was not expected while initializing database: %s", err)
 	}
-
-	// connection to mocked DB needs to be closed properly
-	checkConnectionClose(t, connection)
 
 	// check if all expectations were met
 	checkAllExpectations(t, mock)
