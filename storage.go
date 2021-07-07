@@ -614,7 +614,7 @@ func (storage DBStorage) DatabaseInitMigration() error {
 	if err != nil {
 		return err
 	}
-	// TODO: if the table already exists and contains the right version, return nil
+
 	err = func(tx *sql.Tx) error {
 		// try to retrieve database version info
 		version, err := storage.getDatabaseVersionInfo()
@@ -649,8 +649,6 @@ func (storage DBStorage) DatabaseInitMigration() error {
 // DatabaseInitialization method performs database initialization - creates all
 // tables in database.
 func (storage DBStorage) DatabaseInitialization() error {
-	// TODO: if the migration_info table already exists and contains the right version, return nil
-
 	// Begin a new transaction.
 	tx, err := storage.connection.Begin()
 	if err != nil {
