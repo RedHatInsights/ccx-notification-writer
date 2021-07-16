@@ -564,6 +564,39 @@ func TestGetDatabaseVersionInfo(t *testing.T) {
 	checkAllExpectations(t, mock)
 }
 
+// TestGetDatabaseVersionInfoNoVersion function checks the method
+// Storage.getDatabaseVersionInfo when no version is stored in the
+// database.
+func TestGetDatabaseVersionInfoNoVersion(t *testing.T) {
+	// prepare new mocked connection to database
+	connection, mock := mustCreateMockConnection(t)
+
+	// expected database version
+	expectedVersion := -1
+
+	// prepare mocked result for SQL query
+	rowsCount := sqlmock.NewRows([]string{"count"})
+	rowsCount.AddRow(0)
+
+	// first expected SQL statement
+	mock.ExpectQuery("SELECT count\\(\\*\\) FROM migration_info;").WillReturnRows(rowsCount)
+
+	// prepare connection to mocked database
+	storage := main.NewFromConnection(connection, 1)
+
+	// call the tested method
+	version, err := storage.GetDatabaseVersionInfo()
+	if err != nil {
+		t.Errorf("error was not expected while initializing database: %s", err)
+	}
+
+	// check the returned version
+	assert.Equal(t, expectedVersion, version)
+
+	// check if all expectations were met
+	checkAllExpectations(t, mock)
+}
+
 // TestDatabaseInitialization function checks the method
 // Storage.DatabaseInitialization.
 func TestDatabaseInitialization(t *testing.T) {
