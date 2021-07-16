@@ -1275,9 +1275,18 @@ Storage.DatabaseInitialization.</p>
 </td>
 	<td class="code"><pre><code>	<div class="ident">connection</div><div class="operator">,</div> <div class="ident">mock</div> <div class="operator">:=</div> <div class="ident">mustCreateMockConnection</div><div class="operator">(</div><div class="ident">t</div><div class="operator">)</div><div class="operator"></div>
 
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>prepare mocked result for SQL query</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">rows</div> <div class="operator">:=</div> <div class="ident">sqlmock</div><div class="operator">.</div><div class="ident">NewRows</div><div class="operator">(</div><div class="operator">[</div><div class="operator">]</div><div class="ident">string</div><div class="operator">{</div><div class="literal">&#34;version&#34;</div><div class="operator">}</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">rows</div><div class="operator">.</div><div class="ident">AddRow</div><div class="operator">(</div><div class="literal">0</div><div class="operator">)</div><div class="operator"></div>
+
 	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectBegin</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectQuery</div><div class="operator">(</div><div class="literal">&#34;SELECT count\\(\\*\\) FROM migration_info;&#34;</div><div class="operator">)</div><div class="operator">.</div><div class="ident">WillReturnRows</div><div class="operator">(</div><div class="ident">rows</div><div class="operator">)</div><div class="operator"></div>
 	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectCommit</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
-	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectClose</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
 
 </code></pre></td>
       </tr>
@@ -1297,14 +1306,6 @@ Storage.DatabaseInitialization.</p>
 	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
 		<div class="ident">t</div><div class="operator">.</div><div class="ident">Errorf</div><div class="operator">(</div><div class="literal">&#34;error was not expected while initializing database: %s&#34;</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">)</div><div class="operator"></div>
 	<div class="operator">}</div><div class="operator"></div>
-
-</code></pre></td>
-      </tr>
-      
-      <tr class="section">
-	<td class="doc"><p>connection to mocked DB needs to be closed properly</p>
-</td>
-	<td class="code"><pre><code>	<div class="ident">checkConnectionClose</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">connection</div><div class="operator">)</div><div class="operator"></div>
 
 </code></pre></td>
       </tr>

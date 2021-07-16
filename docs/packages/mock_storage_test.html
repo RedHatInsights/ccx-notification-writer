@@ -149,6 +149,7 @@ limitations under the License.
 interface to be used by tested consumer</p>
 </td>
 	<td class="code"><pre><code><div class="keyword">type</div> <div class="ident">MockStorage</div> <div class="keyword">struct</div> <div class="operator">{</div>
+	<div class="ident">databaseInitMigrationCalled</div>     <div class="ident">int</div><div class="operator"></div>
 	<div class="ident">databaseInitializationCalled</div>    <div class="ident">int</div><div class="operator"></div>
 	<div class="ident">databaseCleanupCalled</div>           <div class="ident">int</div><div class="operator"></div>
 	<div class="ident">databaseDropTablesCalled</div>        <div class="ident">int</div><div class="operator"></div>
@@ -170,6 +171,7 @@ interface to be used by tested consumer</p>
 </td>
 	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">NewMockStorage</div><div class="operator">(</div><div class="operator">)</div> <div class="ident">MockStorage</div> <div class="operator">{</div>
 	<div class="keyword">return</div> <div class="ident">MockStorage</div><div class="operator">{</div>
+		<div class="ident">databaseInitMigrationCalled</div><div class="operator">:</div>     <div class="literal">0</div><div class="operator">,</div>
 		<div class="ident">databaseInitializationCalled</div><div class="operator">:</div>    <div class="literal">0</div><div class="operator">,</div>
 		<div class="ident">databaseCleanupCalled</div><div class="operator">:</div>           <div class="literal">0</div><div class="operator">,</div>
 		<div class="ident">databaseDropTablesCalled</div><div class="operator">:</div>        <div class="literal">0</div><div class="operator">,</div>
@@ -216,6 +218,18 @@ DatabaseInitialization method.</p>
 </td>
 	<td class="code"><pre><code><div class="keyword">func</div> <div class="operator">(</div><div class="ident">storage</div> <div class="operator">*</div><div class="ident">MockStorage</div><div class="operator">)</div> <div class="ident">DatabaseInitialization</div><div class="operator">(</div><div class="operator">)</div> <div class="ident">error</div> <div class="operator">{</div>
 	<div class="ident">storage</div><div class="operator">.</div><div class="ident">databaseInitializationCalled</div><div class="operator">&#43;&#43;</div><div class="operator"></div>
+	<div class="keyword">return</div> <div class="ident">nil</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>DatabaseInitMigration is a mocked reimplementation of the real
+DatabaseInitMigration method.</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="operator">(</div><div class="ident">storage</div> <div class="operator">*</div><div class="ident">MockStorage</div><div class="operator">)</div> <div class="ident">DatabaseInitMigration</div><div class="operator">(</div><div class="operator">)</div> <div class="ident">error</div> <div class="operator">{</div>
+	<div class="ident">storage</div><div class="operator">.</div><div class="ident">databaseInitMigrationCalled</div><div class="operator">&#43;&#43;</div><div class="operator"></div>
 	<div class="keyword">return</div> <div class="ident">nil</div><div class="operator"></div>
 <div class="operator">}</div><div class="operator"></div>
 
