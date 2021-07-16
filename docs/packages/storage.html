@@ -191,6 +191,19 @@ DataSource - specification of data source. The content of this parameter depends
       </tr>
       
       <tr class="section">
+	<td class="doc"><p>This table contains information about DB schema version and about
+migration status.</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">createTableMigrationInfo</div> <div class="operator">=</div> <div class="literal">`
+                CREATE TABLE IF NOT EXISTS migration_info (
+                    version     integer not null
+                );
+`</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
 	<td class="doc"><p>This table contains list of all notification types used by
 Notification service. Frequency can be specified as in <code>crontab</code> -
 https://crontab.guru/</p>
@@ -369,6 +382,22 @@ to database in shrunk format (some attributes are removed).</p>
       </tr>
       
       <tr class="section">
+	<td class="doc"><p>Get 0 if DB version is not inserted, 1 instead</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">isDatabaseVersionExist</div> <div class="operator">=</div> <div class="literal">`SELECT count(*) FROM migration_info;`</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>Retrieve DB version</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">getDatabaseVersion</div> <div class="operator">=</div> <div class="literal">`SELECT version FROM migration_info LIMIT 1;`</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
 	<td class="doc"><p>Display older records from new_reports table</p>
 </td>
 	<td class="code"><pre><code>	<div class="ident">displayOldRecordsFromNewReportsTable</div> <div class="operator">=</div> <div class="literal">`
@@ -413,6 +442,16 @@ to database in shrunk format (some attributes are removed).</p>
                 DELETE
 		  FROM reported
 		 WHERE updated_at &lt; NOW() - $1::INTERVAL
+`</div><div class="operator"></div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>Value to be stored in migration_info table</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">insertMigrationVersion</div> <div class="operator">=</div> <div class="literal">`
+                INSERT INTO migration_info (version)
+		            VALUES (1);
 `</div><div class="operator"></div>
 </code></pre></td>
       </tr>
@@ -507,6 +546,17 @@ to database in shrunk format (some attributes are removed).</p>
 	<div class="ident">UnableToCloseDBRowsHandle</div> <div class="operator">=</div> <div class="literal">&#34;Unable to close the DB rows handle&#34;</div><div class="operator"></div>
 	<div class="ident">AgeMessage</div>                <div class="operator">=</div> <div class="literal">&#34;Age&#34;</div><div class="operator"></div>
 	<div class="ident">MaxAgeAttribute</div>           <div class="operator">=</div> <div class="literal">&#34;max age&#34;</div><div class="operator"></div>
+	<div class="ident">VersionMessage</div>            <div class="operator">=</div> <div class="literal">&#34;Retrieve database version&#34;</div><div class="operator"></div>
+<div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>Other constants</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">const</div> <div class="operator">(</div>
+	<div class="ident">DatabaseVersion</div> <div class="operator">=</div> <div class="literal">1</div><div class="operator"></div>
 <div class="operator">)</div><div class="operator"></div>
 
 </code></pre></td>
@@ -529,6 +579,7 @@ to database in shrunk format (some attributes are removed).</p>
 	<div class="ident">DatabaseCleanup</div><div class="operator">(</div><div class="operator">)</div> <div class="ident">error</div><div class="operator"></div>
 	<div class="ident">DatabaseDropTables</div><div class="operator">(</div><div class="operator">)</div> <div class="ident">error</div><div class="operator"></div>
 	<div class="ident">DatabaseDropIndexes</div><div class="operator">(</div><div class="operator">)</div> <div class="ident">error</div><div class="operator"></div>
+	<div class="ident">DatabaseInitMigration</div><div class="operator">(</div><div class="operator">)</div> <div class="ident">error</div><div class="operator"></div>
 	<div class="ident">GetLatestKafkaOffset</div><div class="operator">(</div><div class="operator">)</div> <div class="operator">(</div><div class="ident">KafkaOffset</div><div class="operator">,</div> <div class="ident">error</div><div class="operator">)</div><div class="operator"></div>
 	<div class="ident">PrintNewReportsForCleanup</div><div class="operator">(</div><div class="ident">maxAge</div> <div class="ident">string</div><div class="operator">)</div> <div class="ident">error</div><div class="operator"></div>
 	<div class="ident">CleanupNewReports</div><div class="operator">(</div><div class="ident">maxAge</div> <div class="ident">string</div><div class="operator">)</div> <div class="operator">(</div><div class="ident">int</div><div class="operator">,</div> <div class="ident">error</div><div class="operator">)</div><div class="operator"></div>
@@ -622,6 +673,7 @@ exists on the storage while attempting to write a report for a cluster.</p>
 	<td class="doc"><p>lazy initialization (TODO: use init function instead?)</p>
 </td>
 	<td class="code"><pre><code>	<div class="ident">tableNames</div> <div class="operator">=</div> <div class="operator">[</div><div class="operator">]</div><div class="ident">string</div><div class="operator">{</div>
+		<div class="literal">&#34;migration_info&#34;</div><div class="operator">,</div>
 		<div class="literal">&#34;new_reports&#34;</div><div class="operator">,</div>
 		<div class="literal">&#34;reported&#34;</div><div class="operator">,</div>
 		<div class="literal">&#34;notification_types&#34;</div><div class="operator">,</div>
@@ -677,7 +729,8 @@ exists on the storage while attempting to write a report for a cluster.</p>
       <tr class="section">
 	<td class="doc"><p>records</p>
 </td>
-	<td class="code"><pre><code>		<div class="ident">insertInstantReport</div><div class="operator">,</div>
+	<td class="code"><pre><code>		<div class="ident">insertMigrationVersion</div><div class="operator">,</div>
+		<div class="ident">insertInstantReport</div><div class="operator">,</div>
 		<div class="ident">insertWeeklySummary</div><div class="operator">,</div>
 		<div class="ident">insertSentState</div><div class="operator">,</div>
 		<div class="ident">insertSentSame</div><div class="operator">,</div>
@@ -894,13 +947,7 @@ disable &quot;G202 (CWE-89): SQL string concatenation (Confidence: HIGH, Severit
 </td>
 	<td class="code"><pre><code>			<div class="ident">sqlStatement</div> <div class="operator">:=</div> <div class="ident">cmd</div><div class="operator">(</div><div class="ident">tableName</div><div class="operator">)</div><div class="operator"></div>
 			<div class="ident">log</div><div class="operator">.</div><div class="ident">Info</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Str</div><div class="operator">(</div><div class="ident">StatementMessage</div><div class="operator">,</div> <div class="ident">sqlStatement</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="ident">SQLStatementMessage</div><div class="operator">)</div><div class="operator"></div>
-</code></pre></td>
-      </tr>
-      
-      <tr class="section">
-	<td class="doc"><p>println(sqlStatement)</p>
-</td>
-	<td class="code"><pre><code>
+
 </code></pre></td>
       </tr>
       
@@ -980,6 +1027,130 @@ tables in database.</p>
       </tr>
       
       <tr class="section">
+	<td class="doc"><p>getDatabaseVersionInfo method tries to retrieve database version from
+migration table.</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="operator">(</div><div class="ident">storage</div> <div class="ident">DBStorage</div><div class="operator">)</div> <div class="ident">getDatabaseVersionInfo</div><div class="operator">(</div><div class="operator">)</div> <div class="operator">(</div><div class="ident">int</div><div class="operator">,</div> <div class="ident">error</div><div class="operator">)</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>check if version info is stored in the database</p>
+</td>
+	<td class="code"><pre><code>	<div class="keyword">var</div> <div class="ident">count</div> <div class="ident">int</div><div class="operator"></div>
+	<div class="ident">err</div> <div class="operator">:=</div> <div class="ident">storage</div><div class="operator">.</div><div class="ident">connection</div><div class="operator">.</div><div class="ident">QueryRow</div><div class="operator">(</div><div class="ident">isDatabaseVersionExist</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Scan</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">count</div><div class="operator">)</div><div class="operator"></div>
+	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
+		<div class="keyword">return</div> <div class="operator">-</div><div class="literal">1</div><div class="operator">,</div> <div class="ident">err</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>table exists, but does not containg DB version</p>
+</td>
+	<td class="code"><pre><code>	<div class="keyword">if</div> <div class="ident">count</div> <div class="operator">==</div> <div class="literal">0</div> <div class="operator">{</div>
+		<div class="keyword">return</div> <div class="operator">-</div><div class="literal">1</div><div class="operator">,</div> <div class="ident">nil</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>process version info</p>
+</td>
+	<td class="code"><pre><code>	<div class="keyword">var</div> <div class="ident">version</div> <div class="ident">int</div><div class="operator"></div>
+	<div class="ident">err</div> <div class="operator">=</div> <div class="ident">storage</div><div class="operator">.</div><div class="ident">connection</div><div class="operator">.</div><div class="ident">QueryRow</div><div class="operator">(</div><div class="ident">getDatabaseVersion</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Scan</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">version</div><div class="operator">)</div><div class="operator"></div>
+	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
+		<div class="keyword">return</div> <div class="operator">-</div><div class="literal">1</div><div class="operator">,</div> <div class="ident">err</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+
+	<div class="keyword">return</div> <div class="ident">version</div><div class="operator">,</div> <div class="ident">nil</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>DatabaseInitMigration method initializes migration_info table</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="operator">(</div><div class="ident">storage</div> <div class="ident">DBStorage</div><div class="operator">)</div> <div class="ident">DatabaseInitMigration</div><div class="operator">(</div><div class="operator">)</div> <div class="ident">error</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>Begin a new transaction.</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">tx</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">storage</div><div class="operator">.</div><div class="ident">connection</div><div class="operator">.</div><div class="ident">Begin</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
+		<div class="keyword">return</div> <div class="ident">err</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+
+	<div class="ident">err</div> <div class="operator">=</div> <div class="keyword">func</div><div class="operator">(</div><div class="ident">tx</div> <div class="operator">*</div><div class="ident">sql</div><div class="operator">.</div><div class="ident">Tx</div><div class="operator">)</div> <div class="ident">error</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>try to retrieve database version info</p>
+</td>
+	<td class="code"><pre><code>		<div class="ident">version</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">storage</div><div class="operator">.</div><div class="ident">getDatabaseVersionInfo</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>it is possible (and expected) that version can not be read</p>
+</td>
+	<td class="code"><pre><code>		<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>just log the error - it is expected</p>
+</td>
+	<td class="code"><pre><code>			<div class="ident">log</div><div class="operator">.</div><div class="ident">Info</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Str</div><div class="operator">(</div><div class="ident">VersionMessage</div><div class="operator">,</div> <div class="ident">createTableMigrationInfo</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="ident">SQLStatementMessage</div><div class="operator">)</div><div class="operator"></div>
+		<div class="operator">}</div> <div class="keyword">else</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>migration table already exists and contains the right version</p>
+</td>
+	<td class="code"><pre><code>			<div class="keyword">if</div> <div class="ident">version</div> <div class="operator">==</div> <div class="ident">DatabaseVersion</div> <div class="operator">{</div>
+				<div class="keyword">return</div> <div class="ident">nil</div><div class="operator"></div>
+			<div class="operator">}</div><div class="operator"></div>
+		<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>migration_info table initialization</p>
+</td>
+	<td class="code"><pre><code>		<div class="ident">log</div><div class="operator">.</div><div class="ident">Info</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Str</div><div class="operator">(</div><div class="ident">StatementMessage</div><div class="operator">,</div> <div class="ident">createTableMigrationInfo</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="ident">SQLStatementMessage</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>perform the SQL statement in transaction</p>
+</td>
+	<td class="code"><pre><code>		<div class="ident">_</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">=</div> <div class="ident">tx</div><div class="operator">.</div><div class="ident">Exec</div><div class="operator">(</div><div class="ident">createTableMigrationInfo</div><div class="operator">)</div><div class="operator"></div>
+		<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
+			<div class="keyword">return</div> <div class="ident">err</div><div class="operator"></div>
+		<div class="operator">}</div><div class="operator"></div>
+		<div class="keyword">return</div> <div class="ident">nil</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator">(</div><div class="ident">tx</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="ident">finishTransaction</div><div class="operator">(</div><div class="ident">tx</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="keyword">return</div> <div class="ident">err</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
 	<td class="doc"><p>DatabaseInitialization method performs database initialization - creates all
 tables in database.</p>
 </td>
@@ -996,6 +1167,29 @@ tables in database.</p>
 	<div class="operator">}</div><div class="operator"></div>
 
 	<div class="ident">err</div> <div class="operator">=</div> <div class="keyword">func</div><div class="operator">(</div><div class="ident">tx</div> <div class="operator">*</div><div class="ident">sql</div><div class="operator">.</div><div class="ident">Tx</div><div class="operator">)</div> <div class="ident">error</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>try to retrieve database version info</p>
+</td>
+	<td class="code"><pre><code>		<div class="ident">version</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">storage</div><div class="operator">.</div><div class="ident">getDatabaseVersionInfo</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+		<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
+			<div class="ident">log</div><div class="operator">.</div><div class="ident">Error</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Err</div><div class="operator">(</div><div class="ident">err</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;DB version can not be retrieved&#34;</div><div class="operator">)</div><div class="operator"></div>
+			<div class="ident">log</div><div class="operator">.</div><div class="ident">Error</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;Try to run CCX Notification service with --db-init-migration&#34;</div><div class="operator">)</div><div class="operator"></div>
+			<div class="keyword">return</div> <div class="ident">err</div><div class="operator"></div>
+		<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>skip rest of DB initialization, if already initialized</p>
+</td>
+	<td class="code"><pre><code>		<div class="keyword">if</div> <div class="ident">version</div> <div class="operator">==</div> <div class="ident">DatabaseVersion</div> <div class="operator">{</div>
+			<div class="ident">log</div><div class="operator">.</div><div class="ident">Info</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;Database is already initialized&#34;</div><div class="operator">)</div><div class="operator"></div>
+			<div class="keyword">return</div> <div class="ident">nil</div><div class="operator"></div>
+		<div class="operator">}</div><div class="operator"></div>
 
 </code></pre></td>
       </tr>
@@ -1005,13 +1199,7 @@ tables in database.</p>
 </td>
 	<td class="code"><pre><code>		<div class="keyword">for</div> <div class="ident">_</div><div class="operator">,</div> <div class="ident">sqlStatement</div> <div class="operator">:=</div> <div class="keyword">range</div> <div class="ident">initStatements</div> <div class="operator">{</div>
 			<div class="ident">log</div><div class="operator">.</div><div class="ident">Info</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Str</div><div class="operator">(</div><div class="ident">StatementMessage</div><div class="operator">,</div> <div class="ident">sqlStatement</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="ident">SQLStatementMessage</div><div class="operator">)</div><div class="operator"></div>
-</code></pre></td>
-      </tr>
-      
-      <tr class="section">
-	<td class="doc"><p>println(sqlStatement)</p>
-</td>
-	<td class="code"><pre><code>
+
 </code></pre></td>
       </tr>
       
