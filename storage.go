@@ -582,9 +582,9 @@ func (storage DBStorage) DatabaseDropIndexes() error {
 	return err
 }
 
-// getDatabaseVersionInfo method tries to retrieve database version from
+// GetDatabaseVersionInfo method tries to retrieve database version from
 // migration table.
-func (storage DBStorage) getDatabaseVersionInfo() (int, error) {
+func (storage DBStorage) GetDatabaseVersionInfo() (int, error) {
 	// check if version info is stored in the database
 	var count int
 	err := storage.connection.QueryRow(isDatabaseVersionExist).Scan(&count)
@@ -617,7 +617,7 @@ func (storage DBStorage) DatabaseInitMigration() error {
 
 	err = func(tx *sql.Tx) error {
 		// try to retrieve database version info
-		version, err := storage.getDatabaseVersionInfo()
+		version, err := storage.GetDatabaseVersionInfo()
 
 		// it is possible (and expected) that version can not be read
 		if err != nil {
@@ -657,7 +657,7 @@ func (storage DBStorage) DatabaseInitialization() error {
 
 	err = func(tx *sql.Tx) error {
 		// try to retrieve database version info
-		version, err := storage.getDatabaseVersionInfo()
+		version, err := storage.GetDatabaseVersionInfo()
 		if err != nil {
 			log.Error().Err(err).Msg("DB version can not be retrieved")
 			log.Error().Msg("Try to run CCX Notification service with --db-init-migration")
