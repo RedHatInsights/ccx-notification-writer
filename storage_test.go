@@ -525,6 +525,45 @@ func TestWriteReportForClusterOnError(t *testing.T) {
 	checkAllExpectations(t, mock)
 }
 
+// TestGetDatabaseVersionInfo function checks the method
+// Storage.getDatabaseVersionInfo, the happy path in this case.
+func TestGetDatabaseVersionInfo(t *testing.T) {
+	// prepare new mocked connection to database
+	connection, mock := mustCreateMockConnection(t)
+
+	// expected database version
+	expectedVersion := 42
+
+	// prepare mocked result for SQL query
+	rowsCount := sqlmock.NewRows([]string{"count"})
+	rowsCount.AddRow(1)
+
+	// first expected SQL statement
+	mock.ExpectQuery("SELECT count\\(\\*\\) FROM migration_info;").WillReturnRows(rowsCount)
+
+	// prepare mocked result for SQL query
+	rowsVersion := sqlmock.NewRows([]string{"count"})
+	rowsVersion.AddRow(expectedVersion)
+
+	// second expected SQL statement
+	mock.ExpectQuery("SELECT version FROM migration_info LIMIT 1;").WillReturnRows(rowsVersion)
+
+	// prepare connection to mocked database
+	storage := main.NewFromConnection(connection, 1)
+
+	// call the tested method
+	version, err := storage.GetDatabaseVersionInfo()
+	if err != nil {
+		t.Errorf("error was not expected while initializing database: %s", err)
+	}
+
+	// check the returned version
+	assert.Equal(t, expectedVersion, version)
+
+	// check if all expectations were met
+	checkAllExpectations(t, mock)
+}
+
 // TestDatabaseInitialization function checks the method
 // Storage.DatabaseInitialization.
 func TestDatabaseInitialization(t *testing.T) {
