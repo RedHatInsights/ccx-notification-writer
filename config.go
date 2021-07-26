@@ -161,9 +161,9 @@ func LoadConfiguration(configFileEnvVariableName string, defaultConfigFile strin
 	if _, isNotFoundError := err.(viper.ConfigFileNotFoundError); !specified && isNotFoundError {
 		// If config file is not present (which might be correct in
 		// some environment) we need to read configuration from
-		// environment variables The problem is that Viper is not smart
-		// enough to understand the structure of config by itself, so
-		// we need to read fake config file
+		// environment variables. The problem is that Viper is not
+		// smart enough to understand the structure of config by
+		// itself, so we need to read fake config file
 		fakeTomlConfigWriter := new(bytes.Buffer)
 
 		err := toml.NewEncoder(fakeTomlConfigWriter).Encode(config)
