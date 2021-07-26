@@ -26,7 +26,6 @@ package main
 // https://redhatinsights.github.io/ccx-notification-writer/packages/metrics.html
 
 import (
-	"github.com/RedHatInsights/insights-operator-utils/metrics"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 )
@@ -114,7 +113,6 @@ var StoredBytes = promauto.NewCounter(prometheus.CounterOpts{
 // AddMetricsWithNamespace register the desired metrics using a given namespace
 func AddMetricsWithNamespace(namespace string) {
 	// exposed metrics
-	metrics.AddAPIMetricsWithNamespace(namespace)
 
 	// first unregister all metrics
 	prometheus.Unregister(ConsumedMessages)
