@@ -853,6 +853,6 @@ func TestClose(t *testing.T) {
 	// try to close the storage
 	err = storage.Close()
 
-	// it sould not fail
+	// it should not fail
 	assert.Nil(t, err)
 }
