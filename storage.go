@@ -592,7 +592,7 @@ func (storage DBStorage) GetDatabaseVersionInfo() (int, error) {
 		return -1, err
 	}
 
-	// table exists, but does not containg DB version
+	// table exists, but does not containing DB version
 	if count == 0 {
 		return -1, nil
 	}
