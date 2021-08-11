@@ -16,6 +16,9 @@ limitations under the License.
 
 package main_test
 
+// Documentation in literate-programming-style is available at:
+// https://redhatinsights.github.io/ccx-notification-writer/packages/ccx_notification_writer_test.html
+
 import (
 	"os"
 	"testing"
