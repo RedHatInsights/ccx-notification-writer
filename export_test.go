@@ -18,6 +18,9 @@ package main
 
 // Export for testing
 //
+// Documentation in literate-programming-style is available at:
+// https://redhatinsights.github.io/ccx-notification-writer/packages/export_test.html
+//
 // This source file contains name aliases of all package-private functions
 // that need to be called from unit tests. Aliases should start with uppercase
 // letter because unit tests belong to different package.
