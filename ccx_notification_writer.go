@@ -63,7 +63,7 @@ const (
 
 // Configuration-related constants
 const (
-	configFileEnvVariableName = "NOTIFICATION_SERVICE_CONFIG_FILE"
+	configFileEnvVariableName = "CCX_NOTIFICATION_WRITER_CONFIG_FILE"
 	defaultConfigFileName     = "config"
 )
 

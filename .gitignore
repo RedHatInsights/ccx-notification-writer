@@ -18,3 +18,5 @@ issue.py
 issues.py
 nw
 ccx-notification-writer
+
+shellcheck-stable
