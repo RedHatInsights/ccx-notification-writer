@@ -10,6 +10,7 @@ namespace main {
     class CliFlags << (S,Aquamarine) >> {
         + PerformDatabaseCleanup bool
         + PerformDatabaseInitialization bool
+        + PerformDatabaseInitMigration bool
         + PerformDatabaseDropTables bool
         + CheckConnectionToKafka bool
         + ShowVersion bool
@@ -46,6 +47,8 @@ namespace main {
         + DatabaseCleanup() error
         + DatabaseDropTables() error
         + DatabaseDropIndexes() error
+        + GetDatabaseVersionInfo() (int, error)
+        + DatabaseInitMigration() error
         + DatabaseInitialization() error
         + GetLatestKafkaOffset() (KafkaOffset, error)
         + PrintNewReports(maxAge string, query string, tableName string) error
@@ -69,12 +72,12 @@ namespace main {
     class KafkaConsumer << (S,Aquamarine) >> {
         - numberOfSuccessfullyConsumedMessages uint64
         - numberOfErrorsConsumingMessages uint64
-        - ready <font color=blue>chan</font> bool
-        - cancel context.CancelFunc
 
         + Configuration BrokerConfiguration
         + ConsumerGroup sarama.ConsumerGroup
         + Storage Storage
+        + Ready <font color=blue>chan</font> bool
+        + Cancel context.CancelFunc
 
         + Serve() 
         + Setup( sarama.ConsumerGroupSession) error
@@ -110,6 +113,7 @@ namespace main {
         + DatabaseCleanup() error
         + DatabaseDropTables() error
         + DatabaseDropIndexes() error
+        + DatabaseInitMigration() error
         + GetLatestKafkaOffset() (KafkaOffset, error)
         + PrintNewReportsForCleanup(maxAge string) error
         + CleanupNewReports(maxAge string) (int, error)
