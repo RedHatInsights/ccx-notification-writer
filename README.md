@@ -9,6 +9,30 @@
 
 CCX notification writer service
 
+<!-- vim-markdown-toc GFM -->
+
+* [Description](#description)
+* [Building](#building)
+* [Usage](#usage)
+* [Starting the service](#starting-the-service)
+* [Cleanup old records](#cleanup-old-records)
+* [Metrics](#metrics)
+    * [Exposed metrics](#exposed-metrics)
+    * [Retriewing metrics](#retriewing-metrics)
+* [Database](#database)
+    * [Check PostgreSQL status](#check-postgresql-status)
+    * [Start PostgreSQL database](#start-postgresql-database)
+    * [Login into the database](#login-into-the-database)
+* [Database schema](#database-schema)
+    * [Table `migration_info`](#table-migration_info)
+    * [Table `new_reports`](#table-new_reports)
+    * [Table `reported`](#table-reported)
+    * [Table `notification_types`](#table-notification_types)
+    * [Table `states`](#table-states)
+* [Schema description](#schema-description)
+
+<!-- vim-markdown-toc -->
+
 ## Description
 
 The main task for this service is to listen to configured Kafka topic, consume
