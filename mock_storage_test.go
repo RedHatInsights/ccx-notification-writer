@@ -16,6 +16,8 @@ limitations under the License.
 
 package main_test
 
+// Mock storage implementation that is used in unit tests.
+//
 // Documentation in literate-programming-style is available at:
 // https://redhatinsights.github.io/ccx-notification-writer/packages/mock_storage_test.html
 
