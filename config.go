@@ -73,7 +73,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-// Common constants used for during logging and error reporting
+// Common constants used for logging and error reporting
 const (
 	filenameAttribute               = "filename"
 	parsingConfigurationFileMessage = "parsing configuration file"
