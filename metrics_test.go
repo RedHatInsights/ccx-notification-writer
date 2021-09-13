@@ -16,6 +16,9 @@ limitations under the License.
 
 package main_test
 
+// Unit test definitions for functions and methods defined in source file
+// metrics.go
+//
 // Documentation in literate-programming-style is available at:
 // https://redhatinsights.github.io/ccx-notification-writer/packages/metrics_test.html
 
