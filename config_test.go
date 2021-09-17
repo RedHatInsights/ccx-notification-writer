@@ -82,7 +82,7 @@ func TestLoadConfigurationNonEnvVarUnknownConfigFile(t *testing.T) {
 	assert.Nil(t, err)
 }
 
-// TestLoadConfigurationBadConfigFile tests loading an unexisting config file when no environment variable is provided
+// TestLoadConfigurationBadConfigFile tests loading a bad config file when no environment variable is provided
 func TestLoadConfigurationBadConfigFile(t *testing.T) {
 	_, err := main.LoadConfiguration("", "tests/config3")
 	assert.Contains(t, err.Error(), `fatal error config file: While parsing config:`)
