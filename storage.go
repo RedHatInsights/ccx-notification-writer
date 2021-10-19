@@ -405,11 +405,8 @@ func initAndGetDriver(configuration StorageConfiguration) (driverType DBDriver, 
 	switch driverName {
 	case "sqlite3":
 		driverType = DBDriverSQLite3
-		//driver = &sqlite3.SQLiteDriver{}
-		// dataSource = configuration.SQLiteDataSource
 	case "postgres":
 		driverType = DBDriverPostgres
-		//driver = &pq.Driver{}
 		dataSource = fmt.Sprintf(
 			"postgresql://%v:%v@%v:%v/%v?%v",
 			configuration.PGUsername,
