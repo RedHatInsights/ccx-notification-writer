@@ -476,7 +476,7 @@ func (consumer *KafkaConsumer) ProcessMessage(msg *sarama.ConsumerMessage) (Requ
 
 // logshrunkMessage function prints/logs information about status of
 // shrinking the message.
-func logShrunkMessage(reportAsBytes []byte, shrunkAsBytes []byte) {
+func logShrunkMessage(reportAsBytes, shrunkAsBytes []byte) {
 	orig := len(reportAsBytes)
 	shrunk := len(shrunkAsBytes)
 	percentage := int(100.0 * shrunk / orig)
