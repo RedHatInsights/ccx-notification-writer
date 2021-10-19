@@ -136,7 +136,7 @@ type StorageConfiguration struct {
 
 // LoadConfiguration loads configuration from defaultConfigFile, file set in
 // configFileEnvVariableName or from env
-func LoadConfiguration(configFileEnvVariableName string, defaultConfigFile string) (ConfigStruct, error) {
+func LoadConfiguration(configFileEnvVariableName, defaultConfigFile string) (ConfigStruct, error) {
 	var config ConfigStruct
 
 	// env. variable holding name of configuration file
