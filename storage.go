@@ -695,7 +695,7 @@ func (storage DBStorage) GetLatestKafkaOffset() (KafkaOffset, error) {
 
 // PrintNewReports method prints all reports from selected table older than
 // specified relative time
-func (storage DBStorage) PrintNewReports(maxAge string, query string, tableName string) error {
+func (storage DBStorage) PrintNewReports(maxAge, query, tableName string) error {
 	log.Info().
 		Str(MaxAgeAttribute, maxAge).
 		Str("select statement", query).
@@ -759,7 +759,7 @@ func (storage DBStorage) PrintOldReportsForCleanup(maxAge string) error {
 
 // Cleanup method deletes all reports older than specified
 // relative time
-func (storage DBStorage) Cleanup(maxAge string, statement string) (int, error) {
+func (storage DBStorage) Cleanup(maxAge, statement string) (int, error) {
 	log.Info().
 		Str(MaxAgeAttribute, maxAge).
 		Str("delete statement", statement).
