@@ -81,7 +81,7 @@ func logMessageWarning(consumer *KafkaConsumer, originalMessage *sarama.Consumer
 }
 
 // logDuration function records log info about duration of any task/process.
-func logDuration(tStart time.Time, tEnd time.Time, offset int64, key string) {
+func logDuration(tStart, tEnd time.Time, offset int64, key string) {
 	duration := tEnd.Sub(tStart)
 	log.Info().Int64(durationKey, duration.Microseconds()).Int64(offsetKey, offset).Msg(key)
 }
