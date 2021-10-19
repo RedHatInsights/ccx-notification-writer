@@ -112,8 +112,6 @@ func TestLoadingConfigurationEnvVariableBadValueDefaultConfigFailure(t *testing.
 func TestLoadBrokerConfiguration(t *testing.T) {
 	envVar := "CCX_NOTIFICATION_WRITER_CONFIG_FILE"
 
-	//helpers.FailOnError(t, os.Chdir(".."))
-
 	mustSetEnv(t, envVar, "tests/config2")
 	config, err := main.LoadConfiguration(envVar, "")
 	assert.Nil(t, err, "Failed loading configuration file from env var!")
