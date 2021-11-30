@@ -19,7 +19,7 @@ import psycopg2
 from psycopg2.errors import UndefinedTable
 
 
-from behave import given, then, when
+from behave import given, when, then
 
 
 @given(u"Postgres is running")
@@ -45,7 +45,7 @@ def connect_to_database(context, database, user, password):
 
 @then(u"I should be able to connect to such database")
 def check_connection(context):
-    """Chck the connection to database."""
+    """Check the connection to database."""
     assert context.connection is not None, "connection should be established"
 
 

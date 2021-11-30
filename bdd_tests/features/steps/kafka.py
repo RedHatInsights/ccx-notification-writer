@@ -23,6 +23,7 @@ from behave import given, then, when
 
 
 @when(u"I retrieve metadata from Kafka broker running on {hostname}:{port}")
+@given(u"Kafka broker is available on {hostname}:{port}")
 def retrieve_broker_metadata(context, hostname, port):
     """Use the Kafkacat tool to retrieve metadata from Kafka broker."""
     # -J enables Kafkacat to produce output in JSON format
@@ -47,6 +48,8 @@ def retrieve_broker_metadata(context, hostname, port):
 
     # check encoding step
     assert encoded is not None
+
+    assert len(encoded["brokers"]) >= 1, "At least one available broker expected"
 
     # store encoded JSON data returned by Kafkacat utility
     context.broker_metadata = encoded
