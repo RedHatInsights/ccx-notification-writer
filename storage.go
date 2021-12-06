@@ -620,11 +620,9 @@ func (storage DBStorage) DatabaseInitMigration() error {
 		if err != nil {
 			// just log the error - it is expected
 			log.Info().Str(VersionMessage, createTableMigrationInfo).Msg(SQLStatementMessage)
-		} else {
+		} else if version == DatabaseVersion {
 			// migration table already exists and contains the right version
-			if version == DatabaseVersion {
-				return nil
-			}
+			return nil
 		}
 
 		// migration_info table initialization
