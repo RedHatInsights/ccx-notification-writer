@@ -36,5 +36,6 @@ def look_for_executable_file(context, filename):
 @then(u"I should find that file on PATH")
 def file_was_found(context):
     """Check if the file was found on PATH."""
-    assert context.found is not None, \
-        "executable filaname '{}' is not on PATH".format(context.filename)
+    assert context.found is not None, "executable filaname '{}' is not on PATH".format(
+        context.filename
+    )
