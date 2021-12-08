@@ -29,9 +29,11 @@ def retrieve_broker_metadata(context, hostname, port):
     # -J enables Kafkacat to produce output in JSON format
     # -L flag choose mode: metadata list
     address = "{}:{}".format(hostname, port)
-    out = subprocess.Popen(["kafkacat", "-b", address, "-L", "-J"],
-                           stdout=subprocess.PIPE,
-                           stderr=subprocess.STDOUT)
+    out = subprocess.Popen(
+        ["kafkacat", "-b", address, "-L", "-J"],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+    )
 
     # check if call was correct
     assert out is not None
@@ -41,7 +43,7 @@ def retrieve_broker_metadata(context, hostname, port):
     stdout, stderr = out.communicate()
 
     # try to decode output
-    output = stdout.decode('utf-8')
+    output = stdout.decode("utf-8")
 
     # JSON format is expected
     encoded = json.loads(output)
@@ -61,4 +63,6 @@ def find_available_brokers(context):
     assert "brokers" in context.broker_metadata, "'brokers' attribute expected"
 
     # just number of brokers needs to be checked, nothing else
-    assert len(context.broker_metadata["brokers"]) >= 1, "At least one available broker expected"
+    assert (
+        len(context.broker_metadata["brokers"]) >= 1
+    ), "At least one available broker expected"
