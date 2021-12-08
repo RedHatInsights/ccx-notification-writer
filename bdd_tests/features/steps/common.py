@@ -13,8 +13,6 @@
 # limitations under the License.
 
 from shutil import which
-import psycopg2
-from psycopg2.errors import UndefinedTable
 
 
 from behave import given, then, when
