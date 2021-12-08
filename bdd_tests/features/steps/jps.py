@@ -24,9 +24,9 @@ from behave import given, then, when
 def get_all_jvm_based_applications(context):
     """Use the jps tool to find all JVM-based applications."""
     # -l enables jps to display full package name which is required there
-    out = subprocess.Popen(["jps", "-l"],
-                           stdout=subprocess.PIPE,
-                           stderr=subprocess.STDOUT)
+    out = subprocess.Popen(
+        ["jps", "-l"], stdout=subprocess.PIPE, stderr=subprocess.STDOUT
+    )
 
     # check if call was correct
     assert out is not None
@@ -40,11 +40,12 @@ def get_all_jvm_based_applications(context):
     assert stdout is not None, "No output from application"
 
     # check the return code of a process
-    assert out.returncode == 0, \
-        "Return code is {}, but 0 is expected".format(out.returncode)
+    assert out.returncode == 0, "Return code is {}, but 0 is expected".format(
+        out.returncode
+    )
 
     # try to decode output
-    output = stdout.decode('utf-8').split("\n")
+    output = stdout.decode("utf-8").split("\n")
 
     # should not happen in reality, but let's be on the safe place
     assert output is not None
