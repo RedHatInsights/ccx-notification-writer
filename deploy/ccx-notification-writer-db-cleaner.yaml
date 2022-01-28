@@ -1,0 +1,106 @@
+apiVersion: v1
+kind: Template
+metadata:
+  annotations:
+    iconClass: icon-golang
+    tags: golang
+  name: ccx-notification-writer-db-cleaner
+objects:
+- apiVersion: batch/v1beta1
+  kind: CronJob
+  metadata:
+    annotations: {}
+    labels:
+      app: ccx-notification-writer-db-cleaner
+    name: ccx-notification-writer-db-cleaner
+  spec:
+    concurrencyPolicy: Forbid
+    failedJobsHistoryLimit: 2
+    jobTemplate:
+      spec:
+        template:
+          spec:
+            containers:
+            - command:
+              - /bin/sh
+              - -c
+              - ./ccx-notification-writer --old-reports-cleanup --max-age '8 days';
+                ./ccx-notification-writer --new-reports-cleanup --max-age '8 days'
+              env:
+              - name: CCX_NOTIFICATION_WRITER__BROKER__ENABLED
+                value: 'false'
+              - name: CCX_NOTIFICATION_WRITER__STORAGE__DB_DRIVER
+                value: postgres
+              - name: CCX_NOTIFICATION_WRITER__STORAGE__PG_USERNAME
+                valueFrom:
+                  secretKeyRef:
+                    key: db.user
+                    name: ${DATABASE_SERVICE_NAME}
+              - name: CCX_NOTIFICATION_WRITER__STORAGE__PG_PASSWORD
+                valueFrom:
+                  secretKeyRef:
+                    key: db.password
+                    name: ${DATABASE_SERVICE_NAME}
+              - name: CCX_NOTIFICATION_WRITER__STORAGE__PG_HOST
+                valueFrom:
+                  secretKeyRef:
+                    key: db.host
+                    name: ${DATABASE_SERVICE_NAME}
+              - name: CCX_NOTIFICATION_WRITER__STORAGE__PG_PORT
+                valueFrom:
+                  secretKeyRef:
+                    key: db.port
+                    name: ${DATABASE_SERVICE_NAME}
+              - name: CCX_NOTIFICATION_WRITER__STORAGE__PG_DB_NAME
+                valueFrom:
+                  secretKeyRef:
+                    key: db.name
+                    name: ${DATABASE_SERVICE_NAME}
+              - name: CCX_NOTIFICATION_WRITER__STORAGE__PG_PARAMS
+                value: sslmode=disable
+              - name: CCX_NOTIFICATION_WRITER__STORAGE__LOG_SQL_QUERIES
+                value: 'true'
+              - name: CCX_NOTIFICATION_WRITER__LOGGING__DEBUG
+                value: 'true'
+              - name: CCX_NOTIFICATION_WRITER__LOGGING__LEVEL
+                value: ''
+              image: quay.io/cloudservices/ccx-notification-writer:${IMAGE_TAG}
+              imagePullPolicy: Always
+              name: ccx-notification-writer-db-cleaner
+              resources:
+                limits:
+                  cpu: ${CPU_LIMIT}
+                  memory: ${MEMORY_LIMIT}
+                requests:
+                  cpu: ${CPU_REQUEST}
+                  memory: ${MEMORY_REQUEST}
+            imagePullSecrets:
+            - name: quay-cloudservices-pull
+            - name: rh-registry-pull
+            restartPolicy: Never
+    schedule: ${JOB_SCHEDULE}
+    successfulJobsHistoryLimit: 2
+    suspend: ${{SUSPEND_JOB}}
+parameters:
+- description: Should the cron job be disabled?
+  name: SUSPEND_JOB
+  value: 'false'
+- description: When the cronjob runs
+  name: JOB_SCHEDULE
+  value: 0 0 * * *
+- name: CPU_LIMIT
+  value: 500m
+- description: memory limit of service
+  name: MEMORY_LIMIT
+  value: 512Mi
+- name: CPU_REQUEST
+  value: 100m
+- description: memory request of service
+  name: MEMORY_REQUEST
+  value: 256Mi
+- name: DATABASE_SERVICE_NAME
+  required: true
+  value: ccx-notification-db
+- description: Image tag
+  name: IMAGE_TAG
+  required: true
