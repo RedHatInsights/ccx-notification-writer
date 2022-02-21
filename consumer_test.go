@@ -521,7 +521,7 @@ func TestProcessCorrectMessage(t *testing.T) {
 	assert.Equal(t, uint64(0), dummyConsumer.GetNumberOfErrorsConsumingMessages())
 }
 
-// TestConsumerSetup function checks the method KafkaConsumer.Cleanup().
+// TestConsumerSetup function checks the method KafkaConsumer.Setup().
 func TestConsumerSetup(t *testing.T) {
 	// construct mock storage
 	mockStorage := NewMockStorage()
