@@ -71,8 +71,6 @@ const (
 const (
 	// ExitStatusOK means that the tool finished with success
 	ExitStatusOK = iota
-	// ExitStatusError is a general error code
-	ExitStatusError
 	// ExitStatusConsumerError is returned in case of any consumer-related error
 	ExitStatusConsumerError
 	// ExitStatusKafkaError is returned in case of any Kafka-related error
