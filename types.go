@@ -77,13 +77,5 @@ type ClusterReport string
 // consider upgrading to semantic versioning.
 type SchemaVersion uint8
 
-// ReportItem data structure represents a single (hit) rule of the string
-// encoded report.
-type ReportItem struct {
-	Module       RuleID          `json:"component"`
-	ErrorKey     ErrorKey        `json:"key"`
-	TemplateData json.RawMessage `json:"details"`
-}
-
 // DBDriver type for db driver enum.
 type DBDriver int
