@@ -24,10 +24,6 @@ package main
 // Documentation in literate-programming-style is available at:
 // https://redhatinsights.github.io/ccx-notification-writer/packages/types.html
 
-import (
-	"encoding/json"
-)
-
 // CliFlags represents structure holding all command line arguments and flags.
 type CliFlags struct {
 	PerformDatabaseCleanup        bool
