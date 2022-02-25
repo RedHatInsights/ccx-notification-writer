@@ -81,13 +81,6 @@ type IncomingMessage struct {
 	RequestID   RequestID     `json:"RequestId"`
 }
 
-// Consumer represents any consumer of insights-rules messages
-type Consumer interface {
-	Serve()
-	Close() error
-	ProcessMessage(msg *sarama.ConsumerMessage) (RequestID, error)
-}
-
 // KafkaConsumer in an implementation of Consumer interface
 // Example:
 //
@@ -416,7 +409,7 @@ func (consumer *KafkaConsumer) ProcessMessage(msg *sarama.ConsumerMessage) (Requ
 		return message.RequestID, err
 	}
 
-	lastCheckedTimestampLagMinutes := time.Now().Sub(lastCheckedTime).Minutes()
+	lastCheckedTimestampLagMinutes := time.Since(lastCheckedTime).Minutes()
 	if lastCheckedTimestampLagMinutes < 0 {
 		errorMessage := "Got a message from the future"
 		logMessageError(consumer, msg, message, errorMessage, nil)
