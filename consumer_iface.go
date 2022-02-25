@@ -1,5 +1,5 @@
 /*
-Copyright © 2021 Red Hat, Inc.
+Copyright © 2022 Red Hat, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -15,6 +15,10 @@ limitations under the License.
 */
 
 package main
+
+import (
+	"github.com/Shopify/sarama"
+)
 
 // Consumer represents any consumer of insights-rules messages
 type Consumer interface {
