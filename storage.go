@@ -509,10 +509,6 @@ func finishTransaction(tx *sql.Tx, err error) {
 	}
 }
 
-func closeRows(rows *sql.Rows) {
-	_ = rows.Close()
-}
-
 func tablesRelatedOperation(storage DBStorage, cmd func(string) string) error {
 	// Begin a new transaction.
 	tx, err := storage.connection.Begin()
