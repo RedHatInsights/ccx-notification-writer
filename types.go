@@ -24,10 +24,6 @@ package main
 // Documentation in literate-programming-style is available at:
 // https://redhatinsights.github.io/ccx-notification-writer/packages/types.html
 
-import (
-	"encoding/json"
-)
-
 // CliFlags represents structure holding all command line arguments and flags.
 type CliFlags struct {
 	PerformDatabaseCleanup        bool
@@ -63,12 +59,6 @@ type AccountNumber uint32
 // c8590f31-e97e-4b85-b506-c45ce1911a12 (ie. in UUID format).
 type ClusterName string
 
-// RuleID represents type for rule id.
-type RuleID string
-
-// ErrorKey represents type for error key.
-type ErrorKey string
-
 // ClusterReport represents the whole cluster report.
 type ClusterReport string
 
@@ -76,14 +66,6 @@ type ClusterReport string
 // day need more versions or combination of versions, it would be better
 // consider upgrading to semantic versioning.
 type SchemaVersion uint8
-
-// ReportItem data structure represents a single (hit) rule of the string
-// encoded report.
-type ReportItem struct {
-	Module       RuleID          `json:"component"`
-	ErrorKey     ErrorKey        `json:"key"`
-	TemplateData json.RawMessage `json:"details"`
-}
 
 // DBDriver type for db driver enum.
 type DBDriver int
