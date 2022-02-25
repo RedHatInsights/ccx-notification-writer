@@ -63,12 +63,6 @@ type AccountNumber uint32
 // c8590f31-e97e-4b85-b506-c45ce1911a12 (ie. in UUID format).
 type ClusterName string
 
-// RuleID represents type for rule id.
-type RuleID string
-
-// ErrorKey represents type for error key.
-type ErrorKey string
-
 // ClusterReport represents the whole cluster report.
 type ClusterReport string
 
