@@ -81,13 +81,6 @@ type IncomingMessage struct {
 	RequestID   RequestID     `json:"RequestId"`
 }
 
-// Consumer represents any consumer of insights-rules messages
-type Consumer interface {
-	Serve()
-	Close() error
-	ProcessMessage(msg *sarama.ConsumerMessage) (RequestID, error)
-}
-
 // KafkaConsumer in an implementation of Consumer interface
 // Example:
 //
