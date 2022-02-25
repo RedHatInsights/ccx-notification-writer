@@ -28,6 +28,4 @@ const (
 	DBDriverSQLite3 DBDriver = iota
 	// DBDriverPostgres shows that db driver is postgres
 	DBDriverPostgres
-	// DBDriverGeneral general sql(used for mock now)
-	DBDriverGeneral
 )
