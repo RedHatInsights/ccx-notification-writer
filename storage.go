@@ -56,6 +56,12 @@ const (
                 );
 `
 
+	// Drops the indexing order of the updated_at column
+	// in the reported table
+	dropsUpdatedAtIndexingOrder = `
+				DROP INDEX IF EXISTS updated_at_desc_idx 
+`
+
 	// This table contains list of all notification types used by
 	// Notification service. Frequency can be specified as in `crontab` -
 	// https://crontab.guru/
@@ -162,10 +168,10 @@ const (
 `
 
 	// Index for the reported table
-	createIndexReportedUpdatedAtAsc = `
+	createIndexReportedUpdatedAtDesc = `
                 CREATE INDEX updated_at_desc_idx
 		    ON reported
-		 USING btree (updated_at ASC);
+		 USING btree (updated_at DESC);
 `
 
 	// Index for the notification_types table
@@ -272,7 +278,7 @@ const (
 
 // Other constants
 const (
-	DatabaseVersion = 1
+	DatabaseVersion = 2
 )
 
 // Storage represents an interface to almost any database or storage system
@@ -309,7 +315,7 @@ type DBStorage struct {
 
 // ErrOldReport is an error returned if a more recent already
 // exists on the storage while attempting to write a report for a cluster.
-var ErrOldReport = errors.New("More recent report already exists in storage")
+var ErrOldReport = errors.New("more recent report already exists in storage")
 
 // tableNames contains names of all tables in the database.
 var tableNames []string
@@ -363,7 +369,7 @@ func NewStorage(configuration StorageConfiguration) (*DBStorage, error) {
 		createIndexNewReportsUpdatedAtAsc,
 		createIndexNewReportsUpdatedAtDesc,
 		createIndexReportedNotifiedAtDesc,
-		createIndexReportedUpdatedAtAsc,
+		createIndexReportedUpdatedAtDesc,
 		createIndexNotificationTypesID,
 
 		// records
@@ -439,7 +445,7 @@ func (storage DBStorage) WriteReportForCluster(
 	kafkaOffset KafkaOffset,
 ) error {
 	if storage.dbDriverType != DBDriverSQLite3 && storage.dbDriverType != DBDriverPostgres {
-		return fmt.Errorf("Writing report with DB %v is not supported", storage.dbDriverType)
+		return fmt.Errorf("writing report with DB %v is not supported", storage.dbDriverType)
 	}
 
 	// Begin a new transaction.
@@ -618,6 +624,39 @@ func (storage DBStorage) DatabaseInitMigration() error {
 
 		// perform the SQL statement in transaction
 		_, err = tx.Exec(createTableMigrationInfo)
+		if err != nil {
+			return err
+		}
+		return nil
+	}(tx)
+
+	if err != nil {
+		finishTransaction(tx, err)
+		return err
+	}
+
+	err = func(tx *sql.Tx) error {
+		// try to retrieve database version info
+		version, err := storage.GetDatabaseVersionInfo()
+
+		// it is possible (and expected) that version can not be read
+		if err != nil {
+			// just log the error - it is expected
+			log.Info().Str(VersionMessage, createTableMigrationInfo).Msg(SQLStatementMessage)
+		} else if version == DatabaseVersion {
+			// migration table already exists and contains the right version
+			return nil
+		}
+		// drops old index
+		log.Info().Str(StatementMessage, dropsUpdatedAtIndexingOrder).Msg(SQLStatementMessage)
+		_, err = tx.Exec(dropsUpdatedAtIndexingOrder)
+		if err != nil {
+			return err
+		}
+
+		// recreates proper index
+		log.Info().Str(StatementMessage, createIndexReportedUpdatedAtDesc).Msg(SQLStatementMessage)
+		_, err = tx.Exec(createIndexReportedUpdatedAtDesc)
 		if err != nil {
 			return err
 		}
