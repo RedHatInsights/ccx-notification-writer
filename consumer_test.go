@@ -471,7 +471,7 @@ func TestProcessMessageFromFuture(t *testing.T) {
 	_, err := dummyConsumer.ProcessMessage(&message)
 
 	// check for errors - it should be reported
-	assert.EqualError(t, err, "Got a message from the future")
+	assert.EqualError(t, err, "got a message from the future")
 
 	// nothing should be written into storage
 	assert.Equal(t, 0, mockStorage.writeReportCalled)
