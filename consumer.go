@@ -411,7 +411,7 @@ func (consumer *KafkaConsumer) ProcessMessage(msg *sarama.ConsumerMessage) (Requ
 
 	lastCheckedTimestampLagMinutes := time.Since(lastCheckedTime).Minutes()
 	if lastCheckedTimestampLagMinutes < 0 {
-		errorMessage := "got a message from the future"
+		errorMessage := "Got a message from the future"
 		logMessageError(consumer, msg, message, errorMessage, nil)
 		return message.RequestID, errors.New(errorMessage)
 	}
