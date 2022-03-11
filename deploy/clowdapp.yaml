@@ -1,0 +1,428 @@
+# Copyright 2021 Red Hat, Inc
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+
+# TODO notification-db deployment
+# TODO notification-db-cleaner deployment
+
+---
+apiVersion: v1
+kind: Template
+metadata:
+  name: ccx-notification-writer
+objects:
+
+- kind: HorizontalPodAutoscaler
+  apiVersion: autoscaling/v1
+  metadata:
+    labels:
+      app: ccx-notification-writer
+    name: ccx-notification-writer
+  spec:
+    minReplicas: ${{MIN_REPLICAS}}
+    maxReplicas: ${{MAX_REPLICAS}}
+    scaleTargetRef:
+      apiVersion: apps/v1
+      kind: Deployment
+      name: ccx-notification-writer
+    targetCPUUtilizationPercentage: 80
+
+- apiVersion: cloud.redhat.com/v1alpha1
+  kind: ClowdApp
+  metadata:
+    name: ccx-notification-writer
+  spec:
+    envName: ${ENV_NAME}
+    testing:
+      iqePlugin: ccx
+    deployments:
+      # ccx-notification-writer
+      - name: ccx-notification-writer
+        minReplicas: ${{MIN_REPLICAS}}
+        webServices:
+          public:
+            enabled: false
+          private:
+            enabled: true
+          metrics:
+            enabled: true
+        podSpec:
+          initContainers:
+            - name: execute-migrations
+              image: ${IMAGE}:${IMAGE_TAG}
+              command:
+                - /bin/sh
+                - -c
+                - ./ccx-notification-writer --db-init-migration; ./ccx-notification-writer
+                  --db-init
+              env:
+              - name: CCX_NOTIFICATION_WRITER__BROKER__ADDRESS
+                value: ${KAFKA_BOOTSTRAP_HOST}:${KAFKA_BOOTSTRAP_PORT}
+              - name: CCX_NOTIFICATION_WRITER__BROKER__TOPIC
+                value: ${INCOMING_TOPIC}
+              - name: CCX_NOTIFICATION_WRITER__BROKER__GROUP
+                value: ${GROUP_ID}
+              - name: CCX_NOTIFICATION_WRITER__BROKER__ENABLED
+                value: 'false'
+              - name: CCX_NOTIFICATION_WRITER__STORAGE__DB_DRIVER
+                value: postgres
+              - name: CCX_NOTIFICATION_WRITER__STORAGE__PG_USERNAME
+                valueFrom:
+                  secretKeyRef:
+                    key: db.user
+                    name: ${DATABASE_SERVICE_NAME}
+              - name: CCX_NOTIFICATION_WRITER__STORAGE__PG_PASSWORD
+                valueFrom:
+                  secretKeyRef:
+                    key: db.password
+                    name: ${DATABASE_SERVICE_NAME}
+              - name: CCX_NOTIFICATION_WRITER__STORAGE__PG_HOST
+                valueFrom:
+                  secretKeyRef:
+                    key: db.host
+                    name: ${DATABASE_SERVICE_NAME}
+              - name: CCX_NOTIFICATION_WRITER__STORAGE__PG_PORT
+                valueFrom:
+                  secretKeyRef:
+                    key: db.port
+                    name: ${DATABASE_SERVICE_NAME}
+              - name: CCX_NOTIFICATION_WRITER__STORAGE__PG_DB_NAME
+                valueFrom:
+                  secretKeyRef:
+                    key: db.name
+                    name: ${DATABASE_SERVICE_NAME}
+              - name: CCX_NOTIFICATION_WRITER__STORAGE__PG_PARAMS
+                value: sslmode=disable
+              - name: CCX_NOTIFICATION_WRITER__STORAGE__LOG_SQL_QUERIES
+                value: 'true'
+              - name: CCX_NOTIFICATION_WRITER__LOGGING__DEBUG
+                value: 'true'
+              - name: CCX_NOTIFICATION_WRITER__LOGGING__LEVEL
+                value: ''
+              - name: CCX_NOTIFICATION_WRITER__METRICS__NAMESPACE
+                value: ${METRICS_NAMESPACE}
+              - name: CCX_NOTIFICATION_WRITER__METRICS__ADDRESS
+                value: :8080
+              resources:
+                limits:
+                  cpu: ${CPU_LIMIT}
+                  memory: ${MEMORY_LIMIT}
+                requests:
+                  cpu: ${CPU_REQUEST}
+                  memory: ${MEMORY_REQUEST}
+              # End of initContainer
+          image: ${IMAGE}:${IMAGE_TAG}
+          resources:
+            limits:
+              cpu: ${CPU_LIMIT}
+              memory: ${MEMORY_LIMIT}
+            requests:
+              cpu: ${CPU_REQUEST}
+              memory: ${MEMORY_REQUEST}
+          env:
+            - name: CCX_NOTIFICATION_WRITER__BROKER__ADDRESS
+              value: ${KAFKA_BOOTSTRAP_HOST}:${KAFKA_BOOTSTRAP_PORT}
+            - name: CCX_NOTIFICATION_WRITER__BROKER__TOPIC
+              value: ${INCOMING_TOPIC}
+            - name: CCX_NOTIFICATION_WRITER__BROKER__GROUP
+              value: ${GROUP_ID}
+            - name: CCX_NOTIFICATION_WRITER__BROKER__ENABLED
+              value: 'true'
+            - name: CCX_NOTIFICATION_WRITER__STORAGE__DB_DRIVER
+              value: postgres
+            - name: CCX_NOTIFICATION_WRITER__STORAGE__PG_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  key: db.user
+                  name: ${DATABASE_SERVICE_NAME}
+            - name: CCX_NOTIFICATION_WRITER__STORAGE__PG_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: db.password
+                  name: ${DATABASE_SERVICE_NAME}
+            - name: CCX_NOTIFICATION_WRITER__STORAGE__PG_HOST
+              valueFrom:
+                secretKeyRef:
+                  key: db.host
+                  name: ${DATABASE_SERVICE_NAME}
+            - name: CCX_NOTIFICATION_WRITER__STORAGE__PG_PORT
+              valueFrom:
+                secretKeyRef:
+                  key: db.port
+                  name: ${DATABASE_SERVICE_NAME}
+            - name: CCX_NOTIFICATION_WRITER__STORAGE__PG_DB_NAME
+              valueFrom:
+                secretKeyRef:
+                  key: db.name
+                  name: ${DATABASE_SERVICE_NAME}
+            - name: CCX_NOTIFICATION_WRITER__STORAGE__PG_PARAMS
+              value: sslmode=disable
+            - name: CCX_NOTIFICATION_WRITER__STORAGE__LOG_SQL_QUERIES
+              value: 'true'
+            - name: CCX_NOTIFICATION_WRITER__LOGGING__DEBUG
+              value: 'true'
+            - name: CCX_NOTIFICATION_WRITER__LOGGING__LEVEL
+              value: ''
+            - name: CCX_NOTIFICATION_WRITER__METRICS__NAMESPACE
+              value: ${METRICS_NAMESPACE}
+            - name: CCX_NOTIFICATION_WRITER__METRICS__ADDRESS
+              value: :8080
+
+      # ccx-notification-db-cleaner
+      - name: ccx-notification-db-cleaner
+        schedule: ${DB_CLEANER_JOB_SCHEDULE}
+        restartPolicy: Never
+        concurrencyPolicy: Forbid
+        activeDeadlineSeconds: 600
+        suspend: ${{SUSPEND_JOB}}
+        podSpec:
+        - command:
+          - /bin/sh
+          - -c
+          - ./ccx-notification-writer --old-reports-cleanup --max-age '8 days';
+            ./ccx-notification-writer --new-reports-cleanup --max-age '8 days'
+          image: ${IMAGE}:${IMAGE_TAG}
+          resources:
+            limits:
+              cpu: ${CPU_LIMIT}
+              memory: ${MEMORY_LIMIT}
+            requests:
+              cpu: ${CPU_REQUEST}
+              memory: ${MEMORY_REQUEST}
+          env:
+          - name: CCX_NOTIFICATION_WRITER__BROKER__ENABLED
+            value: 'false'
+          - name: CCX_NOTIFICATION_WRITER__STORAGE__DB_DRIVER
+            value: postgres
+          - name: CCX_NOTIFICATION_WRITER__STORAGE__PG_USERNAME
+            valueFrom:
+              secretKeyRef:
+                key: db.user
+                name: ${DATABASE_SERVICE_NAME}
+          - name: CCX_NOTIFICATION_WRITER__STORAGE__PG_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                key: db.password
+                name: ${DATABASE_SERVICE_NAME}
+          - name: CCX_NOTIFICATION_WRITER__STORAGE__PG_HOST
+            valueFrom:
+              secretKeyRef:
+                key: db.host
+                name: ${DATABASE_SERVICE_NAME}
+          - name: CCX_NOTIFICATION_WRITER__STORAGE__PG_PORT
+            valueFrom:
+              secretKeyRef:
+                key: db.port
+                name: ${DATABASE_SERVICE_NAME}
+          - name: CCX_NOTIFICATION_WRITER__STORAGE__PG_DB_NAME
+            valueFrom:
+              secretKeyRef:
+                key: db.name
+                name: ${DATABASE_SERVICE_NAME}
+          - name: CCX_NOTIFICATION_WRITER__STORAGE__PG_PARAMS
+            value: sslmode=disable
+          - name: CCX_NOTIFICATION_WRITER__STORAGE__LOG_SQL_QUERIES
+            value: 'true'
+          - name: CCX_NOTIFICATION_WRITER__LOGGING__DEBUG
+            value: 'true'
+          - name: CCX_NOTIFICATION_WRITER__LOGGING__LEVEL
+            value: ''
+
+      # ccx-notification-db
+      - name: ${DATABASE_SERVICE_NAME}
+        minReadySeconds: 15
+        progressDeadlineSeconds: 600
+        minReplicas: ${{DB_REPLICAS}}
+        revisionHistoryLimit: 9
+        webServices:
+          public:
+            enabled: false
+          private:
+            enabled: true
+          metrics:
+            enabled: true
+        selector:
+          matchLabels:
+            app: ${DATABASE_SERVICE_NAME}
+        strategy:
+          type: Recreate
+        podSpec:
+        - name: postgresql
+          image: ${DB_IMAGE}:${DB_IMAGE_TAG}
+          dnsPolicy: ClusterFirst
+          resources:
+            limits:
+              cpu: ${CPU_LIMIT}
+              memory: ${MEMORY_LIMIT}
+            requests:
+              cpu: ${CPU_REQUEST}
+              memory: ${MEMORY_REQUEST}
+          livenessProbe:
+            exec:
+              command:
+              - /usr/libexec/check-container
+              - --live
+            initialDelaySeconds: 120
+            timeoutSeconds: 10
+          ports:
+          - containerPort: 5432
+            protocol: TCP
+          readinessProbe:
+            exec:
+              command:
+              - /usr/libexec/check-container
+            initialDelaySeconds: 5
+            timeoutSeconds: 1
+          volumeMounts:
+          - mountPath: /var/lib/pgsql/data
+            name: data
+          env:
+          - name: POSTGRESQL_USER
+            valueFrom:
+              secretKeyRef:
+                key: db.user
+                name: ${DATABASE_SERVICE_NAME}
+          - name: POSTGRESQL_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                key: db.password
+                name: ${DATABASE_SERVICE_NAME}
+          - name: POSTGRESQL_ADMIN_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                key: db.password
+                name: ${DATABASE_SERVICE_NAME}
+          - name: POSTGRESQL_DATABASE
+            valueFrom:
+              secretKeyRef:
+                key: db.name
+                name: ${DATABASE_SERVICE_NAME}
+          - name: POSTGRESQL_MAX_CONNECTIONS
+            value: '100'
+        volumes:
+        - emptyDir: {}
+          name: data
+
+
+# Expose Prometheus metrix
+- kind: Service
+  apiVersion: v1
+  metadata:
+    annotations:
+      prometheus.io/path: ${IRDW_API_PREFIX}metrics
+      prometheus.io/port: '8080'
+      prometheus.io/scheme: http
+      prometheus.io/scrape: 'true'
+    name: ccx-notification-writer-prometheus-exporter
+    labels:
+      app: ccx-notification-writer
+  spec:
+    ports:
+      - name: ccx-notification-writer-metrics-port
+        port: 8080
+        protocol: TCP
+        targetPort: 8080
+    selector:
+      app: ccx-notification-writer
+    sessionAffinity: None
+    type: ClusterIP
+
+# Expose Postgresql
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      description: Exposes the database server
+    name: ${DATABASE_SERVICE_NAME}
+  spec:
+    ports:
+    - name: postgresql
+      port: 5432
+      targetPort: 5432
+    selector:
+      app: ${DATABASE_SERVICE_NAME}
+
+
+parameters:
+# general params
+- description: Image name
+  name: IMAGE
+  value: quay.io/cloudservices/ccx-notification-writer
+- description: Image tag
+  name: IMAGE_TAG
+  required: true
+- description: Determines Clowder deployment
+  name: CLOWDER_ENABLED
+  value: "true"
+- description: Env Name
+  name: ENV_NAME
+  required: true
+- description: Minimum number of pods to use when autoscaling is enabled
+  name: MIN_REPLICAS
+  value: '1'
+- description: Maximum number of pods to use when autoscaling is enabled
+  name: MAX_REPLICAS
+  value: '1'
+- name: CPU_LIMIT
+  value: 500m
+- description: memory limit of service
+  name: MEMORY_LIMIT
+  value: 512Mi
+- name: CPU_REQUEST
+  value: 100m
+- description: memory request of service
+  name: MEMORY_REQUEST
+  value: 256Mi
+- name: DATABASE_SERVICE_NAME
+  required: true
+  value: ccx-notification-db
+- name: IRDW_API_PREFIX
+  required: true
+  value: /
+
+# params ccx-notification-writer
+- name: KAFKA_BOOTSTRAP_HOST
+  required: true
+  value: mq-kafka
+- name: KAFKA_BOOTSTRAP_PORT
+  required: true
+  value: '29092'
+- name: INCOMING_TOPIC
+  required: true
+  value: ccx.ocp.results
+- name: GROUP_ID
+  required: true
+  value: ccx_notification_app
+- name: METRICS_NAMESPACE
+  value: ccx_notification_writer
+
+# params ccx-notification-db-cleaner
+- description: Should the cron job be disabled?
+  name: SUSPEND_JOB
+  value: 'false'
+- description: When the cronjob runs
+  name: DB_CLEANER_JOB_SCHEDULE
+  value: 0 0 * * *
+
+# params ccx-notification-db
+- description: DB Image name
+  name: DB_IMAGE
+  value: registry.access.redhat.com/rhscl/postgresql-10-rhel7
+- description: DB Image tag
+  name: DB_IMAGE_TAG
+  value: latest
+- description: The number of replicas to be used by the DB
+  displayName: DB Replicas
+  name: DB_REPLICAS
+  value: '0'
