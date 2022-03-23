@@ -316,7 +316,10 @@ objects:
         volumes:
         - emptyDir: {}
           name: data
-
+    database:
+      # the DB name should match to app-interface DB name without specifying environment
+      name: ccx-notification-db
+      version: 12
 
 # Expose Prometheus metrix
 - kind: Service
