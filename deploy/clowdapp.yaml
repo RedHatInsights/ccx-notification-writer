@@ -13,9 +13,6 @@
 # limitations under the License.
 
 
-# TODO notification-db deployment
-# TODO notification-db-cleaner deployment
-
 ---
 apiVersion: v1
 kind: Template
@@ -47,9 +44,7 @@ objects:
     testing:
       iqePlugin: ccx
     deployments:
-      # ccx-notification-writer
-      - name: ccx-notification-writer
-        minReplicas: ${{MIN_REPLICAS}}
+      - minReplicas: ${{MIN_REPLICAS}}
         webServices:
           public:
             enabled: false
@@ -180,68 +175,6 @@ objects:
             - name: CCX_NOTIFICATION_WRITER__METRICS__ADDRESS
               value: :8080
 
-      # ccx-notification-db-cleaner
-      - name: ccx-notification-db-cleaner
-        schedule: ${DB_CLEANER_JOB_SCHEDULE}
-        restartPolicy: Never
-        concurrencyPolicy: Forbid
-        activeDeadlineSeconds: 600
-        suspend: ${{SUSPEND_JOB}}
-        podSpec:
-          command:
-            - /bin/sh
-            - '-c'
-            - >-
-              ./ccx-notification-writer --old-reports-cleanup --max-age '8
-              days'; ./ccx-notification-writer --new-reports-cleanup
-              --max-age '8 days' 
-          image: ${IMAGE}:${IMAGE_TAG}
-          resources:
-            limits:
-              cpu: ${CPU_LIMIT}
-              memory: ${MEMORY_LIMIT}
-            requests:
-              cpu: ${CPU_REQUEST}
-              memory: ${MEMORY_REQUEST}
-          env:
-          - name: CCX_NOTIFICATION_WRITER__BROKER__ENABLED
-            value: 'false'
-          - name: CCX_NOTIFICATION_WRITER__STORAGE__DB_DRIVER
-            value: postgres
-          - name: CCX_NOTIFICATION_WRITER__STORAGE__PG_USERNAME
-            valueFrom:
-              secretKeyRef:
-                key: db.user
-                name: ${DATABASE_SERVICE_NAME}
-          - name: CCX_NOTIFICATION_WRITER__STORAGE__PG_PASSWORD
-            valueFrom:
-              secretKeyRef:
-                key: db.password
-                name: ${DATABASE_SERVICE_NAME}
-          - name: CCX_NOTIFICATION_WRITER__STORAGE__PG_HOST
-            valueFrom:
-              secretKeyRef:
-                key: db.host
-                name: ${DATABASE_SERVICE_NAME}
-          - name: CCX_NOTIFICATION_WRITER__STORAGE__PG_PORT
-            valueFrom:
-              secretKeyRef:
-                key: db.port
-                name: ${DATABASE_SERVICE_NAME}
-          - name: CCX_NOTIFICATION_WRITER__STORAGE__PG_DB_NAME
-            valueFrom:
-              secretKeyRef:
-                key: db.name
-                name: ${DATABASE_SERVICE_NAME}
-          - name: CCX_NOTIFICATION_WRITER__STORAGE__PG_PARAMS
-            value: sslmode=disable
-          - name: CCX_NOTIFICATION_WRITER__STORAGE__LOG_SQL_QUERIES
-            value: 'true'
-          - name: CCX_NOTIFICATION_WRITER__LOGGING__DEBUG
-            value: 'true'
-          - name: CCX_NOTIFICATION_WRITER__LOGGING__LEVEL
-            value: ''
-
     database:
       # the DB name should match to app-interface DB name without specifying environment
       name: ccx-notification-db
@@ -322,8 +255,6 @@ parameters:
 - name: IRDW_API_PREFIX
   required: true
   value: /
-
-# params ccx-notification-writer
 - name: KAFKA_BOOTSTRAP_HOST
   required: true
   value: mq-kafka
@@ -338,11 +269,3 @@ parameters:
   value: ccx_notification_app
 - name: METRICS_NAMESPACE
   value: ccx_notification_writer
-
-# params ccx-notification-db-cleaner
-- description: Should the cron job be disabled?
-  name: SUSPEND_JOB
-  value: 'false'
-- description: When the cronjob runs
-  name: DB_CLEANER_JOB_SCHEDULE
-  value: 0 0 * * *
