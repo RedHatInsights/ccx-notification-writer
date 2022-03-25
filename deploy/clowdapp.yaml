@@ -188,7 +188,7 @@ objects:
         activeDeadlineSeconds: 600
         suspend: ${{SUSPEND_JOB}}
         podSpec:
-        - command:
+          command:
             - /bin/sh
             - '-c'
             - >-
@@ -242,80 +242,6 @@ objects:
           - name: CCX_NOTIFICATION_WRITER__LOGGING__LEVEL
             value: ''
 
-      # ccx-notification-db
-      - name: ${DATABASE_SERVICE_NAME}
-        minReadySeconds: 15
-        progressDeadlineSeconds: 600
-        minReplicas: ${{DB_REPLICAS}}
-        revisionHistoryLimit: 9
-        webServices:
-          public:
-            enabled: false
-          private:
-            enabled: true
-          metrics:
-            enabled: true
-        selector:
-          matchLabels:
-            app: ${DATABASE_SERVICE_NAME}
-        strategy:
-          type: Recreate
-        podSpec:
-        - name: postgresql
-          image: ${DB_IMAGE}:${DB_IMAGE_TAG}
-          dnsPolicy: ClusterFirst
-          resources:
-            limits:
-              cpu: ${CPU_LIMIT}
-              memory: ${MEMORY_LIMIT}
-            requests:
-              cpu: ${CPU_REQUEST}
-              memory: ${MEMORY_REQUEST}
-          livenessProbe:
-            exec:
-              command:
-              - /usr/libexec/check-container
-              - --live
-            initialDelaySeconds: 120
-            timeoutSeconds: 10
-          ports:
-          - containerPort: 5432
-            protocol: TCP
-          readinessProbe:
-            exec:
-              command:
-              - /usr/libexec/check-container
-            initialDelaySeconds: 5
-            timeoutSeconds: 1
-          volumeMounts:
-          - mountPath: /var/lib/pgsql/data
-            name: data
-          env:
-          - name: POSTGRESQL_USER
-            valueFrom:
-              secretKeyRef:
-                key: db.user
-                name: ${DATABASE_SERVICE_NAME}
-          - name: POSTGRESQL_PASSWORD
-            valueFrom:
-              secretKeyRef:
-                key: db.password
-                name: ${DATABASE_SERVICE_NAME}
-          - name: POSTGRESQL_ADMIN_PASSWORD
-            valueFrom:
-              secretKeyRef:
-                key: db.password
-                name: ${DATABASE_SERVICE_NAME}
-          - name: POSTGRESQL_DATABASE
-            valueFrom:
-              secretKeyRef:
-                key: db.name
-                name: ${DATABASE_SERVICE_NAME}
-          - name: POSTGRESQL_MAX_CONNECTIONS
-            value: '100'
-        volumes:
-        - emptyDir: {}
-          name: data
     database:
       # the DB name should match to app-interface DB name without specifying environment
       name: ccx-notification-db
@@ -420,15 +346,3 @@ parameters:
 - description: When the cronjob runs
   name: DB_CLEANER_JOB_SCHEDULE
   value: 0 0 * * *
-
-# params ccx-notification-db
-- description: DB Image name
-  name: DB_IMAGE
-  value: registry.access.redhat.com/rhscl/postgresql-10-rhel7
-- description: DB Image tag
-  name: DB_IMAGE_TAG
-  value: latest
-- description: The number of replicas to be used by the DB
-  displayName: DB Replicas
-  name: DB_REPLICAS
-  value: '0'
