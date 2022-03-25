@@ -246,6 +246,16 @@ objects:
       # the DB name should match to app-interface DB name without specifying environment
       name: ccx-notification-db
       version: 12
+    kafkaTopics:
+      - replicas: 3
+        partitions: 16
+        topicName: platform.upload.buckit
+      - replicas: 3
+        partitions: 1
+        topicName: ccx.ocp.results
+      - replicas: 3
+        partitions: 1
+        topicName: platform.payload-status
 
 # Expose Prometheus metrix
 - kind: Service
