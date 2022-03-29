@@ -44,7 +44,8 @@ objects:
     testing:
       iqePlugin: ccx
     deployments:
-      - minReplicas: ${{MIN_REPLICAS}}
+      - name: ccx-notification-writer
+        minReplicas: ${{MIN_REPLICAS}}
         webServices:
           public:
             enabled: false
