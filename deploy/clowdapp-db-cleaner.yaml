@@ -14,6 +14,7 @@ objects:
     testing:
       iqePlugin: ccx
     jobs:
+      - name: instance
       - schedule: ${JOB_SCHEDULE}
         restartPolicy: Never
         concurrencyPolicy: Forbid

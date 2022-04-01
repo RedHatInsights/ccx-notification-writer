@@ -44,7 +44,7 @@ objects:
     testing:
       iqePlugin: ccx
     deployments:
-      - name: ccx-notification-writer
+      - name: instance
         minReplicas: ${{MIN_REPLICAS}}
         webServices:
           public:
