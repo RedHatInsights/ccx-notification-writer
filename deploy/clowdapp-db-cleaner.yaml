@@ -112,5 +112,5 @@ parameters:
   name: SUSPEND_JOB
   value: 'false'
 - description: When the cronjob runs
-  name: DB_CLEANER_JOB_SCHEDULE
+  name: JOB_SCHEDULE
   value: 0 0 * * *
