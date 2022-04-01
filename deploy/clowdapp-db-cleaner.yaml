@@ -11,6 +11,10 @@ objects:
     name: ccx-notification-db-cleaner
   spec:
     envName: ${ENV_NAME}
+    dependencies:
+      - ccx-notification-writer
+    database:
+      sharedDbAppName: ccx-notification-writer
     testing:
       iqePlugin: ccx
     jobs:
@@ -75,8 +79,6 @@ objects:
               ./ccx-notification-writer --old-reports-cleanup --max-age '8
               days'; ./ccx-notification-writer --new-reports-cleanup
               --max-age '8 days' 
-    database:
-      sharedDbAppName: ccx-notification-writer
 
 
 parameters:
