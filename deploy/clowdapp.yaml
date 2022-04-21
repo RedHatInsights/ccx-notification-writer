@@ -24,7 +24,7 @@ objects:
   apiVersion: autoscaling/v1
   metadata:
     labels:
-      app: ccx-notification-writer
+      app: ccx-data-pipeline
     name: ccx-notification-writer
   spec:
     minReplicas: ${{MIN_REPLICAS}}
