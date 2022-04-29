@@ -41,6 +41,9 @@ objects:
     name: ccx-notification-writer
   spec:
     envName: ${ENV_NAME}
+    dependencies:
+      - notifications-backend
+      - notifications-engine
     testing:
       iqePlugin: ccx
     deployments:
