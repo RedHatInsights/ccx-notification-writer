@@ -41,6 +41,9 @@ objects:
     name: ccx-notification-writer
   spec:
     envName: ${ENV_NAME}
+    dependencies:
+      - notifications-backend
+      - notifications-engine
     testing:
       iqePlugin: ccx
     deployments:
@@ -50,7 +53,7 @@ objects:
           public:
             enabled: false
           private:
-            enabled: true
+            enabled: false
           metrics:
             enabled: true
         podSpec:
@@ -74,31 +77,6 @@ objects:
                 value: 'false'
               - name: CCX_NOTIFICATION_WRITER__STORAGE__DB_DRIVER
                 value: postgres
-              - name: CCX_NOTIFICATION_WRITER__STORAGE__PG_USERNAME
-                valueFrom:
-                  secretKeyRef:
-                    key: db.user
-                    name: ${DATABASE_SERVICE_NAME}
-              - name: CCX_NOTIFICATION_WRITER__STORAGE__PG_PASSWORD
-                valueFrom:
-                  secretKeyRef:
-                    key: db.password
-                    name: ${DATABASE_SERVICE_NAME}
-              - name: CCX_NOTIFICATION_WRITER__STORAGE__PG_HOST
-                valueFrom:
-                  secretKeyRef:
-                    key: db.host
-                    name: ${DATABASE_SERVICE_NAME}
-              - name: CCX_NOTIFICATION_WRITER__STORAGE__PG_PORT
-                valueFrom:
-                  secretKeyRef:
-                    key: db.port
-                    name: ${DATABASE_SERVICE_NAME}
-              - name: CCX_NOTIFICATION_WRITER__STORAGE__PG_DB_NAME
-                valueFrom:
-                  secretKeyRef:
-                    key: db.name
-                    name: ${DATABASE_SERVICE_NAME}
               - name: CCX_NOTIFICATION_WRITER__STORAGE__PG_PARAMS
                 value: sslmode=disable
               - name: CCX_NOTIFICATION_WRITER__STORAGE__LOG_SQL_QUERIES
@@ -138,31 +116,6 @@ objects:
               value: 'true'
             - name: CCX_NOTIFICATION_WRITER__STORAGE__DB_DRIVER
               value: postgres
-            - name: CCX_NOTIFICATION_WRITER__STORAGE__PG_USERNAME
-              valueFrom:
-                secretKeyRef:
-                  key: db.user
-                  name: ${DATABASE_SERVICE_NAME}
-            - name: CCX_NOTIFICATION_WRITER__STORAGE__PG_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  key: db.password
-                  name: ${DATABASE_SERVICE_NAME}
-            - name: CCX_NOTIFICATION_WRITER__STORAGE__PG_HOST
-              valueFrom:
-                secretKeyRef:
-                  key: db.host
-                  name: ${DATABASE_SERVICE_NAME}
-            - name: CCX_NOTIFICATION_WRITER__STORAGE__PG_PORT
-              valueFrom:
-                secretKeyRef:
-                  key: db.port
-                  name: ${DATABASE_SERVICE_NAME}
-            - name: CCX_NOTIFICATION_WRITER__STORAGE__PG_DB_NAME
-              valueFrom:
-                secretKeyRef:
-                  key: db.name
-                  name: ${DATABASE_SERVICE_NAME}
             - name: CCX_NOTIFICATION_WRITER__STORAGE__PG_PARAMS
               value: sslmode=disable
             - name: CCX_NOTIFICATION_WRITER__STORAGE__LOG_SQL_QUERIES
@@ -180,6 +133,10 @@ objects:
       # the DB name should match to app-interface DB name without specifying environment
       name: ccx-notification-db
       version: 12
+    kafkaTopics:
+      - topicName: ${INCOMING_TOPIC}
+        partitions: 1
+        replicas: 3
 
 # Expose Prometheus metrix
 - kind: Service
