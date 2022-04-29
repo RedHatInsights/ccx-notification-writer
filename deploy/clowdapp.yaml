@@ -53,7 +53,7 @@ objects:
           public:
             enabled: false
           private:
-            enabled: true
+            enabled: false
           metrics:
             enabled: true
         podSpec:
