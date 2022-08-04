@@ -14,6 +14,7 @@ CCX notification writer service
 
 * [Description](#description)
 * [Building](#building)
+* [BDD tests](#bdd-tests)
 * [Usage](#usage)
 * [Starting the service](#starting-the-service)
 * [Cleanup old records](#cleanup-old-records)
@@ -82,6 +83,19 @@ bdd_tests            Run BDD tests
 before_commit        Checks done before commit
 help                 Show this help screen
 ```
+
+## BDD tests
+
+Behaviour tests for this service are included in [Insights Behavioral
+Spec](https://github.com/RedHatInsights/insights-behavioral-spec) repository.
+In order to run these tests, the following steps need to be made:
+
+1. clone the [Insights Behavioral Spec](https://github.com/RedHatInsights/insights-behavioral-spec) repository
+1. go into the cloned subdirectory `insights-behavioral-spec`
+1. run the `notification_writer_tests.sh` from this subdirectory
+
+List of all test scenarios prepared for this service is available at
+<https://github.com/RedHatInsights/insights-behavioral-spec#ccx-notification-writer>
 
 ## Usage
 

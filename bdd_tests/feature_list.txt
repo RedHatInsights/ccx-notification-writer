@@ -1,5 +1,0 @@
-features/smoketests.feature
-features/cli_flags.feature
-features/display_old_records.feature
-features/cleanup_old_records.feature
-features/cleanup_new_records.feature
