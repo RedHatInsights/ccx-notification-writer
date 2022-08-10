@@ -212,7 +212,7 @@ const (
 	// Value to be stored in migration_info table
 	insertMigrationVersion = `
                 INSERT INTO migration_info (version)
-		            VALUES (1);
+		            VALUES (0);
 `
 	// Value to be stored in notification_types table
 	insertInstantReport = `
@@ -272,7 +272,7 @@ const (
 
 // Other constants
 const (
-	DatabaseVersion = 1
+	DatabaseVersion = 0
 )
 
 // Storage represents an interface to almost any database or storage system
@@ -309,7 +309,7 @@ type DBStorage struct {
 
 // ErrOldReport is an error returned if a more recent already
 // exists on the storage while attempting to write a report for a cluster.
-var ErrOldReport = errors.New("More recent report already exists in storage")
+var ErrOldReport = errors.New("more recent report already exists in storage")
 
 // tableNames contains names of all tables in the database.
 var tableNames []string
@@ -439,7 +439,7 @@ func (storage DBStorage) WriteReportForCluster(
 	kafkaOffset KafkaOffset,
 ) error {
 	if storage.dbDriverType != DBDriverSQLite3 && storage.dbDriverType != DBDriverPostgres {
-		return fmt.Errorf("Writing report with DB %v is not supported", storage.dbDriverType)
+		return fmt.Errorf("writing report with DB %v is not supported", storage.dbDriverType)
 	}
 
 	// Begin a new transaction.
@@ -608,8 +608,8 @@ func (storage DBStorage) DatabaseInitMigration() error {
 		if err != nil {
 			// just log the error - it is expected
 			log.Info().Str(VersionMessage, createTableMigrationInfo).Msg(SQLStatementMessage)
-		} else if version == DatabaseVersion {
-			// migration table already exists and contains the right version
+		} else if version > 0 {
+			// migration table already exists and contains a positive, non zero version
 			return nil
 		}
 
@@ -775,4 +775,9 @@ func (storage DBStorage) CleanupNewReports(maxAge string) (int, error) {
 // than specified relative time
 func (storage DBStorage) CleanupOldReports(maxAge string) (int, error) {
 	return storage.Cleanup(maxAge, deleteOldRecordsFromReportedTable)
+}
+
+// Connection returns the storage connection
+func (storage DBStorage) Connection() *sql.DB {
+	return storage.connection
 }

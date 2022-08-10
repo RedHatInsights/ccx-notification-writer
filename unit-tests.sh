@@ -24,4 +24,30 @@ function run_unit_tests() {
     fi
 }
 
+function check_composer() {
+    if command -v docker-compose > /dev/null; then
+        COMPOSER=docker-compose
+    elif command -v podman-compose > /dev/null; then
+        COMPOSER=podman-compose
+    else
+        echo "Please, install docker-compose or podman-compose to run this tests"
+        exit 1
+    fi
+}
+
+if [ -z "$CI" ]; then
+    echo "Running postgres container locally"
+    check_composer
+    $COMPOSER up -d > /dev/null
+fi
+
+path_to_config=$(pwd)/config-devel.toml
+export CCX_NOTIFICATION_WRITER_CONFIG_FILE="$path_to_config"
+export CCX_NOTIFICATION_WRITER__TESTS_DB="postgres"
+export CCX_NOTIFICATION_WRITER__TESTS_DB_ADMIN_PASS="admin"
 run_unit_tests
+
+if [ -z "$CI" ]; then
+    echo "Stopping postgres container"
+    $COMPOSER down > /dev/null
+fi

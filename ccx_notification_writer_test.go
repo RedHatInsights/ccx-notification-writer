@@ -1,5 +1,5 @@
 /*
-Copyright © 2021 Red Hat, Inc.
+Copyright © 2021 - 2022 Red Hat, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -164,7 +164,7 @@ func TestDoSelectedOperationShowConfiguration(t *testing.T) {
 		log.Logger = log.Output(zerolog.New(os.Stderr))
 		code, err := main.DoSelectedOperation(configuration, cliFlags)
 		assert.Equal(t, code, main.ExitStatusOK)
-		assert.Nil(t, err)
+		assert.NoError(t, err)
 	})
 
 	// check the captured text

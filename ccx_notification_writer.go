@@ -34,7 +34,9 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"strconv"
 
+	utils "github.com/RedHatInsights/insights-operator-utils/migrations"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 
 	"github.com/Shopify/sarama"
@@ -59,6 +61,7 @@ const (
 	databaseCleanupOldReportsOperationFailedMessage         = "Cleanup records from `reported` table failed"
 	rowsDeletedMessage                                      = "Rows deleted"
 	brokerAddress                                           = "Broker address"
+	StorageHandleErr                                        = "unable to get storage handle"
 )
 
 // Configuration-related constants
@@ -79,6 +82,8 @@ const (
 	ExitStatusStorageError
 	// ExitStatusHTTPServerError is returned in case the HTTP server can not be started
 	ExitStatusHTTPServerError
+	// ExitStatusMigrationError is returned in case of an error while attempting to perform DB migrations
+	ExitStatusMigrationError
 )
 
 // showVersion function displays version information.
@@ -391,6 +396,8 @@ func startHTTPServer(address string) error {
 // doSelectedOperation function perform operation selected on command line.
 // When no operation is specified, the Notification writer service is started
 // instead.
+//
+//gocyclo:ignore
 func doSelectedOperation(configuration ConfigStruct, cliFlags CliFlags) (int, error) {
 	switch {
 	case cliFlags.ShowVersion:
@@ -420,6 +427,10 @@ func doSelectedOperation(configuration ConfigStruct, cliFlags CliFlags) (int, er
 		return printOldReportsForCleanup(configuration, cliFlags)
 	case cliFlags.PerformOldReportsCleanup:
 		return performOldReportsCleanup(configuration, cliFlags)
+	case cliFlags.MigrationInfo:
+		return PrintMigrationInfo(configuration)
+	case cliFlags.PerformMigrations != "":
+		return PerformMigrations(configuration, cliFlags.PerformMigrations)
 	default:
 		exitCode, err := startService(configuration)
 		return exitCode, err
@@ -444,7 +455,9 @@ func main() {
 	flag.BoolVar(&cliFlags.PerformNewReportsCleanup, "new-reports-cleanup", false, "perform new reports clean up")
 	flag.BoolVar(&cliFlags.PrintOldReportsForCleanup, "print-old-reports-for-cleanup", false, "print old reports to be cleaned up")
 	flag.BoolVar(&cliFlags.PerformOldReportsCleanup, "old-reports-cleanup", false, "perform old reports clean up")
+	flag.BoolVar(&cliFlags.MigrationInfo, "migration-info", false, "prints migration info")
 	flag.StringVar(&cliFlags.MaxAge, "max-age", "", "max age for displaying/cleaning old records")
+	flag.StringVar(&cliFlags.PerformMigrations, "migrate", "", "set database version")
 	flag.Parse()
 
 	// config has exactly the same structure as *.toml file
@@ -473,4 +486,62 @@ func main() {
 	}
 
 	log.Debug().Msg("Finished")
+}
+
+// PrintMigrationInfo function prints information about current DB migration
+// version without making any modifications.
+func PrintMigrationInfo(conf ConfigStruct) (int, error) {
+	storage, err := NewStorage(conf.Storage)
+	if err != nil {
+		log.Error().Err(err).Msg(StorageHandleErr)
+		return ExitStatusMigrationError, err
+	}
+	currMigVer, err := utils.GetDBVersion(storage.connection)
+	if err != nil {
+		log.Error().Err(err).Msg("Unable to get current DB version")
+		return ExitStatusMigrationError, err
+	}
+
+	log.Info().Msgf("Current DB version: %d", currMigVer)
+	log.Info().Msgf("Maximum available version: %d", utils.GetMaxVersion())
+	return ExitStatusOK, nil
+}
+
+// PerformMigrations migrates the database to the version
+// specified in params
+func PerformMigrations(conf ConfigStruct, migParam string) (exitStatus int, err error) {
+	// init migration utils
+	utils.Set(All())
+
+	// get db handle
+	storage, err := NewStorage(conf.Storage)
+	if err != nil {
+		log.Error().Err(err).Msg(StorageHandleErr)
+		exitStatus = ExitStatusMigrationError
+		return
+	}
+
+	// parse migration params
+	var desiredVersion utils.Version
+	if migParam == "latest" {
+		desiredVersion = utils.GetMaxVersion()
+	} else {
+		vers, convErr := strconv.Atoi(migParam)
+		if err != nil {
+			log.Error().Err(err).Msgf("Unable to parse migration version: %v", migParam)
+			exitStatus = ExitStatusMigrationError
+			err = convErr
+			return
+		}
+		desiredVersion = utils.Version(vers)
+	}
+
+	err = Migrate(storage.Connection(), desiredVersion)
+	if err != nil {
+		log.Error().Err(err).Msg("migration failure")
+		exitStatus = ExitStatusMigrationError
+		return
+	}
+
+	return
 }
