@@ -76,9 +76,8 @@ objects:
             - /bin/sh
             - '-c'
             - >-
-              ./ccx-notification-writer --old-reports-cleanup --max-age '8
-              days'; ./ccx-notification-writer --new-reports-cleanup
-              --max-age '8 days' 
+              ./ccx-notification-writer --old-reports-cleanup --max-age ${OLD_REPORTS_MAX_AGE};
+              ./ccx-notification-writer --new-reports-cleanup --max-age ${NEW_REPORTS_MAX_AGE}
 
 
 parameters:
@@ -114,3 +113,9 @@ parameters:
 - description: When the cronjob runs
   name: JOB_SCHEDULE
   value: 0 0 * * *
+- description: Maximum age for old reports cleanup
+  name: OLD_REPORTS_MAX_AGE
+  value: '8 days'
+- description: Maximum age for new reports cleanup
+  name: NEW_REPORTS_MAX_AGE
+  value: '8 days'
