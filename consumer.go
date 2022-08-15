@@ -85,16 +85,18 @@ type IncomingMessage struct {
 // Example:
 //
 // kafkaConsumer, err := consumer.New(brokerCfg, storage)
-// if err != nil {
-//     panic(err)
-// }
+//
+//	if err != nil {
+//	    panic(err)
+//	}
 //
 // kafkaConsumer.Serve()
 //
 // err := kafkaConsumer.Stop()
-// if err != nil {
-//     panic(err)
-// }
+//
+//	if err != nil {
+//	    panic(err)
+//	}
 type KafkaConsumer struct {
 	Configuration                        BrokerConfiguration
 	ConsumerGroup                        sarama.ConsumerGroup
@@ -411,7 +413,7 @@ func (consumer *KafkaConsumer) ProcessMessage(msg *sarama.ConsumerMessage) (Requ
 
 	lastCheckedTimestampLagMinutes := time.Since(lastCheckedTime).Minutes()
 	if lastCheckedTimestampLagMinutes < 0 {
-		errorMessage := "Got a message from the future"
+		errorMessage := "got a message from the future"
 		logMessageError(consumer, msg, message, errorMessage, nil)
 		return message.RequestID, errors.New(errorMessage)
 	}

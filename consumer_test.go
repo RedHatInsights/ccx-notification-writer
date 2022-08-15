@@ -53,7 +53,7 @@ var (
 // TestNewConsumerBadBroker function checks the consumer creation by
 // using a non accessible Kafka broker.
 func TestNewConsumerBadBroker(t *testing.T) {
-	const expectedErr = "kafka: client has run out of available brokers to talk to (Is your cluster reachable?)"
+	const expectedErr = "kafka: client has run out of available brokers to talk to"
 
 	// invalid broker configuration
 	var brokerConfiguration = main.BrokerConfiguration{
@@ -70,7 +70,7 @@ func TestNewConsumerBadBroker(t *testing.T) {
 	mockConsumer, err := main.NewConsumer(brokerConfiguration, dummyStorage)
 
 	// check that error is really reported
-	assert.EqualError(t, err, expectedErr)
+	assert.Contains(t, err.Error(), expectedErr)
 
 	// test the return value
 	assert.Equal(
@@ -85,7 +85,7 @@ func TestNewConsumerBadBroker(t *testing.T) {
 // non accessible Kafka broker. This test assumes there is no local Kafka
 // instance currently running
 func TestNewConsumerLocalBroker(t *testing.T) {
-	const expectedErr = "kafka: client has run out of available brokers to talk to (Is your cluster reachable?)"
+	const expectedErr = "kafka: client has run out of available brokers to talk to"
 
 	// valid broker configuration for local Kafka instance
 	var brokerConfiguration = main.BrokerConfiguration{
@@ -102,7 +102,7 @@ func TestNewConsumerLocalBroker(t *testing.T) {
 	mockConsumer, err := main.NewConsumer(brokerConfiguration, dummyStorage)
 
 	// check that error is really reported
-	assert.EqualError(t, err, expectedErr)
+	assert.Contains(t, err.Error(), expectedErr)
 
 	// test the return value
 	assert.Equal(
@@ -471,7 +471,7 @@ func TestProcessMessageFromFuture(t *testing.T) {
 	_, err := dummyConsumer.ProcessMessage(&message)
 
 	// check for errors - it should be reported
-	assert.EqualError(t, err, "Got a message from the future")
+	assert.EqualError(t, err, "got a message from the future")
 
 	// nothing should be written into storage
 	assert.Equal(t, 0, mockStorage.writeReportCalled)
