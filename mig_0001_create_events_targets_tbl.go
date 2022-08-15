@@ -24,7 +24,7 @@ import (
 var mig0001CreateEventTargetsTbl = mig.Migration{
 	StepUp: func(tx *sql.Tx, _ types.DBDriver) error {
 		_, err := tx.Exec(`
-			CREATE TABLE event_targets (
+			CREATE TABLE IF NOT EXISTS event_targets (
 				id              INTEGER NOT NULL,
 				name            VARCHAR NOT NULL UNIQUE,
 				metainfo        VARCHAR NOT NULL UNIQUE,
