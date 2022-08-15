@@ -48,6 +48,10 @@ import (
 
 // Table creation-related scripts, queries, index creation etc.
 const (
+	// this statement drops the migration_info table
+	dropTableMigrationInfo = `
+		DROP TABLE IF EXISTS migration_info	
+`
 	// This table contains information about DB schema version and about
 	// migration status.
 	createTableMigrationInfo = `
@@ -125,52 +129,52 @@ const (
 
 	// Index for the new_reports table
 	createIndexKafkaOffset = `
-                CREATE INDEX report_kafka_offset_btree_idx
+                CREATE INDEX IF NOT EXISTS report_kafka_offset_btree_idx
 		       ON new_reports (kafka_offset)
 `
 
 	// Index for the new_reports table
 	createIndexNewReportsOrgID = `
-                CREATE INDEX new_reports_org_id_idx
+                CREATE INDEX IF NOT EXISTS new_reports_org_id_idx
 		    ON new_reports
 		 USING btree (org_id);
 `
 
 	// Index for the new_reports table
 	createIndexNewReportsCluster = `
-                CREATE INDEX new_reports_cluster_idx
+                CREATE INDEX IF NOT EXISTS new_reports_cluster_idx
 		    ON new_reports
 		 USING btree (cluster);
 `
 	// Index for the new_reports table
 	createIndexNewReportsUpdatedAtAsc = `
-                CREATE INDEX new_reports_updated_at_asc_idx
+                CREATE INDEX IF NOT EXISTS new_reports_updated_at_asc_idx
 		       ON new_reports USING btree (updated_at ASC);
 `
 
 	// Index for the new_reports table
 	createIndexNewReportsUpdatedAtDesc = `
-                CREATE INDEX new_reports_updated_at_desc_idx
+                CREATE INDEX IF NOT EXISTS new_reports_updated_at_desc_idx
 		       ON new_reports USING btree (updated_at DESC);
 `
 
 	// Index for the reported table
 	createIndexReportedNotifiedAtDesc = `
-                CREATE INDEX notified_at_desc_idx
+                CREATE INDEX IF NOT EXISTS notified_at_desc_idx
 		    ON reported
 		 USING btree (notified_at DESC);
 `
 
 	// Index for the reported table
 	createIndexReportedUpdatedAtAsc = `
-                CREATE INDEX updated_at_desc_idx
+                CREATE INDEX IF NOT EXISTS updated_at_desc_idx
 		    ON reported
 		 USING btree (updated_at ASC);
 `
 
 	// Index for the notification_types table
 	createIndexNotificationTypesID = `
-                CREATE INDEX notification_types_id_idx
+                CREATE INDEX IF NOT EXISTS notification_types_id_idx
 		       ON notification_types USING btree (id ASC);
 `
 
@@ -267,7 +271,6 @@ const (
 	UnableToCloseDBRowsHandle = "Unable to close the DB rows handle"
 	AgeMessage                = "Age"
 	MaxAgeAttribute           = "max age"
-	VersionMessage            = "Retrieve database version"
 )
 
 // Other constants
@@ -367,7 +370,6 @@ func NewStorage(configuration StorageConfiguration) (*DBStorage, error) {
 		createIndexNotificationTypesID,
 
 		// records
-		insertMigrationVersion,
 		insertInstantReport,
 		insertWeeklySummary,
 		insertSentState,
@@ -601,26 +603,27 @@ func (storage DBStorage) DatabaseInitMigration() error {
 	}
 
 	err = func(tx *sql.Tx) error {
-		// try to retrieve database version info
-		version, err := storage.GetDatabaseVersionInfo()
-
-		// it is possible (and expected) that version can not be read
+		// erase old migration table
+		log.Info().Str(StatementMessage, dropTableMigrationInfo).Msg(SQLStatementMessage)
+		_, err = tx.Exec(dropTableMigrationInfo)
 		if err != nil {
-			// just log the error - it is expected
-			log.Info().Str(VersionMessage, createTableMigrationInfo).Msg(SQLStatementMessage)
-		} else if version > 0 {
-			// migration table already exists and contains a positive, non zero version
-			return nil
+			return err
 		}
 
-		// migration_info table initialization
+		// migration_info table creation
 		log.Info().Str(StatementMessage, createTableMigrationInfo).Msg(SQLStatementMessage)
-
-		// perform the SQL statement in transaction
 		_, err = tx.Exec(createTableMigrationInfo)
 		if err != nil {
 			return err
 		}
+
+		// set version to zero
+		log.Info().Str(StatementMessage, insertMigrationVersion).Msg(SQLStatementMessage)
+		_, err = tx.Exec(insertMigrationVersion)
+		if err != nil {
+			return err
+		}
+
 		return nil
 	}(tx)
 
