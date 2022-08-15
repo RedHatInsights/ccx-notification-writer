@@ -60,7 +60,7 @@ const (
 	// Notification service. Frequency can be specified as in `crontab` -
 	// https://crontab.guru/
 	createTableNotificationTypes = `
-                CREATE TABLE notification_types (
+                CREATE TABLE IF NOT EXISTS notification_types (
                     id          integer not null,
                     value       varchar not null,
                     frequency   varchar not null,
@@ -75,7 +75,7 @@ const (
 	// same as previous, skipped because of lower pripority, or can be in
 	// error state.
 	createTableStates = `
-                CREATE TABLE states (
+                CREATE TABLE IF NOT EXISTS states (
                     id          integer not null,
                     value       varchar not null,
                     comment     varchar,
@@ -87,7 +87,7 @@ const (
 	// Information of notifications reported to user or skipped due to some
 	// conditions.
 	createTableReported = `
-                CREATE TABLE reported (
+                CREATE TABLE IF NOT EXISTS reported (
                     org_id            integer not null,
                     account_number    integer not null,
                     cluster           character(36) not null,
@@ -111,7 +111,7 @@ const (
 	// This table contains new reports consumed from Kafka topic and stored
 	// to database in shrunk format (some attributes are removed).
 	createTableNewReports = `
-                CREATE TABLE new_reports (
+                CREATE TABLE IF NOT EXISTS new_reports (
                     org_id            integer not null,
                     account_number    integer not null,
                     cluster           character(36) not null,

@@ -40,7 +40,7 @@ func Test0001Migration(t *testing.T) {
 	// expected query performed by tested function
 	expectedQuery0 := "SELECT COUNT\\(\\*\\) FROM migration_info;"
 	expectedQuery1 := "SELECT version FROM migration_info;"
-	expectedCreate := "CREATE TABLE event_targets .*"
+	expectedCreate := "CREATE TABLE IF NOT EXISTS event_targets .*"
 	expectedUpdate := "UPDATE migration_info SET version=\\$1;"
 
 	mock.ExpectQuery(expectedQuery0).WillReturnRows(count)
@@ -76,7 +76,7 @@ func Test0002Migration(t *testing.T) {
 	// expected query performed by tested function
 	expectedQuery0 := "SELECT COUNT\\(\\*\\) FROM migration_info;"
 	expectedQuery1 := "SELECT version FROM migration_info;"
-	expectedCreate := "CREATE TABLE event_targets .*"
+	expectedCreate := "CREATE TABLE IF NOT EXISTS event_targets .*"
 	expectedUpdate := "UPDATE migration_info SET version=\\$1;"
 	expectedAlter := "ALTER TABLE reported ADD COLUMN .*"
 
