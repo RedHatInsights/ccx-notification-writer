@@ -65,6 +65,8 @@ objects:
                 - '-c'
                 - >-
                   ./ccx-notification-writer --db-init-migration;
+                  ./ccx-notification-writer --db-init;
+                  ./ccx-notification-writer --migrate latest;
               env:
               - name: CCX_NOTIFICATION_WRITER__BROKER__ADDRESS
                 value: ${KAFKA_BOOTSTRAP_HOST}:${KAFKA_BOOTSTRAP_PORT}

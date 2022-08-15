@@ -181,6 +181,9 @@ const (
 	// Get 0 if DB version is not inserted, 1 instead
 	isDatabaseVersionExist = `SELECT count(*) FROM migration_info;`
 
+	// Get 0 or error if states table is not initialized
+	isStateTableExist = `SELECT count(*) FROM states;`
+
 	// Retrieve DB version
 	getDatabaseVersion = `SELECT version FROM migration_info LIMIT 1;`
 
@@ -271,11 +274,6 @@ const (
 	UnableToCloseDBRowsHandle = "Unable to close the DB rows handle"
 	AgeMessage                = "Age"
 	MaxAgeAttribute           = "max age"
-)
-
-// Other constants
-const (
-	DatabaseVersion = 0
 )
 
 // Storage represents an interface to almost any database or storage system
@@ -603,6 +601,14 @@ func (storage DBStorage) DatabaseInitMigration() error {
 	}
 
 	err = func(tx *sql.Tx) error {
+		//check if table already exists
+		version, err := storage.GetDatabaseVersionInfo()
+
+		if version >= 0 && err == nil {
+			// version_info table already created
+			log.Info().Msgf("database current version: %v", version)
+			return err
+		}
 		// erase old migration table
 		log.Info().Str(StatementMessage, dropTableMigrationInfo).Msg(SQLStatementMessage)
 		_, err = tx.Exec(dropTableMigrationInfo)
@@ -642,16 +648,11 @@ func (storage DBStorage) DatabaseInitialization() error {
 	}
 
 	err = func(tx *sql.Tx) error {
-		// try to retrieve database version info
-		version, err := storage.GetDatabaseVersionInfo()
-		if err != nil {
-			log.Error().Err(err).Msg("DB version can not be retrieved")
-			log.Error().Msg("Try to run CCX Notification service with --db-init-migration")
-			return err
-		}
 
-		// skip rest of DB initialization, if already initialized
-		if version == DatabaseVersion {
+		// check if database is already initialized
+		var count int
+		err := storage.connection.QueryRow(isStateTableExist).Scan(&count)
+		if count > 0 && err == nil {
 			log.Info().Msg("Database is already initialized")
 			return nil
 		}
