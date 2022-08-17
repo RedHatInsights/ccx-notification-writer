@@ -687,7 +687,7 @@ func TestDatabaseInitialization(t *testing.T) {
 	rows.AddRow(0)
 
 	mock.ExpectBegin()
-	mock.ExpectQuery("SELECT count\\(\\*\\) FROM migration_info;").WillReturnRows(rows)
+	mock.ExpectQuery("SELECT count\\(\\*\\) FROM states;").WillReturnRows(rows)
 	mock.ExpectCommit()
 
 	// prepare connection to mocked database

@@ -25,7 +25,7 @@ var mig0002AddEventTargetCol = mig.Migration{
 	StepUp: func(tx *sql.Tx, _ types.DBDriver) error {
 		_, err := tx.Exec(`
 		ALTER TABLE reported 
-		ADD COLUMN event_type_id INTEGER NOT NULL,
+		ADD COLUMN IF NOT EXISTS event_type_id INTEGER NOT NULL,
 		ADD FOREIGN KEY (event_type_id) REFERENCES event_targets(id)
 	`)
 		return err
