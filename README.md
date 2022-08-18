@@ -79,6 +79,8 @@ json-check           Check all JSONs for basic syntax
 style                Run all the formatting related commands (fmt, vet, lint, cyclo) + check shell scripts
 run                  Build the project and executes the binary
 test                 Run the unit tests
+cover                Generate HTML pages with code coverage
+coverage             Display code coverage on terminal
 bdd_tests            Run BDD tests
 before_commit        Checks done before commit
 help                 Show this help screen
