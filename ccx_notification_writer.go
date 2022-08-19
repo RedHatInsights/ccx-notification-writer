@@ -1,5 +1,5 @@
 /*
-Copyright © 2021 Red Hat, Inc.
+Copyright © 2021, 2022 Red Hat, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -385,7 +385,7 @@ func startHTTPServer(address string) error {
 	// start the server
 	go func() {
 		log.Info().Str("HTTP server address", address).Msg("Starting HTTP server")
-		err := http.ListenAndServe(address, nil)
+		err := http.ListenAndServe(address, nil) // #nosec G114
 		if err != nil {
 			log.Error().Err(err).Msg("Listen and serve")
 		}
