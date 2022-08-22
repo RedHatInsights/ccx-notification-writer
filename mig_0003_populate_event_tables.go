@@ -21,6 +21,13 @@ import (
 	types "github.com/RedHatInsights/insights-results-types"
 )
 
+// mig0003PopulateEventTables migration add all existing event targets into
+// `event_targets` table. Currently Notification Backend and ServiceLog targets
+// exist and will be inserted to the table.
+//
+// Also `reported` table content is changed by this migration: all existing
+// records are updated to contain foreign key to `event_target == notification
+// backend`.
 var mig0003PopulateEventTables = mig.Migration{
 	StepUp: func(tx *sql.Tx, _ types.DBDriver) error {
 		_, err := tx.Exec(`

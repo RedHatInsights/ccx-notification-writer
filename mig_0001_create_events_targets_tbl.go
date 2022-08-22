@@ -21,6 +21,9 @@ import (
 	types "github.com/RedHatInsights/insights-results-types"
 )
 
+// mig0001CreateEventTargetsTbl migration creates table named `event_targets`.
+// This table contains all event receivers, for example Notification Backend
+// and ServiceLog
 var mig0001CreateEventTargetsTbl = mig.Migration{
 	StepUp: func(tx *sql.Tx, _ types.DBDriver) error {
 		_, err := tx.Exec(`

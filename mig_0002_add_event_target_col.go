@@ -21,6 +21,9 @@ import (
 	types "github.com/RedHatInsights/insights-results-types"
 )
 
+// mig0002AddEventTargetCol migration updates scheme of table named `reported`.
+// New column containing foreign keys to `event_targets(id)` is added to the
+// table.
 var mig0002AddEventTargetCol = mig.Migration{
 	StepUp: func(tx *sql.Tx, _ types.DBDriver) error {
 		_, err := tx.Exec(`
