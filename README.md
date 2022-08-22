@@ -116,6 +116,10 @@ List of all test scenarios prepared for this service is available at
         initialize migration
   -max-age string
         max age for displaying/cleaning old records
+  -migrate string
+        set database version
+  -migration-info
+        prints migration info
   -new-reports-cleanup
         perform new reports clean up
   -old-reports-cleanup
