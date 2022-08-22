@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--
- Copyright 2021 Red Hat, Inc
+ Copyright 2022 Red Hat, Inc
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -153,10 +153,6 @@ https://pkg.go.dev/github.com/RedHatInsights/ccx-notification-writer/</p>
 https://redhatinsights.github.io/ccx-notification-writer/packages/types.html</p>
 </td>
 	<td class="code"><pre><code>
-<div class="keyword">import</div> <div class="operator">(</div>
-	<div class="literal">&#34;encoding/json&#34;</div><div class="operator"></div>
-<div class="operator">)</div><div class="operator"></div>
-
 </code></pre></td>
       </tr>
       
@@ -176,7 +172,9 @@ https://redhatinsights.github.io/ccx-notification-writer/packages/types.html</p>
 	<div class="ident">PerformNewReportsCleanup</div>      <div class="ident">bool</div><div class="operator"></div>
 	<div class="ident">PrintOldReportsForCleanup</div>     <div class="ident">bool</div><div class="operator"></div>
 	<div class="ident">PerformOldReportsCleanup</div>      <div class="ident">bool</div><div class="operator"></div>
+	<div class="ident">MigrationInfo</div>                 <div class="ident">bool</div><div class="operator"></div>
 	<div class="ident">MaxAge</div>                        <div class="ident">string</div><div class="operator"></div>
+	<div class="ident">PerformMigrations</div>             <div class="ident">string</div><div class="operator"></div>
 <div class="operator">}</div><div class="operator"></div>
 
 </code></pre></td>
@@ -226,22 +224,6 @@ c8590f31-e97e-4b85-b506-c45ce1911a12 (ie. in UUID format).</p>
       </tr>
       
       <tr class="section">
-	<td class="doc"><p>RuleID represents type for rule id.</p>
-</td>
-	<td class="code"><pre><code><div class="keyword">type</div> <div class="ident">RuleID</div> <div class="ident">string</div><div class="operator"></div>
-
-</code></pre></td>
-      </tr>
-      
-      <tr class="section">
-	<td class="doc"><p>ErrorKey represents type for error key.</p>
-</td>
-	<td class="code"><pre><code><div class="keyword">type</div> <div class="ident">ErrorKey</div> <div class="ident">string</div><div class="operator"></div>
-
-</code></pre></td>
-      </tr>
-      
-      <tr class="section">
 	<td class="doc"><p>ClusterReport represents the whole cluster report.</p>
 </td>
 	<td class="code"><pre><code><div class="keyword">type</div> <div class="ident">ClusterReport</div> <div class="ident">string</div><div class="operator"></div>
@@ -255,19 +237,6 @@ day need more versions or combination of versions, it would be better
 consider upgrading to semantic versioning.</p>
 </td>
 	<td class="code"><pre><code><div class="keyword">type</div> <div class="ident">SchemaVersion</div> <div class="ident">uint8</div><div class="operator"></div>
-
-</code></pre></td>
-      </tr>
-      
-      <tr class="section">
-	<td class="doc"><p>ReportItem data structure represents a single (hit) rule of the string
-encoded report.</p>
-</td>
-	<td class="code"><pre><code><div class="keyword">type</div> <div class="ident">ReportItem</div> <div class="keyword">struct</div> <div class="operator">{</div>
-	<div class="ident">Module</div>       <div class="ident">RuleID</div>          <div class="literal">`json:&#34;component&#34;`</div><div class="operator"></div>
-	<div class="ident">ErrorKey</div>     <div class="ident">ErrorKey</div>        <div class="literal">`json:&#34;key&#34;`</div><div class="operator"></div>
-	<div class="ident">TemplateData</div> <div class="ident">json</div><div class="operator">.</div><div class="ident">RawMessage</div> <div class="literal">`json:&#34;details&#34;`</div><div class="operator"></div>
-<div class="operator">}</div><div class="operator"></div>
 
 </code></pre></td>
       </tr>

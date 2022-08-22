@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--
- Copyright 2021 Red Hat, Inc
+ Copyright 2022 Red Hat, Inc
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -135,6 +135,17 @@ limitations under the License.
 
 <div class="keyword">package</div> <div class="ident">main_test</div><div class="operator"></div>
 
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>Unit test definitions for functions and methods defined in source file
+consumer.go</p>
+
+<p>Documentation in literate-programming-style is available at:
+https://redhatinsights.github.io/ccx-notification-writer/packages/consumer_test.html</p>
+</td>
+	<td class="code"><pre><code>
 <div class="keyword">import</div> <div class="operator">(</div>
 	<div class="literal">&#34;context&#34;</div><div class="operator"></div>
 	<div class="literal">&#34;fmt&#34;</div><div class="operator"></div>
@@ -176,7 +187,7 @@ limitations under the License.
 using a non accessible Kafka broker.</p>
 </td>
 	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">TestNewConsumerBadBroker</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
-	<div class="keyword">const</div> <div class="ident">expectedErr</div> <div class="operator">=</div> <div class="literal">&#34;kafka: client has run out of available brokers to talk to (Is your cluster reachable?)&#34;</div><div class="operator"></div>
+	<div class="keyword">const</div> <div class="ident">expectedErr</div> <div class="operator">=</div> <div class="literal">&#34;kafka: client has run out of available brokers to talk to&#34;</div><div class="operator"></div>
 
 </code></pre></td>
       </tr>
@@ -213,7 +224,7 @@ using a non accessible Kafka broker.</p>
       <tr class="section">
 	<td class="doc"><p>check that error is really reported</p>
 </td>
-	<td class="code"><pre><code>	<div class="ident">assert</div><div class="operator">.</div><div class="ident">EqualError</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">,</div> <div class="ident">expectedErr</div><div class="operator">)</div><div class="operator"></div>
+	<td class="code"><pre><code>	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Contains</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">.</div><div class="ident">Error</div><div class="operator">(</div><div class="operator">)</div><div class="operator">,</div> <div class="ident">expectedErr</div><div class="operator">)</div><div class="operator"></div>
 
 </code></pre></td>
       </tr>
@@ -238,7 +249,7 @@ non accessible Kafka broker. This test assumes there is no local Kafka
 instance currently running</p>
 </td>
 	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">TestNewConsumerLocalBroker</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
-	<div class="keyword">const</div> <div class="ident">expectedErr</div> <div class="operator">=</div> <div class="literal">&#34;kafka: client has run out of available brokers to talk to (Is your cluster reachable?)&#34;</div><div class="operator"></div>
+	<div class="keyword">const</div> <div class="ident">expectedErr</div> <div class="operator">=</div> <div class="literal">&#34;kafka: client has run out of available brokers to talk to&#34;</div><div class="operator"></div>
 
 </code></pre></td>
       </tr>
@@ -275,7 +286,7 @@ instance currently running</p>
       <tr class="section">
 	<td class="doc"><p>check that error is really reported</p>
 </td>
-	<td class="code"><pre><code>	<div class="ident">assert</div><div class="operator">.</div><div class="ident">EqualError</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">,</div> <div class="ident">expectedErr</div><div class="operator">)</div><div class="operator"></div>
+	<td class="code"><pre><code>	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Contains</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">.</div><div class="ident">Error</div><div class="operator">(</div><div class="operator">)</div><div class="operator">,</div> <div class="ident">expectedErr</div><div class="operator">)</div><div class="operator"></div>
 
 </code></pre></td>
       </tr>
@@ -1054,7 +1065,7 @@ with message with wrong date.</p>
       <tr class="section">
 	<td class="doc"><p>check for errors - it should be reported</p>
 </td>
-	<td class="code"><pre><code>	<div class="ident">assert</div><div class="operator">.</div><div class="ident">EqualError</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">,</div> <div class="literal">&#34;Got a message from the future&#34;</div><div class="operator">)</div><div class="operator"></div>
+	<td class="code"><pre><code>	<div class="ident">assert</div><div class="operator">.</div><div class="ident">EqualError</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">,</div> <div class="literal">&#34;got a message from the future&#34;</div><div class="operator">)</div><div class="operator"></div>
 
 </code></pre></td>
       </tr>
@@ -1168,7 +1179,7 @@ correct message.</p>
       </tr>
       
       <tr class="section">
-	<td class="doc"><p>TestConsumerSetup function checks the method KafkaConsumer.Cleanup().</p>
+	<td class="doc"><p>TestConsumerSetup function checks the method KafkaConsumer.Setup().</p>
 </td>
 	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">TestConsumerSetup</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
 </code></pre></td>
