@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--
- Copyright 2021 Red Hat, Inc
+ Copyright 2022 Red Hat, Inc
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -118,7 +118,7 @@
       <tr class="section">
 	<td class="doc"></td>
 	<td class="code"><pre><code><div class="comment">/*
-Copyright © 2021 Red Hat, Inc.
+Copyright © 2021, 2022 Red Hat, Inc.
 
 Licensed under the Apache License, Version 2.0 (the &#34;License&#34;);
 you may not use this file except in compliance with the License.
@@ -168,7 +168,9 @@ https://redhatinsights.github.io/ccx-notification-writer/packages/ccx<em>notific
 	<div class="literal">&#34;fmt&#34;</div><div class="operator"></div>
 	<div class="literal">&#34;net/http&#34;</div><div class="operator"></div>
 	<div class="literal">&#34;os&#34;</div><div class="operator"></div>
+	<div class="literal">&#34;strconv&#34;</div><div class="operator"></div>
 
+	<div class="ident">utils</div> <div class="literal">&#34;github.com/RedHatInsights/insights-operator-utils/migrations&#34;</div><div class="operator"></div>
 	<div class="literal">&#34;github.com/prometheus/client_golang/prometheus/promhttp&#34;</div><div class="operator"></div>
 
 	<div class="literal">&#34;github.com/Shopify/sarama&#34;</div><div class="operator"></div>
@@ -197,6 +199,8 @@ https://redhatinsights.github.io/ccx-notification-writer/packages/ccx<em>notific
 	<div class="ident">databaseCleanupNewReportsOperationFailedMessage</div>         <div class="operator">=</div> <div class="literal">&#34;Cleanup records from `new_reports` table failed&#34;</div><div class="operator"></div>
 	<div class="ident">databaseCleanupOldReportsOperationFailedMessage</div>         <div class="operator">=</div> <div class="literal">&#34;Cleanup records from `reported` table failed&#34;</div><div class="operator"></div>
 	<div class="ident">rowsDeletedMessage</div>                                      <div class="operator">=</div> <div class="literal">&#34;Rows deleted&#34;</div><div class="operator"></div>
+	<div class="ident">brokerAddress</div>                                           <div class="operator">=</div> <div class="literal">&#34;Broker address&#34;</div><div class="operator"></div>
+	<div class="ident">StorageHandleErr</div>                                        <div class="operator">=</div> <div class="literal">&#34;unable to get storage handle&#34;</div><div class="operator"></div>
 <div class="operator">)</div><div class="operator"></div>
 
 </code></pre></td>
@@ -206,7 +210,7 @@ https://redhatinsights.github.io/ccx-notification-writer/packages/ccx<em>notific
 	<td class="doc"><p>Configuration-related constants</p>
 </td>
 	<td class="code"><pre><code><div class="keyword">const</div> <div class="operator">(</div>
-	<div class="ident">configFileEnvVariableName</div> <div class="operator">=</div> <div class="literal">&#34;NOTIFICATION_SERVICE_CONFIG_FILE&#34;</div><div class="operator"></div>
+	<div class="ident">configFileEnvVariableName</div> <div class="operator">=</div> <div class="literal">&#34;CCX_NOTIFICATION_WRITER_CONFIG_FILE&#34;</div><div class="operator"></div>
 	<div class="ident">defaultConfigFileName</div>     <div class="operator">=</div> <div class="literal">&#34;config&#34;</div><div class="operator"></div>
 <div class="operator">)</div><div class="operator"></div>
 
@@ -224,13 +228,6 @@ https://redhatinsights.github.io/ccx-notification-writer/packages/ccx<em>notific
 	<td class="doc"><p>ExitStatusOK means that the tool finished with success</p>
 </td>
 	<td class="code"><pre><code>	<div class="ident">ExitStatusOK</div> <div class="operator">=</div> <div class="ident">iota</div><div class="operator"></div>
-</code></pre></td>
-      </tr>
-      
-      <tr class="section">
-	<td class="doc"><p>ExitStatusError is a general error code</p>
-</td>
-	<td class="code"><pre><code>	<div class="ident">ExitStatusError</div><div class="operator"></div>
 </code></pre></td>
       </tr>
       
@@ -259,6 +256,13 @@ https://redhatinsights.github.io/ccx-notification-writer/packages/ccx<em>notific
 	<td class="doc"><p>ExitStatusHTTPServerError is returned in case the HTTP server can not be started</p>
 </td>
 	<td class="code"><pre><code>	<div class="ident">ExitStatusHTTPServerError</div><div class="operator"></div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>ExitStatusMigrationError is returned in case of an error while attempting to perform DB migrations</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">ExitStatusMigrationError</div><div class="operator"></div>
 <div class="operator">)</div><div class="operator"></div>
 
 </code></pre></td>
@@ -290,7 +294,7 @@ https://redhatinsights.github.io/ccx-notification-writer/packages/ccx<em>notific
 	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">showConfiguration</div><div class="operator">(</div><div class="ident">config</div> <div class="ident">ConfigStruct</div><div class="operator">)</div> <div class="operator">{</div>
 	<div class="ident">brokerConfig</div> <div class="operator">:=</div> <div class="ident">GetBrokerConfiguration</div><div class="operator">(</div><div class="ident">config</div><div class="operator">)</div><div class="operator"></div>
 	<div class="ident">log</div><div class="operator">.</div><div class="ident">Info</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div>
-		<div class="ident">Str</div><div class="operator">(</div><div class="literal">&#34;Address&#34;</div><div class="operator">,</div> <div class="ident">brokerConfig</div><div class="operator">.</div><div class="ident">Address</div><div class="operator">)</div><div class="operator">.</div>
+		<div class="ident">Str</div><div class="operator">(</div><div class="ident">brokerAddress</div><div class="operator">,</div> <div class="ident">brokerConfig</div><div class="operator">.</div><div class="ident">Address</div><div class="operator">)</div><div class="operator">.</div>
 		<div class="ident">Str</div><div class="operator">(</div><div class="literal">&#34;Topic&#34;</div><div class="operator">,</div> <div class="ident">brokerConfig</div><div class="operator">.</div><div class="ident">Topic</div><div class="operator">)</div><div class="operator">.</div>
 		<div class="ident">Str</div><div class="operator">(</div><div class="literal">&#34;Group&#34;</div><div class="operator">,</div> <div class="ident">brokerConfig</div><div class="operator">.</div><div class="ident">Group</div><div class="operator">)</div><div class="operator">.</div>
 		<div class="ident">Bool</div><div class="operator">(</div><div class="literal">&#34;Enabled&#34;</div><div class="operator">,</div> <div class="ident">brokerConfig</div><div class="operator">.</div><div class="ident">Enabled</div><div class="operator">)</div><div class="operator">.</div>
@@ -336,7 +340,7 @@ https://redhatinsights.github.io/ccx-notification-writer/packages/ccx<em>notific
 </td>
 	<td class="code"><pre><code>	<div class="ident">brokerConfiguration</div> <div class="operator">:=</div> <div class="ident">GetBrokerConfiguration</div><div class="operator">(</div><div class="ident">config</div><div class="operator">)</div><div class="operator"></div>
 
-	<div class="ident">log</div><div class="operator">.</div><div class="ident">Info</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Str</div><div class="operator">(</div><div class="literal">&#34;broker address&#34;</div><div class="operator">,</div> <div class="ident">brokerConfiguration</div><div class="operator">.</div><div class="ident">Address</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;Broker address&#34;</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">log</div><div class="operator">.</div><div class="ident">Info</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Str</div><div class="operator">(</div><div class="literal">&#34;broker address&#34;</div><div class="operator">,</div> <div class="ident">brokerConfiguration</div><div class="operator">.</div><div class="ident">Address</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="ident">brokerAddress</div><div class="operator">)</div><div class="operator"></div>
 
 </code></pre></td>
       </tr>
@@ -409,6 +413,35 @@ creates all tables in database.</p>
 	<div class="ident">err</div> <div class="operator">=</div> <div class="ident">storage</div><div class="operator">.</div><div class="ident">DatabaseInitialization</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
 	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
 		<div class="ident">log</div><div class="operator">.</div><div class="ident">Err</div><div class="operator">(</div><div class="ident">err</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;Database initialization operation failed&#34;</div><div class="operator">)</div><div class="operator"></div>
+		<div class="keyword">return</div> <div class="ident">ExitStatusStorageError</div><div class="operator">,</div> <div class="ident">err</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+
+	<div class="keyword">return</div> <div class="ident">ExitStatusOK</div><div class="operator">,</div> <div class="ident">nil</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>performDatabaseInitMigration function initialize migration table</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">performDatabaseInitMigration</div><div class="operator">(</div><div class="ident">config</div> <div class="ident">ConfigStruct</div><div class="operator">)</div> <div class="operator">(</div><div class="ident">int</div><div class="operator">,</div> <div class="ident">error</div><div class="operator">)</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>prepare the storage</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">storageConfiguration</div> <div class="operator">:=</div> <div class="ident">GetStorageConfiguration</div><div class="operator">(</div><div class="ident">config</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">storage</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">NewStorage</div><div class="operator">(</div><div class="ident">storageConfiguration</div><div class="operator">)</div><div class="operator"></div>
+	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
+		<div class="ident">log</div><div class="operator">.</div><div class="ident">Err</div><div class="operator">(</div><div class="ident">err</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="ident">operationFailedMessage</div><div class="operator">)</div><div class="operator"></div>
+		<div class="keyword">return</div> <div class="ident">ExitStatusStorageError</div><div class="operator">,</div> <div class="ident">err</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+
+	<div class="ident">err</div> <div class="operator">=</div> <div class="ident">storage</div><div class="operator">.</div><div class="ident">DatabaseInitMigration</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
+		<div class="ident">log</div><div class="operator">.</div><div class="ident">Err</div><div class="operator">(</div><div class="ident">err</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;Database migration initialization operation failed&#34;</div><div class="operator">)</div><div class="operator"></div>
 		<div class="keyword">return</div> <div class="ident">ExitStatusStorageError</div><div class="operator">,</div> <div class="ident">err</div><div class="operator"></div>
 	<div class="operator">}</div><div class="operator"></div>
 
@@ -706,7 +739,7 @@ that are older than specified max age.</p>
 </td>
 	<td class="code"><pre><code>	<div class="keyword">go</div> <div class="keyword">func</div><div class="operator">(</div><div class="operator">)</div> <div class="operator">{</div>
 		<div class="ident">log</div><div class="operator">.</div><div class="ident">Info</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Str</div><div class="operator">(</div><div class="literal">&#34;HTTP server address&#34;</div><div class="operator">,</div> <div class="ident">address</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;Starting HTTP server&#34;</div><div class="operator">)</div><div class="operator"></div>
-		<div class="ident">err</div> <div class="operator">:=</div> <div class="ident">http</div><div class="operator">.</div><div class="ident">ListenAndServe</div><div class="operator">(</div><div class="ident">address</div><div class="operator">,</div> <div class="ident">nil</div><div class="operator">)</div><div class="operator"></div>
+		<div class="ident">err</div> <div class="operator">:=</div> <div class="ident">http</div><div class="operator">.</div><div class="ident">ListenAndServe</div><div class="operator">(</div><div class="ident">address</div><div class="operator">,</div> <div class="ident">nil</div><div class="operator">)</div> <div class="operator"></div><div class="comment">// #nosec G114</div>
 		<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
 			<div class="ident">log</div><div class="operator">.</div><div class="ident">Error</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Err</div><div class="operator">(</div><div class="ident">err</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;Listen and serve&#34;</div><div class="operator">)</div><div class="operator"></div>
 		<div class="operator">}</div><div class="operator"></div>
@@ -721,6 +754,8 @@ that are older than specified max age.</p>
 	<td class="doc"><p>doSelectedOperation function perform operation selected on command line.
 When no operation is specified, the Notification writer service is started
 instead.</p>
+
+<p>gocyclo:ignore</p>
 </td>
 	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">doSelectedOperation</div><div class="operator">(</div><div class="ident">configuration</div> <div class="ident">ConfigStruct</div><div class="operator">,</div> <div class="ident">cliFlags</div> <div class="ident">CliFlags</div><div class="operator">)</div> <div class="operator">(</div><div class="ident">int</div><div class="operator">,</div> <div class="ident">error</div><div class="operator">)</div> <div class="operator">{</div>
 	<div class="keyword">switch</div> <div class="operator">{</div>
@@ -741,6 +776,8 @@ instead.</p>
 		<div class="keyword">return</div> <div class="ident">performDatabaseCleanup</div><div class="operator">(</div><div class="ident">configuration</div><div class="operator">)</div><div class="operator"></div>
 	<div class="keyword">case</div> <div class="ident">cliFlags</div><div class="operator">.</div><div class="ident">PerformDatabaseDropTables</div><div class="operator">:</div>
 		<div class="keyword">return</div> <div class="ident">performDatabaseDropTables</div><div class="operator">(</div><div class="ident">configuration</div><div class="operator">)</div><div class="operator"></div>
+	<div class="keyword">case</div> <div class="ident">cliFlags</div><div class="operator">.</div><div class="ident">PerformDatabaseInitMigration</div><div class="operator">:</div>
+		<div class="keyword">return</div> <div class="ident">performDatabaseInitMigration</div><div class="operator">(</div><div class="ident">configuration</div><div class="operator">)</div><div class="operator"></div>
 	<div class="keyword">case</div> <div class="ident">cliFlags</div><div class="operator">.</div><div class="ident">PrintNewReportsForCleanup</div><div class="operator">:</div>
 		<div class="keyword">return</div> <div class="ident">printNewReportsForCleanup</div><div class="operator">(</div><div class="ident">configuration</div><div class="operator">,</div> <div class="ident">cliFlags</div><div class="operator">)</div><div class="operator"></div>
 	<div class="keyword">case</div> <div class="ident">cliFlags</div><div class="operator">.</div><div class="ident">PerformNewReportsCleanup</div><div class="operator">:</div>
@@ -749,6 +786,10 @@ instead.</p>
 		<div class="keyword">return</div> <div class="ident">printOldReportsForCleanup</div><div class="operator">(</div><div class="ident">configuration</div><div class="operator">,</div> <div class="ident">cliFlags</div><div class="operator">)</div><div class="operator"></div>
 	<div class="keyword">case</div> <div class="ident">cliFlags</div><div class="operator">.</div><div class="ident">PerformOldReportsCleanup</div><div class="operator">:</div>
 		<div class="keyword">return</div> <div class="ident">performOldReportsCleanup</div><div class="operator">(</div><div class="ident">configuration</div><div class="operator">,</div> <div class="ident">cliFlags</div><div class="operator">)</div><div class="operator"></div>
+	<div class="keyword">case</div> <div class="ident">cliFlags</div><div class="operator">.</div><div class="ident">MigrationInfo</div><div class="operator">:</div>
+		<div class="keyword">return</div> <div class="ident">PrintMigrationInfo</div><div class="operator">(</div><div class="ident">configuration</div><div class="operator">)</div><div class="operator"></div>
+	<div class="keyword">case</div> <div class="ident">cliFlags</div><div class="operator">.</div><div class="ident">PerformMigrations</div> <div class="operator">!=</div> <div class="literal">&#34;&#34;</div><div class="operator">:</div>
+		<div class="keyword">return</div> <div class="ident">PerformMigrations</div><div class="operator">(</div><div class="ident">configuration</div><div class="operator">,</div> <div class="ident">cliFlags</div><div class="operator">.</div><div class="ident">PerformMigrations</div><div class="operator">)</div><div class="operator"></div>
 	<div class="keyword">default</div><div class="operator">:</div>
 		<div class="ident">exitCode</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">startService</div><div class="operator">(</div><div class="ident">configuration</div><div class="operator">)</div><div class="operator"></div>
 		<div class="keyword">return</div> <div class="ident">exitCode</div><div class="operator">,</div> <div class="ident">err</div><div class="operator"></div>
@@ -779,6 +820,7 @@ instead.</p>
 	<td class="code"><pre><code>	<div class="ident">flag</div><div class="operator">.</div><div class="ident">BoolVar</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">cliFlags</div><div class="operator">.</div><div class="ident">PerformDatabaseInitialization</div><div class="operator">,</div> <div class="literal">&#34;db-init&#34;</div><div class="operator">,</div> <div class="ident">false</div><div class="operator">,</div> <div class="literal">&#34;perform database initialization&#34;</div><div class="operator">)</div><div class="operator"></div>
 	<div class="ident">flag</div><div class="operator">.</div><div class="ident">BoolVar</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">cliFlags</div><div class="operator">.</div><div class="ident">PerformDatabaseCleanup</div><div class="operator">,</div> <div class="literal">&#34;db-cleanup&#34;</div><div class="operator">,</div> <div class="ident">false</div><div class="operator">,</div> <div class="literal">&#34;perform database cleanup&#34;</div><div class="operator">)</div><div class="operator"></div>
 	<div class="ident">flag</div><div class="operator">.</div><div class="ident">BoolVar</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">cliFlags</div><div class="operator">.</div><div class="ident">PerformDatabaseDropTables</div><div class="operator">,</div> <div class="literal">&#34;db-drop-tables&#34;</div><div class="operator">,</div> <div class="ident">false</div><div class="operator">,</div> <div class="literal">&#34;drop all tables from database&#34;</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">flag</div><div class="operator">.</div><div class="ident">BoolVar</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">cliFlags</div><div class="operator">.</div><div class="ident">PerformDatabaseInitMigration</div><div class="operator">,</div> <div class="literal">&#34;db-init-migration&#34;</div><div class="operator">,</div> <div class="ident">false</div><div class="operator">,</div> <div class="literal">&#34;initialize migration&#34;</div><div class="operator">)</div><div class="operator"></div>
 	<div class="ident">flag</div><div class="operator">.</div><div class="ident">BoolVar</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">cliFlags</div><div class="operator">.</div><div class="ident">CheckConnectionToKafka</div><div class="operator">,</div> <div class="literal">&#34;check-kafka&#34;</div><div class="operator">,</div> <div class="ident">false</div><div class="operator">,</div> <div class="literal">&#34;check connection to Kafka&#34;</div><div class="operator">)</div><div class="operator"></div>
 	<div class="ident">flag</div><div class="operator">.</div><div class="ident">BoolVar</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">cliFlags</div><div class="operator">.</div><div class="ident">ShowVersion</div><div class="operator">,</div> <div class="literal">&#34;version&#34;</div><div class="operator">,</div> <div class="ident">false</div><div class="operator">,</div> <div class="literal">&#34;show version&#34;</div><div class="operator">)</div><div class="operator"></div>
 	<div class="ident">flag</div><div class="operator">.</div><div class="ident">BoolVar</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">cliFlags</div><div class="operator">.</div><div class="ident">ShowAuthors</div><div class="operator">,</div> <div class="literal">&#34;authors&#34;</div><div class="operator">,</div> <div class="ident">false</div><div class="operator">,</div> <div class="literal">&#34;show authors&#34;</div><div class="operator">)</div><div class="operator"></div>
@@ -787,7 +829,9 @@ instead.</p>
 	<div class="ident">flag</div><div class="operator">.</div><div class="ident">BoolVar</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">cliFlags</div><div class="operator">.</div><div class="ident">PerformNewReportsCleanup</div><div class="operator">,</div> <div class="literal">&#34;new-reports-cleanup&#34;</div><div class="operator">,</div> <div class="ident">false</div><div class="operator">,</div> <div class="literal">&#34;perform new reports clean up&#34;</div><div class="operator">)</div><div class="operator"></div>
 	<div class="ident">flag</div><div class="operator">.</div><div class="ident">BoolVar</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">cliFlags</div><div class="operator">.</div><div class="ident">PrintOldReportsForCleanup</div><div class="operator">,</div> <div class="literal">&#34;print-old-reports-for-cleanup&#34;</div><div class="operator">,</div> <div class="ident">false</div><div class="operator">,</div> <div class="literal">&#34;print old reports to be cleaned up&#34;</div><div class="operator">)</div><div class="operator"></div>
 	<div class="ident">flag</div><div class="operator">.</div><div class="ident">BoolVar</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">cliFlags</div><div class="operator">.</div><div class="ident">PerformOldReportsCleanup</div><div class="operator">,</div> <div class="literal">&#34;old-reports-cleanup&#34;</div><div class="operator">,</div> <div class="ident">false</div><div class="operator">,</div> <div class="literal">&#34;perform old reports clean up&#34;</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">flag</div><div class="operator">.</div><div class="ident">BoolVar</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">cliFlags</div><div class="operator">.</div><div class="ident">MigrationInfo</div><div class="operator">,</div> <div class="literal">&#34;migration-info&#34;</div><div class="operator">,</div> <div class="ident">false</div><div class="operator">,</div> <div class="literal">&#34;prints migration info&#34;</div><div class="operator">)</div><div class="operator"></div>
 	<div class="ident">flag</div><div class="operator">.</div><div class="ident">StringVar</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">cliFlags</div><div class="operator">.</div><div class="ident">MaxAge</div><div class="operator">,</div> <div class="literal">&#34;max-age&#34;</div><div class="operator">,</div> <div class="literal">&#34;&#34;</div><div class="operator">,</div> <div class="literal">&#34;max age for displaying/cleaning old records&#34;</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">flag</div><div class="operator">.</div><div class="ident">StringVar</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">cliFlags</div><div class="operator">.</div><div class="ident">PerformMigrations</div><div class="operator">,</div> <div class="literal">&#34;migrate&#34;</div><div class="operator">,</div> <div class="literal">&#34;&#34;</div><div class="operator">,</div> <div class="literal">&#34;set database version&#34;</div><div class="operator">)</div><div class="operator"></div>
 	<div class="ident">flag</div><div class="operator">.</div><div class="ident">Parse</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
 
 </code></pre></td>
@@ -831,6 +875,89 @@ instead.</p>
 	<div class="operator">}</div><div class="operator"></div>
 
 	<div class="ident">log</div><div class="operator">.</div><div class="ident">Debug</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;Finished&#34;</div><div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>PrintMigrationInfo function prints information about current DB migration
+version without making any modifications.</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">PrintMigrationInfo</div><div class="operator">(</div><div class="ident">conf</div> <div class="ident">ConfigStruct</div><div class="operator">)</div> <div class="operator">(</div><div class="ident">int</div><div class="operator">,</div> <div class="ident">error</div><div class="operator">)</div> <div class="operator">{</div>
+	<div class="ident">storage</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">NewStorage</div><div class="operator">(</div><div class="ident">conf</div><div class="operator">.</div><div class="ident">Storage</div><div class="operator">)</div><div class="operator"></div>
+	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
+		<div class="ident">log</div><div class="operator">.</div><div class="ident">Error</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Err</div><div class="operator">(</div><div class="ident">err</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="ident">StorageHandleErr</div><div class="operator">)</div><div class="operator"></div>
+		<div class="keyword">return</div> <div class="ident">ExitStatusMigrationError</div><div class="operator">,</div> <div class="ident">err</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+	<div class="ident">currMigVer</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">utils</div><div class="operator">.</div><div class="ident">GetDBVersion</div><div class="operator">(</div><div class="ident">storage</div><div class="operator">.</div><div class="ident">connection</div><div class="operator">)</div><div class="operator"></div>
+	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
+		<div class="ident">log</div><div class="operator">.</div><div class="ident">Error</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Err</div><div class="operator">(</div><div class="ident">err</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;Unable to get current DB version&#34;</div><div class="operator">)</div><div class="operator"></div>
+		<div class="keyword">return</div> <div class="ident">ExitStatusMigrationError</div><div class="operator">,</div> <div class="ident">err</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+
+	<div class="ident">log</div><div class="operator">.</div><div class="ident">Info</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msgf</div><div class="operator">(</div><div class="literal">&#34;Current DB version: %d&#34;</div><div class="operator">,</div> <div class="ident">currMigVer</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">log</div><div class="operator">.</div><div class="ident">Info</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msgf</div><div class="operator">(</div><div class="literal">&#34;Maximum available version: %d&#34;</div><div class="operator">,</div> <div class="ident">utils</div><div class="operator">.</div><div class="ident">GetMaxVersion</div><div class="operator">(</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
+	<div class="keyword">return</div> <div class="ident">ExitStatusOK</div><div class="operator">,</div> <div class="ident">nil</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>PerformMigrations migrates the database to the version
+specified in params</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">PerformMigrations</div><div class="operator">(</div><div class="ident">conf</div> <div class="ident">ConfigStruct</div><div class="operator">,</div> <div class="ident">migParam</div> <div class="ident">string</div><div class="operator">)</div> <div class="operator">(</div><div class="ident">exitStatus</div> <div class="ident">int</div><div class="operator">,</div> <div class="ident">err</div> <div class="ident">error</div><div class="operator">)</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>init migration utils</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">utils</div><div class="operator">.</div><div class="ident">Set</div><div class="operator">(</div><div class="ident">All</div><div class="operator">(</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>get db handle</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">storage</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">NewStorage</div><div class="operator">(</div><div class="ident">conf</div><div class="operator">.</div><div class="ident">Storage</div><div class="operator">)</div><div class="operator"></div>
+	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
+		<div class="ident">log</div><div class="operator">.</div><div class="ident">Error</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Err</div><div class="operator">(</div><div class="ident">err</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="ident">StorageHandleErr</div><div class="operator">)</div><div class="operator"></div>
+		<div class="ident">exitStatus</div> <div class="operator">=</div> <div class="ident">ExitStatusMigrationError</div><div class="operator"></div>
+		<div class="keyword">return</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>parse migration params</p>
+</td>
+	<td class="code"><pre><code>	<div class="keyword">var</div> <div class="ident">desiredVersion</div> <div class="ident">utils</div><div class="operator">.</div><div class="ident">Version</div><div class="operator"></div>
+	<div class="keyword">if</div> <div class="ident">migParam</div> <div class="operator">==</div> <div class="literal">&#34;latest&#34;</div> <div class="operator">{</div>
+		<div class="ident">desiredVersion</div> <div class="operator">=</div> <div class="ident">utils</div><div class="operator">.</div><div class="ident">GetMaxVersion</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+	<div class="operator">}</div> <div class="keyword">else</div> <div class="operator">{</div>
+		<div class="ident">vers</div><div class="operator">,</div> <div class="ident">convErr</div> <div class="operator">:=</div> <div class="ident">strconv</div><div class="operator">.</div><div class="ident">Atoi</div><div class="operator">(</div><div class="ident">migParam</div><div class="operator">)</div><div class="operator"></div>
+		<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
+			<div class="ident">log</div><div class="operator">.</div><div class="ident">Error</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Err</div><div class="operator">(</div><div class="ident">err</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msgf</div><div class="operator">(</div><div class="literal">&#34;Unable to parse migration version: %v&#34;</div><div class="operator">,</div> <div class="ident">migParam</div><div class="operator">)</div><div class="operator"></div>
+			<div class="ident">exitStatus</div> <div class="operator">=</div> <div class="ident">ExitStatusMigrationError</div><div class="operator"></div>
+			<div class="ident">err</div> <div class="operator">=</div> <div class="ident">convErr</div><div class="operator"></div>
+			<div class="keyword">return</div><div class="operator"></div>
+		<div class="operator">}</div><div class="operator"></div>
+		<div class="ident">desiredVersion</div> <div class="operator">=</div> <div class="ident">utils</div><div class="operator">.</div><div class="ident">Version</div><div class="operator">(</div><div class="ident">vers</div><div class="operator">)</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+
+	<div class="ident">err</div> <div class="operator">=</div> <div class="ident">Migrate</div><div class="operator">(</div><div class="ident">storage</div><div class="operator">.</div><div class="ident">Connection</div><div class="operator">(</div><div class="operator">)</div><div class="operator">,</div> <div class="ident">desiredVersion</div><div class="operator">)</div><div class="operator"></div>
+	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
+		<div class="ident">log</div><div class="operator">.</div><div class="ident">Error</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Err</div><div class="operator">(</div><div class="ident">err</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;migration failure&#34;</div><div class="operator">)</div><div class="operator"></div>
+		<div class="ident">exitStatus</div> <div class="operator">=</div> <div class="ident">ExitStatusMigrationError</div><div class="operator"></div>
+		<div class="keyword">return</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+
+	<div class="keyword">return</div><div class="operator"></div>
 <div class="operator">}</div><div class="operator"></div>
 
 </code></pre></td>

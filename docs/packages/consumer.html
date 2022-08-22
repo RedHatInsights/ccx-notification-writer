@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--
- Copyright 2021 Red Hat, Inc
+ Copyright 2022 Red Hat, Inc
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -274,30 +274,20 @@ any broker</p>
       </tr>
       
       <tr class="section">
-	<td class="doc"><p>Consumer represents any consumer of insights-rules messages</p>
-</td>
-	<td class="code"><pre><code><div class="keyword">type</div> <div class="ident">Consumer</div> <div class="keyword">interface</div> <div class="operator">{</div>
-	<div class="ident">Serve</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
-	<div class="ident">Close</div><div class="operator">(</div><div class="operator">)</div> <div class="ident">error</div><div class="operator"></div>
-	<div class="ident">ProcessMessage</div><div class="operator">(</div><div class="ident">msg</div> <div class="operator">*</div><div class="ident">sarama</div><div class="operator">.</div><div class="ident">ConsumerMessage</div><div class="operator">)</div> <div class="operator">(</div><div class="ident">RequestID</div><div class="operator">,</div> <div class="ident">error</div><div class="operator">)</div><div class="operator"></div>
-<div class="operator">}</div><div class="operator"></div>
-
-</code></pre></td>
-      </tr>
-      
-      <tr class="section">
 	<td class="doc"><p>KafkaConsumer in an implementation of Consumer interface
 Example:</p>
 
-<p>kafkaConsumer, err := consumer.New(brokerCfg, storage)
-if err != nil {
+<p>kafkaConsumer, err := consumer.New(brokerCfg, storage)</p>
+
+<p>if err != nil {
     panic(err)
 }</p>
 
 <p>kafkaConsumer.Serve()</p>
 
-<p>err := kafkaConsumer.Stop()
-if err != nil {
+<p>err := kafkaConsumer.Stop()</p>
+
+<p>if err != nil {
     panic(err)
 }</p>
 </td>
@@ -780,9 +770,9 @@ attribute, not to check message schema</p>
 		<div class="keyword">return</div> <div class="ident">message</div><div class="operator">.</div><div class="ident">RequestID</div><div class="operator">,</div> <div class="ident">err</div><div class="operator"></div>
 	<div class="operator">}</div><div class="operator"></div>
 
-	<div class="ident">lastCheckedTimestampLagMinutes</div> <div class="operator">:=</div> <div class="ident">time</div><div class="operator">.</div><div class="ident">Now</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Sub</div><div class="operator">(</div><div class="ident">lastCheckedTime</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Minutes</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">lastCheckedTimestampLagMinutes</div> <div class="operator">:=</div> <div class="ident">time</div><div class="operator">.</div><div class="ident">Since</div><div class="operator">(</div><div class="ident">lastCheckedTime</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Minutes</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
 	<div class="keyword">if</div> <div class="ident">lastCheckedTimestampLagMinutes</div> <div class="operator">&lt;</div> <div class="literal">0</div> <div class="operator">{</div>
-		<div class="ident">errorMessage</div> <div class="operator">:=</div> <div class="literal">&#34;Got a message from the future&#34;</div><div class="operator"></div>
+		<div class="ident">errorMessage</div> <div class="operator">:=</div> <div class="literal">&#34;got a message from the future&#34;</div><div class="operator"></div>
 		<div class="ident">logMessageError</div><div class="operator">(</div><div class="ident">consumer</div><div class="operator">,</div> <div class="ident">msg</div><div class="operator">,</div> <div class="ident">message</div><div class="operator">,</div> <div class="ident">errorMessage</div><div class="operator">,</div> <div class="ident">nil</div><div class="operator">)</div><div class="operator"></div>
 		<div class="keyword">return</div> <div class="ident">message</div><div class="operator">.</div><div class="ident">RequestID</div><div class="operator">,</div> <div class="ident">errors</div><div class="operator">.</div><div class="ident">New</div><div class="operator">(</div><div class="ident">errorMessage</div><div class="operator">)</div><div class="operator"></div>
 	<div class="operator">}</div><div class="operator"></div>
@@ -880,7 +870,7 @@ beware: counter value is represented as float64, not as bytes as you'd expect</p
 	<td class="doc"><p>logshrunkMessage function prints/logs information about status of
 shrinking the message.</p>
 </td>
-	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">logShrunkMessage</div><div class="operator">(</div><div class="ident">reportAsBytes</div> <div class="operator">[</div><div class="operator">]</div><div class="ident">byte</div><div class="operator">,</div> <div class="ident">shrunkAsBytes</div> <div class="operator">[</div><div class="operator">]</div><div class="ident">byte</div><div class="operator">)</div> <div class="operator">{</div>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">logShrunkMessage</div><div class="operator">(</div><div class="ident">reportAsBytes</div><div class="operator">,</div> <div class="ident">shrunkAsBytes</div> <div class="operator">[</div><div class="operator">]</div><div class="ident">byte</div><div class="operator">)</div> <div class="operator">{</div>
 	<div class="ident">orig</div> <div class="operator">:=</div> <div class="ident">len</div><div class="operator">(</div><div class="ident">reportAsBytes</div><div class="operator">)</div><div class="operator"></div>
 	<div class="ident">shrunk</div> <div class="operator">:=</div> <div class="ident">len</div><div class="operator">(</div><div class="ident">shrunkAsBytes</div><div class="operator">)</div><div class="operator"></div>
 	<div class="ident">percentage</div> <div class="operator">:=</div> <div class="ident">int</div><div class="operator">(</div><div class="literal">100.0</div> <div class="operator">*</div> <div class="ident">shrunk</div> <div class="operator">/</div> <div class="ident">orig</div><div class="operator">)</div><div class="operator"></div>
@@ -904,8 +894,24 @@ shrinking the message.</p>
       <tr class="section">
 	<td class="doc"><p>the structure is not well defined yet, so all we should do is to check if all keys are there</p>
 </td>
-	<td class="code"><pre><code>	<div class="ident">expectedKeys</div> <div class="operator">:=</div> <div class="operator">[</div><div class="operator">]</div><div class="ident">string</div><div class="operator">{</div><div class="literal">&#34;fingerprints&#34;</div><div class="operator">,</div> <div class="literal">&#34;info&#34;</div><div class="operator">,</div> <div class="literal">&#34;reports&#34;</div><div class="operator">,</div> <div class="literal">&#34;skips&#34;</div><div class="operator">,</div> <div class="literal">&#34;system&#34;</div><div class="operator">}</div><div class="operator"></div>
-	<div class="keyword">for</div> <div class="ident">_</div><div class="operator">,</div> <div class="ident">expectedKey</div> <div class="operator">:=</div> <div class="keyword">range</div> <div class="ident">expectedKeys</div> <div class="operator">{</div>
+	<td class="code"><pre><code>	<div class="ident">expectedKeys</div> <div class="operator">:=</div> <div class="operator">[</div><div class="operator">]</div><div class="ident">string</div><div class="operator">{</div><div class="literal">&#34;fingerprints&#34;</div><div class="operator">,</div> <div class="literal">&#34;info&#34;</div><div class="operator">,</div> <div class="literal">&#34;reports&#34;</div><div class="operator">,</div> <div class="literal">&#34;system&#34;</div><div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>'skips' key is now optional, we should not expect it anymore:
+https://github.com/RedHatInsights/insights-results-aggregator/issues/1206
+expectedKeys := []string{&quot;fingerprints&quot;, &quot;info&quot;, &quot;reports&quot;, &quot;skips&quot;, &quot;system&quot;}</p>
+</td>
+	<td class="code"><pre><code>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>check if the structure contains all expected keys</p>
+</td>
+	<td class="code"><pre><code>	<div class="keyword">for</div> <div class="ident">_</div><div class="operator">,</div> <div class="ident">expectedKey</div> <div class="operator">:=</div> <div class="keyword">range</div> <div class="ident">expectedKeys</div> <div class="operator">{</div>
 		<div class="ident">_</div><div class="operator">,</div> <div class="ident">found</div> <div class="operator">:=</div> <div class="ident">r</div><div class="operator">[</div><div class="ident">expectedKey</div><div class="operator">]</div><div class="operator"></div>
 		<div class="keyword">if</div> <div class="operator">!</div><div class="ident">found</div> <div class="operator">{</div>
 			<div class="keyword">return</div> <div class="ident">errors</div><div class="operator">.</div><div class="ident">New</div><div class="operator">(</div><div class="literal">&#34;Improper report structure, missing key &#34;</div> <div class="operator">&#43;</div> <div class="ident">expectedKey</div><div class="operator">)</div><div class="operator"></div>
