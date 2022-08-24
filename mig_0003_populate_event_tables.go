@@ -36,39 +36,10 @@ var mig0003PopulateEventTables = mig.Migration{
 				       (2, 'service log', 'the target of the report is the ServiceLog')
 
 		`)
-		if err != nil {
-			return err
-		}
-		_, err = tx.Exec(`
-			UPDATE reported
-			   SET event_type_id = 1
-			 WHERE event_type_id IS NULL
-		`)
-		if err != nil {
-			return err
-		}
-		_, err = tx.Exec(`
-			 ALTER TABLE reported
-			ALTER COLUMN event_type_id SET NOT NULL
-		`)
 		return err
 	},
 	StepDown: func(tx *sql.Tx, _ types.DBDriver) error {
-		_, err := tx.Exec(`
-			 ALTER TABLE reported 
-			ALTER COLUMN event_type_id DROP NOT NULL;
-		`)
-		if err != nil {
-			return err
-		}
-		_, err = tx.Exec(`
-			UPDATE reported
-			   SET event_type_id = NULL
-		`)
-		if err != nil {
-			return err
-		}
-		_, err = tx.Exec(`DELETE FROM event_targets`)
+		_, err := tx.Exec(`DELETE FROM event_targets`)
 		return err
 	},
 }
