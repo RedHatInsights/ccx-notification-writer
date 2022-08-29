@@ -24,6 +24,7 @@ package main_test
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"testing"
 	"time"
@@ -656,4 +657,30 @@ func TestHandleCorrectMessage(t *testing.T) {
 	// counter checks
 	assert.Equal(t, uint64(1), dummyConsumer.GetNumberOfSuccessfullyConsumedMessages())
 	assert.Equal(t, uint64(0), dummyConsumer.GetNumberOfErrorsConsumingMessages())
+}
+
+func testShrinkedMessage(t *testing.T, inputMessage main.Report) {
+	assert.NotContains(t, inputMessage, "system")
+	assert.NotContains(t, inputMessage, "fingerprints")
+	assert.NotContains(t, inputMessage, "skips")
+	assert.NotContains(t, inputMessage, "info")
+	assert.NotContains(t, inputMessage, "pass")
+	assert.NotContains(t, inputMessage, "analysis_metadata")
+}
+
+// TestShrinkEmptyMessage tests the function to remove unneeded attributes from incoming message
+func TestShrinkEmptyMessage(t *testing.T) {
+	var inputMessage main.Report = make(map[string]*json.RawMessage)
+	main.ShrinkMessage(&inputMessage)
+	testShrinkedMessage(t, inputMessage)
+}
+
+// TestShrinkMessageWithAnalysisMetadata tests the function to remove unneeded attributes from incoming message
+func TestShrinkMessageWithAnalysisMetadata(t *testing.T) {
+	var inputMessage main.Report = make(map[string]*json.RawMessage)
+	analysisMetadata := json.RawMessage("{}")
+	inputMessage["analysis_metadata"] = &analysisMetadata
+
+	main.ShrinkMessage(&inputMessage)
+	testShrinkedMessage(t, inputMessage)
 }
