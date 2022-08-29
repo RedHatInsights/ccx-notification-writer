@@ -43,7 +43,8 @@ var (
 	DoSelectedOperation = doSelectedOperation
 
 	// functions from consumer.go source file
-	ParseMessage = parseMessage
+	ParseMessage  = parseMessage
+	ShrinkMessage = shrinkMessage
 
 	// functions from storage.go source file
 	DropTableStatement       = dropTableStatement
