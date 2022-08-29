@@ -335,6 +335,7 @@ func shrinkMessage(message *Report) {
 	tryToDeleteAttribute(message, "skips")
 	tryToDeleteAttribute(message, "info")
 	tryToDeleteAttribute(message, "pass")
+	tryToDeleteAttribute(message, "analysis_metadata")
 }
 
 // tryToDeleteAttribute function deletes selected attribute from input map. If
