@@ -29,8 +29,10 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"strings"
 	"time"
 
+	tlsutils "github.com/RedHatInsights/insights-operator-utils/tls"
 	"github.com/Shopify/sarama"
 	"github.com/google/uuid"
 	"github.com/rs/zerolog/log"
@@ -123,17 +125,13 @@ func NewWithSaramaConfig(
 	saramaConfig *sarama.Config,
 	storage Storage,
 ) (*KafkaConsumer, error) {
+	var err error
 	if saramaConfig == nil {
-		saramaConfig = sarama.NewConfig()
-		saramaConfig.Version = sarama.V0_10_2_0
-
-		/* TODO: we need to do it in production code
-		if brokerCfg.Timeout > 0 {
-			saramaConfig.Net.DialTimeout = brokerCfg.Timeout
-			saramaConfig.Net.ReadTimeout = brokerCfg.Timeout
-			saramaConfig.Net.WriteTimeout = brokerCfg.Timeout
+		saramaConfig, err = saramaConfigFromBrokerConfig(brokerCfg)
+		if err != nil {
+			log.Error().Err(err).Msg("unable to create sarama configuration from current broker configuration")
+			return nil, err
 		}
-		*/
 	}
 
 	consumerGroup, err := sarama.NewConsumerGroup([]string{brokerCfg.Address}, brokerCfg.Group, saramaConfig)
@@ -537,4 +535,36 @@ func parseMessage(messageValue []byte) (IncomingMessage, error) {
 	}
 
 	return deserialized, nil
+}
+
+func saramaConfigFromBrokerConfig(cfg BrokerConfiguration) (*sarama.Config, error) {
+	saramaConfig := sarama.NewConfig()
+	saramaConfig.Version = sarama.V0_10_2_0
+
+	/* TODO: we need to do it in production code
+	if brokerCfg.Timeout > 0 {
+		saramaConfig.Net.DialTimeout = brokerCfg.Timeout
+		saramaConfig.Net.ReadTimeout = brokerCfg.Timeout
+		saramaConfig.Net.WriteTimeout = brokerCfg.Timeout
+	}
+	*/
+	if strings.Contains(cfg.SecurityProtocol, "SSL") {
+		saramaConfig.Net.TLS.Enable = true
+	}
+	if cfg.CertPath != "" {
+		tlsConfig, err := tlsutils.NewTLSConfig(cfg.CertPath)
+		if err != nil {
+			log.Error().Msgf("Unable to load TLS config for %s cert", cfg.CertPath)
+			return nil, err
+		}
+		saramaConfig.Net.TLS.Config = tlsConfig
+	}
+	if strings.HasPrefix(cfg.SecurityProtocol, "SASL_") {
+		log.Info().Msg("Configuring SASL authentication")
+		saramaConfig.Net.SASL.Enable = true
+		saramaConfig.Net.SASL.User = cfg.SaslUsername
+		saramaConfig.Net.SASL.Password = cfg.SaslPassword
+		saramaConfig.Net.SASL.Mechanism = sarama.SASLMechanism(cfg.SaslMechanism)
+	}
+	return saramaConfig, nil
 }
