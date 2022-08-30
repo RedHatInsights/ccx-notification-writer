@@ -114,6 +114,16 @@ type LoggingConfiguration struct {
 type BrokerConfiguration struct {
 	// Address represents Kafka address
 	Address string `mapstructure:"address" toml:"address"`
+	// SecurityProtocol represents the security protocol used by the broker
+	SecurityProtocol string `mapstructure:"security_protocol" toml:"security_protocol"`
+	// 	CertPath is the path to a file containing the certificate to be used with the broker
+	CertPath string `mapstructure:"cert_path" toml:"cert_path"`
+	// SaslMechanism is the SASL mechanism used for authentication
+	SaslMechanism string `mapstructure:"sasl_mechanism" toml:"sasl_mechanism"`
+	// SaslUsername is the username used in case of PLAIN mechanism
+	SaslUsername string `mapstructure:"sasl_username" toml:"sasl_username"`
+	// SaslPassword is the password used in case of PLAIN mechanism
+	SaslPassword string `mapstructure:"sasl_password" toml:"sasl_password"`
 	// Topic is name of Kafka topic
 	Topic string `mapstructure:"topic" toml:"topic"`
 	// Group is name of Kafka group
@@ -244,6 +254,17 @@ func updateConfigFromClowder(c *ConfigStruct) error {
 			c.Broker.Address = fmt.Sprintf("%s:%d", broker.Hostname, *broker.Port)
 		} else {
 			c.Broker.Address = broker.Hostname
+		}
+
+		// SSL config
+		if broker.Authtype != nil {
+			c.Broker.SaslUsername = *broker.Sasl.Username
+			c.Broker.SaslPassword = *broker.Sasl.Password
+			c.Broker.SaslMechanism = *broker.Sasl.SaslMechanism
+
+			if caPath, err := clowder.LoadedConfig.KafkaCa(broker); err == nil {
+				c.Broker.CertPath = caPath
+			}
 		}
 	}
 

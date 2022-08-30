@@ -1,5 +1,9 @@
 [broker]
 address = "localhost:9092"
+security_protocol = "PLAINTEXT"
+sasl_mechanism = "not-used"
+sasl_username = "not-used"
+sasl_password = "not-used"
 topic = "ccx.ocp.results"
 group = "test-consumer-group"
 enabled = true
