@@ -1,4 +1,6 @@
+event_targets
 notification_types
 states
 reported
+migration_info
 new_reports
