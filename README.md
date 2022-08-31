@@ -246,7 +246,8 @@ List of tables:
  public | reported           | table | postgres
  public | states             | table | postgres
  public | migration_info     | table | postgres
-(4 rows)
+ public | event_targets      | table | postgres
+(6 rows)
 ```
 
 ## Database schema
@@ -283,7 +284,6 @@ Indexes:
     "new_reports_updated_at_asc_idx" btree (updated_at)
     "new_reports_updated_at_desc_idx" btree (updated_at DESC)
     "report_kafka_offset_btree_idx" btree (kafka_offset)
-    "report_kafka_offset_btree_idx" btree (kafka_offset)
 ```
 
 ### Table `reported`
@@ -303,6 +303,8 @@ conditions.
  updated_at        | timestamp without time zone | not null
  notified_at       | timestamp without time zone | not null
  error_log         | character varying           | 
+ event_type_id     | integer                     | not null
+
 
 Indexes:
     "reported_pkey" PRIMARY KEY, btree (org_id, cluster)
@@ -311,6 +313,7 @@ Indexes:
 Foreign-key constraints:
     "fk_notification_type" FOREIGN KEY (notification_type) REFERENCES notification_types(id)
     "fk_state" FOREIGN KEY (state) REFERENCES states(id)
+    "reported_event_type_id_fkey" FOREIGN KEY (event_type_id) REFERENCES event_targets(id)
 ```
 
 ### Table `notification_types`
@@ -371,6 +374,38 @@ Currently the following values are stored in this read-only table:
   4 | error | notification delivery error
 (4 rows)
 ```
+
+### Table `event_targets`
+
+This table contains specification of all event targets currently supported.
+
+```
+                 Table "public.event_targets"
+  Column  |       Type        | Collation | Nullable | Default 
+----------+-------------------+-----------+----------+---------
+ id       | integer           |           | not null | 
+ name     | character varying |           | not null | 
+ metainfo | character varying |           | not null | 
+
+Indexes:
+    "event_targets_pkey" PRIMARY KEY, btree (id)
+    "event_targets_metainfo_key" UNIQUE CONSTRAINT, btree (metainfo)
+    "event_targets_name_key" UNIQUE CONSTRAINT, btree (name)
+Referenced by:
+    TABLE "reported" CONSTRAINT "reported_event_type_id_fkey" FOREIGN KEY (event_type_id) REFERENCES event_targets(id)
+```
+
+Currently the following values are stored in this read-only table:
+
+```
+ id |         name          |                             metainfo              
+----+-----------------------+-------------------------------------------------------------------
+  1 | notifications backend | the target of the report is the ccx notification s ervice back end
+  2 | service log           | the target of the report is the ServiceLog
+(2 rows)
+```
+
+
 
 ## Schema description
 
