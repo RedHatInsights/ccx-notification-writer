@@ -21,9 +21,9 @@ Grafana tools.
 
 ## Architecture
 
-![architecture_diagram.png](architecture_diagram.png)
+![architecture_diagram.png](images/architecture_diagram.png)
 
-[Architecture diagram, full scale](architecture_diagram.png)
+[Architecture diagram, full scale](images/architecture_diagram.png)
 
 
 ## Data flow
@@ -51,15 +51,15 @@ The "end-to-end" data flow is described there (including Notification Writer ser
 
 ## Class diagram
 
-![class_diagram.png](class_diagram.png)
+![class_diagram.png](images/class_diagram.png)
 
-[Class diagram, full scale](class_diagram.png)
+[Class diagram, full scale](images/class_diagram.png)
 
 ## Sequence diagram
 
-![sequence_diagram.png](sequence_diagram.png)
+![sequence_diagram.png](images/sequence_diagram.png)
 
-[Sequence diagram, full scale](sequence_diagram.png)
+[Sequence diagram, full scale](images/sequence_diagram.png)
 
 ## Database description
 
