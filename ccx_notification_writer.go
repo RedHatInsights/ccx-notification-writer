@@ -101,6 +101,10 @@ func showConfiguration(config ConfigStruct) {
 	brokerConfig := GetBrokerConfiguration(config)
 	log.Info().
 		Str(brokerAddress, brokerConfig.Address).
+		Str("Security protocol", brokerConfig.SecurityProtocol).
+		Str("Cert path", brokerConfig.CertPath).
+		Str("Sasl mechanism", brokerConfig.SaslMechanism).
+		Str("Sasl username", brokerConfig.SaslUsername).
 		Str("Topic", brokerConfig.Topic).
 		Str("Group", brokerConfig.Group).
 		Bool("Enabled", brokerConfig.Enabled).
