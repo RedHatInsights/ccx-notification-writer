@@ -1,4 +1,5 @@
 # ccx-notification-writer
+CCX Notification Writer service
 
 [![GoDoc](https://godoc.org/github.com/RedHatInsights/ccx-notification-writer?status.svg)](https://godoc.org/github.com/RedHatInsights/ccx-notification-writer)
 [![GitHub Pages](https://img.shields.io/badge/%20-GitHub%20Pages-informational)](https://redhatinsights.github.io/ccx-notification-writer/)
@@ -8,16 +9,17 @@
 ![GitHub go.mod Go version](https://img.shields.io/github/go-mod/go-version/RedHatInsights/ccx-notification-writer)
 [![License](https://img.shields.io/badge/license-Apache-blue)](https://github.com/RedHatInsights/ccx-notification-writer/blob/master/LICENSE)
 
-CCX notification writer service
-
 <!-- vim-markdown-toc GFM -->
 
 * [Description](#description)
+    * [Architecture](#architecture)
 * [Building](#building)
-* [BDD tests](#bdd-tests)
+    * [Makefile targets](#makefile-targets)
+* [Configuration](#configuration)
 * [Usage](#usage)
-* [Starting the service](#starting-the-service)
-* [Cleanup old records](#cleanup-old-records)
+    * [All command line options](#all-command-line-options)
+    * [Starting the service](#starting-the-service)
+    * [Cleanup old records](#cleanup-old-records)
 * [Metrics](#metrics)
     * [Exposed metrics](#exposed-metrics)
     * [Retriewing metrics](#retriewing-metrics)
@@ -26,12 +28,17 @@ CCX notification writer service
     * [Start PostgreSQL database](#start-postgresql-database)
     * [Login into the database](#login-into-the-database)
 * [Database schema](#database-schema)
+    * [Schema description](#schema-description)
     * [Table `migration_info`](#table-migration_info)
     * [Table `new_reports`](#table-new_reports)
     * [Table `reported`](#table-reported)
     * [Table `notification_types`](#table-notification_types)
     * [Table `states`](#table-states)
-* [Schema description](#schema-description)
+    * [Table `event_targets`](#table-event_targets)
+* [Testing](#testing)
+    * [Unit tests](#unit-tests)
+    * [Profiling](#profiling)
+    * [BDD tests](#bdd-tests)
 * [Package manifest](#package-manifest)
 
 <!-- vim-markdown-toc -->
@@ -52,9 +59,16 @@ Additionally this service exposes several metrics about consumed and processed
 messages. These metrics can be aggregated by Prometheus and displayed by
 Grafana tools.
 
+### Architecture
+
+Overall architecture and integration of this service into the whole pipeline is
+described [in this document](https://redhatinsights.github.io/ccx-notification-writer/)
+
 ## Building
 
 Use `make build` to build executable file with this service.
+
+### Makefile targets
 
 All Makefile targets:
 
@@ -75,7 +89,6 @@ errcheck             Run errcheck
 goconst              Run goconst checker
 gosec                Run gosec checker
 abcgo                Run ABC metrics checker
-json-check           Check all JSONs for basic syntax
 style                Run all the formatting related commands (fmt, vet, lint, cyclo) + check shell scripts
 run                  Build the project and executes the binary
 test                 Run the unit tests
@@ -87,20 +100,18 @@ before_commit        Checks done before commit
 help                 Show this help screen
 ```
 
-## BDD tests
+## Configuration
 
-Behaviour tests for this service are included in [Insights Behavioral
-Spec](https://github.com/RedHatInsights/insights-behavioral-spec) repository.
-In order to run these tests, the following steps need to be made:
-
-1. clone the [Insights Behavioral Spec](https://github.com/RedHatInsights/insights-behavioral-spec) repository
-1. go into the cloned subdirectory `insights-behavioral-spec`
-1. run the `notification_writer_tests.sh` from this subdirectory
-
-List of all test scenarios prepared for this service is available at
-<https://github.com/RedHatInsights/insights-behavioral-spec#ccx-notification-writer>
+Configuration is described
+[in this document](https://redhatinsights.github.io/ccx-notification-writer/configuration.html)
 
 ## Usage
+
+Provided a valid configuration, you can start the service with `./ccx-notification-writer`
+
+### All command line options
+
+List of all available command line options:
 
 ```
   -authors
@@ -135,11 +146,11 @@ List of all test scenarios prepared for this service is available at
         show version
 ```
 
-## Starting the service
+### Starting the service
 
 In order to start the service, just `./ccx-notification-writer` is needed to be called from CLI.
 
-## Cleanup old records
+### Cleanup old records
 
 It is possible to cleanup old records from `new_reports` and `reported` tables. To do it, use the following CLI options:
 
@@ -147,11 +158,15 @@ It is possible to cleanup old records from `new_reports` and `reported` tables. 
 ./ccx-notification-writer -old-reports-cleanup --max-age="30 days"
 ```
 
-or
+to perform cleanup of `reported` table.
+
+It is also possible to use following command
 
 ```
 ./ccx-notification-writer -new-reports-cleanup --max-age="30 days"
 ```
+
+to perform cleanup of `new_reports` table.
 
 Additionally it is possible to just display old reports without touching the database tables:
 
@@ -159,7 +174,7 @@ Additionally it is possible to just display old reports without touching the dat
 ./ccx-notification-writer -print-old-reports-for-cleanup --max-age="30 days"
 ```
 
-or
+or in case of new reports:
 
 ```
 ./ccx-notification-writer -print-new-reports-for-cleanup --max-age="30 days"
@@ -167,6 +182,10 @@ or
 
 
 ## Metrics
+
+It is possible to use `/metrics` REST API endpoint to read all metrics
+exposed to Prometheus or to any tool that is compatible with it. Currently,
+the following metrics are exposed:
 
 ### Exposed metrics
 
@@ -190,6 +209,8 @@ or
     - The total number of bytes stored into database
 
 ### Retriewing metrics
+
+For service running locally:
 
 ```
 curl localhost:8080/metrics | grep ^notification_writer
@@ -251,6 +272,13 @@ List of tables:
 ```
 
 ## Database schema
+
+### Schema description
+
+DB schema description can be generated by `generate_db_schema_doc.sh` script.
+Output is written into directory `docs/db-description/`. Its content can be
+viewed [at this
+address](https://redhatinsights.github.io/ccx-notification-writer/db-description/).
 
 ### Table `migration_info`
 
@@ -406,13 +434,50 @@ Currently the following values are stored in this read-only table:
 ```
 
 
+## Testing
 
-## Schema description
+### Unit tests
 
-DB schema description can be generated by `generate_db_schema_doc.sh` script.
-Output is written into directory `docs/db-description/`. Its content can be
-viewed [at this
-address](https://redhatinsights.github.io/ccx-notification-writer/db-description/).
+Unit tests can be started from command line by the following command:
+
+```
+make test
+```
+
+Code coverage can be generated by:
+
+```
+make cover
+```
+
+for HTML output or:
+
+```
+make coverage
+```
+
+for plain text output.
+
+### Profiling
+
+Profiler can be started from command line by the following command;
+
+```
+make profile
+```
+
+### BDD tests
+
+Behaviour tests for this service are included in [Insights Behavioral
+Spec](https://github.com/RedHatInsights/insights-behavioral-spec) repository.
+In order to run these tests, the following steps need to be made:
+
+1. clone the [Insights Behavioral Spec](https://github.com/RedHatInsights/insights-behavioral-spec) repository
+1. go into the cloned subdirectory `insights-behavioral-spec`
+1. run the `notification_writer_tests.sh` from this subdirectory
+
+List of all test scenarios prepared for this service is available at
+<https://github.com/RedHatInsights/insights-behavioral-spec#ccx-notification-writer>
 
 ## Package manifest
 
