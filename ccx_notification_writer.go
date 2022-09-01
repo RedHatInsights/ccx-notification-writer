@@ -331,6 +331,9 @@ func performOldReportsCleanup(config ConfigStruct, cliFlags CliFlags) (int, erro
 
 // startService function tries to start the notification writer service.
 func startService(config ConfigStruct) (int, error) {
+	// show configuration at startup
+	showConfiguration(config)
+
 	// configure metrics
 	metricsConfig := GetMetricsConfiguration(config)
 	if metricsConfig.Namespace != "" {
