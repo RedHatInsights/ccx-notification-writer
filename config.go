@@ -258,6 +258,7 @@ func updateConfigFromClowder(c *ConfigStruct) error {
 
 		// SSL config
 		if broker.Authtype != nil {
+			fmt.Println("kafka is configured to use authentication")
 			c.Broker.SaslUsername = *broker.Sasl.Username
 			c.Broker.SaslPassword = *broker.Sasl.Password
 			c.Broker.SaslMechanism = *broker.Sasl.SaslMechanism
