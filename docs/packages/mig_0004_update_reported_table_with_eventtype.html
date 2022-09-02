@@ -17,7 +17,7 @@
 
 <html>
 <head>
-<title>mig_0003_populate_event_tables.go</title>
+<title>mig_0004_update_reported_table_with_eventtype.go</title>
 <meta charset="utf-8"/>
 <style type="text/css">body {
     background: rgb(225, 225, 225);
@@ -112,7 +112,7 @@
 <div id="docgo">
   <div id="background"></div>
   <table>
-    <thead><tr><th class="doc"><h1>mig_0003_populate_event_tables.go</h1></th><th class="code"></th></tr></thead>
+    <thead><tr><th class="doc"><h1>mig_0004_update_reported_table_with_eventtype.go</h1></th><th class="code"></th></tr></thead>
     <tbody>
       
       <tr class="section">
@@ -152,18 +152,35 @@ exist and will be inserted to the table.</p>
 records are updated to contain foreign key to <code>event_target == notification
 backend</code>.</p>
 </td>
-	<td class="code"><pre><code><div class="keyword">var</div> <div class="ident">mig0003PopulateEventTables</div> <div class="operator">=</div> <div class="ident">mig</div><div class="operator">.</div><div class="ident">Migration</div><div class="operator">{</div>
+	<td class="code"><pre><code><div class="keyword">var</div> <div class="ident">mig0004PopulateEventTables</div> <div class="operator">=</div> <div class="ident">mig</div><div class="operator">.</div><div class="ident">Migration</div><div class="operator">{</div>
 	<div class="ident">StepUp</div><div class="operator">:</div> <div class="keyword">func</div><div class="operator">(</div><div class="ident">tx</div> <div class="operator">*</div><div class="ident">sql</div><div class="operator">.</div><div class="ident">Tx</div><div class="operator">,</div> <div class="ident">_</div> <div class="ident">types</div><div class="operator">.</div><div class="ident">DBDriver</div><div class="operator">)</div> <div class="ident">error</div> <div class="operator">{</div>
 		<div class="ident">_</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">tx</div><div class="operator">.</div><div class="ident">Exec</div><div class="operator">(</div><div class="literal">`
-			INSERT INTO event_targets (id, name, metainfo) 
-				VALUES (1, &#39;notifications backend&#39;, &#39;the target of the report is the ccx notification service back end&#39;),
-				       (2, &#39;service log&#39;, &#39;the target of the report is the ServiceLog&#39;)
-
+			UPDATE reported
+			   SET event_type_id = 1
+			 WHERE event_type_id IS NULL
+		`</div><div class="operator">)</div><div class="operator"></div>
+		<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
+			<div class="keyword">return</div> <div class="ident">err</div><div class="operator"></div>
+		<div class="operator">}</div><div class="operator"></div>
+		<div class="ident">_</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">=</div> <div class="ident">tx</div><div class="operator">.</div><div class="ident">Exec</div><div class="operator">(</div><div class="literal">`
+			 ALTER TABLE reported
+			ALTER COLUMN event_type_id SET NOT NULL
 		`</div><div class="operator">)</div><div class="operator"></div>
 		<div class="keyword">return</div> <div class="ident">err</div><div class="operator"></div>
 	<div class="operator">}</div><div class="operator">,</div>
 	<div class="ident">StepDown</div><div class="operator">:</div> <div class="keyword">func</div><div class="operator">(</div><div class="ident">tx</div> <div class="operator">*</div><div class="ident">sql</div><div class="operator">.</div><div class="ident">Tx</div><div class="operator">,</div> <div class="ident">_</div> <div class="ident">types</div><div class="operator">.</div><div class="ident">DBDriver</div><div class="operator">)</div> <div class="ident">error</div> <div class="operator">{</div>
-		<div class="ident">_</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">tx</div><div class="operator">.</div><div class="ident">Exec</div><div class="operator">(</div><div class="literal">`DELETE FROM event_targets`</div><div class="operator">)</div><div class="operator"></div>
+		<div class="ident">_</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">tx</div><div class="operator">.</div><div class="ident">Exec</div><div class="operator">(</div><div class="literal">`
+			 ALTER TABLE reported 
+			ALTER COLUMN event_type_id DROP NOT NULL;
+		`</div><div class="operator">)</div><div class="operator"></div>
+		<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
+			<div class="keyword">return</div> <div class="ident">err</div><div class="operator"></div>
+		<div class="operator">}</div><div class="operator"></div>
+		<div class="ident">_</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">=</div> <div class="ident">tx</div><div class="operator">.</div><div class="ident">Exec</div><div class="operator">(</div><div class="literal">`
+			UPDATE reported
+			   SET event_type_id = NULL
+			 WHERE event_type_id = 1
+		`</div><div class="operator">)</div><div class="operator"></div>
 		<div class="keyword">return</div> <div class="ident">err</div><div class="operator"></div>
 	<div class="operator">}</div><div class="operator">,</div>
 <div class="operator">}</div><div class="operator"></div>

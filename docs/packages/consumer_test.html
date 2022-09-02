@@ -148,6 +148,7 @@ https://redhatinsights.github.io/ccx-notification-writer/packages/consumer_test.
 	<td class="code"><pre><code>
 <div class="keyword">import</div> <div class="operator">(</div>
 	<div class="literal">&#34;context&#34;</div><div class="operator"></div>
+	<div class="literal">&#34;encoding/json&#34;</div><div class="operator"></div>
 	<div class="literal">&#34;fmt&#34;</div><div class="operator"></div>
 	<div class="literal">&#34;testing&#34;</div><div class="operator"></div>
 	<div class="literal">&#34;time&#34;</div><div class="operator"></div>
@@ -1500,6 +1501,42 @@ KafkaConsumer.HandleMessage() for correct input.</p>
 </td>
 	<td class="code"><pre><code>	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">uint64</div><div class="operator">(</div><div class="literal">1</div><div class="operator">)</div><div class="operator">,</div> <div class="ident">dummyConsumer</div><div class="operator">.</div><div class="ident">GetNumberOfSuccessfullyConsumedMessages</div><div class="operator">(</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
 	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">uint64</div><div class="operator">(</div><div class="literal">0</div><div class="operator">)</div><div class="operator">,</div> <div class="ident">dummyConsumer</div><div class="operator">.</div><div class="ident">GetNumberOfErrorsConsumingMessages</div><div class="operator">(</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+<div class="keyword">func</div> <div class="ident">testShrinkedMessage</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">,</div> <div class="ident">inputMessage</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">Report</div><div class="operator">)</div> <div class="operator">{</div>
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">NotContains</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">inputMessage</div><div class="operator">,</div> <div class="literal">&#34;system&#34;</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">NotContains</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">inputMessage</div><div class="operator">,</div> <div class="literal">&#34;fingerprints&#34;</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">NotContains</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">inputMessage</div><div class="operator">,</div> <div class="literal">&#34;skips&#34;</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">NotContains</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">inputMessage</div><div class="operator">,</div> <div class="literal">&#34;info&#34;</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">NotContains</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">inputMessage</div><div class="operator">,</div> <div class="literal">&#34;pass&#34;</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">NotContains</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">inputMessage</div><div class="operator">,</div> <div class="literal">&#34;analysis_metadata&#34;</div><div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>TestShrinkEmptyMessage tests the function to remove unneeded attributes from incoming message</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">TestShrinkEmptyMessage</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+	<div class="keyword">var</div> <div class="ident">inputMessage</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">Report</div> <div class="operator">=</div> <div class="ident">make</div><div class="operator">(</div><div class="keyword">map</div><div class="operator">[</div><div class="ident">string</div><div class="operator">]</div><div class="operator">*</div><div class="ident">json</div><div class="operator">.</div><div class="ident">RawMessage</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">main</div><div class="operator">.</div><div class="ident">ShrinkMessage</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">inputMessage</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">testShrinkedMessage</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">inputMessage</div><div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>TestShrinkMessageWithAnalysisMetadata tests the function to remove unneeded attributes from incoming message</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">TestShrinkMessageWithAnalysisMetadata</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+	<div class="keyword">var</div> <div class="ident">inputMessage</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">Report</div> <div class="operator">=</div> <div class="ident">make</div><div class="operator">(</div><div class="keyword">map</div><div class="operator">[</div><div class="ident">string</div><div class="operator">]</div><div class="operator">*</div><div class="ident">json</div><div class="operator">.</div><div class="ident">RawMessage</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">analysisMetadata</div> <div class="operator">:=</div> <div class="ident">json</div><div class="operator">.</div><div class="ident">RawMessage</div><div class="operator">(</div><div class="literal">&#34;{}&#34;</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">inputMessage</div><div class="operator">[</div><div class="literal">&#34;analysis_metadata&#34;</div><div class="operator">]</div> <div class="operator">=</div> <div class="operator">&amp;</div><div class="ident">analysisMetadata</div><div class="operator"></div>
+
+	<div class="ident">main</div><div class="operator">.</div><div class="ident">ShrinkMessage</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">inputMessage</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">testShrinkedMessage</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">inputMessage</div><div class="operator">)</div><div class="operator"></div>
 <div class="operator">}</div><div class="operator"></div>
 
 </code></pre></td>
