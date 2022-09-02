@@ -24,6 +24,7 @@ CCX Notification Writer service
     * [Exposed metrics](#exposed-metrics)
     * [Retriewing metrics](#retriewing-metrics)
 * [Database](#database)
+    * [Migrations](#migrations)
     * [Database schema](#database-schema)
     * [Check PostgreSQL status](#check-postgresql-status)
     * [Start PostgreSQL database](#start-postgresql-database)
@@ -210,9 +211,17 @@ curl localhost:8080/metrics | grep ^notification_writer
 
 PostgreSQL database is used as a storage for new reports and for already reported reports as well.
 
+### Migrations
+
+This service contains an implementation of a simple database migration
+mechanism that allows semi-automatic transitions between various database
+versions as well as building the latest version of the database from scratch.
+
+Migration mechanism [is described here](https://redhatinsights.github.io/ccx-notification-writer/migrations.html)
+
 ### Database schema
 
-Database schema is described [in this document](https://redhatinsights.github.io/ccx-notification-writer/database.html)
+Latest database schema is described [in this document](https://redhatinsights.github.io/ccx-notification-writer/database.html)
 
 Please also look [at detailed schema
 description](https://redhatinsights.github.io/ccx-notification-writer/db-description/)
