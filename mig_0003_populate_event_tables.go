@@ -18,7 +18,7 @@ package main
 // https://pkg.go.dev/github.com/RedHatInsights/ccx-notification-writer/
 //
 // Documentation in literate-programming-style is available at:
-// https://redhatinsights.github.io/ccx-notification-writer/packages/mig_0002_add_event_target_col.html
+// https://redhatinsights.github.io/ccx-notification-writer/packages/mig_0003_populate_event_tables.html
 
 import (
 	"database/sql"
