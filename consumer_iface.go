@@ -16,6 +16,12 @@ limitations under the License.
 
 package main
 
+// Generated documentation is available at:
+// https://pkg.go.dev/github.com/RedHatInsights/ccx-notification-writer/
+//
+// Documentation in literate-programming-style is available at:
+// https://redhatinsights.github.io/ccx-notification-writer/packages/consumer_iface.html
+
 import (
 	"github.com/Shopify/sarama"
 )
