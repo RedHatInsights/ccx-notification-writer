@@ -158,8 +158,10 @@ https://redhatinsights.github.io/ccx-notification-writer/packages/consumer.html<
 	<div class="literal">&#34;context&#34;</div><div class="operator"></div>
 	<div class="literal">&#34;encoding/json&#34;</div><div class="operator"></div>
 	<div class="literal">&#34;errors&#34;</div><div class="operator"></div>
+	<div class="literal">&#34;strings&#34;</div><div class="operator"></div>
 	<div class="literal">&#34;time&#34;</div><div class="operator"></div>
 
+	<div class="ident">tlsutils</div> <div class="literal">&#34;github.com/RedHatInsights/insights-operator-utils/tls&#34;</div><div class="operator"></div>
 	<div class="literal">&#34;github.com/Shopify/sarama&#34;</div><div class="operator"></div>
 	<div class="literal">&#34;github.com/google/uuid&#34;</div><div class="operator"></div>
 	<div class="literal">&#34;github.com/rs/zerolog/log&#34;</div><div class="operator"></div>
@@ -332,17 +334,13 @@ useful for testing</p>
 	<div class="ident">saramaConfig</div> <div class="operator">*</div><div class="ident">sarama</div><div class="operator">.</div><div class="ident">Config</div><div class="operator">,</div>
 	<div class="ident">storage</div> <div class="ident">Storage</div><div class="operator">,</div>
 <div class="operator">)</div> <div class="operator">(</div><div class="operator">*</div><div class="ident">KafkaConsumer</div><div class="operator">,</div> <div class="ident">error</div><div class="operator">)</div> <div class="operator">{</div>
+	<div class="keyword">var</div> <div class="ident">err</div> <div class="ident">error</div><div class="operator"></div>
 	<div class="keyword">if</div> <div class="ident">saramaConfig</div> <div class="operator">==</div> <div class="ident">nil</div> <div class="operator">{</div>
-		<div class="ident">saramaConfig</div> <div class="operator">=</div> <div class="ident">sarama</div><div class="operator">.</div><div class="ident">NewConfig</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
-		<div class="ident">saramaConfig</div><div class="operator">.</div><div class="ident">Version</div> <div class="operator">=</div> <div class="ident">sarama</div><div class="operator">.</div><div class="ident">V0_10_2_0</div><div class="operator"></div>
-
-		<div class="comment">/* TODO: we need to do it in production code
-		if brokerCfg.Timeout &gt; 0 {
-			saramaConfig.Net.DialTimeout = brokerCfg.Timeout
-			saramaConfig.Net.ReadTimeout = brokerCfg.Timeout
-			saramaConfig.Net.WriteTimeout = brokerCfg.Timeout
-		}
-		*/</div>
+		<div class="ident">saramaConfig</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">=</div> <div class="ident">saramaConfigFromBrokerConfig</div><div class="operator">(</div><div class="ident">brokerCfg</div><div class="operator">)</div><div class="operator"></div>
+		<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
+			<div class="ident">log</div><div class="operator">.</div><div class="ident">Error</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Err</div><div class="operator">(</div><div class="ident">err</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;unable to create sarama configuration from current broker configuration&#34;</div><div class="operator">)</div><div class="operator"></div>
+			<div class="keyword">return</div> <div class="ident">nil</div><div class="operator">,</div> <div class="ident">err</div><div class="operator"></div>
+		<div class="operator">}</div><div class="operator"></div>
 	<div class="operator">}</div><div class="operator"></div>
 
 	<div class="ident">consumerGroup</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">sarama</div><div class="operator">.</div><div class="ident">NewConsumerGroup</div><div class="operator">(</div><div class="operator">[</div><div class="operator">]</div><div class="ident">string</div><div class="operator">{</div><div class="ident">brokerCfg</div><div class="operator">.</div><div class="ident">Address</div><div class="operator">}</div><div class="operator">,</div> <div class="ident">brokerCfg</div><div class="operator">.</div><div class="ident">Group</div><div class="operator">,</div> <div class="ident">saramaConfig</div><div class="operator">)</div><div class="operator"></div>
@@ -634,6 +632,7 @@ since creating KafkaConsumer obj</p>
 	<div class="ident">tryToDeleteAttribute</div><div class="operator">(</div><div class="ident">message</div><div class="operator">,</div> <div class="literal">&#34;skips&#34;</div><div class="operator">)</div><div class="operator"></div>
 	<div class="ident">tryToDeleteAttribute</div><div class="operator">(</div><div class="ident">message</div><div class="operator">,</div> <div class="literal">&#34;info&#34;</div><div class="operator">)</div><div class="operator"></div>
 	<div class="ident">tryToDeleteAttribute</div><div class="operator">(</div><div class="ident">message</div><div class="operator">,</div> <div class="literal">&#34;pass&#34;</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">tryToDeleteAttribute</div><div class="operator">(</div><div class="ident">message</div><div class="operator">,</div> <div class="literal">&#34;analysis_metadata&#34;</div><div class="operator">)</div><div class="operator"></div>
 <div class="operator">}</div><div class="operator"></div>
 
 </code></pre></td>
@@ -961,6 +960,38 @@ expectedKeys := []string{&quot;fingerprints&quot;, &quot;info&quot;, &quot;repor
 	<div class="operator">}</div><div class="operator"></div>
 
 	<div class="keyword">return</div> <div class="ident">deserialized</div><div class="operator">,</div> <div class="ident">nil</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+<div class="keyword">func</div> <div class="ident">saramaConfigFromBrokerConfig</div><div class="operator">(</div><div class="ident">cfg</div> <div class="ident">BrokerConfiguration</div><div class="operator">)</div> <div class="operator">(</div><div class="operator">*</div><div class="ident">sarama</div><div class="operator">.</div><div class="ident">Config</div><div class="operator">,</div> <div class="ident">error</div><div class="operator">)</div> <div class="operator">{</div>
+	<div class="ident">saramaConfig</div> <div class="operator">:=</div> <div class="ident">sarama</div><div class="operator">.</div><div class="ident">NewConfig</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">saramaConfig</div><div class="operator">.</div><div class="ident">Version</div> <div class="operator">=</div> <div class="ident">sarama</div><div class="operator">.</div><div class="ident">V0_10_2_0</div><div class="operator"></div>
+
+	<div class="comment">/* TODO: we need to do it in production code
+	if brokerCfg.Timeout &gt; 0 {
+		saramaConfig.Net.DialTimeout = brokerCfg.Timeout
+		saramaConfig.Net.ReadTimeout = brokerCfg.Timeout
+		saramaConfig.Net.WriteTimeout = brokerCfg.Timeout
+	}
+	*/</div>
+	<div class="keyword">if</div> <div class="ident">strings</div><div class="operator">.</div><div class="ident">Contains</div><div class="operator">(</div><div class="ident">cfg</div><div class="operator">.</div><div class="ident">SecurityProtocol</div><div class="operator">,</div> <div class="literal">&#34;SSL&#34;</div><div class="operator">)</div> <div class="operator">{</div>
+		<div class="ident">saramaConfig</div><div class="operator">.</div><div class="ident">Net</div><div class="operator">.</div><div class="ident">TLS</div><div class="operator">.</div><div class="ident">Enable</div> <div class="operator">=</div> <div class="ident">true</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+	<div class="keyword">if</div> <div class="ident">cfg</div><div class="operator">.</div><div class="ident">CertPath</div> <div class="operator">!=</div> <div class="literal">&#34;&#34;</div> <div class="operator">{</div>
+		<div class="ident">tlsConfig</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">tlsutils</div><div class="operator">.</div><div class="ident">NewTLSConfig</div><div class="operator">(</div><div class="ident">cfg</div><div class="operator">.</div><div class="ident">CertPath</div><div class="operator">)</div><div class="operator"></div>
+		<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
+			<div class="ident">log</div><div class="operator">.</div><div class="ident">Error</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msgf</div><div class="operator">(</div><div class="literal">&#34;Unable to load TLS config for %s cert&#34;</div><div class="operator">,</div> <div class="ident">cfg</div><div class="operator">.</div><div class="ident">CertPath</div><div class="operator">)</div><div class="operator"></div>
+			<div class="keyword">return</div> <div class="ident">nil</div><div class="operator">,</div> <div class="ident">err</div><div class="operator"></div>
+		<div class="operator">}</div><div class="operator"></div>
+		<div class="ident">saramaConfig</div><div class="operator">.</div><div class="ident">Net</div><div class="operator">.</div><div class="ident">TLS</div><div class="operator">.</div><div class="ident">Config</div> <div class="operator">=</div> <div class="ident">tlsConfig</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+	<div class="keyword">if</div> <div class="ident">strings</div><div class="operator">.</div><div class="ident">HasPrefix</div><div class="operator">(</div><div class="ident">cfg</div><div class="operator">.</div><div class="ident">SecurityProtocol</div><div class="operator">,</div> <div class="literal">&#34;SASL_&#34;</div><div class="operator">)</div> <div class="operator">{</div>
+		<div class="ident">log</div><div class="operator">.</div><div class="ident">Info</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;Configuring SASL authentication&#34;</div><div class="operator">)</div><div class="operator"></div>
+		<div class="ident">saramaConfig</div><div class="operator">.</div><div class="ident">Net</div><div class="operator">.</div><div class="ident">SASL</div><div class="operator">.</div><div class="ident">Enable</div> <div class="operator">=</div> <div class="ident">true</div><div class="operator"></div>
+		<div class="ident">saramaConfig</div><div class="operator">.</div><div class="ident">Net</div><div class="operator">.</div><div class="ident">SASL</div><div class="operator">.</div><div class="ident">User</div> <div class="operator">=</div> <div class="ident">cfg</div><div class="operator">.</div><div class="ident">SaslUsername</div><div class="operator"></div>
+		<div class="ident">saramaConfig</div><div class="operator">.</div><div class="ident">Net</div><div class="operator">.</div><div class="ident">SASL</div><div class="operator">.</div><div class="ident">Password</div> <div class="operator">=</div> <div class="ident">cfg</div><div class="operator">.</div><div class="ident">SaslPassword</div><div class="operator"></div>
+		<div class="ident">saramaConfig</div><div class="operator">.</div><div class="ident">Net</div><div class="operator">.</div><div class="ident">SASL</div><div class="operator">.</div><div class="ident">Mechanism</div> <div class="operator">=</div> <div class="ident">sarama</div><div class="operator">.</div><div class="ident">SASLMechanism</div><div class="operator">(</div><div class="ident">cfg</div><div class="operator">.</div><div class="ident">SaslMechanism</div><div class="operator">)</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+	<div class="keyword">return</div> <div class="ident">saramaConfig</div><div class="operator">,</div> <div class="ident">nil</div><div class="operator"></div>
 <div class="operator">}</div><div class="operator"></div>
 
 </code></pre></td>

@@ -297,6 +297,42 @@ configuration</p>
       </tr>
       
       <tr class="section">
+	<td class="doc"><p>SecurityProtocol represents the security protocol used by the broker</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">SecurityProtocol</div> <div class="ident">string</div> <div class="literal">`mapstructure:&#34;security_protocol&#34; toml:&#34;security_protocol&#34;`</div><div class="operator"></div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><pre><code>CertPath is the path to a file containing the certificate to be used with the broker
+</code></pre>
+</td>
+	<td class="code"><pre><code>	<div class="ident">CertPath</div> <div class="ident">string</div> <div class="literal">`mapstructure:&#34;cert_path&#34; toml:&#34;cert_path&#34;`</div><div class="operator"></div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>SaslMechanism is the SASL mechanism used for authentication</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">SaslMechanism</div> <div class="ident">string</div> <div class="literal">`mapstructure:&#34;sasl_mechanism&#34; toml:&#34;sasl_mechanism&#34;`</div><div class="operator"></div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>SaslUsername is the username used in case of PLAIN mechanism</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">SaslUsername</div> <div class="ident">string</div> <div class="literal">`mapstructure:&#34;sasl_username&#34; toml:&#34;sasl_username&#34;`</div><div class="operator"></div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>SaslPassword is the password used in case of PLAIN mechanism</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">SaslPassword</div> <div class="ident">string</div> <div class="literal">`mapstructure:&#34;sasl_password&#34; toml:&#34;sasl_password&#34;`</div><div class="operator"></div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
 	<td class="doc"><p>Topic is name of Kafka topic</p>
 </td>
 	<td class="code"><pre><code>	<div class="ident">Topic</div> <div class="ident">string</div> <div class="literal">`mapstructure:&#34;topic&#34; toml:&#34;topic&#34;`</div><div class="operator"></div>
@@ -523,6 +559,24 @@ itself, so we need to read fake config file</p>
 			<div class="ident">c</div><div class="operator">.</div><div class="ident">Broker</div><div class="operator">.</div><div class="ident">Address</div> <div class="operator">=</div> <div class="ident">fmt</div><div class="operator">.</div><div class="ident">Sprintf</div><div class="operator">(</div><div class="literal">&#34;%s:%d&#34;</div><div class="operator">,</div> <div class="ident">broker</div><div class="operator">.</div><div class="ident">Hostname</div><div class="operator">,</div> <div class="operator">*</div><div class="ident">broker</div><div class="operator">.</div><div class="ident">Port</div><div class="operator">)</div><div class="operator"></div>
 		<div class="operator">}</div> <div class="keyword">else</div> <div class="operator">{</div>
 			<div class="ident">c</div><div class="operator">.</div><div class="ident">Broker</div><div class="operator">.</div><div class="ident">Address</div> <div class="operator">=</div> <div class="ident">broker</div><div class="operator">.</div><div class="ident">Hostname</div><div class="operator"></div>
+		<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>SSL config</p>
+</td>
+	<td class="code"><pre><code>		<div class="keyword">if</div> <div class="ident">broker</div><div class="operator">.</div><div class="ident">Authtype</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
+			<div class="ident">fmt</div><div class="operator">.</div><div class="ident">Println</div><div class="operator">(</div><div class="literal">&#34;kafka is configured to use authentication&#34;</div><div class="operator">)</div><div class="operator"></div>
+			<div class="ident">c</div><div class="operator">.</div><div class="ident">Broker</div><div class="operator">.</div><div class="ident">SaslUsername</div> <div class="operator">=</div> <div class="operator">*</div><div class="ident">broker</div><div class="operator">.</div><div class="ident">Sasl</div><div class="operator">.</div><div class="ident">Username</div><div class="operator"></div>
+			<div class="ident">c</div><div class="operator">.</div><div class="ident">Broker</div><div class="operator">.</div><div class="ident">SaslPassword</div> <div class="operator">=</div> <div class="operator">*</div><div class="ident">broker</div><div class="operator">.</div><div class="ident">Sasl</div><div class="operator">.</div><div class="ident">Password</div><div class="operator"></div>
+			<div class="ident">c</div><div class="operator">.</div><div class="ident">Broker</div><div class="operator">.</div><div class="ident">SaslMechanism</div> <div class="operator">=</div> <div class="operator">*</div><div class="ident">broker</div><div class="operator">.</div><div class="ident">Sasl</div><div class="operator">.</div><div class="ident">SaslMechanism</div><div class="operator"></div>
+			<div class="ident">c</div><div class="operator">.</div><div class="ident">Broker</div><div class="operator">.</div><div class="ident">SecurityProtocol</div> <div class="operator">=</div> <div class="operator">*</div><div class="ident">broker</div><div class="operator">.</div><div class="ident">Sasl</div><div class="operator">.</div><div class="ident">SecurityProtocol</div><div class="operator"></div>
+
+			<div class="keyword">if</div> <div class="ident">caPath</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">clowder</div><div class="operator">.</div><div class="ident">LoadedConfig</div><div class="operator">.</div><div class="ident">KafkaCa</div><div class="operator">(</div><div class="ident">broker</div><div class="operator">)</div><div class="operator">;</div> <div class="ident">err</div> <div class="operator">==</div> <div class="ident">nil</div> <div class="operator">{</div>
+				<div class="ident">c</div><div class="operator">.</div><div class="ident">Broker</div><div class="operator">.</div><div class="ident">CertPath</div> <div class="operator">=</div> <div class="ident">caPath</div><div class="operator"></div>
+			<div class="operator">}</div><div class="operator"></div>
 		<div class="operator">}</div><div class="operator"></div>
 	<div class="operator">}</div><div class="operator"></div>
 
