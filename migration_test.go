@@ -14,6 +14,12 @@
 
 package main_test
 
+// Generated documentation is available at:
+// https://pkg.go.dev/github.com/RedHatInsights/ccx-notification-writer/
+//
+// Documentation in literate-programming-style is available at:
+// https://redhatinsights.github.io/ccx-notification-writer/packages/migration_test.html
+
 import (
 	"testing"
 
