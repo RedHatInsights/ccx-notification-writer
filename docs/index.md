@@ -15,7 +15,7 @@ updated_at)`. When some message does not conform to expected schema (for
 example if `org_id` is missing for any reason), such message is dropped and the
 error message with all relevant information about the issue is stored into the
 log. Messages are expected to contain `report` body represented as JSON.
-This body is shrink before it's stored into database so the database
+This body is shrunk before it's stored into database so the database
 remains relatively small.
 
 Additionally this service exposes several metrics about consumed and processed
