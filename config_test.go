@@ -1,5 +1,5 @@
 /*
-Copyright © 2021 Red Hat, Inc.
+Copyright © 2021, 2022 Red Hat, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -28,6 +28,7 @@ import (
 	"testing"
 
 	"github.com/RedHatInsights/insights-operator-utils/tests/helpers"
+	clowder "github.com/redhatinsights/app-common-go/pkg/api/v1"
 	"github.com/rs/zerolog"
 	"github.com/stretchr/testify/assert"
 
@@ -164,4 +165,34 @@ func TestLoadConfigurationFromEnvVariableClowderEnabled(t *testing.T) {
 	mustSetEnv(t, "CCX_NOTIFICATION_WRITER_CONFIG_FILE", "tests/config2")
 	mustSetEnv(t, "ACG_CONFIG", "tests/clowder_config.json")
 	mustLoadConfiguration("CCX_NOTIFICATION_WRITER_CONFIG_FILE")
+}
+
+// TestLoadConfigurationNoKafkaBroker test if number of configured brokers are
+// tested properly when no broker config exists
+func TestLoadConfigurationNoKafkaBroker(t *testing.T) {
+	var testDB = "test_db"
+	os.Clearenv()
+
+	// explicit database and broker configuration
+	clowder.LoadedConfig = &clowder.AppConfig{
+		Database: &clowder.DatabaseConfig{
+			Name: testDB,
+		},
+		Kafka: &clowder.KafkaConfig{}, // no brokers in configuration
+	}
+	mustSetEnv(t, "CCX_NOTIFICATION_WRITER_CONFIG_FILE", "tests/config2")
+	mustSetEnv(t, "ACG_CONFIG", "tests/clowder_config.json")
+
+	// load configuration using Clowder config
+	config, err := main.LoadConfiguration("CCX_NOTIFICATION_WRITER_CONFIG_FILE", "tests/config2")
+	assert.NoError(t, err, "Failed loading configuration file")
+
+	// retrieve broker configuration that was just loaded
+	brokerCfg := main.GetBrokerConfiguration(config)
+
+	// check broker configuration
+	assert.Equal(t, "localhost:29092", brokerCfg.Address)
+	assert.Equal(t, "ccx_test_notifications", brokerCfg.Topic)
+	assert.Equal(t, "test-consumer-group", brokerCfg.Group)
+	assert.True(t, brokerCfg.Enabled)
 }
