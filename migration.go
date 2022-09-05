@@ -33,7 +33,7 @@ var migrations = []utils.Migration{
 	mig0001CreateEventTargetsTbl,
 	mig0002AddEventTargetCol,
 	mig0003PopulateEventTables,
-	mig0004PopulateEventTables,
+	mig0004UpdateEventTypeIDInReportedTable,
 }
 
 // All returns "migration" , the list of implemented utils.Migration
