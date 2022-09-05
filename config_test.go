@@ -27,7 +27,6 @@ import (
 
 	"testing"
 
-	"github.com/RedHatInsights/insights-operator-utils/tests/helpers"
 	clowder "github.com/redhatinsights/app-common-go/pkg/api/v1"
 	"github.com/rs/zerolog"
 	"github.com/stretchr/testify/assert"
@@ -48,7 +47,10 @@ func mustLoadConfiguration(envVar string) {
 
 func mustSetEnv(t *testing.T, key, val string) {
 	err := os.Setenv(key, val)
-	helpers.FailOnError(t, err)
+	assert.NoError(t, err)
+	if err != nil {
+		t.Fatal(err)
+	}
 }
 
 // TestLoadDefaultConfiguration loads a configuration file for testing
