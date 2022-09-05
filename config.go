@@ -248,25 +248,30 @@ func updateConfigFromClowder(c *ConfigStruct) error {
 	if clowder.LoadedConfig.Kafka == nil {
 		fmt.Println("No Kafka configuration available in Clowder, using default one")
 	} else {
-		broker := clowder.LoadedConfig.Kafka.Brokers[0]
-		// port can be empty in clowder, so taking it into account
-		if broker.Port != nil {
-			c.Broker.Address = fmt.Sprintf("%s:%d", broker.Hostname, *broker.Port)
-		} else {
-			c.Broker.Address = broker.Hostname
-		}
-
-		// SSL config
-		if broker.Authtype != nil {
-			fmt.Println("kafka is configured to use authentication")
-			c.Broker.SaslUsername = *broker.Sasl.Username
-			c.Broker.SaslPassword = *broker.Sasl.Password
-			c.Broker.SaslMechanism = *broker.Sasl.SaslMechanism
-			c.Broker.SecurityProtocol = *broker.Sasl.SecurityProtocol
-
-			if caPath, err := clowder.LoadedConfig.KafkaCa(broker); err == nil {
-				c.Broker.CertPath = caPath
+		// make sure broker(s) are configured in Clowder
+		if len(clowder.LoadedConfig.Kafka.Brokers) > 0 {
+			broker := clowder.LoadedConfig.Kafka.Brokers[0]
+			// port can be empty in clowder, so taking it into account
+			if broker.Port != nil {
+				c.Broker.Address = fmt.Sprintf("%s:%d", broker.Hostname, *broker.Port)
+			} else {
+				c.Broker.Address = broker.Hostname
 			}
+
+			// SSL config
+			if broker.Authtype != nil {
+				fmt.Println("kafka is configured to use authentication")
+				c.Broker.SaslUsername = *broker.Sasl.Username
+				c.Broker.SaslPassword = *broker.Sasl.Password
+				c.Broker.SaslMechanism = *broker.Sasl.SaslMechanism
+				c.Broker.SecurityProtocol = *broker.Sasl.SecurityProtocol
+
+				if caPath, err := clowder.LoadedConfig.KafkaCa(broker); err == nil {
+					c.Broker.CertPath = caPath
+				}
+			}
+		} else {
+			fmt.Println("warning: no broker configurations found in clowder config")
 		}
 	}
 
