@@ -169,11 +169,25 @@ func TestLoadMetricsConfiguration(t *testing.T) {
 // file for testing from an environment variable. Clowder config is enabled in
 // this case.
 func TestLoadConfigurationFromEnvVariableClowderEnabled(t *testing.T) {
+	var testDB = "test_db"
 	os.Clearenv()
 
+	// explicit database configuration
+	clowder.LoadedConfig = &clowder.AppConfig{
+		Database: &clowder.DatabaseConfig{
+			Name: testDB,
+		},
+	}
 	mustSetEnv(t, "CCX_NOTIFICATION_WRITER_CONFIG_FILE", "tests/config2")
 	mustSetEnv(t, "ACG_CONFIG", "tests/clowder_config.json")
-	mustLoadConfiguration("CCX_NOTIFICATION_WRITER_CONFIG_FILE")
+
+	// load configuration using Clowder config
+	config, err := main.LoadConfiguration("CCX_NOTIFICATION_WRITER_CONFIG_FILE", "tests/config2")
+	assert.NoError(t, err, "Failed loading configuration file")
+
+	// check if database configuration has been loaded properly
+	dbCfg := main.GetStorageConfiguration(config)
+	assert.Equal(t, testDB, dbCfg.PGDBName)
 }
 
 // TestLoadConfigurationNoKafkaBroker test if number of configured brokers are
