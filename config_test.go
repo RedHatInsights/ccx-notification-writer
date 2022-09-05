@@ -27,7 +27,6 @@ import (
 
 	"testing"
 
-	"github.com/RedHatInsights/insights-operator-utils/tests/helpers"
 	clowder "github.com/redhatinsights/app-common-go/pkg/api/v1"
 	"github.com/rs/zerolog"
 	"github.com/stretchr/testify/assert"
@@ -39,6 +38,8 @@ func init() {
 	zerolog.SetGlobalLevel(zerolog.WarnLevel)
 }
 
+// mustLoadConfiguration function loads configuration file or the actual test
+// will fail
 func mustLoadConfiguration(envVar string) {
 	_, err := main.LoadConfiguration(envVar, "tests/config1")
 	if err != nil {
@@ -46,18 +47,25 @@ func mustLoadConfiguration(envVar string) {
 	}
 }
 
+// mustSetEnv function set specified environment variable or the actual test
+// will fail
 func mustSetEnv(t *testing.T, key, val string) {
 	err := os.Setenv(key, val)
-	helpers.FailOnError(t, err)
+	assert.NoError(t, err)
+	if err != nil {
+		t.Fatal(err)
+	}
 }
 
-// TestLoadDefaultConfiguration loads a configuration file for testing
+// TestLoadDefaultConfiguration test loads a configuration file for testing
+// with check that load was correct
 func TestLoadDefaultConfiguration(t *testing.T) {
 	os.Clearenv()
 	mustLoadConfiguration("nonExistingEnvVar")
 }
 
-// TestLoadConfigurationFromEnvVariable tests loading the config. file for testing from an environment variable
+// TestLoadConfigurationFromEnvVariable tests loading the config. file for
+// testing from an environment variable
 func TestLoadConfigurationFromEnvVariable(t *testing.T) {
 	os.Clearenv()
 
@@ -65,13 +73,14 @@ func TestLoadConfigurationFromEnvVariable(t *testing.T) {
 	mustLoadConfiguration("CCX_NOTIFICATION_WRITER_CONFIG_FILE")
 }
 
-// TestLoadConfigurationNonEnvVarUnknownConfigFile tests loading an unexisting config file when no environment variable is provided
+// TestLoadConfigurationNonEnvVarUnknownConfigFile tests loading an unexisting
+// config file when no environment variable is provided
 func TestLoadConfigurationNonEnvVarUnknownConfigFile(t *testing.T) {
 	_, err := main.LoadConfiguration("", "foobar")
 	assert.Nil(t, err)
 }
 
-// TestLoadConfigurationBadConfigFile tests loading a bad config file when no environment variable is provided
+// TestLoadConfigurationBadConfigFile tests loading an unexisting config file when no environment variable is provided
 func TestLoadConfigurationBadConfigFile(t *testing.T) {
 	_, err := main.LoadConfiguration("", "tests/config3")
 	assert.Contains(t, err.Error(), `fatal error config file: While parsing config:`)
@@ -160,11 +169,25 @@ func TestLoadMetricsConfiguration(t *testing.T) {
 // file for testing from an environment variable. Clowder config is enabled in
 // this case.
 func TestLoadConfigurationFromEnvVariableClowderEnabled(t *testing.T) {
+	var testDB = "test_db"
 	os.Clearenv()
 
+	// explicit database configuration
+	clowder.LoadedConfig = &clowder.AppConfig{
+		Database: &clowder.DatabaseConfig{
+			Name: testDB,
+		},
+	}
 	mustSetEnv(t, "CCX_NOTIFICATION_WRITER_CONFIG_FILE", "tests/config2")
 	mustSetEnv(t, "ACG_CONFIG", "tests/clowder_config.json")
-	mustLoadConfiguration("CCX_NOTIFICATION_WRITER_CONFIG_FILE")
+
+	// load configuration using Clowder config
+	config, err := main.LoadConfiguration("CCX_NOTIFICATION_WRITER_CONFIG_FILE", "tests/config2")
+	assert.NoError(t, err, "Failed loading configuration file")
+
+	// check if database configuration has been loaded properly
+	dbCfg := main.GetStorageConfiguration(config)
+	assert.Equal(t, testDB, dbCfg.PGDBName)
 }
 
 // TestLoadConfigurationNoKafkaBroker test if number of configured brokers are
@@ -192,6 +215,119 @@ func TestLoadConfigurationNoKafkaBroker(t *testing.T) {
 
 	// check broker configuration
 	assert.Equal(t, "localhost:29092", brokerCfg.Address)
+	assert.Equal(t, "ccx_test_notifications", brokerCfg.Topic)
+	assert.Equal(t, "test-consumer-group", brokerCfg.Group)
+	assert.True(t, brokerCfg.Enabled)
+}
+
+// TestLoadConfigurationKafkaBrokerEmptyConfig test if empty broker config is
+// loaded via Clowder
+func TestLoadConfigurationKafkaBrokerEmptyConfig(t *testing.T) {
+	var testDB = "test_db"
+	os.Clearenv()
+
+	// just one empty broker configuration
+	var brokersConfig []clowder.BrokerConfig = []clowder.BrokerConfig{
+		clowder.BrokerConfig{},
+	}
+
+	// explicit database and broker configuration
+	clowder.LoadedConfig = &clowder.AppConfig{
+		Database: &clowder.DatabaseConfig{
+			Name: testDB,
+		},
+		Kafka: &clowder.KafkaConfig{
+			Brokers: brokersConfig},
+	}
+	mustSetEnv(t, "CCX_NOTIFICATION_WRITER_CONFIG_FILE", "tests/config2")
+	mustSetEnv(t, "ACG_CONFIG", "tests/clowder_config.json")
+
+	// load configuration using Clowder config
+	config, err := main.LoadConfiguration("CCX_NOTIFICATION_WRITER_CONFIG_FILE", "tests/config2")
+	assert.NoError(t, err, "Failed loading configuration file")
+
+	// retrieve broker configuration that was just loaded
+	brokerCfg := main.GetBrokerConfiguration(config)
+
+	// check broker configuration
+	assert.Equal(t, "", brokerCfg.Address)
+	assert.Equal(t, "ccx_test_notifications", brokerCfg.Topic)
+	assert.Equal(t, "test-consumer-group", brokerCfg.Group)
+	assert.True(t, brokerCfg.Enabled)
+}
+
+// TestLoadConfigurationKafkaBrokerNoPort test loading broker configuration w/o port
+func TestLoadConfigurationKafkaBrokerNoPort(t *testing.T) {
+	var testDB = "test_db"
+	os.Clearenv()
+
+	// just one non-empty broker configuration
+	var brokersConfig []clowder.BrokerConfig = []clowder.BrokerConfig{
+		clowder.BrokerConfig{
+			Hostname: "test",
+			Port:     nil}, // port is not set
+	}
+
+	// explicit database and broker configuration
+	clowder.LoadedConfig = &clowder.AppConfig{
+		Database: &clowder.DatabaseConfig{
+			Name: testDB,
+		},
+		Kafka: &clowder.KafkaConfig{
+			Brokers: brokersConfig},
+	}
+	mustSetEnv(t, "CCX_NOTIFICATION_WRITER_CONFIG_FILE", "tests/config2")
+	mustSetEnv(t, "ACG_CONFIG", "tests/clowder_config.json")
+
+	// load configuration using Clowder config
+	config, err := main.LoadConfiguration("CCX_NOTIFICATION_WRITER_CONFIG_FILE", "tests/config2")
+	assert.NoError(t, err, "Failed loading configuration file")
+
+	// retrieve broker configuration that was just loaded
+	brokerCfg := main.GetBrokerConfiguration(config)
+
+	// check broker configuration
+	// no port should be set
+	assert.Equal(t, "test", brokerCfg.Address)
+	assert.Equal(t, "ccx_test_notifications", brokerCfg.Topic)
+	assert.Equal(t, "test-consumer-group", brokerCfg.Group)
+	assert.True(t, brokerCfg.Enabled)
+}
+
+// TestLoadConfigurationKafkaBrokerPort test loading broker port
+func TestLoadConfigurationKafkaBrokerPort(t *testing.T) {
+	var testDB = "test_db"
+	os.Clearenv()
+
+	var port = 1234
+
+	// just one non-empty broker configuration
+	var brokersConfig []clowder.BrokerConfig = []clowder.BrokerConfig{
+		clowder.BrokerConfig{
+			Hostname: "test",
+			Port:     &port}, // port is set
+	}
+
+	// explicit database and broker configuration
+	clowder.LoadedConfig = &clowder.AppConfig{
+		Database: &clowder.DatabaseConfig{
+			Name: testDB,
+		},
+		Kafka: &clowder.KafkaConfig{
+			Brokers: brokersConfig},
+	}
+	mustSetEnv(t, "CCX_NOTIFICATION_WRITER_CONFIG_FILE", "tests/config2")
+	mustSetEnv(t, "ACG_CONFIG", "tests/clowder_config.json")
+
+	// load configuration using Clowder config
+	config, err := main.LoadConfiguration("CCX_NOTIFICATION_WRITER_CONFIG_FILE", "tests/config2")
+	assert.NoError(t, err, "Failed loading configuration file")
+
+	// retrieve broker configuration that was just loaded
+	brokerCfg := main.GetBrokerConfiguration(config)
+
+	// check broker configuration
+	assert.Equal(t, "test:1234", brokerCfg.Address)
 	assert.Equal(t, "ccx_test_notifications", brokerCfg.Topic)
 	assert.Equal(t, "test-consumer-group", brokerCfg.Group)
 	assert.True(t, brokerCfg.Enabled)
