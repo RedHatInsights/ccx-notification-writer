@@ -197,6 +197,42 @@ func TestLoadConfigurationNoKafkaBroker(t *testing.T) {
 	assert.True(t, brokerCfg.Enabled)
 }
 
+// TestLoadConfigurationKafkaBrokerEmptyConfig test if empty broker config is
+// loaded via Clowder
+func TestLoadConfigurationKafkaBrokerEmptyConfig(t *testing.T) {
+	var testDB = "test_db"
+	os.Clearenv()
+
+	// just one empty broker configuration
+	var brokersConfig []clowder.BrokerConfig = []clowder.BrokerConfig{
+		clowder.BrokerConfig{},
+	}
+
+	// explicit database and broker configuration
+	clowder.LoadedConfig = &clowder.AppConfig{
+		Database: &clowder.DatabaseConfig{
+			Name: testDB,
+		},
+		Kafka: &clowder.KafkaConfig{
+			Brokers: brokersConfig},
+	}
+	mustSetEnv(t, "CCX_NOTIFICATION_WRITER_CONFIG_FILE", "tests/config2")
+	mustSetEnv(t, "ACG_CONFIG", "tests/clowder_config.json")
+
+	// load configuration using Clowder config
+	config, err := main.LoadConfiguration("CCX_NOTIFICATION_WRITER_CONFIG_FILE", "tests/config2")
+	assert.NoError(t, err, "Failed loading configuration file")
+
+	// retrieve broker configuration that was just loaded
+	brokerCfg := main.GetBrokerConfiguration(config)
+
+	// check broker configuration
+	assert.Equal(t, "", brokerCfg.Address)
+	assert.Equal(t, "ccx_test_notifications", brokerCfg.Topic)
+	assert.Equal(t, "test-consumer-group", brokerCfg.Group)
+	assert.True(t, brokerCfg.Enabled)
+}
+
 // TestLoadConfigurationKafkaBrokerAuthConfigMissingSASL test loading broker auth. config
 // is correct but missing SASL configuration
 func TestLoadConfigurationKafkaBrokerAuthConfigMissingSASL(t *testing.T) {
