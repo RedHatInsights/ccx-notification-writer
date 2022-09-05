@@ -62,3 +62,63 @@ via `AGG_CONFIG` environment variable:
 ```
 export ACG_CONFIG="clowder_config.json"
 ```
+
+An example of Clowder configuration (please note that URLs and other attributes are not real ones):
+
+```json
+{
+  "BOPURL": "http://ephemeral_service_url:1234",
+  "database": {
+    "adminPassword": "admin password",
+    "adminUsername": "admin username",
+    "hostname": "host name of machine with DB",
+    "name": "ccx-notification-db",
+    "username": "username to connect to database",
+    "password": "password to connect to database",
+    "port": 5432,
+    "sslMode": "disable"
+  },
+  "endpoints": [
+    {
+      "app": "notifications-backend",
+      "hostname": "notifications-backend-service URL",
+      "name": "service",
+      "port": 8000
+    },
+    {
+      "app": "notifications-engine",
+      "hostname": "notifications-engine-service URL",
+      "name": "service",
+      "port": 8000
+    }
+  ],
+  "kafka": {
+    "brokers": [
+      {
+        "hostname": "hostname of machine with running Kafka broker",
+        "port": 9092
+      }
+    ],
+    "topics": [
+      {
+        "name": "ccx.ocp.results",
+        "requestedName": "ccx.ocp.results"
+      }
+    ]
+  },
+  "logging": {
+    "cloudwatch": {
+      "accessKeyId": "",
+      "logGroup": "",
+      "region": "",
+      "secretAccessKey": ""
+    },
+    "type": "null"
+  },
+  "metricsPath": "/metrics",
+  "metricsPort": 9000,
+  "privatePort": 10000,
+  "publicPort": 8000,
+  "webPort": 8000
+}
+```
