@@ -548,18 +548,25 @@ itself, so we need to read fake config file</p>
 	<div class="keyword">if</div> <div class="ident">clowder</div><div class="operator">.</div><div class="ident">LoadedConfig</div><div class="operator">.</div><div class="ident">Kafka</div> <div class="operator">==</div> <div class="ident">nil</div> <div class="operator">{</div>
 		<div class="ident">fmt</div><div class="operator">.</div><div class="ident">Println</div><div class="operator">(</div><div class="literal">&#34;No Kafka configuration available in Clowder, using default one&#34;</div><div class="operator">)</div><div class="operator"></div>
 	<div class="operator">}</div> <div class="keyword">else</div> <div class="operator">{</div>
-		<div class="ident">broker</div> <div class="operator">:=</div> <div class="ident">clowder</div><div class="operator">.</div><div class="ident">LoadedConfig</div><div class="operator">.</div><div class="ident">Kafka</div><div class="operator">.</div><div class="ident">Brokers</div><div class="operator">[</div><div class="literal">0</div><div class="operator">]</div><div class="operator"></div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>make sure broker(s) are configured in Clowder</p>
+</td>
+	<td class="code"><pre><code>		<div class="keyword">if</div> <div class="ident">len</div><div class="operator">(</div><div class="ident">clowder</div><div class="operator">.</div><div class="ident">LoadedConfig</div><div class="operator">.</div><div class="ident">Kafka</div><div class="operator">.</div><div class="ident">Brokers</div><div class="operator">)</div> <div class="operator">&gt;</div> <div class="literal">0</div> <div class="operator">{</div>
+			<div class="ident">broker</div> <div class="operator">:=</div> <div class="ident">clowder</div><div class="operator">.</div><div class="ident">LoadedConfig</div><div class="operator">.</div><div class="ident">Kafka</div><div class="operator">.</div><div class="ident">Brokers</div><div class="operator">[</div><div class="literal">0</div><div class="operator">]</div><div class="operator"></div>
 </code></pre></td>
       </tr>
       
       <tr class="section">
 	<td class="doc"><p>port can be empty in clowder, so taking it into account</p>
 </td>
-	<td class="code"><pre><code>		<div class="keyword">if</div> <div class="ident">broker</div><div class="operator">.</div><div class="ident">Port</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
-			<div class="ident">c</div><div class="operator">.</div><div class="ident">Broker</div><div class="operator">.</div><div class="ident">Address</div> <div class="operator">=</div> <div class="ident">fmt</div><div class="operator">.</div><div class="ident">Sprintf</div><div class="operator">(</div><div class="literal">&#34;%s:%d&#34;</div><div class="operator">,</div> <div class="ident">broker</div><div class="operator">.</div><div class="ident">Hostname</div><div class="operator">,</div> <div class="operator">*</div><div class="ident">broker</div><div class="operator">.</div><div class="ident">Port</div><div class="operator">)</div><div class="operator"></div>
-		<div class="operator">}</div> <div class="keyword">else</div> <div class="operator">{</div>
-			<div class="ident">c</div><div class="operator">.</div><div class="ident">Broker</div><div class="operator">.</div><div class="ident">Address</div> <div class="operator">=</div> <div class="ident">broker</div><div class="operator">.</div><div class="ident">Hostname</div><div class="operator"></div>
-		<div class="operator">}</div><div class="operator"></div>
+	<td class="code"><pre><code>			<div class="keyword">if</div> <div class="ident">broker</div><div class="operator">.</div><div class="ident">Port</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
+				<div class="ident">c</div><div class="operator">.</div><div class="ident">Broker</div><div class="operator">.</div><div class="ident">Address</div> <div class="operator">=</div> <div class="ident">fmt</div><div class="operator">.</div><div class="ident">Sprintf</div><div class="operator">(</div><div class="literal">&#34;%s:%d&#34;</div><div class="operator">,</div> <div class="ident">broker</div><div class="operator">.</div><div class="ident">Hostname</div><div class="operator">,</div> <div class="operator">*</div><div class="ident">broker</div><div class="operator">.</div><div class="ident">Port</div><div class="operator">)</div><div class="operator"></div>
+			<div class="operator">}</div> <div class="keyword">else</div> <div class="operator">{</div>
+				<div class="ident">c</div><div class="operator">.</div><div class="ident">Broker</div><div class="operator">.</div><div class="ident">Address</div> <div class="operator">=</div> <div class="ident">broker</div><div class="operator">.</div><div class="ident">Hostname</div><div class="operator"></div>
+			<div class="operator">}</div><div class="operator"></div>
 
 </code></pre></td>
       </tr>
@@ -567,16 +574,23 @@ itself, so we need to read fake config file</p>
       <tr class="section">
 	<td class="doc"><p>SSL config</p>
 </td>
-	<td class="code"><pre><code>		<div class="keyword">if</div> <div class="ident">broker</div><div class="operator">.</div><div class="ident">Authtype</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
-			<div class="ident">fmt</div><div class="operator">.</div><div class="ident">Println</div><div class="operator">(</div><div class="literal">&#34;kafka is configured to use authentication&#34;</div><div class="operator">)</div><div class="operator"></div>
-			<div class="ident">c</div><div class="operator">.</div><div class="ident">Broker</div><div class="operator">.</div><div class="ident">SaslUsername</div> <div class="operator">=</div> <div class="operator">*</div><div class="ident">broker</div><div class="operator">.</div><div class="ident">Sasl</div><div class="operator">.</div><div class="ident">Username</div><div class="operator"></div>
-			<div class="ident">c</div><div class="operator">.</div><div class="ident">Broker</div><div class="operator">.</div><div class="ident">SaslPassword</div> <div class="operator">=</div> <div class="operator">*</div><div class="ident">broker</div><div class="operator">.</div><div class="ident">Sasl</div><div class="operator">.</div><div class="ident">Password</div><div class="operator"></div>
-			<div class="ident">c</div><div class="operator">.</div><div class="ident">Broker</div><div class="operator">.</div><div class="ident">SaslMechanism</div> <div class="operator">=</div> <div class="operator">*</div><div class="ident">broker</div><div class="operator">.</div><div class="ident">Sasl</div><div class="operator">.</div><div class="ident">SaslMechanism</div><div class="operator"></div>
-			<div class="ident">c</div><div class="operator">.</div><div class="ident">Broker</div><div class="operator">.</div><div class="ident">SecurityProtocol</div> <div class="operator">=</div> <div class="operator">*</div><div class="ident">broker</div><div class="operator">.</div><div class="ident">Sasl</div><div class="operator">.</div><div class="ident">SecurityProtocol</div><div class="operator"></div>
+	<td class="code"><pre><code>			<div class="keyword">if</div> <div class="ident">broker</div><div class="operator">.</div><div class="ident">Authtype</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
+				<div class="ident">fmt</div><div class="operator">.</div><div class="ident">Println</div><div class="operator">(</div><div class="literal">&#34;kafka is configured to use authentication&#34;</div><div class="operator">)</div><div class="operator"></div>
+				<div class="keyword">if</div> <div class="ident">broker</div><div class="operator">.</div><div class="ident">Sasl</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
+					<div class="ident">c</div><div class="operator">.</div><div class="ident">Broker</div><div class="operator">.</div><div class="ident">SaslUsername</div> <div class="operator">=</div> <div class="operator">*</div><div class="ident">broker</div><div class="operator">.</div><div class="ident">Sasl</div><div class="operator">.</div><div class="ident">Username</div><div class="operator"></div>
+					<div class="ident">c</div><div class="operator">.</div><div class="ident">Broker</div><div class="operator">.</div><div class="ident">SaslPassword</div> <div class="operator">=</div> <div class="operator">*</div><div class="ident">broker</div><div class="operator">.</div><div class="ident">Sasl</div><div class="operator">.</div><div class="ident">Password</div><div class="operator"></div>
+					<div class="ident">c</div><div class="operator">.</div><div class="ident">Broker</div><div class="operator">.</div><div class="ident">SaslMechanism</div> <div class="operator">=</div> <div class="operator">*</div><div class="ident">broker</div><div class="operator">.</div><div class="ident">Sasl</div><div class="operator">.</div><div class="ident">SaslMechanism</div><div class="operator"></div>
+					<div class="ident">c</div><div class="operator">.</div><div class="ident">Broker</div><div class="operator">.</div><div class="ident">SecurityProtocol</div> <div class="operator">=</div> <div class="operator">*</div><div class="ident">broker</div><div class="operator">.</div><div class="ident">Sasl</div><div class="operator">.</div><div class="ident">SecurityProtocol</div><div class="operator"></div>
 
-			<div class="keyword">if</div> <div class="ident">caPath</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">clowder</div><div class="operator">.</div><div class="ident">LoadedConfig</div><div class="operator">.</div><div class="ident">KafkaCa</div><div class="operator">(</div><div class="ident">broker</div><div class="operator">)</div><div class="operator">;</div> <div class="ident">err</div> <div class="operator">==</div> <div class="ident">nil</div> <div class="operator">{</div>
-				<div class="ident">c</div><div class="operator">.</div><div class="ident">Broker</div><div class="operator">.</div><div class="ident">CertPath</div> <div class="operator">=</div> <div class="ident">caPath</div><div class="operator"></div>
+					<div class="keyword">if</div> <div class="ident">caPath</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">clowder</div><div class="operator">.</div><div class="ident">LoadedConfig</div><div class="operator">.</div><div class="ident">KafkaCa</div><div class="operator">(</div><div class="ident">broker</div><div class="operator">)</div><div class="operator">;</div> <div class="ident">err</div> <div class="operator">==</div> <div class="ident">nil</div> <div class="operator">{</div>
+						<div class="ident">c</div><div class="operator">.</div><div class="ident">Broker</div><div class="operator">.</div><div class="ident">CertPath</div> <div class="operator">=</div> <div class="ident">caPath</div><div class="operator"></div>
+					<div class="operator">}</div><div class="operator"></div>
+				<div class="operator">}</div> <div class="keyword">else</div> <div class="operator">{</div>
+					<div class="ident">fmt</div><div class="operator">.</div><div class="ident">Println</div><div class="operator">(</div><div class="literal">&#34;warning: SASL configuration is missing&#34;</div><div class="operator">)</div><div class="operator"></div>
+				<div class="operator">}</div><div class="operator"></div>
 			<div class="operator">}</div><div class="operator"></div>
+		<div class="operator">}</div> <div class="keyword">else</div> <div class="operator">{</div>
+			<div class="ident">fmt</div><div class="operator">.</div><div class="ident">Println</div><div class="operator">(</div><div class="literal">&#34;warning: no broker configurations found in clowder config&#34;</div><div class="operator">)</div><div class="operator"></div>
 		<div class="operator">}</div><div class="operator"></div>
 	<div class="operator">}</div><div class="operator"></div>
 
