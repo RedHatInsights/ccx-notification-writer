@@ -66,6 +66,9 @@ test: ${BINARY} ## Run the unit tests
 profiler: ${BINARY} ## Run the unit tests with profiler enabled
 	./profile.sh
 
+benchmark: ${BINARY} ## Run benchmarks
+	go test -bench=. -run=^$
+
 cover: test ## Generate HTML pages with code coverage
 	@go tool cover -html=coverage.out
 
