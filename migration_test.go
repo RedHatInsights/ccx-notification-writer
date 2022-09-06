@@ -172,3 +172,79 @@ func Test0002MigrationStepDown(t *testing.T) {
 	// check if all expectations were met
 	checkAllExpectations(t, mock)
 }
+
+func Test0003MigrationStepUp(t *testing.T) {
+	// prepare new mocked connection to database
+	connection, mock := mustCreateMockConnection(t)
+
+	// prepare mocked result for SQL query
+	rows := sqlmock.NewRows([]string{"version"})
+	rows.AddRow("0")
+
+	count := sqlmock.NewRows([]string{"count"})
+	count.AddRow("1")
+
+	resultCreate := sqlmock.NewResult(0, 1)
+	resultUpdate := sqlmock.NewResult(1, 1)
+	resultAlter := sqlmock.NewResult(0, 1)
+	resultInsert := sqlmock.NewResult(1, 2)
+
+	// expected query performed by tested function
+	expectedQuery0 := "SELECT COUNT\\(\\*\\) FROM migration_info;"
+	expectedQuery1 := "SELECT version FROM migration_info;"
+	expectedCreate := "CREATE TABLE IF NOT EXISTS event_targets .*"
+	expectedUpdate := "UPDATE migration_info SET version=\\$1;"
+	expectedInsert := "INSERT INTO event_targets \\(id, name, metainfo\\) VALUES .*"
+	expectedAlter := "ALTER TABLE reported ADD COLUMN .*"
+
+	mock.ExpectQuery(expectedQuery0).WillReturnRows(count)
+	mock.ExpectQuery(expectedQuery1).WillReturnRows(rows)
+	mock.ExpectBegin()
+	mock.ExpectExec(expectedCreate).WillReturnResult(resultCreate)
+	mock.ExpectExec(expectedAlter).WillReturnResult(resultAlter)
+	mock.ExpectExec(expectedInsert).WillReturnResult(resultInsert)
+	mock.ExpectExec(expectedUpdate).WillReturnResult(resultUpdate)
+	mock.ExpectCommit()
+	mock.ExpectClose()
+
+	utils.Set(main.All())
+	assert.NoError(t, main.Migrate(connection, 3))
+
+	// check if all expectations were met
+	checkAllExpectations(t, mock)
+}
+
+func Test0003MigrationStepDown(t *testing.T) {
+	// prepare new mocked connection to database
+	connection, mock := mustCreateMockConnection(t)
+
+	// prepare mocked result for SQL query
+	rows := sqlmock.NewRows([]string{"version"})
+	rows.AddRow("3")
+
+	count := sqlmock.NewRows([]string{"count"})
+	count.AddRow("1")
+
+	resultDelete := sqlmock.NewResult(0, 2)
+	resultUpdate := sqlmock.NewResult(1, 1)
+
+	// expected query performed by tested function
+	expectedQuery0 := "SELECT COUNT\\(\\*\\) FROM migration_info;"
+	expectedQuery1 := "SELECT version FROM migration_info;"
+	expectedDelete := "DELETE FROM event_targets"
+	expectedUpdate := "UPDATE migration_info SET version=\\$1;"
+
+	mock.ExpectQuery(expectedQuery0).WillReturnRows(count)
+	mock.ExpectQuery(expectedQuery1).WillReturnRows(rows)
+	mock.ExpectBegin()
+	mock.ExpectExec(expectedDelete).WillReturnResult(resultDelete)
+	mock.ExpectExec(expectedUpdate).WillReturnResult(resultUpdate)
+	mock.ExpectCommit()
+	mock.ExpectClose()
+
+	utils.Set(main.All())
+	assert.NoError(t, main.Migrate(connection, 2))
+
+	// check if all expectations were met
+	checkAllExpectations(t, mock)
+}
