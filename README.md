@@ -89,6 +89,7 @@ style                Run all the formatting related commands (fmt, vet, lint, cy
 run                  Build the project and executes the binary
 test                 Run the unit tests
 profiler             Run the unit tests with profiler enabled
+benchmark            Run benchmarks
 cover                Generate HTML pages with code coverage
 coverage             Display code coverage on terminal
 bdd_tests            Run BDD tests
