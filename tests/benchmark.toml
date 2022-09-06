@@ -8,7 +8,7 @@ enabled = true
 db_driver = "postgres"
 pg_username = "postgres"
 pg_password = "postgres"
-pg_host = "192.168.1.34"
+pg_host = "localhost"
 pg_port = 5432
 pg_db_name = "notification"
 pg_params = "sslmode=disable"
