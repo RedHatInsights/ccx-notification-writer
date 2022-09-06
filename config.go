@@ -277,6 +277,7 @@ func updateConfigFromClowder(c *ConfigStruct) error {
 		} else {
 			fmt.Println("warning: no broker configurations found in clowder config")
 		}
+		useCLowderTopics(&c.Broker)
 	}
 
 	if clowder.LoadedConfig.Database != nil {
@@ -289,4 +290,13 @@ func updateConfigFromClowder(c *ConfigStruct) error {
 	}
 
 	return nil
+}
+
+func useCLowderTopics(c *BrokerConfiguration) {
+	// Get the correct topic name from clowder mapping if available
+	if clowderTopic, ok := clowder.KafkaTopics[c.Topic]; ok {
+		c.Topic = clowderTopic.Name
+	} else {
+		fmt.Printf("warning: no topic name found for topic %s in clowder configuration", c.Topic)
+	}
 }

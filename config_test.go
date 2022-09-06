@@ -23,6 +23,7 @@ package main_test
 // https://redhatinsights.github.io/ccx-notification-writer/packages/config_test.html
 
 import (
+	"fmt"
 	"os"
 
 	"testing"
@@ -440,4 +441,53 @@ func TestLoadConfigurationKafkaBrokerAuthConfig(t *testing.T) {
 	assert.Equal(t, password, brokerCfg.SaslPassword)
 	assert.Equal(t, saslMechanism, brokerCfg.SaslMechanism)
 	assert.Equal(t, securityProtocol, brokerCfg.SecurityProtocol)
+}
+
+// TestLoadConfigurationKafkaTopicUpdatedFromClowder tests that when applying the config,
+// if the Clowder config is enabled, the Kafka topics are replaced by the ones defined in
+// LoadedConfig.Kafka.Topics if found, and used as-is if not.
+func TestLoadConfigurationKafkaTopicUpdatedFromClowder(t *testing.T) {
+
+	os.Clearenv()
+	hostname := "kafka"
+	port := 9092
+	topicName := "ccx_test_notifications"
+	newTopicName := "the.clowder.kafka.topic"
+
+	// explicit database and broker config
+	clowder.LoadedConfig = &clowder.AppConfig{
+		Kafka: &clowder.KafkaConfig{
+			Brokers: []clowder.BrokerConfig{
+				{
+					Hostname: hostname,
+					Port:     &port,
+				},
+			},
+		},
+	}
+
+	clowder.KafkaTopics = make(map[string]clowder.TopicConfig)
+	clowder.KafkaTopics[topicName] = clowder.TopicConfig{
+		Name:          newTopicName,
+		RequestedName: topicName,
+	}
+
+	mustSetEnv(t, "ACG_CONFIG", "tests/clowder_config.json")
+
+	config, err := main.LoadConfiguration("CCX_NOTIFICATION_WRITER_CONFIG_FILE", "tests/config2")
+	assert.NoError(t, err, "Failed loading configuration file")
+
+	brokerCfg := main.GetBrokerConfiguration(config)
+	assert.Equal(t, fmt.Sprintf("%s:%d", hostname, port), brokerCfg.Address)
+	assert.Equal(t, newTopicName, brokerCfg.Topic)
+
+	// config with different broker configuration, broker's hostname taken from clowder, but no topic to map to
+	topicName = "test_notification_topic"
+
+	config, err = main.LoadConfiguration("CCX_NOTIFICATION_WRITER_CONFIG_FILE", "tests/config1")
+	assert.NoError(t, err, "Failed loading configuration file")
+
+	brokerCfg = main.GetBrokerConfiguration(config)
+	assert.Equal(t, fmt.Sprintf("%s:%d", hostname, port), brokerCfg.Address)
+	assert.Equal(t, topicName, brokerCfg.Topic)
 }
