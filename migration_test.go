@@ -248,3 +248,79 @@ func Test0003MigrationStepDown(t *testing.T) {
 	// check if all expectations were met
 	checkAllExpectations(t, mock)
 }
+
+func Test0004MigrationStepUp(t *testing.T) {
+	// prepare new mocked connection to database
+	connection, mock := mustCreateMockConnection(t)
+
+	// prepare mocked result for SQL query
+	rows := sqlmock.NewRows([]string{"version"})
+	rows.AddRow("3")
+
+	count := sqlmock.NewRows([]string{"count"})
+	count.AddRow("1")
+
+	resultUpdate1 := sqlmock.NewResult(1, 1)
+	resultAlter := sqlmock.NewResult(0, 1)
+	resultUpdate2 := sqlmock.NewResult(1, 1)
+
+	// expected query performed by tested function
+	expectedQuery0 := "SELECT COUNT\\(\\*\\) FROM migration_info;"
+	expectedQuery1 := "SELECT version FROM migration_info;"
+	expectedUpdate1 := "UPDATE reported SET event_type_id = 1 WHERE event_type_id IS NULL"
+	expectedAlter := "ALTER TABLE reported ALTER COLUMN event_type_id SET NOT NULL"
+	expectedUpdate2 := "UPDATE migration_info SET version=\\$1;"
+
+	mock.ExpectQuery(expectedQuery0).WillReturnRows(count)
+	mock.ExpectQuery(expectedQuery1).WillReturnRows(rows)
+	mock.ExpectBegin()
+	mock.ExpectExec(expectedUpdate1).WillReturnResult(resultUpdate1)
+	mock.ExpectExec(expectedAlter).WillReturnResult(resultAlter)
+	mock.ExpectExec(expectedUpdate2).WillReturnResult(resultUpdate2)
+	mock.ExpectCommit()
+	mock.ExpectClose()
+
+	utils.Set(main.All())
+	assert.NoError(t, main.Migrate(connection, 4))
+
+	// check if all expectations were met
+	checkAllExpectations(t, mock)
+}
+
+func Test0004MigrationStepDown(t *testing.T) {
+	// prepare new mocked connection to database
+	connection, mock := mustCreateMockConnection(t)
+
+	// prepare mocked result for SQL query
+	rows := sqlmock.NewRows([]string{"version"})
+	rows.AddRow("4")
+
+	count := sqlmock.NewRows([]string{"count"})
+	count.AddRow("1")
+
+	resultAlter := sqlmock.NewResult(0, 2)
+	resultUpdate1 := sqlmock.NewResult(1, 1)
+	resultUpdate2 := sqlmock.NewResult(1, 1)
+
+	// expected query performed by tested function
+	expectedQuery0 := "SELECT COUNT\\(\\*\\) FROM migration_info;"
+	expectedQuery1 := "SELECT version FROM migration_info;"
+	expectedAlter := "ALTER TABLE reported ALTER COLUMN event_type_id DROP NOT NULL"
+	expectedUpdate1 := "UPDATE reported SET event_type_id = NULL WHERE event_type_id = 1"
+	expectedUpdate2 := "UPDATE migration_info SET version=\\$1;"
+
+	mock.ExpectQuery(expectedQuery0).WillReturnRows(count)
+	mock.ExpectQuery(expectedQuery1).WillReturnRows(rows)
+	mock.ExpectBegin()
+	mock.ExpectExec(expectedAlter).WillReturnResult(resultAlter)
+	mock.ExpectExec(expectedUpdate1).WillReturnResult(resultUpdate1)
+	mock.ExpectExec(expectedUpdate2).WillReturnResult(resultUpdate2)
+	mock.ExpectCommit()
+	mock.ExpectClose()
+
+	utils.Set(main.All())
+	assert.NoError(t, main.Migrate(connection, 3))
+
+	// check if all expectations were met
+	checkAllExpectations(t, mock)
+}
