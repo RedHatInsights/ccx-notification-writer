@@ -33,13 +33,6 @@ import (
 	main "github.com/RedHatInsights/ccx-notification-writer"
 )
 
-// Exit codes
-const (
-	exitStatusConfigurationError = iota
-	exisStatusConnectionInitializationError
-	exisStatusConnectionClosingError
-)
-
 const (
 	configFileEnvName = "CCX_NOTIFICATION_WRITER_CONFIG_FILE"
 	configFileName    = "tests/benchmark"
