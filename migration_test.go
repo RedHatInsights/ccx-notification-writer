@@ -99,7 +99,7 @@ func Test0001MigrationStepDown(t *testing.T) {
 	checkAllExpectations(t, mock)
 }
 
-func Test0002Migration(t *testing.T) {
+func Test0002MigrationStepUp(t *testing.T) {
 	// prepare new mocked connection to database
 	connection, mock := mustCreateMockConnection(t)
 
@@ -136,4 +136,39 @@ func Test0002Migration(t *testing.T) {
 	// check if all expectations were met
 	checkAllExpectations(t, mock)
 
+}
+
+func Test0002MigrationStepDown(t *testing.T) {
+	// prepare new mocked connection to database
+	connection, mock := mustCreateMockConnection(t)
+
+	// prepare mocked result for SQL query
+	rows := sqlmock.NewRows([]string{"version"})
+	rows.AddRow("2")
+
+	count := sqlmock.NewRows([]string{"count"})
+	count.AddRow("1")
+
+	resultDrop := sqlmock.NewResult(0, 1)
+	resultUpdate := sqlmock.NewResult(1, 1)
+
+	// expected query performed by tested function
+	expectedQuery0 := "SELECT COUNT\\(\\*\\) FROM migration_info;"
+	expectedQuery1 := "SELECT version FROM migration_info;"
+	expectedDrop := "ALTER TABLE reported DROP COLUMN event_type_id"
+	expectedUpdate := "UPDATE migration_info SET version=\\$1;"
+
+	mock.ExpectQuery(expectedQuery0).WillReturnRows(count)
+	mock.ExpectQuery(expectedQuery1).WillReturnRows(rows)
+	mock.ExpectBegin()
+	mock.ExpectExec(expectedDrop).WillReturnResult(resultDrop)
+	mock.ExpectExec(expectedUpdate).WillReturnResult(resultUpdate)
+	mock.ExpectCommit()
+	mock.ExpectClose()
+
+	utils.Set(main.All())
+	assert.NoError(t, main.Migrate(connection, 1))
+
+	// check if all expectations were met
+	checkAllExpectations(t, mock)
 }
