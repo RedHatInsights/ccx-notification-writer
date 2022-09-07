@@ -336,3 +336,67 @@ func BenchmarkInsertEmptyReportIntoReportedTableV2(b *testing.B) {
 
 	runBenchmarkInsertIntoReportedTable(b, insertIntoReportedV2, dropTableReportedV2, createTableReportedV2, 1, &report)
 }
+
+// BenchmarkInsertAnalysisMetadataOnlyReportIntoReportedTableV1 checks the speed of inserting
+// into reported table without event_type column
+func BenchmarkInsertAnalysisMetadataOnlyReportIntoReportedTableV1(b *testing.B) {
+	report := readReport(b, "analysis_metadata_only.json")
+
+	runBenchmarkInsertIntoReportedTable(b, insertIntoReportedV1, dropTableReportedV1, createTableReportedV1, 1, &report)
+}
+
+// BenchmarkInsertAnalysisMetadataOnlyReportIntoReportedTableV2 checks the speed of inserting
+// into reported table with event_type column
+func BenchmarkInsertAnalysisMetadataOnlyReportIntoReportedTableV2(b *testing.B) {
+	report := readReport(b, "analysis_metadata_only.json")
+
+	runBenchmarkInsertIntoReportedTable(b, insertIntoReportedV2, dropTableReportedV2, createTableReportedV2, 1, &report)
+}
+
+// BenchmarkInsertSmallReportIntoReportedTableV1 checks the speed of inserting
+// into reported table without event_type column
+func BenchmarkInsertSmallReportIntoReportedTableV1(b *testing.B) {
+	report := readReport(b, "small_size.json")
+
+	runBenchmarkInsertIntoReportedTable(b, insertIntoReportedV1, dropTableReportedV1, createTableReportedV1, 1, &report)
+}
+
+// BenchmarkInsertSmallReportIntoReportedTableV2 checks the speed of inserting
+// into reported table with event_type column
+func BenchmarkInsertSmallReportIntoReportedTableV2(b *testing.B) {
+	report := readReport(b, "small_size.json")
+
+	runBenchmarkInsertIntoReportedTable(b, insertIntoReportedV2, dropTableReportedV2, createTableReportedV2, 1, &report)
+}
+
+// BenchmarkInsertMiddleReportIntoReportedTableV1 checks the speed of inserting
+// into reported table without event_type column
+func BenchmarkInsertMiddleReportIntoReportedTableV1(b *testing.B) {
+	report := readReport(b, "middle_size.json")
+
+	runBenchmarkInsertIntoReportedTable(b, insertIntoReportedV1, dropTableReportedV1, createTableReportedV1, 1, &report)
+}
+
+// BenchmarkInsertMiddleReportIntoReportedTableV2 checks the speed of inserting
+// into reported table with event_type column
+func BenchmarkInsertMiddleReportIntoReportedTableV2(b *testing.B) {
+	report := readReport(b, "middle_size.json")
+
+	runBenchmarkInsertIntoReportedTable(b, insertIntoReportedV2, dropTableReportedV2, createTableReportedV2, 1, &report)
+}
+
+// BenchmarkInsertLargeReportIntoReportedTableV1 checks the speed of inserting
+// into reported table without event_type column
+func BenchmarkInsertLargeReportIntoReportedTableV1(b *testing.B) {
+	report := readReport(b, "large_size.json")
+
+	runBenchmarkInsertIntoReportedTable(b, insertIntoReportedV1, dropTableReportedV1, createTableReportedV1, 1, &report)
+}
+
+// BenchmarkInsertLargeReportIntoReportedTableV2 checks the speed of inserting
+// into reported table with event_type column
+func BenchmarkInsertLargeReportIntoReportedTableV2(b *testing.B) {
+	report := readReport(b, "large_size.json")
+
+	runBenchmarkInsertIntoReportedTable(b, insertIntoReportedV2, dropTableReportedV2, createTableReportedV2, 1, &report)
+}
