@@ -22,6 +22,7 @@ package main
 
 import (
 	"database/sql"
+	"strings"
 
 	utils "github.com/RedHatInsights/insights-operator-utils/migrations"
 	types "github.com/RedHatInsights/insights-results-types"
@@ -53,6 +54,8 @@ func Migrate(db *sql.DB, target utils.Version) error {
 }
 
 func executeQuery(tx *sql.Tx, query string) (sql.Result, error) {
-	log.Debug().Str("query", query).Msg("")
+	log.Debug().
+		Str("query", strings.ReplaceAll(strings.ReplaceAll(query, "\t", ""), "\n", "")).
+		Msg("")
 	return tx.Exec(query)
 }

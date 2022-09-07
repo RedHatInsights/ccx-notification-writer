@@ -33,11 +33,13 @@ import (
 var mig0001CreateEventTargetsTbl = mig.Migration{
 	StepUp: func(tx *sql.Tx, _ types.DBDriver) error {
 		log.Debug().Msg("Executing mig0001CreateEventTargetsTbl stepUp function")
-		query := "CREATE TABLE IF NOT EXISTS event_targets (" +
-			"id INTEGER NOT NULL, " +
-			"name VARCHAR NOT NULL UNIQUE, " +
-			"metainfo VARCHAR NOT NULL UNIQUE, " +
-			"PRIMARY KEY(id))"
+		query := `
+ 			CREATE TABLE IF NOT EXISTS event_targets (
+ 				id              INTEGER NOT NULL,
+ 				name            VARCHAR NOT NULL UNIQUE,
+ 				metainfo        VARCHAR NOT NULL UNIQUE,
+ 				PRIMARY KEY(id)
+ 			)`
 		_, err := executeQuery(tx, query)
 		if err == nil {
 			log.Debug().Msg("Table event_targets created successfully")

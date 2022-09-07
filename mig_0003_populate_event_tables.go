@@ -38,9 +38,10 @@ import (
 var mig0003PopulateEventTables = mig.Migration{
 	StepUp: func(tx *sql.Tx, _ types.DBDriver) error {
 		log.Debug().Msg("Executing mig0003PopulateEventTables stepUp function")
-		query := "INSERT INTO event_targets (id, name, metainfo) " +
-			"VALUES (1, 'notifications backend', 'the target of the report is the ccx notification service back end')," +
-			"(2, 'service log', 'the target of the report is the ServiceLog')"
+		query := `
+ 			INSERT INTO event_targets (id, name, metainfo) 
+ 				VALUES (1, 'notifications backend', 'the target of the report is the ccx notification service back end'),
+ 				       (2, 'service log', 'the target of the report is the ServiceLog')`
 		result, err := executeQuery(tx, query)
 		if err == nil {
 			rows, _ := result.RowsAffected()
