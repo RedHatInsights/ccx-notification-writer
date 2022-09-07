@@ -22,9 +22,11 @@ package main
 
 import (
 	"database/sql"
+	"strings"
 
 	utils "github.com/RedHatInsights/insights-operator-utils/migrations"
 	types "github.com/RedHatInsights/insights-results-types"
+	"github.com/rs/zerolog/log"
 )
 
 // migrations is a list of migrations that, when applied in their order,
@@ -49,4 +51,11 @@ func Migrate(db *sql.DB, target utils.Version) error {
 		err = db.Close()
 	}()
 	return err
+}
+
+func executeQuery(tx *sql.Tx, query string) (sql.Result, error) {
+	log.Debug().
+		Str("query", strings.ReplaceAll(strings.ReplaceAll(query, "\t", ""), "\n", "")).
+		Msg("")
+	return tx.Exec(query)
 }

@@ -22,9 +22,9 @@ package main
 
 import (
 	"database/sql"
-
 	mig "github.com/RedHatInsights/insights-operator-utils/migrations"
 	types "github.com/RedHatInsights/insights-results-types"
+	"github.com/rs/zerolog/log"
 )
 
 // mig0001CreateEventTargetsTbl migration creates table named `event_targets`.
@@ -32,17 +32,27 @@ import (
 // and ServiceLog
 var mig0001CreateEventTargetsTbl = mig.Migration{
 	StepUp: func(tx *sql.Tx, _ types.DBDriver) error {
-		_, err := tx.Exec(`
-			CREATE TABLE IF NOT EXISTS event_targets (
-				id              INTEGER NOT NULL,
-				name            VARCHAR NOT NULL UNIQUE,
-				metainfo        VARCHAR NOT NULL UNIQUE,
-				PRIMARY KEY(id)
-			)`)
+		log.Debug().Msg("Executing mig0001CreateEventTargetsTbl stepUp function")
+		query := `
+ 			CREATE TABLE IF NOT EXISTS event_targets (
+ 				id              INTEGER NOT NULL,
+ 				name            VARCHAR NOT NULL UNIQUE,
+ 				metainfo        VARCHAR NOT NULL UNIQUE,
+ 				PRIMARY KEY(id)
+ 			)`
+		_, err := executeQuery(tx, query)
+		if err == nil {
+			log.Debug().Msg("Table event_targets created successfully")
+		}
 		return err
 	},
 	StepDown: func(tx *sql.Tx, _ types.DBDriver) error {
-		_, err := tx.Exec(`DROP TABLE event_targets`)
+		log.Debug().Msg("Executing mig0001CreateEventTargetsTbl stepDown function")
+		query := "DROP TABLE event_targets"
+		_, err := executeQuery(tx, query)
+		if err == nil {
+			log.Debug().Msg("Table event_targets dropped successfully")
+		}
 		return err
 	},
 }
