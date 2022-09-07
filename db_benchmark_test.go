@@ -110,6 +110,10 @@ const (
 	`
 )
 
+// insertIntoReportedFunc type represents any function to be called to insert
+// records into reported table
+type insertIntoReportedFunc func(b *testing.B, connection *sql.DB, i int, report *string)
+
 // initLogging function initializes logging that's used internally by functions
 // from github.com/RedHatInsights/ccx-notification-writer package
 func initLogging() {
@@ -266,10 +270,10 @@ func insertIntoReportedV2(b *testing.B, connection *sql.DB, i int, report *strin
 	}
 }
 
-// runBenchmarkInsertIntoReportedTableV1 function perform several inserts into
-// reported table v1. In case of any error detected, benchmarks fail
-// immediatelly.
-func runBenchmarkInsertIntoReportedTableV1(b *testing.B, scaleFactor int, report *string) {
+// runBenchmarkInsertIntoReportedTable function perform several inserts into
+// reported table v1 or v2 (depending on injected function). In case of any
+// error detected, benchmarks fail immediatelly.
+func runBenchmarkInsertIntoReportedTable(b *testing.B, insertFunction insertIntoReportedFunc, scaleFactor int, report *string) {
 	// retrieve DB connection
 	connection := setup(b)
 	if connection == nil {
@@ -291,36 +295,7 @@ func runBenchmarkInsertIntoReportedTableV1(b *testing.B, scaleFactor int, report
 	// perform DB benchmark
 	for i := 0; i < b.N; i++ {
 		for j := 0; j < scaleFactor; j++ {
-			insertIntoReportedV1(b, connection, i, report)
-		}
-	}
-}
-
-// runBenchmarkInsertIntoReportedTableV2 function perform several inserts into
-// reported table v2. In case of any error detected, benchmarks fail
-// immediatelly.
-func runBenchmarkInsertIntoReportedTableV2(b *testing.B, scaleFactor int, report *string) {
-	connection := setup(b)
-	if connection == nil {
-		b.Fatal()
-	}
-
-	// make sure we start with no DB table
-	execSQLStatement(b, connection, dropTableReportedV2)
-
-	// create reported table from scratch
-	execSQLStatement(b, connection, createTableReportedV2)
-
-	// good citizens cleanup properly
-	//defer execSQLStatement(b, connection, dropTableReportedV1)
-
-	// time to start benchmark
-	b.ResetTimer()
-
-	// perform DB benchmark
-	for i := 0; i < b.N; i++ {
-		for j := 0; j < scaleFactor; j++ {
-			insertIntoReportedV2(b, connection, i, report)
+			insertFunction(b, connection, i, report)
 		}
 	}
 }
@@ -330,7 +305,7 @@ func runBenchmarkInsertIntoReportedTableV2(b *testing.B, scaleFactor int, report
 func BenchmarkInsertIntoReportedTableV1(b *testing.B) {
 	report := ""
 
-	runBenchmarkInsertIntoReportedTableV1(b, 1, &report)
+	runBenchmarkInsertIntoReportedTable(b, insertIntoReportedV1, 1, &report)
 }
 
 // BenchmarkInsertIntoReportedTableV2 checks the speed of inserting into
@@ -338,5 +313,5 @@ func BenchmarkInsertIntoReportedTableV1(b *testing.B) {
 func BenchmarkInsertIntoReportedTableV2(b *testing.B) {
 	report := ""
 
-	runBenchmarkInsertIntoReportedTableV2(b, 1, &report)
+	runBenchmarkInsertIntoReportedTable(b, insertIntoReportedV2, 1, &report)
 }
