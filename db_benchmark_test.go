@@ -42,6 +42,9 @@ const (
 )
 
 // SQL statements
+//
+// Table reported V1 is reported table without event_type column and constraint for this column
+// Table reported V2 is reported table with event_type column and constraint for this column
 const (
 	dropTableReportedV1 = `DROP TABLE IF EXISTS reported_benchmark_1;`
 	dropTableReportedV2 = `DROP TABLE IF EXISTS reported_benchmark_2;`
@@ -107,7 +110,8 @@ const (
 	`
 )
 
-// initLogging function initializes logging
+// initLogging function initializes logging that's used internally by functions
+// from github.com/RedHatInsights/ccx-notification-writer package
 func initLogging() {
 	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
 }
@@ -134,11 +138,15 @@ func loadConfiguration() (main.ConfigStruct, error) {
 // database
 func initializeStorage(config main.ConfigStruct) (*sql.DB, error) {
 	storageConfiguration := main.GetStorageConfiguration(config)
+
+	// perform storage initialization
 	storage, err := main.NewStorage(storageConfiguration)
 	if err != nil {
 		return nil, err
 	}
 
+	// for benchmarks, we just need to have connection to DB, not the whole
+	// Storage structure
 	connection := storage.Connection()
 
 	// check if connection has been established
@@ -155,7 +163,8 @@ var connection *sql.DB
 var initialized bool = false
 
 // setup function performs all DB initializations needed for DB benchmarks. Can
-// be called from any benchmark.
+// be called from any benchmark. In case of any error detected, benchmarks fail
+// immediatelly.
 func setup(b *testing.B) *sql.DB {
 	if initialized {
 		return connection
@@ -178,6 +187,8 @@ func setup(b *testing.B) *sql.DB {
 	return connection
 }
 
+// execSQLStatement function executes any provided SQL statement. In case of
+// any error detected, benchmarks fail immediatelly.
 func execSQLStatement(b *testing.B, connection *sql.DB, statement string) {
 	_, err := connection.Exec(statement)
 
@@ -187,6 +198,8 @@ func execSQLStatement(b *testing.B, connection *sql.DB, statement string) {
 	}
 }
 
+// insertIntoReportedV1Statement function inserts one new record into reported
+// table v1. In case of any error detected, benchmarks fail immediatelly.
 func insertIntoReportedV1(b *testing.B, connection *sql.DB, i int, report *string) {
 	// following columns needs to be updated with data:
 	// 1 | org_id            | integer                     | not null  |
@@ -218,6 +231,8 @@ func insertIntoReportedV1(b *testing.B, connection *sql.DB, i int, report *strin
 	}
 }
 
+// insertIntoReportedV2Statement function inserts one new record into reported
+// table v2. In case of any error detected, benchmarks fail immediatelly.
 func insertIntoReportedV2(b *testing.B, connection *sql.DB, i int, report *string) {
 	// following columns needs to be updated with data:
 	// 1 | org_id            | integer                     | not null  |
@@ -251,6 +266,9 @@ func insertIntoReportedV2(b *testing.B, connection *sql.DB, i int, report *strin
 	}
 }
 
+// runBenchmarkInsertIntoReportedTableV1 function perform several inserts into
+// reported table v1. In case of any error detected, benchmarks fail
+// immediatelly.
 func runBenchmarkInsertIntoReportedTableV1(b *testing.B, scaleFactor int, report *string) {
 	// retrieve DB connection
 	connection := setup(b)
@@ -278,6 +296,9 @@ func runBenchmarkInsertIntoReportedTableV1(b *testing.B, scaleFactor int, report
 	}
 }
 
+// runBenchmarkInsertIntoReportedTableV2 function perform several inserts into
+// reported table v2. In case of any error detected, benchmarks fail
+// immediatelly.
 func runBenchmarkInsertIntoReportedTableV2(b *testing.B, scaleFactor int, report *string) {
 	connection := setup(b)
 	if connection == nil {
