@@ -113,7 +113,7 @@ const (
 	`
 
 	insertIntoReportedV2Statement = `
-            INSERT INTO reported
+            INSERT INTO reported_benchmark_2
             (org_id, account_number, cluster, notification_type, state, report, updated_at, notified_at, error_log, event_type_id)
             VALUES
             ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
