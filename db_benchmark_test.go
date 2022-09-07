@@ -24,9 +24,11 @@ package main_test
 import (
 	"os"
 	"testing"
+	"time"
 
 	"database/sql"
 
+	"github.com/google/uuid"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 
@@ -246,6 +248,59 @@ func insertIntoReportedV2(b *testing.B, connection *sql.DB, i int, report *strin
 	// check for any error, possible to exit immediatelly
 	if err != nil {
 		b.Fatal(err)
+	}
+}
+
+func runBenchmarkInsertIntoReportedTableV1(b *testing.B, scaleFactor int, report *string) {
+	// retrieve DB connection
+	connection := setup(b)
+	if connection == nil {
+		b.Fatal()
+	}
+
+	// make sure we start with no DB table
+	execSQLStatement(b, connection, dropTableReportedV1)
+
+	// create reported table from scratch
+	execSQLStatement(b, connection, createTableReportedV1)
+
+	// good citizens cleanup properly
+	//defer execSQLStatement(b, connection, dropTableReportedV1)
+
+	// time to start benchmark
+	b.ResetTimer()
+
+	// perform DB benchmark
+	for i := 0; i < b.N; i++ {
+		for j := 0; j < scaleFactor; j++ {
+			insertIntoReportedV1(b, connection, i, report)
+		}
+	}
+}
+
+func runBenchmarkInsertIntoReportedTableV2(b *testing.B, scaleFactor int, report *string) {
+	connection := setup(b)
+	if connection == nil {
+		b.Fatal()
+	}
+
+	// make sure we start with no DB table
+	execSQLStatement(b, connection, dropTableReportedV2)
+
+	// create reported table from scratch
+	execSQLStatement(b, connection, createTableReportedV2)
+
+	// good citizens cleanup properly
+	//defer execSQLStatement(b, connection, dropTableReportedV1)
+
+	// time to start benchmark
+	b.ResetTimer()
+
+	// perform DB benchmark
+	for i := 0; i < b.N; i++ {
+		for j := 0; j < scaleFactor; j++ {
+			insertIntoReportedV2(b, connection, i, report)
+		}
 	}
 }
 
