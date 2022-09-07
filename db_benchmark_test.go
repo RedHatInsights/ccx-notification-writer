@@ -176,6 +176,79 @@ func setup(b *testing.B) *sql.DB {
 	return connection
 }
 
+func execSQLStatement(b *testing.B, connection *sql.DB, statement string) {
+	_, err := connection.Exec(statement)
+
+	// check for any error, possible to exit immediatelly
+	if err != nil {
+		b.Fatal(err)
+	}
+}
+
+func insertIntoReportedV1(b *testing.B, connection *sql.DB, i int, report *string) {
+	// following columns needs to be updated with data:
+	// 1 | org_id            | integer                     | not null  |
+	// 2 | account_number    | integer                     | not null  |
+	// 3 | cluster           | character(36)               | not null  |
+	// 4 | notification_type | integer                     | not null  |
+	// 5 | state             | integer                     | not null  |
+	// 6 | report            | character varying           | not null  |
+	// 7 | updated_at        | timestamp without time zone | not null  |
+	// 8 | notified_at       | timestamp without time zone | not null  |
+	// 9 | error_log         | character varying           |           |
+
+	orgID := i % 1000                  // limited number of org IDs
+	accountNumber := orgID + 1         // can be different than org ID
+	clusterName := uuid.New().String() // unique
+	notificationTypeID := 1            // instant report
+	stateID := 1 + i%4                 // just four states can be used
+	updatedAt := time.Now()            // don't have to be unique
+	notifiedAt := time.Now()           // don't have to be unique
+	errorLog := ""                     // usually empty
+
+	_, err := connection.Exec(insertIntoReportedV1Statement, orgID,
+		accountNumber, clusterName, notificationTypeID, stateID,
+		report, updatedAt, notifiedAt, errorLog)
+
+	// check for any error, possible to exit immediatelly
+	if err != nil {
+		b.Fatal(err)
+	}
+}
+
+func insertIntoReportedV2(b *testing.B, connection *sql.DB, i int, report *string) {
+	// following columns needs to be updated with data:
+	// 1 | org_id            | integer                     | not null  |
+	// 2 | account_number    | integer                     | not null  |
+	// 3 | cluster           | character(36)               | not null  |
+	// 4 | notification_type | integer                     | not null  |
+	// 5 | state             | integer                     | not null  |
+	// 6 | report            | character varying           | not null  |
+	// 7 | updated_at        | timestamp without time zone | not null  |
+	// 8 | notified_at       | timestamp without time zone | not null  |
+	// 9 | error_log         | character varying           |           |
+	// 10| event_type_id     | integer                     |           |
+
+	orgID := i % 1000                  // limited number of org IDs
+	accountNumber := orgID + 1         // can be different than org ID
+	clusterName := uuid.New().String() // unique
+	notificationTypeID := 1            // instant report
+	stateID := 1 + i%4                 // just four states can be used
+	updatedAt := time.Now()            // don't have to be unique
+	notifiedAt := time.Now()           // don't have to be unique
+	errorLog := ""                     // usually empty
+	eventTypeID := i%2 + 1             // just two event type targets possible
+
+	_, err := connection.Exec(insertIntoReportedV2Statement, orgID,
+		accountNumber, clusterName, notificationTypeID, stateID,
+		report, updatedAt, notifiedAt, errorLog, eventTypeID)
+
+	// check for any error, possible to exit immediatelly
+	if err != nil {
+		b.Fatal(err)
+	}
+}
+
 // BenchmarkInsertIntoReportedTableV1 checks the speed of inserting into
 // reported table without event_type column
 func BenchmarkInsertIntoReportedTableV1(b *testing.B) {
