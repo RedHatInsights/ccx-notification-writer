@@ -218,6 +218,11 @@ const (
 		  FROM reported_benchmark_2
 		 WHERE org_id = $1
 		   AND updated_at < NOW() - $2::INTERVAL
+        `
+
+	// vacuuming statements
+	vacuumTableReportedV1Statement = `vacuum reported_benchmark_1`
+	vacuumTableReportedV2Statement = `vacuum reported_benchmark_2`
 )
 
 // insertIntoReportedFunc type represents any function to be called to insert
