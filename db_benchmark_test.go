@@ -109,30 +109,18 @@ func setup(b *testing.B) *sql.DB {
 	return connection
 }
 
-// BenchmarkFoo is dummy ATM
-func BenchmarkFoo(b *testing.B) {
-	connection := setup(b)
-	if connection == nil {
-		b.Fatal()
-	}
+// BenchmarkInsertIntoReportedTableV1 checks the speed of inserting into
+// reported table without event_type column
+func BenchmarkInsertIntoReportedTableV1(b *testing.B) {
+	report := ""
 
-	b.ResetTimer()
-
-	// perform DB benchmark
-	for i := 0; i < b.N; i++ {
-	}
+	runBenchmarkInsertIntoReportedTableV1(b, 1, &report)
 }
 
-// BenchmarkBar is dummy ATM
-func BenchmarkBar(b *testing.B) {
-	connection := setup(b)
-	if connection == nil {
-		b.Fatal()
-	}
+// BenchmarkInsertIntoReportedTableV2 checks the speed of inserting into
+// reported table with event_type column
+func BenchmarkInsertIntoReportedTableV2(b *testing.B) {
+	report := ""
 
-	b.ResetTimer()
-
-	// perform DB benchmark
-	for i := 0; i < b.N; i++ {
-	}
+	runBenchmarkInsertIntoReportedTableV2(b, 1, &report)
 }
