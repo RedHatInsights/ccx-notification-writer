@@ -321,17 +321,17 @@ func readReport(b *testing.B, filename string) string {
 	return string(content)
 }
 
-// BenchmarkInsertIntoReportedTableV1 checks the speed of inserting into
-// reported table without event_type column
-func BenchmarkInsertIntoReportedTableV1(b *testing.B) {
+// BenchmarkInsertEmptyReportIntoReportedTableV1 checks the speed of inserting
+// into reported table without event_type column
+func BenchmarkInsertEmptyReportIntoReportedTableV1(b *testing.B) {
 	report := ""
 
 	runBenchmarkInsertIntoReportedTable(b, insertIntoReportedV1, dropTableReportedV1, createTableReportedV1, 1, &report)
 }
 
-// BenchmarkInsertIntoReportedTableV2 checks the speed of inserting into
-// reported table with event_type column
-func BenchmarkInsertIntoReportedTableV2(b *testing.B) {
+// BenchmarkInsertEmptyReportIntoReportedTableV2 checks the speed of inserting
+// into reported table with event_type column
+func BenchmarkInsertEmptyReportIntoReportedTableV2(b *testing.B) {
 	report := ""
 
 	runBenchmarkInsertIntoReportedTable(b, insertIntoReportedV2, dropTableReportedV2, createTableReportedV2, 1, &report)
