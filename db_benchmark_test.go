@@ -175,6 +175,22 @@ const (
             VALUES
             ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
 	`
+
+	// used to display older records from reported table
+	displayOldRecordsFromReportedTableV1 = `
+                SELECT org_id, account_number, cluster, updated_at, 0
+                  FROM reported_benchmark_1
+                 WHERE updated_at < NOW() - $1::INTERVAL
+                 ORDER BY updated_at
+        `
+
+	// used to display older records from reported table
+	displayOldRecordsFromReportedTableV2 = `
+                SELECT org_id, account_number, cluster, updated_at, 0
+                  FROM reported_benchmark_2
+                 WHERE updated_at < NOW() - $1::INTERVAL
+                 ORDER BY updated_at
+        `
 )
 
 // insertIntoReportedFunc type represents any function to be called to insert
