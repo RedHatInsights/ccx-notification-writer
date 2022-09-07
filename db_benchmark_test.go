@@ -91,7 +91,7 @@ const (
                     updated_at        timestamp not null,
                     notified_at       timestamp not null,
 		    error_log         varchar,
-		    event_type        integer,
+		    event_type_id     integer,
                 
                     PRIMARY KEY (org_id, cluster, notified_at),
                     CONSTRAINT fk_notification_type
@@ -101,7 +101,7 @@ const (
                         foreign key (state)
                         references states(id),
 		    CONSTRAINT fk_event_type
-		        foreign key (event_type)
+		        foreign key (event_type_id)
 			references event_targets(id)
                 );`
 
