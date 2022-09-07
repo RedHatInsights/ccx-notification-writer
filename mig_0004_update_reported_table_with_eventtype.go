@@ -35,37 +35,35 @@ var mig0004UpdateEventTypeIDInReportedTable = mig.Migration{
 	StepUp: func(tx *sql.Tx, _ types.DBDriver) error {
 		log.Debug().Msg("Executing mig0004UpdateEventTypeIDInReportedTable stepUp function")
 		query := "UPDATE reported SET event_type_id = 1 WHERE event_type_id IS NULL"
-		log.Debug().Str("query", query).Msg("Executing")
-		result, err := tx.Exec(query)
+		result, err := executeQuery(tx, query)
 		if err != nil {
 			return err
 		}
 		rows, _ := result.RowsAffected()
-		log.Debug().Int64("rows_affected", rows).Msg("Table reported updated successfully")
+		log.Debug().Int64(rowsAffectedMessage, rows).
+			Msg("event_type_id successfully set to 1 for all rows with current value = null")
 
 		query = "ALTER TABLE reported ALTER COLUMN event_type_id SET NOT NULL"
-		log.Debug().Str("query", query).Msg("Executing")
-		_, err = tx.Exec(query)
+		_, err = executeQuery(tx, query)
 		if err == nil {
-			log.Debug().Msg("Column event_type_id of table reported altered successfully")
+			log.Debug().Msg("Column event_type_id successfully set to not null")
 		}
 		return err
 	},
 	StepDown: func(tx *sql.Tx, _ types.DBDriver) error {
 		log.Debug().Msg("Executing mig0004UpdateEventTypeIDInReportedTable stepDown function")
 		query := "ALTER TABLE reported ALTER COLUMN event_type_id DROP NOT NULL"
-		log.Debug().Str("query", query).Msg("")
-		_, err := tx.Exec(query)
+		_, err := executeQuery(tx, query)
 		if err != nil {
 			return err
 		}
-		log.Debug().Msg("Column event_type_id of table reported altered successfully")
+		log.Debug().Msg("'not null' attribute' successfully removed from event_type_id column")
 		query = "UPDATE reported SET event_type_id = NULL WHERE event_type_id = 1"
-		log.Debug().Str("query", query).Msg("")
-		result, err := tx.Exec(query)
+		result, err := executeQuery(tx, query)
 		if err == nil {
 			rows, _ := result.RowsAffected()
-			log.Debug().Int64("rows_deleted", rows).Msg("Table reported updated successfully")
+			log.Debug().Int64(rowsAffectedMessage, rows).
+				Msg("event_type_id successfully set to null for all rows with current value = 1")
 		}
 		return err
 	},

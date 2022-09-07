@@ -35,9 +35,8 @@ var mig0002AddEventTargetCol = mig.Migration{
 	StepUp: func(tx *sql.Tx, _ types.DBDriver) error {
 		log.Debug().Msg("Executing mig0002AddEventTargetCol stepUp function")
 		query := "ALTER TABLE reported ADD COLUMN IF NOT EXISTS event_type_id INTEGER," +
-		"ADD FOREIGN KEY (event_type_id) REFERENCES event_targets(id)"
-		log.Debug().Str("query", query).Msg("Executing")
-		_, err := tx.Exec(query)
+			"ADD FOREIGN KEY (event_type_id) REFERENCES event_targets(id)"
+		_, err := executeQuery(tx, query)
 		if err == nil {
 			log.Debug().Msg("Table reported altered successfully")
 		}
@@ -46,8 +45,7 @@ var mig0002AddEventTargetCol = mig.Migration{
 	StepDown: func(tx *sql.Tx, driver types.DBDriver) error {
 		log.Debug().Msg("Executing mig0002AddEventTargetCol stepDown function")
 		query := "ALTER TABLE reported DROP COLUMN event_type_id"
-		log.Debug().Str("query", query).Msg("")
-		_, err := tx.Exec(query)
+		_, err := executeQuery(tx, query)
 		if err == nil {
 			log.Debug().Msg("Column event_type_id dropped successfully")
 		}

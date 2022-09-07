@@ -59,7 +59,9 @@ const (
 	databasePrintOldReportsForCleanupOperationFailedMessage = "Print records from `reported` table prepared for cleanup failed"
 	databaseCleanupNewReportsOperationFailedMessage         = "Cleanup records from `new_reports` table failed"
 	databaseCleanupOldReportsOperationFailedMessage         = "Cleanup records from `reported` table failed"
+	rowsInsertedMessage                                     = "Rows inserted"
 	rowsDeletedMessage                                      = "Rows deleted"
+	rowsAffectedMessage                                     = "Rows affected"
 	brokerAddress                                           = "Broker address"
 	StorageHandleErr                                        = "unable to get storage handle"
 )

@@ -38,8 +38,7 @@ var mig0001CreateEventTargetsTbl = mig.Migration{
 			"name VARCHAR NOT NULL UNIQUE, " +
 			"metainfo VARCHAR NOT NULL UNIQUE, " +
 			"PRIMARY KEY(id))"
-		log.Debug().Str("query", query).Msg("Executing")
-		_, err := tx.Exec(query)
+		_, err := executeQuery(tx, query)
 		if err == nil {
 			log.Debug().Msg("Table event_targets created successfully")
 		}
@@ -48,8 +47,7 @@ var mig0001CreateEventTargetsTbl = mig.Migration{
 	StepDown: func(tx *sql.Tx, _ types.DBDriver) error {
 		log.Debug().Msg("Executing mig0001CreateEventTargetsTbl stepDown function")
 		query := "DROP TABLE event_targets"
-		log.Debug().Str("query", query).Msg("")
-		_, err := tx.Exec(query)
+		_, err := executeQuery(tx, query)
 		if err == nil {
 			log.Debug().Msg("Table event_targets dropped successfully")
 		}
