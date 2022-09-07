@@ -91,7 +91,7 @@ const (
                     updated_at        timestamp not null,
                     notified_at       timestamp not null,
 		    error_log         varchar,
-		    event_type        integer,
+		    event_type_id     integer,
                 
                     PRIMARY KEY (org_id, cluster, notified_at),
                     CONSTRAINT fk_notification_type
@@ -101,7 +101,7 @@ const (
                         foreign key (state)
                         references states(id),
 		    CONSTRAINT fk_event_type
-		        foreign key (event_type)
+		        foreign key (event_type_id)
 			references event_targets(id)
                 );`
 
@@ -113,7 +113,7 @@ const (
 	`
 
 	insertIntoReportedV2Statement = `
-            INSERT INTO reported
+            INSERT INTO reported_benchmark_2
             (org_id, account_number, cluster, notification_type, state, report, updated_at, notified_at, error_log, event_type_id)
             VALUES
             ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
@@ -283,19 +283,18 @@ func insertIntoReportedV2(b *testing.B, connection *sql.DB, i int, report *strin
 // runBenchmarkInsertIntoReportedTable function perform several inserts into
 // reported table v1 or v2 (depending on injected function). In case of any
 // error detected, benchmarks fail immediatelly.
-func runBenchmarkInsertIntoReportedTable(b *testing.B, insertFunction insertIntoReportedFunc, dropStatement string, createStatement string,
-	scaleFactor int, report *string) {
+func runBenchmarkInsertIntoReportedTable(b *testing.B, insertFunction insertIntoReportedFunc,
+	initStatements []string, scaleFactor int, report *string) {
 	// retrieve DB connection
 	connection := setup(b)
 	if connection == nil {
 		b.Fatal()
 	}
 
-	// make sure we start with no DB table
-	execSQLStatement(b, connection, dropStatement)
-
-	// create reported table from scratch
-	execSQLStatement(b, connection, createStatement)
+	// run all init SQL statements
+	for _, sqlStatement := range initStatements {
+		execSQLStatement(b, connection, sqlStatement)
+	}
 
 	// good citizens cleanup properly
 	//defer execSQLStatement(b, connection, dropTableReportedV1)
@@ -326,7 +325,12 @@ func readReport(b *testing.B, filename string) string {
 func BenchmarkInsertEmptyReportIntoReportedTableV1(b *testing.B) {
 	report := ""
 
-	runBenchmarkInsertIntoReportedTable(b, insertIntoReportedV1, dropTableReportedV1, createTableReportedV1, 1, &report)
+	initStatements := []string{
+		dropTableReportedV1,
+		createTableReportedV1,
+	}
+
+	runBenchmarkInsertIntoReportedTable(b, insertIntoReportedV1, initStatements, 1, &report)
 }
 
 // BenchmarkInsertEmptyReportIntoReportedTableV2 checks the speed of inserting
@@ -334,7 +338,12 @@ func BenchmarkInsertEmptyReportIntoReportedTableV1(b *testing.B) {
 func BenchmarkInsertEmptyReportIntoReportedTableV2(b *testing.B) {
 	report := ""
 
-	runBenchmarkInsertIntoReportedTable(b, insertIntoReportedV2, dropTableReportedV2, createTableReportedV2, 1, &report)
+	initStatements := []string{
+		dropTableReportedV2,
+		createTableReportedV2,
+	}
+
+	runBenchmarkInsertIntoReportedTable(b, insertIntoReportedV2, initStatements, 1, &report)
 }
 
 // BenchmarkInsertAnalysisMetadataOnlyReportIntoReportedTableV1 checks the speed of inserting
@@ -342,7 +351,12 @@ func BenchmarkInsertEmptyReportIntoReportedTableV2(b *testing.B) {
 func BenchmarkInsertAnalysisMetadataOnlyReportIntoReportedTableV1(b *testing.B) {
 	report := readReport(b, "analysis_metadata_only.json")
 
-	runBenchmarkInsertIntoReportedTable(b, insertIntoReportedV1, dropTableReportedV1, createTableReportedV1, 1, &report)
+	initStatements := []string{
+		dropTableReportedV1,
+		createTableReportedV1,
+	}
+
+	runBenchmarkInsertIntoReportedTable(b, insertIntoReportedV1, initStatements, 1, &report)
 }
 
 // BenchmarkInsertAnalysisMetadataOnlyReportIntoReportedTableV2 checks the speed of inserting
@@ -350,7 +364,12 @@ func BenchmarkInsertAnalysisMetadataOnlyReportIntoReportedTableV1(b *testing.B) 
 func BenchmarkInsertAnalysisMetadataOnlyReportIntoReportedTableV2(b *testing.B) {
 	report := readReport(b, "analysis_metadata_only.json")
 
-	runBenchmarkInsertIntoReportedTable(b, insertIntoReportedV2, dropTableReportedV2, createTableReportedV2, 1, &report)
+	initStatements := []string{
+		dropTableReportedV2,
+		createTableReportedV2,
+	}
+
+	runBenchmarkInsertIntoReportedTable(b, insertIntoReportedV2, initStatements, 1, &report)
 }
 
 // BenchmarkInsertSmallReportIntoReportedTableV1 checks the speed of inserting
@@ -358,7 +377,12 @@ func BenchmarkInsertAnalysisMetadataOnlyReportIntoReportedTableV2(b *testing.B) 
 func BenchmarkInsertSmallReportIntoReportedTableV1(b *testing.B) {
 	report := readReport(b, "small_size.json")
 
-	runBenchmarkInsertIntoReportedTable(b, insertIntoReportedV1, dropTableReportedV1, createTableReportedV1, 1, &report)
+	initStatements := []string{
+		dropTableReportedV1,
+		createTableReportedV1,
+	}
+
+	runBenchmarkInsertIntoReportedTable(b, insertIntoReportedV1, initStatements, 1, &report)
 }
 
 // BenchmarkInsertSmallReportIntoReportedTableV2 checks the speed of inserting
@@ -366,7 +390,12 @@ func BenchmarkInsertSmallReportIntoReportedTableV1(b *testing.B) {
 func BenchmarkInsertSmallReportIntoReportedTableV2(b *testing.B) {
 	report := readReport(b, "small_size.json")
 
-	runBenchmarkInsertIntoReportedTable(b, insertIntoReportedV2, dropTableReportedV2, createTableReportedV2, 1, &report)
+	initStatements := []string{
+		dropTableReportedV2,
+		createTableReportedV2,
+	}
+
+	runBenchmarkInsertIntoReportedTable(b, insertIntoReportedV2, initStatements, 1, &report)
 }
 
 // BenchmarkInsertMiddleReportIntoReportedTableV1 checks the speed of inserting
@@ -374,7 +403,12 @@ func BenchmarkInsertSmallReportIntoReportedTableV2(b *testing.B) {
 func BenchmarkInsertMiddleReportIntoReportedTableV1(b *testing.B) {
 	report := readReport(b, "middle_size.json")
 
-	runBenchmarkInsertIntoReportedTable(b, insertIntoReportedV1, dropTableReportedV1, createTableReportedV1, 1, &report)
+	initStatements := []string{
+		dropTableReportedV1,
+		createTableReportedV1,
+	}
+
+	runBenchmarkInsertIntoReportedTable(b, insertIntoReportedV1, initStatements, 1, &report)
 }
 
 // BenchmarkInsertMiddleReportIntoReportedTableV2 checks the speed of inserting
@@ -382,7 +416,12 @@ func BenchmarkInsertMiddleReportIntoReportedTableV1(b *testing.B) {
 func BenchmarkInsertMiddleReportIntoReportedTableV2(b *testing.B) {
 	report := readReport(b, "middle_size.json")
 
-	runBenchmarkInsertIntoReportedTable(b, insertIntoReportedV2, dropTableReportedV2, createTableReportedV2, 1, &report)
+	initStatements := []string{
+		dropTableReportedV2,
+		createTableReportedV2,
+	}
+
+	runBenchmarkInsertIntoReportedTable(b, insertIntoReportedV2, initStatements, 1, &report)
 }
 
 // BenchmarkInsertLargeReportIntoReportedTableV1 checks the speed of inserting
@@ -390,7 +429,12 @@ func BenchmarkInsertMiddleReportIntoReportedTableV2(b *testing.B) {
 func BenchmarkInsertLargeReportIntoReportedTableV1(b *testing.B) {
 	report := readReport(b, "large_size.json")
 
-	runBenchmarkInsertIntoReportedTable(b, insertIntoReportedV1, dropTableReportedV1, createTableReportedV1, 1, &report)
+	initStatements := []string{
+		dropTableReportedV1,
+		createTableReportedV1,
+	}
+
+	runBenchmarkInsertIntoReportedTable(b, insertIntoReportedV1, initStatements, 1, &report)
 }
 
 // BenchmarkInsertLargeReportIntoReportedTableV2 checks the speed of inserting
@@ -398,5 +442,10 @@ func BenchmarkInsertLargeReportIntoReportedTableV1(b *testing.B) {
 func BenchmarkInsertLargeReportIntoReportedTableV2(b *testing.B) {
 	report := readReport(b, "large_size.json")
 
-	runBenchmarkInsertIntoReportedTable(b, insertIntoReportedV2, dropTableReportedV2, createTableReportedV2, 1, &report)
+	initStatements := []string{
+		dropTableReportedV2,
+		createTableReportedV2,
+	}
+
+	runBenchmarkInsertIntoReportedTable(b, insertIntoReportedV2, initStatements, 1, &report)
 }
