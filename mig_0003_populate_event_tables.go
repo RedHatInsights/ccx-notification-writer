@@ -25,6 +25,7 @@ import (
 
 	mig "github.com/RedHatInsights/insights-operator-utils/migrations"
 	types "github.com/RedHatInsights/insights-results-types"
+	"github.com/rs/zerolog/log"
 )
 
 // mig0003PopulateEventTables migration add all existing event targets into
@@ -36,16 +37,27 @@ import (
 // backend`.
 var mig0003PopulateEventTables = mig.Migration{
 	StepUp: func(tx *sql.Tx, _ types.DBDriver) error {
-		_, err := tx.Exec(`
-			INSERT INTO event_targets (id, name, metainfo) 
-				VALUES (1, 'notifications backend', 'the target of the report is the ccx notification service back end'),
-				       (2, 'service log', 'the target of the report is the ServiceLog')
-
-		`)
+		log.Debug().Msg("Executing mig0003PopulateEventTables stepUp function")
+		query := "INSERT INTO event_targets (id, name, metainfo) " +
+			"VALUES (1, 'notifications backend', 'the target of the report is the ccx notification service back end')," +
+			"(2, 'service log', 'the target of the report is the ServiceLog')"
+		log.Debug().Str("query", query).Msg("Executing")
+		result, err := tx.Exec(query)
+		if err == nil {
+			rows, _ := result.RowsAffected()
+			log.Debug().Int64("rows_inserted", rows).Msg("Table event_targets altered successfully")
+		}
 		return err
 	},
 	StepDown: func(tx *sql.Tx, _ types.DBDriver) error {
-		_, err := tx.Exec(`DELETE FROM event_targets`)
+		log.Debug().Msg("Executing mig0003PopulateEventTables stepDown function")
+		query := "DELETE FROM event_targets"
+		log.Debug().Str("query", query).Msg("")
+		result, err := tx.Exec(query)
+		if err == nil {
+			rows, _ := result.RowsAffected()
+			log.Debug().Int64("rows_deleted", rows).Msg("Table event_targets cleaned up successfully")
+		}
 		return err
 	},
 }

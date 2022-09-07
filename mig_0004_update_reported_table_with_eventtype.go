@@ -25,6 +25,7 @@ import (
 
 	mig "github.com/RedHatInsights/insights-operator-utils/migrations"
 	types "github.com/RedHatInsights/insights-results-types"
+	"github.com/rs/zerolog/log"
 )
 
 // mig0004UpdateEventTypeIDInReportedTable migration mopdifies the reported
@@ -32,33 +33,40 @@ import (
 // event_type_id column if it is currently null.
 var mig0004UpdateEventTypeIDInReportedTable = mig.Migration{
 	StepUp: func(tx *sql.Tx, _ types.DBDriver) error {
-		_, err := tx.Exec(`
-			UPDATE reported
-			   SET event_type_id = 1
-			 WHERE event_type_id IS NULL
-		`)
+		log.Debug().Msg("Executing mig0004UpdateEventTypeIDInReportedTable stepUp function")
+		query := "UPDATE reported SET event_type_id = 1 WHERE event_type_id IS NULL"
+		log.Debug().Str("query", query).Msg("Executing")
+		result, err := tx.Exec(query)
 		if err != nil {
 			return err
 		}
-		_, err = tx.Exec(`
-			 ALTER TABLE reported
-			ALTER COLUMN event_type_id SET NOT NULL
-		`)
+		rows, _ := result.RowsAffected()
+		log.Debug().Int64("rows_affected", rows).Msg("Table reported updated successfully")
+
+		query = "ALTER TABLE reported ALTER COLUMN event_type_id SET NOT NULL"
+		log.Debug().Str("query", query).Msg("Executing")
+		_, err = tx.Exec(query)
+		if err == nil {
+			log.Debug().Msg("Column event_type_id of table reported altered successfully")
+		}
 		return err
 	},
 	StepDown: func(tx *sql.Tx, _ types.DBDriver) error {
-		_, err := tx.Exec(`
-			 ALTER TABLE reported 
-			ALTER COLUMN event_type_id DROP NOT NULL;
-		`)
+		log.Debug().Msg("Executing mig0004UpdateEventTypeIDInReportedTable stepDown function")
+		query := "ALTER TABLE reported ALTER COLUMN event_type_id DROP NOT NULL"
+		log.Debug().Str("query", query).Msg("")
+		_, err := tx.Exec(query)
 		if err != nil {
 			return err
 		}
-		_, err = tx.Exec(`
-			UPDATE reported
-			   SET event_type_id = NULL
-			 WHERE event_type_id = 1
-		`)
+		log.Debug().Msg("Column event_type_id of table reported altered successfully")
+		query = "UPDATE reported SET event_type_id = NULL WHERE event_type_id = 1"
+		log.Debug().Str("query", query).Msg("")
+		result, err := tx.Exec(query)
+		if err == nil {
+			rows, _ := result.RowsAffected()
+			log.Debug().Int64("rows_deleted", rows).Msg("Table reported updated successfully")
+		}
 		return err
 	},
 }
