@@ -18,6 +18,12 @@ package main_test
 
 // Benchmark for storage backend - the Postgres or RDS
 //
+// Please note that database schema needs to be prepared before benchmarks and
+// needs to be migrated to latest version.
+//
+// Look into README.md for detailed information how to check DB status and how
+// to migrate the database.
+//
 // Documentation in literate-programming-style is available at:
 // https://redhatinsights.github.io/ccx-notification-writer/packages/db_benchmark_test.html
 
