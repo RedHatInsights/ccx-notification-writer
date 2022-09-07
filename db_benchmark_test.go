@@ -48,6 +48,7 @@ import (
 const (
 	configFileEnvName = "CCX_NOTIFICATION_WRITER_CONFIG_FILE"
 	configFileName    = "tests/benchmark"
+	reportDirectory   = "tests/reports/"
 )
 
 // SQL statements
@@ -308,6 +309,16 @@ func runBenchmarkInsertIntoReportedTable(b *testing.B, insertFunction insertInto
 			insertFunction(b, connection, i, report)
 		}
 	}
+}
+
+// readReport function tries to read report from file. Benchmark will fail in
+// any error.
+func readReport(b *testing.B, filename string) string {
+	content, err := os.ReadFile(reportDirectory + filename)
+	if err != nil {
+		b.Fatal(err)
+	}
+	return string(content)
 }
 
 // BenchmarkInsertIntoReportedTableV1 checks the speed of inserting into
