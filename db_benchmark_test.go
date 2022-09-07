@@ -273,7 +273,8 @@ func insertIntoReportedV2(b *testing.B, connection *sql.DB, i int, report *strin
 // runBenchmarkInsertIntoReportedTable function perform several inserts into
 // reported table v1 or v2 (depending on injected function). In case of any
 // error detected, benchmarks fail immediatelly.
-func runBenchmarkInsertIntoReportedTable(b *testing.B, insertFunction insertIntoReportedFunc, scaleFactor int, report *string) {
+func runBenchmarkInsertIntoReportedTable(b *testing.B, insertFunction insertIntoReportedFunc, dropStatement string, createStatement string,
+	scaleFactor int, report *string) {
 	// retrieve DB connection
 	connection := setup(b)
 	if connection == nil {
@@ -281,10 +282,10 @@ func runBenchmarkInsertIntoReportedTable(b *testing.B, insertFunction insertInto
 	}
 
 	// make sure we start with no DB table
-	execSQLStatement(b, connection, dropTableReportedV1)
+	execSQLStatement(b, connection, dropStatement)
 
 	// create reported table from scratch
-	execSQLStatement(b, connection, createTableReportedV1)
+	execSQLStatement(b, connection, createStatement)
 
 	// good citizens cleanup properly
 	//defer execSQLStatement(b, connection, dropTableReportedV1)
@@ -305,7 +306,7 @@ func runBenchmarkInsertIntoReportedTable(b *testing.B, insertFunction insertInto
 func BenchmarkInsertIntoReportedTableV1(b *testing.B) {
 	report := ""
 
-	runBenchmarkInsertIntoReportedTable(b, insertIntoReportedV1, 1, &report)
+	runBenchmarkInsertIntoReportedTable(b, insertIntoReportedV1, dropTableReportedV1, createTableReportedV1, 1, &report)
 }
 
 // BenchmarkInsertIntoReportedTableV2 checks the speed of inserting into
@@ -313,5 +314,5 @@ func BenchmarkInsertIntoReportedTableV1(b *testing.B) {
 func BenchmarkInsertIntoReportedTableV2(b *testing.B) {
 	report := ""
 
-	runBenchmarkInsertIntoReportedTable(b, insertIntoReportedV2, 1, &report)
+	runBenchmarkInsertIntoReportedTable(b, insertIntoReportedV2, dropTableReportedV2, createTableReportedV2, 1, &report)
 }
