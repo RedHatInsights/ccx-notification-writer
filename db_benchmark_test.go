@@ -33,9 +33,76 @@ import (
 	main "github.com/RedHatInsights/ccx-notification-writer"
 )
 
+// Configuration-related constants
 const (
 	configFileEnvName = "CCX_NOTIFICATION_WRITER_CONFIG_FILE"
 	configFileName    = "tests/benchmark"
+)
+
+// SQL statements
+const (
+	dropTableReportedV1 = `DROP TABLE IF EXISTS reported_benchmark_1;`
+	dropTableReportedV2 = `DROP TABLE IF EXISTS reported_benchmark_2;`
+
+	createTableReportedV1 = `
+                CREATE TABLE IF NOT EXISTS reported_benchmark_1 (
+                    org_id            integer not null,
+                    account_number    integer not null,
+                    cluster           character(36) not null,
+                    notification_type integer not null,
+                    state             integer not null,
+                    report            varchar not null,
+                    updated_at        timestamp not null,
+                    notified_at       timestamp not null,
+		    error_log         varchar,
+                
+                    PRIMARY KEY (org_id, cluster, notified_at),
+                    CONSTRAINT fk_notification_type
+                        foreign key(notification_type)
+                        references notification_types(id),
+                    CONSTRAINT fk_state
+                        foreign key (state)
+                        references states(id)
+                );`
+
+	createTableReportedV2 = `
+                CREATE TABLE IF NOT EXISTS reported_benchmark_2 (
+                    org_id            integer not null,
+                    account_number    integer not null,
+                    cluster           character(36) not null,
+                    notification_type integer not null,
+                    state             integer not null,
+                    report            varchar not null,
+                    updated_at        timestamp not null,
+                    notified_at       timestamp not null,
+		    error_log         varchar,
+		    event_type        integer,
+                
+                    PRIMARY KEY (org_id, cluster, notified_at),
+                    CONSTRAINT fk_notification_type
+                        foreign key(notification_type)
+                        references notification_types(id),
+                    CONSTRAINT fk_state
+                        foreign key (state)
+                        references states(id),
+		    CONSTRAINT fk_event_type
+		        foreign key (event_type)
+			references event_targets(id)
+                );`
+
+	insertIntoReportedV1Statement = `
+            INSERT INTO reported_benchmark_1
+            (org_id, account_number, cluster, notification_type, state, report, updated_at, notified_at, error_log)
+            VALUES
+            ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+	`
+
+	insertIntoReportedV2Statement = `
+            INSERT INTO reported
+            (org_id, account_number, cluster, notification_type, state, report, updated_at, notified_at, error_log, event_type_id)
+            VALUES
+            ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+	`
 )
 
 // initLogging function initializes logging
