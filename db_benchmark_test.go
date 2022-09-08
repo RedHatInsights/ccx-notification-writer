@@ -507,7 +507,11 @@ func BenchmarkInsertEmptyReportIntoReportedTableV1(b *testing.B) {
 		createTableReportedV1,
 	}
 
-	runBenchmarkInsertIntoReportedTable(b, insertIntoReportedV1, initStatements, 1, &report)
+	// all possible indices combinatiors for reported table without event_type_id column
+	indices := getIndicesForReportedTableV1()
+
+	// run benchmarks with various combination of indices
+	benchmarkInsertEmptyReportIntoReportedTableImpl(b, insertIntoReportedV1, initStatements, indices, report)
 }
 
 // BenchmarkInsertEmptyReportIntoReportedTableV2 checks the speed of inserting
@@ -522,7 +526,11 @@ func BenchmarkInsertEmptyReportIntoReportedTableV2(b *testing.B) {
 		createTableReportedV2,
 	}
 
-	runBenchmarkInsertIntoReportedTable(b, insertIntoReportedV2, initStatements, 1, &report)
+	// all possible indices combinatiors for reported table with event_type_id column
+	indices := getIndicesForReportedTableV2()
+
+	// run benchmarks with various combination of indices
+	benchmarkInsertEmptyReportIntoReportedTableImpl(b, insertIntoReportedV2, initStatements, indices, report)
 }
 
 // BenchmarkInsertAnalysisMetadataOnlyReportIntoReportedTableV1 checks the speed of inserting
@@ -537,7 +545,11 @@ func BenchmarkInsertAnalysisMetadataOnlyReportIntoReportedTableV1(b *testing.B) 
 		createTableReportedV1,
 	}
 
-	runBenchmarkInsertIntoReportedTable(b, insertIntoReportedV1, initStatements, 1, &report)
+	// all possible indices combinatiors for reported table without event_type_id column
+	indices := getIndicesForReportedTableV1()
+
+	// run benchmarks with various combination of indices
+	benchmarkInsertEmptyReportIntoReportedTableImpl(b, insertIntoReportedV1, initStatements, indices, report)
 }
 
 // BenchmarkInsertAnalysisMetadataOnlyReportIntoReportedTableV2 checks the speed of inserting
@@ -552,7 +564,11 @@ func BenchmarkInsertAnalysisMetadataOnlyReportIntoReportedTableV2(b *testing.B) 
 		createTableReportedV2,
 	}
 
-	runBenchmarkInsertIntoReportedTable(b, insertIntoReportedV2, initStatements, 1, &report)
+	// all possible indices combinatiors for reported table with event_type_id column
+	indices := getIndicesForReportedTableV2()
+
+	// run benchmarks with various combination of indices
+	benchmarkInsertEmptyReportIntoReportedTableImpl(b, insertIntoReportedV2, initStatements, indices, report)
 }
 
 // BenchmarkInsertSmallReportIntoReportedTableV1 checks the speed of inserting
@@ -567,7 +583,11 @@ func BenchmarkInsertSmallReportIntoReportedTableV1(b *testing.B) {
 		createTableReportedV1,
 	}
 
-	runBenchmarkInsertIntoReportedTable(b, insertIntoReportedV1, initStatements, 1, &report)
+	// all possible indices combinatiors for reported table without event_type_id column
+	indices := getIndicesForReportedTableV1()
+
+	// run benchmarks with various combination of indices
+	benchmarkInsertEmptyReportIntoReportedTableImpl(b, insertIntoReportedV1, initStatements, indices, report)
 }
 
 // BenchmarkInsertSmallReportIntoReportedTableV2 checks the speed of inserting
@@ -582,7 +602,11 @@ func BenchmarkInsertSmallReportIntoReportedTableV2(b *testing.B) {
 		createTableReportedV2,
 	}
 
-	runBenchmarkInsertIntoReportedTable(b, insertIntoReportedV2, initStatements, 1, &report)
+	// all possible indices combinatiors for reported table with event_type_id column
+	indices := getIndicesForReportedTableV2()
+
+	// run benchmarks with various combination of indices
+	benchmarkInsertEmptyReportIntoReportedTableImpl(b, insertIntoReportedV2, initStatements, indices, report)
 }
 
 // BenchmarkInsertMiddleReportIntoReportedTableV1 checks the speed of inserting
@@ -597,7 +621,11 @@ func BenchmarkInsertMiddleReportIntoReportedTableV1(b *testing.B) {
 		createTableReportedV1,
 	}
 
-	runBenchmarkInsertIntoReportedTable(b, insertIntoReportedV1, initStatements, 1, &report)
+	// all possible indices combinatiors for reported table without event_type_id column
+	indices := getIndicesForReportedTableV1()
+
+	// run benchmarks with various combination of indices
+	benchmarkInsertEmptyReportIntoReportedTableImpl(b, insertIntoReportedV1, initStatements, indices, report)
 }
 
 // BenchmarkInsertMiddleReportIntoReportedTableV2 checks the speed of inserting
@@ -612,7 +640,11 @@ func BenchmarkInsertMiddleReportIntoReportedTableV2(b *testing.B) {
 		createTableReportedV2,
 	}
 
-	runBenchmarkInsertIntoReportedTable(b, insertIntoReportedV2, initStatements, 1, &report)
+	// all possible indices combinatiors for reported table with event_type_id column
+	indices := getIndicesForReportedTableV2()
+
+	// run benchmarks with various combination of indices
+	benchmarkInsertEmptyReportIntoReportedTableImpl(b, insertIntoReportedV2, initStatements, indices, report)
 }
 
 // BenchmarkInsertLargeReportIntoReportedTableV1 checks the speed of inserting
@@ -627,7 +659,11 @@ func BenchmarkInsertLargeReportIntoReportedTableV1(b *testing.B) {
 		createTableReportedV1,
 	}
 
-	runBenchmarkInsertIntoReportedTable(b, insertIntoReportedV1, initStatements, 1, &report)
+	// all possible indices combinatiors for reported table without event_type_id column
+	indices := getIndicesForReportedTableV1()
+
+	// run benchmarks with various combination of indices
+	benchmarkInsertEmptyReportIntoReportedTableImpl(b, insertIntoReportedV1, initStatements, indices, report)
 }
 
 // BenchmarkInsertLargeReportIntoReportedTableV2 checks the speed of inserting
@@ -642,5 +678,9 @@ func BenchmarkInsertLargeReportIntoReportedTableV2(b *testing.B) {
 		createTableReportedV2,
 	}
 
-	runBenchmarkInsertIntoReportedTable(b, insertIntoReportedV2, initStatements, 1, &report)
+	// all possible indices combinatiors for reported table with event_type_id column
+	indices := getIndicesForReportedTableV2()
+
+	// run benchmarks with various combination of indices
+	benchmarkInsertEmptyReportIntoReportedTableImpl(b, insertIntoReportedV2, initStatements, indices, report)
 }
