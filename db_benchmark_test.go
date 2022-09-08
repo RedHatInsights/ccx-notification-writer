@@ -462,6 +462,39 @@ func getIndicesForReportedTableV2() map[string][]string {
 	return indices
 }
 
+// benchmarkInsertEmptyReportIntoReportedTableImpl is an implementation of
+// benchmark to insert reports into reported table with or without
+// event_type_id column. Table with all possible indices combination is tested.
+func benchmarkInsertEmptyReportIntoReportedTableImpl(
+	b *testing.B,
+	insertFunction insertIntoReportedFunc,
+	initStatements []string,
+	indices map[string][]string,
+	report string) {
+
+	// try all indices combinations
+	for description, indexStatements := range indices {
+		// new benchmark
+		b.Run(description, func(b *testing.B) {
+			// prepare all SQL statements to be run before benchmark
+			sqlStatements := make([]string, len(initStatements)+len(indexStatements))
+
+			// add all init statements
+			for _, initStatement := range initStatements {
+				sqlStatements = append(sqlStatements, initStatement)
+			}
+
+			// add all statements to create indices
+			for _, indexStatement := range indexStatements {
+				sqlStatements = append(sqlStatements, indexStatement)
+			}
+
+			// now everything's ready -> run benchmark
+			runBenchmarkInsertIntoReportedTable(b, insertFunction, sqlStatements, 1, &report)
+		})
+	}
+}
+
 // BenchmarkInsertEmptyReportIntoReportedTableV1 checks the speed of inserting
 // into reported table without event_type column
 func BenchmarkInsertEmptyReportIntoReportedTableV1(b *testing.B) {
