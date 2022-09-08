@@ -135,6 +135,32 @@ const (
 		 USING btree (updated_at ASC);
         `
 
+	// Optional index for the reported table for event_type_id
+	// column. Index type is set to BTree.
+	// (https://www.postgresql.org/docs/current/indexes-types.html for more info)
+	createIndexReportedEventTypeBtreeV2 = `
+                CREATE INDEX IF NOT EXISTS event_type_idx
+		    ON reported_benchmark_2
+		 USING btree (event_type_id ASC);
+        `
+
+	// Optional index for the reported table for event_type_id
+	// column. Index type is set to hash.
+	// (https://www.postgresql.org/docs/current/indexes-types.html for more info)
+	createIndexReportedEventTypeHashV2 = `
+                CREATE INDEX IF NOT EXISTS event_type_idx
+		    ON reported_benchmark_2
+		 USING hash (event_type_id);
+        `
+
+	// Optional index for the reported table
+	// column. Index type is set to BRIN.
+	// (https://www.postgresql.org/docs/current/indexes-types.html for more info)
+	createIndexReportedEventTypeBrinV2 = `
+                CREATE INDEX IF NOT EXISTS event_type_idx
+		    ON reported_benchmark_2
+		 USING brin (event_type_id);
+        `
 	insertIntoReportedV1Statement = `
             INSERT INTO reported_benchmark_1
             (org_id, account_number, cluster, notification_type, state, report, updated_at, notified_at, error_log)
