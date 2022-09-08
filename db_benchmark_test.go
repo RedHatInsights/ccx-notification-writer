@@ -24,6 +24,9 @@ package main_test
 // Look into README.md for detailed information how to check DB status and how
 // to migrate the database.
 //
+// Additional info about benchmarks can be found at
+// https://redhatinsights.github.io/ccx-notification-writer/benchmarks.html
+//
 // Benchmarks use reports represented as JSON files that are stored in
 // tests/reports/ subdirectory.
 //
