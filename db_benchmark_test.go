@@ -34,6 +34,7 @@ package main_test
 // https://redhatinsights.github.io/ccx-notification-writer/packages/db_benchmark_test.html
 
 import (
+	"fmt"
 	"os"
 	"testing"
 	"time"
@@ -188,6 +189,14 @@ const (
             VALUES
             ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
 	`
+
+	// SQL query used to display older records from reported table
+	displayOldRecordsFromReportedTableV1 = `
+                SELECT org_id, account_number, cluster, updated_at, 0
+                  FROM reported_benchmark_1
+                 WHERE updated_at < NOW() - $1::INTERVAL
+                 ORDER BY updated_at
+        `
 )
 
 // insertIntoReportedFunc type represents any function to be called to insert
