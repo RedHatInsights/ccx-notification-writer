@@ -439,6 +439,11 @@ func runBenchmarkSelectFromReportedTable(b *testing.B, insertFunction insertInto
 		if rows == nil {
 			b.Fatal("no rows selected")
 		}
+
+		err = rows.Close()
+		if err != nil {
+			b.Fatal(err)
+		}
 	}
 }
 
