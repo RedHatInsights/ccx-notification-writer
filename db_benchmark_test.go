@@ -791,6 +791,120 @@ func BenchmarkInsertLargeReportIntoReportedTableV2(b *testing.B) {
 	benchmarkInsertReportsIntoReportedTableImpl(b, insertIntoReportedV2, initStatements, indices, report)
 }
 
+// BenchmarkSelectOldEmptyRecordsFromReportedTableV1 tests the query to reported
+// table used inside CCX Notification Service
+func BenchmarkSelectOldEmptyRecordsFromReportedTableV1(b *testing.B) {
+	// empty report
+	report := ``
+
+	// default init statements for reported table without event_type_id column
+	initStatements := []string{
+		dropTableReportedV1,
+		createTableReportedV1,
+	}
+
+	// all possible indices combinatiors for reported table without event_type_id column
+	indices := getIndicesForReportedTableV1()
+
+	// run benchmarks with various combination of indices
+	benchmarkSelectOldReportsFromReportedTableImpl(b, insertIntoReportedV1, displayOldRecordsFromReportedTableV1, initStatements, indices, report)
+}
+
+// BenchmarkSelectOldEmptyRecordsFromReportedTableV2 tests the query to reported
+// table used inside CCX Notification Service
+func BenchmarkSelectOldEmptyRecordsFromReportedTableV2(b *testing.B) {
+	// empty report
+	report := ``
+
+	// default init statements for reported table with event_type_id column
+	initStatements := []string{
+		dropTableReportedV2,
+		createTableReportedV2,
+	}
+
+	// all possible indices combinatiors for reported table without event_type_id column
+	indices := getIndicesForReportedTableV2()
+
+	// run benchmarks with various combination of indices
+	benchmarkSelectOldReportsFromReportedTableImpl(b, insertIntoReportedV2, displayOldRecordsFromReportedTableV2, initStatements, indices, report)
+}
+
+// BenchmarkSelectOldSmallRecordsFromReportedTableV1 tests the query to reported
+// table used inside CCX Notification Service
+func BenchmarkSelectOldSmallRecordsFromReportedTableV1(b *testing.B) {
+	// report with size over 2kB
+	report := readReport(b, smallReportInJSON)
+
+	// default init statements for reported table without event_type_id column
+	initStatements := []string{
+		dropTableReportedV1,
+		createTableReportedV1,
+	}
+
+	// all possible indices combinatiors for reported table without event_type_id column
+	indices := getIndicesForReportedTableV1()
+
+	// run benchmarks with various combination of indices
+	benchmarkSelectOldReportsFromReportedTableImpl(b, insertIntoReportedV1, displayOldRecordsFromReportedTableV1, initStatements, indices, report)
+}
+
+// BenchmarkSelectOldSmallRecordsFromReportedTableV2 tests the query to reported
+// table used inside CCX Notification Service
+func BenchmarkSelectOldSmallRecordsFromReportedTableV2(b *testing.B) {
+	// report with size over 2kB
+	report := readReport(b, smallReportInJSON)
+
+	// default init statements for reported table with event_type_id column
+	initStatements := []string{
+		dropTableReportedV2,
+		createTableReportedV2,
+	}
+
+	// all possible indices combinatiors for reported table without event_type_id column
+	indices := getIndicesForReportedTableV2()
+
+	// run benchmarks with various combination of indices
+	benchmarkSelectOldReportsFromReportedTableImpl(b, insertIntoReportedV2, displayOldRecordsFromReportedTableV2, initStatements, indices, report)
+}
+
+// BenchmarkSelectOldMiddleRecordsFromReportedTableV1 tests the query to reported
+// table used inside CCX Notification Service
+func BenchmarkSelectOldMiddleRecordsFromReportedTableV1(b *testing.B) {
+	// report with size over 4kB
+	report := readReport(b, middleReportInJSON)
+
+	// default init statements for reported table without event_type_id column
+	initStatements := []string{
+		dropTableReportedV1,
+		createTableReportedV1,
+	}
+
+	// all possible indices combinatiors for reported table without event_type_id column
+	indices := getIndicesForReportedTableV1()
+
+	// run benchmarks with various combination of indices
+	benchmarkSelectOldReportsFromReportedTableImpl(b, insertIntoReportedV1, displayOldRecordsFromReportedTableV1, initStatements, indices, report)
+}
+
+// BenchmarkSelectOldMiddleRecordsFromReportedTableV2 tests the query to reported
+// table used inside CCX Notification Service
+func BenchmarkSelectOldMiddleRecordsFromReportedTableV2(b *testing.B) {
+	// report with size over 4kB
+	report := readReport(b, middleReportInJSON)
+
+	// default init statements for reported table with event_type_id column
+	initStatements := []string{
+		dropTableReportedV2,
+		createTableReportedV2,
+	}
+
+	// all possible indices combinatiors for reported table without event_type_id column
+	indices := getIndicesForReportedTableV2()
+
+	// run benchmarks with various combination of indices
+	benchmarkSelectOldReportsFromReportedTableImpl(b, insertIntoReportedV2, displayOldRecordsFromReportedTableV2, initStatements, indices, report)
+}
+
 // BenchmarkSelectOldLargeRecordsFromReportedTableV1 tests the query to reported
 // table used inside CCX Notification Service
 func BenchmarkSelectOldLargeRecordsFromReportedTableV1(b *testing.B) {
@@ -808,4 +922,23 @@ func BenchmarkSelectOldLargeRecordsFromReportedTableV1(b *testing.B) {
 
 	// run benchmarks with various combination of indices
 	benchmarkSelectOldReportsFromReportedTableImpl(b, insertIntoReportedV1, displayOldRecordsFromReportedTableV1, initStatements, indices, report)
+}
+
+// BenchmarkSelectOldLargeRecordsFromReportedTableV2 tests the query to reported
+// table used inside CCX Notification Service
+func BenchmarkSelectOldLargeRecordsFromReportedTableV2(b *testing.B) {
+	// report with size over 8kB
+	report := readReport(b, largeReportInJSON)
+
+	// default init statements for reported table with event_type_id column
+	initStatements := []string{
+		dropTableReportedV2,
+		createTableReportedV2,
+	}
+
+	// all possible indices combinatiors for reported table without event_type_id column
+	indices := getIndicesForReportedTableV2()
+
+	// run benchmarks with various combination of indices
+	benchmarkSelectOldReportsFromReportedTableImpl(b, insertIntoReportedV2, displayOldRecordsFromReportedTableV2, initStatements, indices, report)
 }
