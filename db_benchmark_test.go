@@ -54,6 +54,14 @@ const (
 	reportDirectory   = "tests/reports/"
 )
 
+// JSON files containing reports
+const (
+	reportWithAnalysisMetadataOnlyInJSON = "analysis_metadata_only.json"
+	smallReportInJSON                    = "small_size.json"
+	middleReportInJSON                   = "middle_size.json"
+	largeReportInJSON                    = "large_size.json"
+)
+
 // SQL statements
 //
 // Table reported V1 is reported table without event_type column and constraint for this column
@@ -108,6 +116,64 @@ const (
 			references event_targets(id)
                 );`
 
+	// Index for the reported table used in benchmarks for
+	// notified_at column
+	createIndexReportedNotifiedAtDescV1 = `
+                CREATE INDEX IF NOT EXISTS notified_at_desc_idx
+		    ON reported_benchmark_1
+		 USING btree (notified_at DESC);
+        `
+
+	// Index for the reported table used in benchmarks for
+	// notified_at column
+	createIndexReportedNotifiedAtDescV2 = `
+                CREATE INDEX IF NOT EXISTS notified_at_desc_idx
+		    ON reported_benchmark_2
+		 USING btree (notified_at DESC);
+        `
+
+	// Index for the reported table for updated_at_desc column
+	createIndexReportedUpdatedAtAscV1 = `
+                CREATE INDEX IF NOT EXISTS updated_at_desc_idx
+		    ON reported_benchmark_1
+		 USING btree (updated_at ASC);
+        `
+
+	// Index for the reported table for updated_at_desc column
+	createIndexReportedUpdatedAtAscV2 = `
+                CREATE INDEX IF NOT EXISTS updated_at_desc_idx
+		    ON reported_benchmark_2
+		 USING btree (updated_at ASC);
+        `
+
+	// Optional index for the reported table for event_type_id
+	// column. Index type is set to BTree.
+	// (https://www.postgresql.org/docs/current/indexes-types.html for more info)
+	createIndexReportedEventTypeBtreeV2 = `
+                CREATE INDEX IF NOT EXISTS event_type_idx
+		    ON reported_benchmark_2
+		 USING btree (event_type_id ASC);
+        `
+
+	// Optional index for the reported table for event_type_id
+	// column. Index type is set to hash.
+	// (https://www.postgresql.org/docs/current/indexes-types.html for more info)
+	createIndexReportedEventTypeHashV2 = `
+                CREATE INDEX IF NOT EXISTS event_type_idx
+		    ON reported_benchmark_2
+		 USING hash (event_type_id);
+        `
+
+	// Optional index for the reported table
+	// column. Index type is set to BRIN.
+	// (https://www.postgresql.org/docs/current/indexes-types.html for more info)
+	createIndexReportedEventTypeBrinV2 = `
+                CREATE INDEX IF NOT EXISTS event_type_idx
+		    ON reported_benchmark_2
+		 USING brin (event_type_id);
+        `
+
+	// Insert one record into reported table w/o event_type_id column
 	insertIntoReportedV1Statement = `
             INSERT INTO reported_benchmark_1
             (org_id, account_number, cluster, notification_type, state, report, updated_at, notified_at, error_log)
@@ -115,6 +181,7 @@ const (
             ($1, $2, $3, $4, $5, $6, $7, $8, $9)
 	`
 
+	// Insert one record into reported table with event_type_id column
 	insertIntoReportedV2Statement = `
             INSERT INTO reported_benchmark_2
             (org_id, account_number, cluster, notification_type, state, report, updated_at, notified_at, error_log, event_type_id)
@@ -171,6 +238,7 @@ func initializeStorage(config main.ConfigStruct) (*sql.DB, error) {
 		return nil, err
 	}
 
+	// connection should be established at this moment
 	return connection, nil
 }
 
@@ -199,6 +267,8 @@ func setup(b *testing.B) *sql.DB {
 		b.Fatal(err)
 	}
 
+	// next time, benchmarks will use already established connection to
+	// database
 	initialized = true
 
 	return connection
@@ -238,6 +308,7 @@ func insertIntoReportedV1(b *testing.B, connection *sql.DB, i int, report *strin
 	notifiedAt := time.Now()           // don't have to be unique
 	errorLog := ""                     // usually empty
 
+	// perform insert
 	_, err := connection.Exec(insertIntoReportedV1Statement, orgID,
 		accountNumber, clusterName, notificationTypeID, stateID,
 		report, updatedAt, notifiedAt, errorLog)
@@ -273,6 +344,7 @@ func insertIntoReportedV2(b *testing.B, connection *sql.DB, i int, report *strin
 	errorLog := ""                     // usually empty
 	eventTypeID := i%2 + 1             // just two event type targets possible
 
+	// perform insert
 	_, err := connection.Exec(insertIntoReportedV2Statement, orgID,
 		accountNumber, clusterName, notificationTypeID, stateID,
 		report, updatedAt, notifiedAt, errorLog, eventTypeID)
@@ -323,132 +395,299 @@ func readReport(b *testing.B, filename string) string {
 	return string(content)
 }
 
+// getIndicesForReportedTableV1 is helper function to return map with all
+// possible indices combinations
+func getIndicesForReportedTableV1() map[string][]string {
+	indices := make(map[string][]string)
+
+	indices["no indices]"] = []string{}
+
+	indices["notified_at_desc"] = []string{
+		createIndexReportedNotifiedAtDescV1}
+
+	indices["updated_at_asc"] = []string{
+		createIndexReportedUpdatedAtAscV1}
+
+	indices["notified_at_desc and updated_at_asc"] = []string{
+		createIndexReportedNotifiedAtDescV1,
+		createIndexReportedUpdatedAtAscV1}
+
+	return indices
+}
+
+// getIndicesForReportedTableV2 is helper function to return map with all
+// possible indices combinations
+func getIndicesForReportedTableV2() map[string][]string {
+	indices := make(map[string][]string)
+
+	indices["no indices]"] = []string{}
+
+	indices["notified_at_desc"] = []string{
+		createIndexReportedNotifiedAtDescV2}
+
+	indices["updated_at_asc"] = []string{
+		createIndexReportedUpdatedAtAscV2}
+
+	indices["notified_at_desc and updated_at_asc"] = []string{
+		createIndexReportedNotifiedAtDescV2,
+		createIndexReportedUpdatedAtAscV2}
+
+	indices["notified_at_desc and event_type(BTree)"] = []string{
+		createIndexReportedNotifiedAtDescV2,
+		createIndexReportedEventTypeBtreeV2}
+
+	indices["notified_at_desc and event_type(hash)"] = []string{
+		createIndexReportedNotifiedAtDescV2,
+		createIndexReportedEventTypeHashV2}
+
+	indices["notified_at_desc and event_type(BRIN)"] = []string{
+		createIndexReportedNotifiedAtDescV2,
+		createIndexReportedEventTypeBrinV2}
+
+	indices["updated_at_asc and event_type(BTree)"] = []string{
+		createIndexReportedUpdatedAtAscV2,
+		createIndexReportedEventTypeBtreeV2}
+
+	indices["updated_at_asc and event_type(hash)"] = []string{
+		createIndexReportedUpdatedAtAscV2,
+		createIndexReportedEventTypeHashV2}
+
+	indices["updated_at_asc and event_type(BRIN)"] = []string{
+		createIndexReportedUpdatedAtAscV2,
+		createIndexReportedEventTypeBrinV2}
+
+	indices["notified_at_desc and updated_at_asc and event_type(BTree)"] = []string{
+		createIndexReportedNotifiedAtDescV2,
+		createIndexReportedUpdatedAtAscV2,
+		createIndexReportedEventTypeBtreeV2}
+
+	indices["notified_at_desc and updated_at_asc and event_type(hash)"] = []string{
+		createIndexReportedNotifiedAtDescV2,
+		createIndexReportedUpdatedAtAscV2,
+		createIndexReportedEventTypeHashV2}
+
+	indices["notified_at_desc and updated_at_asc and event_type(BRIN)"] = []string{
+		createIndexReportedNotifiedAtDescV2,
+		createIndexReportedUpdatedAtAscV2,
+		createIndexReportedEventTypeBrinV2}
+	return indices
+}
+
+// benchmarkInsertEmptyReportIntoReportedTableImpl is an implementation of
+// benchmark to insert reports into reported table with or without
+// event_type_id column. Table with all possible indices combination is tested.
+func benchmarkInsertEmptyReportIntoReportedTableImpl(
+	b *testing.B,
+	insertFunction insertIntoReportedFunc,
+	initStatements []string,
+	indices map[string][]string,
+	report string) {
+
+	// try all indices combinations
+	for description, indexStatements := range indices {
+		// new benchmark
+		b.Run(description, func(b *testing.B) {
+			// prepare all SQL statements to be run before benchmark
+			sqlStatements := make([]string, len(initStatements)+len(indexStatements))
+
+			// add all init statements
+			sqlStatements = append(sqlStatements, initStatements...)
+
+			// add all statements to create indices
+			sqlStatements = append(sqlStatements, indexStatements...)
+
+			// now everything's ready -> run benchmark
+			runBenchmarkInsertIntoReportedTable(b, insertFunction, sqlStatements, 1, &report)
+		})
+	}
+}
+
 // BenchmarkInsertEmptyReportIntoReportedTableV1 checks the speed of inserting
 // into reported table without event_type column
 func BenchmarkInsertEmptyReportIntoReportedTableV1(b *testing.B) {
+	// try to insert empty reports
 	report := ""
 
+	// default init statements for reported table without event_type_id column
 	initStatements := []string{
 		dropTableReportedV1,
 		createTableReportedV1,
 	}
 
-	runBenchmarkInsertIntoReportedTable(b, insertIntoReportedV1, initStatements, 1, &report)
+	// all possible indices combinatiors for reported table without event_type_id column
+	indices := getIndicesForReportedTableV1()
+
+	// run benchmarks with various combination of indices
+	benchmarkInsertEmptyReportIntoReportedTableImpl(b, insertIntoReportedV1, initStatements, indices, report)
 }
 
 // BenchmarkInsertEmptyReportIntoReportedTableV2 checks the speed of inserting
 // into reported table with event_type column
 func BenchmarkInsertEmptyReportIntoReportedTableV2(b *testing.B) {
+	// try to insert empty reports
 	report := ""
 
+	// default init statements for reported table with event_type_id column
 	initStatements := []string{
 		dropTableReportedV2,
 		createTableReportedV2,
 	}
 
-	runBenchmarkInsertIntoReportedTable(b, insertIntoReportedV2, initStatements, 1, &report)
+	// all possible indices combinatiors for reported table with event_type_id column
+	indices := getIndicesForReportedTableV2()
+
+	// run benchmarks with various combination of indices
+	benchmarkInsertEmptyReportIntoReportedTableImpl(b, insertIntoReportedV2, initStatements, indices, report)
 }
 
 // BenchmarkInsertAnalysisMetadataOnlyReportIntoReportedTableV1 checks the speed of inserting
 // into reported table without event_type column
 func BenchmarkInsertAnalysisMetadataOnlyReportIntoReportedTableV1(b *testing.B) {
-	report := readReport(b, "analysis_metadata_only.json")
+	// report with size approx 0.5kB
+	report := readReport(b, reportWithAnalysisMetadataOnlyInJSON)
 
+	// default init statements for reported table without event_type_id column
 	initStatements := []string{
 		dropTableReportedV1,
 		createTableReportedV1,
 	}
 
-	runBenchmarkInsertIntoReportedTable(b, insertIntoReportedV1, initStatements, 1, &report)
+	// all possible indices combinatiors for reported table without event_type_id column
+	indices := getIndicesForReportedTableV1()
+
+	// run benchmarks with various combination of indices
+	benchmarkInsertEmptyReportIntoReportedTableImpl(b, insertIntoReportedV1, initStatements, indices, report)
 }
 
 // BenchmarkInsertAnalysisMetadataOnlyReportIntoReportedTableV2 checks the speed of inserting
 // into reported table with event_type column
 func BenchmarkInsertAnalysisMetadataOnlyReportIntoReportedTableV2(b *testing.B) {
-	report := readReport(b, "analysis_metadata_only.json")
+	// report with size approx 0.5kB
+	report := readReport(b, reportWithAnalysisMetadataOnlyInJSON)
 
+	// default init statements for reported table with event_type_id column
 	initStatements := []string{
 		dropTableReportedV2,
 		createTableReportedV2,
 	}
 
-	runBenchmarkInsertIntoReportedTable(b, insertIntoReportedV2, initStatements, 1, &report)
+	// all possible indices combinatiors for reported table with event_type_id column
+	indices := getIndicesForReportedTableV2()
+
+	// run benchmarks with various combination of indices
+	benchmarkInsertEmptyReportIntoReportedTableImpl(b, insertIntoReportedV2, initStatements, indices, report)
 }
 
 // BenchmarkInsertSmallReportIntoReportedTableV1 checks the speed of inserting
 // into reported table without event_type column
 func BenchmarkInsertSmallReportIntoReportedTableV1(b *testing.B) {
-	report := readReport(b, "small_size.json")
+	// report with size approx 2kB
+	report := readReport(b, smallReportInJSON)
 
+	// default init statements for reported table without event_type_id column
 	initStatements := []string{
 		dropTableReportedV1,
 		createTableReportedV1,
 	}
 
-	runBenchmarkInsertIntoReportedTable(b, insertIntoReportedV1, initStatements, 1, &report)
+	// all possible indices combinatiors for reported table without event_type_id column
+	indices := getIndicesForReportedTableV1()
+
+	// run benchmarks with various combination of indices
+	benchmarkInsertEmptyReportIntoReportedTableImpl(b, insertIntoReportedV1, initStatements, indices, report)
 }
 
 // BenchmarkInsertSmallReportIntoReportedTableV2 checks the speed of inserting
 // into reported table with event_type column
 func BenchmarkInsertSmallReportIntoReportedTableV2(b *testing.B) {
-	report := readReport(b, "small_size.json")
+	// report with size approx 2kB
+	report := readReport(b, smallReportInJSON)
 
+	// default init statements for reported table with event_type_id column
 	initStatements := []string{
 		dropTableReportedV2,
 		createTableReportedV2,
 	}
 
-	runBenchmarkInsertIntoReportedTable(b, insertIntoReportedV2, initStatements, 1, &report)
+	// all possible indices combinatiors for reported table with event_type_id column
+	indices := getIndicesForReportedTableV2()
+
+	// run benchmarks with various combination of indices
+	benchmarkInsertEmptyReportIntoReportedTableImpl(b, insertIntoReportedV2, initStatements, indices, report)
 }
 
 // BenchmarkInsertMiddleReportIntoReportedTableV1 checks the speed of inserting
 // into reported table without event_type column
 func BenchmarkInsertMiddleReportIntoReportedTableV1(b *testing.B) {
-	report := readReport(b, "middle_size.json")
+	// report with size approx 4kB
+	report := readReport(b, middleReportInJSON)
 
+	// default init statements for reported table without event_type_id column
 	initStatements := []string{
 		dropTableReportedV1,
 		createTableReportedV1,
 	}
 
-	runBenchmarkInsertIntoReportedTable(b, insertIntoReportedV1, initStatements, 1, &report)
+	// all possible indices combinatiors for reported table without event_type_id column
+	indices := getIndicesForReportedTableV1()
+
+	// run benchmarks with various combination of indices
+	benchmarkInsertEmptyReportIntoReportedTableImpl(b, insertIntoReportedV1, initStatements, indices, report)
 }
 
 // BenchmarkInsertMiddleReportIntoReportedTableV2 checks the speed of inserting
 // into reported table with event_type column
 func BenchmarkInsertMiddleReportIntoReportedTableV2(b *testing.B) {
-	report := readReport(b, "middle_size.json")
+	// report with size approx 4kB
+	report := readReport(b, middleReportInJSON)
 
+	// default init statements for reported table with event_type_id column
 	initStatements := []string{
 		dropTableReportedV2,
 		createTableReportedV2,
 	}
 
-	runBenchmarkInsertIntoReportedTable(b, insertIntoReportedV2, initStatements, 1, &report)
+	// all possible indices combinatiors for reported table with event_type_id column
+	indices := getIndicesForReportedTableV2()
+
+	// run benchmarks with various combination of indices
+	benchmarkInsertEmptyReportIntoReportedTableImpl(b, insertIntoReportedV2, initStatements, indices, report)
 }
 
 // BenchmarkInsertLargeReportIntoReportedTableV1 checks the speed of inserting
 // into reported table without event_type column
 func BenchmarkInsertLargeReportIntoReportedTableV1(b *testing.B) {
-	report := readReport(b, "large_size.json")
+	// report with size over 8kB
+	report := readReport(b, largeReportInJSON)
 
+	// default init statements for reported table without event_type_id column
 	initStatements := []string{
 		dropTableReportedV1,
 		createTableReportedV1,
 	}
 
-	runBenchmarkInsertIntoReportedTable(b, insertIntoReportedV1, initStatements, 1, &report)
+	// all possible indices combinatiors for reported table without event_type_id column
+	indices := getIndicesForReportedTableV1()
+
+	// run benchmarks with various combination of indices
+	benchmarkInsertEmptyReportIntoReportedTableImpl(b, insertIntoReportedV1, initStatements, indices, report)
 }
 
 // BenchmarkInsertLargeReportIntoReportedTableV2 checks the speed of inserting
 // into reported table with event_type column
 func BenchmarkInsertLargeReportIntoReportedTableV2(b *testing.B) {
-	report := readReport(b, "large_size.json")
+	// report with size over 8kB
+	report := readReport(b, largeReportInJSON)
 
+	// default init statements for reported table with event_type_id column
 	initStatements := []string{
 		dropTableReportedV2,
 		createTableReportedV2,
 	}
 
-	runBenchmarkInsertIntoReportedTable(b, insertIntoReportedV2, initStatements, 1, &report)
+	// all possible indices combinatiors for reported table with event_type_id column
+	indices := getIndicesForReportedTableV2()
+
+	// run benchmarks with various combination of indices
+	benchmarkInsertEmptyReportIntoReportedTableImpl(b, insertIntoReportedV2, initStatements, indices, report)
 }
