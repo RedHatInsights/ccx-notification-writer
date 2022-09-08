@@ -205,6 +205,20 @@ const (
                  WHERE updated_at < NOW() - $1::INTERVAL
                  ORDER BY updated_at
         `
+
+	// SQL query used to display older records from reported table
+	deleteOldRecordsFromReportedTableV1 = `
+                DELETE
+                  FROM reported_benchmark_1
+                 WHERE updated_at < NOW() - $1::INTERVAL
+        `
+
+	// SQL query used to display older records from reported table
+	deleteOldRecordsFromReportedTableV2 = `
+                DELETE
+                  FROM reported_benchmark_2
+                 WHERE updated_at < NOW() - $1::INTERVAL
+        `
 )
 
 // insertIntoReportedFunc type represents any function to be called to insert
@@ -402,12 +416,13 @@ func runBenchmarkInsertIntoReportedTable(b *testing.B, insertFunction insertInto
 	}
 }
 
-// runBenchmarkSelectFromReportedTable function perform several inserts into
-// reported table v1 or v2 (depending on injected function) and the run queries
-// against such table. In case of any error detected, benchmarks fail
-// immediatelly.
-func runBenchmarkSelectFromReportedTable(b *testing.B, insertFunction insertIntoReportedFunc,
-	selectStatement string, initStatements []string, reportsCount int, report *string) {
+// runBenchmarkSelectOrDeleteFromReportedTable function perform several inserts
+// into reported table v1 or v2 (depending on injected function) and the run
+// queries or delete statements against such table. In case of any error
+// detected, benchmarks fail immediatelly.
+func runBenchmarkSelectOrDeleteFromReportedTable(b *testing.B, insertFunction insertIntoReportedFunc,
+	selectStatement string, deleteStatement string,
+	initStatements []string, reportsCount int, report *string) {
 	// retrieve DB connection
 	connection := setup(b)
 	if connection == nil {
@@ -432,17 +447,27 @@ func runBenchmarkSelectFromReportedTable(b *testing.B, insertFunction insertInto
 
 	// perform DB benchmark
 	for i := 0; i < b.N; i++ {
-		rows, err := connection.Query(selectStatement, "8 days")
-		if err != nil {
-			b.Fatal(err)
-		}
-		if rows == nil {
-			b.Fatal("no rows selected")
-		}
+		// perform benchmarks for SELECT statement (query)
+		if selectStatement != "" {
+			rows, err := connection.Query(selectStatement, "8 days")
+			if err != nil {
+				b.Fatal(err)
+			}
+			if rows == nil {
+				b.Fatal("no rows selected")
+			}
 
-		err = rows.Close()
-		if err != nil {
-			b.Fatal(err)
+			err = rows.Close()
+			if err != nil {
+				b.Fatal(err)
+			}
+		}
+		// perform benchmarks for DELETE statement
+		if deleteStatement != "" {
+			_, err := connection.Exec(deleteStatement, "8 days")
+			if err != nil {
+				b.Fatal(err)
+			}
 		}
 	}
 }
@@ -564,13 +589,15 @@ func benchmarkInsertReportsIntoReportedTableImpl(
 	}
 }
 
-// benchmarkSelectOldReportsFromReportedTableImpl is an implementation of
-// benchmark to query reports from reported table with or without
-// event_type_id column. Table with all possible indices combination is tested.
-func benchmarkSelectOldReportsFromReportedTableImpl(
+// benchmarkSelectOrDeleteOldReportsFromReportedTableImpl is an implementation
+// of benchmark to query reports from reported or delete reports from such
+// table with or without event_type_id column. Table with all possible indices
+// combination is tested.
+func benchmarkSelectOrDeleteOldReportsFromReportedTableImpl(
 	b *testing.B,
 	insertFunction insertIntoReportedFunc,
 	selectStatement string,
+	deleteStatement string,
 	initStatements []string,
 	indices map[string][]string,
 	report string) {
@@ -595,7 +622,9 @@ func benchmarkSelectOldReportsFromReportedTableImpl(
 				sqlStatements = append(sqlStatements, indexStatements...)
 
 				// now everything's ready -> run benchmark
-				runBenchmarkSelectFromReportedTable(b, insertFunction, selectStatement, sqlStatements, reportsCount, &report)
+				runBenchmarkSelectOrDeleteFromReportedTable(b, insertFunction,
+					selectStatement, deleteStatement,
+					sqlStatements, reportsCount, &report)
 			})
 		}
 	}
@@ -617,7 +646,8 @@ func BenchmarkInsertReportsIntoReportedTableV1(b *testing.B) {
 	indices := getIndicesForReportedTableV1()
 
 	// run benchmarks with various combination of indices
-	benchmarkInsertReportsIntoReportedTableImpl(b, insertIntoReportedV1, initStatements, indices, report)
+	benchmarkInsertReportsIntoReportedTableImpl(b, insertIntoReportedV1,
+		initStatements, indices, report)
 }
 
 // BenchmarkInsertReportsIntoReportedTableV2 checks the speed of inserting
@@ -636,7 +666,8 @@ func BenchmarkInsertReportsIntoReportedTableV2(b *testing.B) {
 	indices := getIndicesForReportedTableV2()
 
 	// run benchmarks with various combination of indices
-	benchmarkInsertReportsIntoReportedTableImpl(b, insertIntoReportedV2, initStatements, indices, report)
+	benchmarkInsertReportsIntoReportedTableImpl(b, insertIntoReportedV2,
+		initStatements, indices, report)
 }
 
 // BenchmarkInsertAnalysisMetadataOnlyReportIntoReportedTableV1 checks the speed of inserting
@@ -655,7 +686,8 @@ func BenchmarkInsertAnalysisMetadataOnlyReportIntoReportedTableV1(b *testing.B) 
 	indices := getIndicesForReportedTableV1()
 
 	// run benchmarks with various combination of indices
-	benchmarkInsertReportsIntoReportedTableImpl(b, insertIntoReportedV1, initStatements, indices, report)
+	benchmarkInsertReportsIntoReportedTableImpl(b, insertIntoReportedV1,
+		initStatements, indices, report)
 }
 
 // BenchmarkInsertAnalysisMetadataOnlyReportIntoReportedTableV2 checks the speed of inserting
@@ -674,7 +706,8 @@ func BenchmarkInsertAnalysisMetadataOnlyReportIntoReportedTableV2(b *testing.B) 
 	indices := getIndicesForReportedTableV2()
 
 	// run benchmarks with various combination of indices
-	benchmarkInsertReportsIntoReportedTableImpl(b, insertIntoReportedV2, initStatements, indices, report)
+	benchmarkInsertReportsIntoReportedTableImpl(b, insertIntoReportedV2,
+		initStatements, indices, report)
 }
 
 // BenchmarkInsertSmallReportIntoReportedTableV1 checks the speed of inserting
@@ -693,7 +726,8 @@ func BenchmarkInsertSmallReportIntoReportedTableV1(b *testing.B) {
 	indices := getIndicesForReportedTableV1()
 
 	// run benchmarks with various combination of indices
-	benchmarkInsertReportsIntoReportedTableImpl(b, insertIntoReportedV1, initStatements, indices, report)
+	benchmarkInsertReportsIntoReportedTableImpl(b, insertIntoReportedV1,
+		initStatements, indices, report)
 }
 
 // BenchmarkInsertSmallReportIntoReportedTableV2 checks the speed of inserting
@@ -712,7 +746,8 @@ func BenchmarkInsertSmallReportIntoReportedTableV2(b *testing.B) {
 	indices := getIndicesForReportedTableV2()
 
 	// run benchmarks with various combination of indices
-	benchmarkInsertReportsIntoReportedTableImpl(b, insertIntoReportedV2, initStatements, indices, report)
+	benchmarkInsertReportsIntoReportedTableImpl(b, insertIntoReportedV2,
+		initStatements, indices, report)
 }
 
 // BenchmarkInsertMiddleReportIntoReportedTableV1 checks the speed of inserting
@@ -731,7 +766,8 @@ func BenchmarkInsertMiddleReportIntoReportedTableV1(b *testing.B) {
 	indices := getIndicesForReportedTableV1()
 
 	// run benchmarks with various combination of indices
-	benchmarkInsertReportsIntoReportedTableImpl(b, insertIntoReportedV1, initStatements, indices, report)
+	benchmarkInsertReportsIntoReportedTableImpl(b, insertIntoReportedV1,
+		initStatements, indices, report)
 }
 
 // BenchmarkInsertMiddleReportIntoReportedTableV2 checks the speed of inserting
@@ -750,7 +786,8 @@ func BenchmarkInsertMiddleReportIntoReportedTableV2(b *testing.B) {
 	indices := getIndicesForReportedTableV2()
 
 	// run benchmarks with various combination of indices
-	benchmarkInsertReportsIntoReportedTableImpl(b, insertIntoReportedV2, initStatements, indices, report)
+	benchmarkInsertReportsIntoReportedTableImpl(b, insertIntoReportedV2,
+		initStatements, indices, report)
 }
 
 // BenchmarkInsertLargeReportIntoReportedTableV1 checks the speed of inserting
@@ -769,7 +806,8 @@ func BenchmarkInsertLargeReportIntoReportedTableV1(b *testing.B) {
 	indices := getIndicesForReportedTableV1()
 
 	// run benchmarks with various combination of indices
-	benchmarkInsertReportsIntoReportedTableImpl(b, insertIntoReportedV1, initStatements, indices, report)
+	benchmarkInsertReportsIntoReportedTableImpl(b, insertIntoReportedV1,
+		initStatements, indices, report)
 }
 
 // BenchmarkInsertLargeReportIntoReportedTableV2 checks the speed of inserting
@@ -788,7 +826,8 @@ func BenchmarkInsertLargeReportIntoReportedTableV2(b *testing.B) {
 	indices := getIndicesForReportedTableV2()
 
 	// run benchmarks with various combination of indices
-	benchmarkInsertReportsIntoReportedTableImpl(b, insertIntoReportedV2, initStatements, indices, report)
+	benchmarkInsertReportsIntoReportedTableImpl(b, insertIntoReportedV2,
+		initStatements, indices, report)
 }
 
 // BenchmarkSelectOldEmptyRecordsFromReportedTableV1 tests the query to reported
@@ -807,7 +846,9 @@ func BenchmarkSelectOldEmptyRecordsFromReportedTableV1(b *testing.B) {
 	indices := getIndicesForReportedTableV1()
 
 	// run benchmarks with various combination of indices
-	benchmarkSelectOldReportsFromReportedTableImpl(b, insertIntoReportedV1, displayOldRecordsFromReportedTableV1, initStatements, indices, report)
+	benchmarkSelectOrDeleteOldReportsFromReportedTableImpl(b,
+		insertIntoReportedV1, displayOldRecordsFromReportedTableV1, "",
+		initStatements, indices, report)
 }
 
 // BenchmarkSelectOldEmptyRecordsFromReportedTableV2 tests the query to reported
@@ -826,7 +867,9 @@ func BenchmarkSelectOldEmptyRecordsFromReportedTableV2(b *testing.B) {
 	indices := getIndicesForReportedTableV2()
 
 	// run benchmarks with various combination of indices
-	benchmarkSelectOldReportsFromReportedTableImpl(b, insertIntoReportedV2, displayOldRecordsFromReportedTableV2, initStatements, indices, report)
+	benchmarkSelectOrDeleteOldReportsFromReportedTableImpl(b,
+		insertIntoReportedV2, displayOldRecordsFromReportedTableV2, "",
+		initStatements, indices, report)
 }
 
 // BenchmarkSelectOldSmallRecordsFromReportedTableV1 tests the query to reported
@@ -845,7 +888,9 @@ func BenchmarkSelectOldSmallRecordsFromReportedTableV1(b *testing.B) {
 	indices := getIndicesForReportedTableV1()
 
 	// run benchmarks with various combination of indices
-	benchmarkSelectOldReportsFromReportedTableImpl(b, insertIntoReportedV1, displayOldRecordsFromReportedTableV1, initStatements, indices, report)
+	benchmarkSelectOrDeleteOldReportsFromReportedTableImpl(b,
+		insertIntoReportedV1, displayOldRecordsFromReportedTableV1, "",
+		initStatements, indices, report)
 }
 
 // BenchmarkSelectOldSmallRecordsFromReportedTableV2 tests the query to reported
@@ -864,7 +909,9 @@ func BenchmarkSelectOldSmallRecordsFromReportedTableV2(b *testing.B) {
 	indices := getIndicesForReportedTableV2()
 
 	// run benchmarks with various combination of indices
-	benchmarkSelectOldReportsFromReportedTableImpl(b, insertIntoReportedV2, displayOldRecordsFromReportedTableV2, initStatements, indices, report)
+	benchmarkSelectOrDeleteOldReportsFromReportedTableImpl(b,
+		insertIntoReportedV2, displayOldRecordsFromReportedTableV2, "",
+		initStatements, indices, report)
 }
 
 // BenchmarkSelectOldMiddleRecordsFromReportedTableV1 tests the query to reported
@@ -883,7 +930,9 @@ func BenchmarkSelectOldMiddleRecordsFromReportedTableV1(b *testing.B) {
 	indices := getIndicesForReportedTableV1()
 
 	// run benchmarks with various combination of indices
-	benchmarkSelectOldReportsFromReportedTableImpl(b, insertIntoReportedV1, displayOldRecordsFromReportedTableV1, initStatements, indices, report)
+	benchmarkSelectOrDeleteOldReportsFromReportedTableImpl(b,
+		insertIntoReportedV1, displayOldRecordsFromReportedTableV1, "",
+		initStatements, indices, report)
 }
 
 // BenchmarkSelectOldMiddleRecordsFromReportedTableV2 tests the query to reported
@@ -902,7 +951,9 @@ func BenchmarkSelectOldMiddleRecordsFromReportedTableV2(b *testing.B) {
 	indices := getIndicesForReportedTableV2()
 
 	// run benchmarks with various combination of indices
-	benchmarkSelectOldReportsFromReportedTableImpl(b, insertIntoReportedV2, displayOldRecordsFromReportedTableV2, initStatements, indices, report)
+	benchmarkSelectOrDeleteOldReportsFromReportedTableImpl(b,
+		insertIntoReportedV2, displayOldRecordsFromReportedTableV2, "",
+		initStatements, indices, report)
 }
 
 // BenchmarkSelectOldLargeRecordsFromReportedTableV1 tests the query to reported
@@ -921,7 +972,9 @@ func BenchmarkSelectOldLargeRecordsFromReportedTableV1(b *testing.B) {
 	indices := getIndicesForReportedTableV1()
 
 	// run benchmarks with various combination of indices
-	benchmarkSelectOldReportsFromReportedTableImpl(b, insertIntoReportedV1, displayOldRecordsFromReportedTableV1, initStatements, indices, report)
+	benchmarkSelectOrDeleteOldReportsFromReportedTableImpl(b,
+		insertIntoReportedV1, displayOldRecordsFromReportedTableV1, "",
+		initStatements, indices, report)
 }
 
 // BenchmarkSelectOldLargeRecordsFromReportedTableV2 tests the query to reported
@@ -940,5 +993,7 @@ func BenchmarkSelectOldLargeRecordsFromReportedTableV2(b *testing.B) {
 	indices := getIndicesForReportedTableV2()
 
 	// run benchmarks with various combination of indices
-	benchmarkSelectOldReportsFromReportedTableImpl(b, insertIntoReportedV2, displayOldRecordsFromReportedTableV2, initStatements, indices, report)
+	benchmarkSelectOrDeleteOldReportsFromReportedTableImpl(b,
+		insertIntoReportedV2, displayOldRecordsFromReportedTableV2, "",
+		initStatements, indices, report)
 }
