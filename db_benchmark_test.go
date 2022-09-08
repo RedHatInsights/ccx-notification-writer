@@ -488,14 +488,10 @@ func benchmarkInsertEmptyReportIntoReportedTableImpl(
 			sqlStatements := make([]string, len(initStatements)+len(indexStatements))
 
 			// add all init statements
-			for _, initStatement := range initStatements {
-				sqlStatements = append(sqlStatements, initStatement)
-			}
+			sqlStatements = append(sqlStatements, initStatements...)
 
 			// add all statements to create indices
-			for _, indexStatement := range indexStatements {
-				sqlStatements = append(sqlStatements, indexStatement)
-			}
+			sqlStatements = append(sqlStatements, indexStatements...)
 
 			// now everything's ready -> run benchmark
 			runBenchmarkInsertIntoReportedTable(b, insertFunction, sqlStatements, 1, &report)
