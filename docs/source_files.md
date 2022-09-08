@@ -33,3 +33,7 @@ nav_order: 16
 * [storage_test.go](./packages/storage_test.html)
 * [mock_storage_test.go](./packages/mock_storage_test.html)
 * [export_test.go](./packages/export_test.html)
+
+## Documentation for benchmarks for this repository
+
+* [db_benchmark_test.go](./packages/db_benchmark_test.html)
