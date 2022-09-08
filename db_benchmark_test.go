@@ -551,6 +551,43 @@ func benchmarkInsertReportsIntoReportedTableImpl(
 	}
 }
 
+// benchmarkSelectOldReportsFromReportedTableImpl is an implementation of
+// benchmark to query reports from reported table with or without
+// event_type_id column. Table with all possible indices combination is tested.
+func benchmarkSelectOldReportsFromReportedTableImpl(
+	b *testing.B,
+	insertFunction insertIntoReportedFunc,
+	selectStatement string,
+	initStatements []string,
+	indices map[string][]string,
+	report string) {
+
+	// number of reports to be insterted into the table
+	var possibleReportsCount []int = []int{1, 100, 1000}
+
+	// try all indices combinations
+	for description, indexStatements := range indices {
+		// benchmark with various reports count stored in table
+		for _, reportsCount := range possibleReportsCount {
+			// new benchmark
+			benchmarkName := fmt.Sprintf("%s with %d reports", description, reportsCount)
+			b.Run(benchmarkName, func(b *testing.B) {
+				// prepare all SQL statements to be run before benchmark
+				sqlStatements := make([]string, len(initStatements)+len(indexStatements))
+
+				// add all init statements
+				sqlStatements = append(sqlStatements, initStatements...)
+
+				// add all statements to create indices
+				sqlStatements = append(sqlStatements, indexStatements...)
+
+				// now everything's ready -> run benchmark
+				runBenchmarkSelectFromReportedTable(b, insertFunction, selectStatement, sqlStatements, reportsCount, &report)
+			})
+		}
+	}
+}
+
 // BenchmarkInsertReportsIntoReportedTableV1 checks the speed of inserting
 // into reported table without event_type column
 func BenchmarkInsertReportsIntoReportedTableV1(b *testing.B) {
@@ -739,4 +776,23 @@ func BenchmarkInsertLargeReportIntoReportedTableV2(b *testing.B) {
 
 	// run benchmarks with various combination of indices
 	benchmarkInsertReportsIntoReportedTableImpl(b, insertIntoReportedV2, initStatements, indices, report)
+}
+
+// BenchmarkSelectOldLargeRecordsFromReportedTableV1 tests the query to reported
+// table used inside CCX Notification Service
+func BenchmarkSelectOldLargeRecordsFromReportedTableV1(b *testing.B) {
+	// report with size over 8kB
+	report := readReport(b, largeReportInJSON)
+
+	// default init statements for reported table without event_type_id column
+	initStatements := []string{
+		dropTableReportedV1,
+		createTableReportedV1,
+	}
+
+	// all possible indices combinatiors for reported table without event_type_id column
+	indices := getIndicesForReportedTableV1()
+
+	// run benchmarks with various combination of indices
+	benchmarkSelectOldReportsFromReportedTableImpl(b, insertIntoReportedV1, displayOldRecordsFromReportedTableV1, initStatements, indices, report)
 }
