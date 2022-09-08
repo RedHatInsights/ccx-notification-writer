@@ -161,6 +161,8 @@ const (
 		    ON reported_benchmark_2
 		 USING brin (event_type_id);
         `
+
+	// Insert one record into reported table w/o event_type_id column
 	insertIntoReportedV1Statement = `
             INSERT INTO reported_benchmark_1
             (org_id, account_number, cluster, notification_type, state, report, updated_at, notified_at, error_log)
@@ -168,6 +170,7 @@ const (
             ($1, $2, $3, $4, $5, $6, $7, $8, $9)
 	`
 
+	// Insert one record into reported table with event_type_id column
 	insertIntoReportedV2Statement = `
             INSERT INTO reported_benchmark_2
             (org_id, account_number, cluster, notification_type, state, report, updated_at, notified_at, error_log, event_type_id)
@@ -224,6 +227,7 @@ func initializeStorage(config main.ConfigStruct) (*sql.DB, error) {
 		return nil, err
 	}
 
+	// connection should be established at this moment
 	return connection, nil
 }
 
@@ -252,6 +256,8 @@ func setup(b *testing.B) *sql.DB {
 		b.Fatal(err)
 	}
 
+	// next time, benchmarks will use already established connection to
+	// database
 	initialized = true
 
 	return connection
@@ -291,6 +297,7 @@ func insertIntoReportedV1(b *testing.B, connection *sql.DB, i int, report *strin
 	notifiedAt := time.Now()           // don't have to be unique
 	errorLog := ""                     // usually empty
 
+	// perform insert
 	_, err := connection.Exec(insertIntoReportedV1Statement, orgID,
 		accountNumber, clusterName, notificationTypeID, stateID,
 		report, updatedAt, notifiedAt, errorLog)
@@ -326,6 +333,7 @@ func insertIntoReportedV2(b *testing.B, connection *sql.DB, i int, report *strin
 	errorLog := ""                     // usually empty
 	eventTypeID := i%2 + 1             // just two event type targets possible
 
+	// perform insert
 	_, err := connection.Exec(insertIntoReportedV2Statement, orgID,
 		accountNumber, clusterName, notificationTypeID, stateID,
 		report, updatedAt, notifiedAt, errorLog, eventTypeID)
@@ -379,8 +387,10 @@ func readReport(b *testing.B, filename string) string {
 // BenchmarkInsertEmptyReportIntoReportedTableV1 checks the speed of inserting
 // into reported table without event_type column
 func BenchmarkInsertEmptyReportIntoReportedTableV1(b *testing.B) {
+	// try to insert empty reports
 	report := ""
 
+	// default init statements for reported table without event_type_id column
 	initStatements := []string{
 		dropTableReportedV1,
 		createTableReportedV1,
@@ -392,8 +402,10 @@ func BenchmarkInsertEmptyReportIntoReportedTableV1(b *testing.B) {
 // BenchmarkInsertEmptyReportIntoReportedTableV2 checks the speed of inserting
 // into reported table with event_type column
 func BenchmarkInsertEmptyReportIntoReportedTableV2(b *testing.B) {
+	// try to insert empty reports
 	report := ""
 
+	// default init statements for reported table with event_type_id column
 	initStatements := []string{
 		dropTableReportedV2,
 		createTableReportedV2,
@@ -405,8 +417,10 @@ func BenchmarkInsertEmptyReportIntoReportedTableV2(b *testing.B) {
 // BenchmarkInsertAnalysisMetadataOnlyReportIntoReportedTableV1 checks the speed of inserting
 // into reported table without event_type column
 func BenchmarkInsertAnalysisMetadataOnlyReportIntoReportedTableV1(b *testing.B) {
+	// report with size approx 0.5kB
 	report := readReport(b, "analysis_metadata_only.json")
 
+	// default init statements for reported table without event_type_id column
 	initStatements := []string{
 		dropTableReportedV1,
 		createTableReportedV1,
@@ -418,8 +432,10 @@ func BenchmarkInsertAnalysisMetadataOnlyReportIntoReportedTableV1(b *testing.B) 
 // BenchmarkInsertAnalysisMetadataOnlyReportIntoReportedTableV2 checks the speed of inserting
 // into reported table with event_type column
 func BenchmarkInsertAnalysisMetadataOnlyReportIntoReportedTableV2(b *testing.B) {
+	// report with size approx 0.5kB
 	report := readReport(b, "analysis_metadata_only.json")
 
+	// default init statements for reported table with event_type_id column
 	initStatements := []string{
 		dropTableReportedV2,
 		createTableReportedV2,
@@ -431,8 +447,10 @@ func BenchmarkInsertAnalysisMetadataOnlyReportIntoReportedTableV2(b *testing.B) 
 // BenchmarkInsertSmallReportIntoReportedTableV1 checks the speed of inserting
 // into reported table without event_type column
 func BenchmarkInsertSmallReportIntoReportedTableV1(b *testing.B) {
+	// report with size approx 2kB
 	report := readReport(b, "small_size.json")
 
+	// default init statements for reported table without event_type_id column
 	initStatements := []string{
 		dropTableReportedV1,
 		createTableReportedV1,
@@ -444,8 +462,10 @@ func BenchmarkInsertSmallReportIntoReportedTableV1(b *testing.B) {
 // BenchmarkInsertSmallReportIntoReportedTableV2 checks the speed of inserting
 // into reported table with event_type column
 func BenchmarkInsertSmallReportIntoReportedTableV2(b *testing.B) {
+	// report with size approx 2kB
 	report := readReport(b, "small_size.json")
 
+	// default init statements for reported table with event_type_id column
 	initStatements := []string{
 		dropTableReportedV2,
 		createTableReportedV2,
@@ -457,8 +477,10 @@ func BenchmarkInsertSmallReportIntoReportedTableV2(b *testing.B) {
 // BenchmarkInsertMiddleReportIntoReportedTableV1 checks the speed of inserting
 // into reported table without event_type column
 func BenchmarkInsertMiddleReportIntoReportedTableV1(b *testing.B) {
+	// report with size approx 4kB
 	report := readReport(b, "middle_size.json")
 
+	// default init statements for reported table without event_type_id column
 	initStatements := []string{
 		dropTableReportedV1,
 		createTableReportedV1,
@@ -470,8 +492,10 @@ func BenchmarkInsertMiddleReportIntoReportedTableV1(b *testing.B) {
 // BenchmarkInsertMiddleReportIntoReportedTableV2 checks the speed of inserting
 // into reported table with event_type column
 func BenchmarkInsertMiddleReportIntoReportedTableV2(b *testing.B) {
+	// report with size approx 4kB
 	report := readReport(b, "middle_size.json")
 
+	// default init statements for reported table with event_type_id column
 	initStatements := []string{
 		dropTableReportedV2,
 		createTableReportedV2,
@@ -483,8 +507,10 @@ func BenchmarkInsertMiddleReportIntoReportedTableV2(b *testing.B) {
 // BenchmarkInsertLargeReportIntoReportedTableV1 checks the speed of inserting
 // into reported table without event_type column
 func BenchmarkInsertLargeReportIntoReportedTableV1(b *testing.B) {
+	// report with size over 8kB
 	report := readReport(b, "large_size.json")
 
+	// default init statements for reported table without event_type_id column
 	initStatements := []string{
 		dropTableReportedV1,
 		createTableReportedV1,
@@ -496,8 +522,10 @@ func BenchmarkInsertLargeReportIntoReportedTableV1(b *testing.B) {
 // BenchmarkInsertLargeReportIntoReportedTableV2 checks the speed of inserting
 // into reported table with event_type column
 func BenchmarkInsertLargeReportIntoReportedTableV2(b *testing.B) {
+	// report with size over 8kB
 	report := readReport(b, "large_size.json")
 
+	// default init statements for reported table with event_type_id column
 	initStatements := []string{
 		dropTableReportedV2,
 		createTableReportedV2,
