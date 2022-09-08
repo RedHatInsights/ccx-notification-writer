@@ -394,6 +394,46 @@ func runBenchmarkInsertIntoReportedTable(b *testing.B, insertFunction insertInto
 	}
 }
 
+// runBenchmarkSelectFromReportedTable function perform several inserts into
+// reported table v1 or v2 (depending on injected function) and the run queries
+// against such table. In case of any error detected, benchmarks fail
+// immediatelly.
+func runBenchmarkSelectFromReportedTable(b *testing.B, insertFunction insertIntoReportedFunc,
+	selectStatement string, initStatements []string, reportsCount int, report *string) {
+	// retrieve DB connection
+	connection := setup(b)
+	if connection == nil {
+		b.Fatal()
+	}
+
+	// run all init SQL statements
+	for _, sqlStatement := range initStatements {
+		execSQLStatement(b, connection, sqlStatement)
+	}
+
+	// good citizens cleanup properly
+	//defer execSQLStatement(b, connection, dropTableReportedV1)
+
+	// fill-in the table (no part of benchmark, so don't measure time there)
+	for i := 0; i < reportsCount; i++ {
+		insertFunction(b, connection, i, report)
+	}
+
+	// time to start benchmark
+	b.ResetTimer()
+
+	// perform DB benchmark
+	for i := 0; i < b.N; i++ {
+		rows, err := connection.Query(selectStatement, "8 days")
+		if err != nil {
+			b.Fatal(err)
+		}
+		if rows == nil {
+			b.Fatal("no rows selected")
+		}
+	}
+}
+
 // readReport function tries to read report from file. Benchmark will fail in
 // any error.
 func readReport(b *testing.B, filename string) string {
