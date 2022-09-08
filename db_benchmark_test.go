@@ -105,6 +105,36 @@ const (
 			references event_targets(id)
                 );`
 
+	// Index for the reported table used in benchmarks for
+	// notified_at column
+	createIndexReportedNotifiedAtDescV1 = `
+                CREATE INDEX IF NOT EXISTS notified_at_desc_idx
+		    ON reported_benchmark_1
+		 USING btree (notified_at DESC);
+        `
+
+	// Index for the reported table used in benchmarks for
+	// notified_at column
+	createIndexReportedNotifiedAtDescV2 = `
+                CREATE INDEX IF NOT EXISTS notified_at_desc_idx
+		    ON reported_benchmark_2
+		 USING btree (notified_at DESC);
+        `
+
+	// Index for the reported table for updated_at_desc column
+	createIndexReportedUpdatedAtAscV1 = `
+                CREATE INDEX IF NOT EXISTS updated_at_desc_idx
+		    ON reported_benchmark_1
+		 USING btree (updated_at ASC);
+        `
+
+	// Index for the reported table for updated_at_desc column
+	createIndexReportedUpdatedAtAscV2 = `
+                CREATE INDEX IF NOT EXISTS updated_at_desc_idx
+		    ON reported_benchmark_2
+		 USING btree (updated_at ASC);
+        `
+
 	insertIntoReportedV1Statement = `
             INSERT INTO reported_benchmark_1
             (org_id, account_number, cluster, notification_type, state, report, updated_at, notified_at, error_log)
