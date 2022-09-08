@@ -208,10 +208,7 @@ func LoadConfiguration(configFileEnvVariableName, defaultConfigFile string) (Con
 		return config, err
 	}
 
-	if err := updateConfigFromClowder(&config); err != nil {
-		fmt.Println("error loading clowder configuration")
-		return config, err
-	}
+	updateConfigFromClowder(&config)
 
 	// everything's should be ok
 	return config, nil
@@ -238,10 +235,10 @@ func GetMetricsConfiguration(config ConfigStruct) MetricsConfiguration {
 }
 
 // updateConfigFromClowder updates the current config with the values defined in clowder
-func updateConfigFromClowder(c *ConfigStruct) error {
+func updateConfigFromClowder(c *ConfigStruct) {
 	if !clowder.IsClowderEnabled() || clowder.LoadedConfig == nil {
 		fmt.Println("Clowder is disabled")
-		return nil
+		return
 	}
 
 	fmt.Println("Clowder is enabled")
@@ -288,8 +285,6 @@ func updateConfigFromClowder(c *ConfigStruct) error {
 		c.Storage.PGUsername = clowder.LoadedConfig.Database.Username
 		c.Storage.PGPassword = clowder.LoadedConfig.Database.Password
 	}
-
-	return nil
 }
 
 func useCLowderTopics(c *BrokerConfiguration) {
