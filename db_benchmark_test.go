@@ -473,10 +473,10 @@ func getIndicesForReportedTableV2() map[string][]string {
 	return indices
 }
 
-// benchmarkInsertEmptyReportIntoReportedTableImpl is an implementation of
+// benchmarkInsertReportsIntoReportedTableImpl is an implementation of
 // benchmark to insert reports into reported table with or without
 // event_type_id column. Table with all possible indices combination is tested.
-func benchmarkInsertEmptyReportIntoReportedTableImpl(
+func benchmarkInsertReportsIntoReportedTableImpl(
 	b *testing.B,
 	insertFunction insertIntoReportedFunc,
 	initStatements []string,
@@ -502,9 +502,9 @@ func benchmarkInsertEmptyReportIntoReportedTableImpl(
 	}
 }
 
-// BenchmarkInsertEmptyReportIntoReportedTableV1 checks the speed of inserting
+// BenchmarkInsertReportsIntoReportedTableV1 checks the speed of inserting
 // into reported table without event_type column
-func BenchmarkInsertEmptyReportIntoReportedTableV1(b *testing.B) {
+func BenchmarkInsertReportsIntoReportedTableV1(b *testing.B) {
 	// try to insert empty reports
 	report := ""
 
@@ -518,12 +518,12 @@ func BenchmarkInsertEmptyReportIntoReportedTableV1(b *testing.B) {
 	indices := getIndicesForReportedTableV1()
 
 	// run benchmarks with various combination of indices
-	benchmarkInsertEmptyReportIntoReportedTableImpl(b, insertIntoReportedV1, initStatements, indices, report)
+	benchmarkInsertReportsIntoReportedTableImpl(b, insertIntoReportedV1, initStatements, indices, report)
 }
 
-// BenchmarkInsertEmptyReportIntoReportedTableV2 checks the speed of inserting
+// BenchmarkInsertReportsIntoReportedTableV2 checks the speed of inserting
 // into reported table with event_type column
-func BenchmarkInsertEmptyReportIntoReportedTableV2(b *testing.B) {
+func BenchmarkInsertReportsIntoReportedTableV2(b *testing.B) {
 	// try to insert empty reports
 	report := ""
 
@@ -537,7 +537,7 @@ func BenchmarkInsertEmptyReportIntoReportedTableV2(b *testing.B) {
 	indices := getIndicesForReportedTableV2()
 
 	// run benchmarks with various combination of indices
-	benchmarkInsertEmptyReportIntoReportedTableImpl(b, insertIntoReportedV2, initStatements, indices, report)
+	benchmarkInsertReportsIntoReportedTableImpl(b, insertIntoReportedV2, initStatements, indices, report)
 }
 
 // BenchmarkInsertAnalysisMetadataOnlyReportIntoReportedTableV1 checks the speed of inserting
@@ -556,7 +556,7 @@ func BenchmarkInsertAnalysisMetadataOnlyReportIntoReportedTableV1(b *testing.B) 
 	indices := getIndicesForReportedTableV1()
 
 	// run benchmarks with various combination of indices
-	benchmarkInsertEmptyReportIntoReportedTableImpl(b, insertIntoReportedV1, initStatements, indices, report)
+	benchmarkInsertReportsIntoReportedTableImpl(b, insertIntoReportedV1, initStatements, indices, report)
 }
 
 // BenchmarkInsertAnalysisMetadataOnlyReportIntoReportedTableV2 checks the speed of inserting
@@ -575,7 +575,7 @@ func BenchmarkInsertAnalysisMetadataOnlyReportIntoReportedTableV2(b *testing.B) 
 	indices := getIndicesForReportedTableV2()
 
 	// run benchmarks with various combination of indices
-	benchmarkInsertEmptyReportIntoReportedTableImpl(b, insertIntoReportedV2, initStatements, indices, report)
+	benchmarkInsertReportsIntoReportedTableImpl(b, insertIntoReportedV2, initStatements, indices, report)
 }
 
 // BenchmarkInsertSmallReportIntoReportedTableV1 checks the speed of inserting
@@ -594,7 +594,7 @@ func BenchmarkInsertSmallReportIntoReportedTableV1(b *testing.B) {
 	indices := getIndicesForReportedTableV1()
 
 	// run benchmarks with various combination of indices
-	benchmarkInsertEmptyReportIntoReportedTableImpl(b, insertIntoReportedV1, initStatements, indices, report)
+	benchmarkInsertReportsIntoReportedTableImpl(b, insertIntoReportedV1, initStatements, indices, report)
 }
 
 // BenchmarkInsertSmallReportIntoReportedTableV2 checks the speed of inserting
@@ -613,7 +613,7 @@ func BenchmarkInsertSmallReportIntoReportedTableV2(b *testing.B) {
 	indices := getIndicesForReportedTableV2()
 
 	// run benchmarks with various combination of indices
-	benchmarkInsertEmptyReportIntoReportedTableImpl(b, insertIntoReportedV2, initStatements, indices, report)
+	benchmarkInsertReportsIntoReportedTableImpl(b, insertIntoReportedV2, initStatements, indices, report)
 }
 
 // BenchmarkInsertMiddleReportIntoReportedTableV1 checks the speed of inserting
@@ -632,7 +632,7 @@ func BenchmarkInsertMiddleReportIntoReportedTableV1(b *testing.B) {
 	indices := getIndicesForReportedTableV1()
 
 	// run benchmarks with various combination of indices
-	benchmarkInsertEmptyReportIntoReportedTableImpl(b, insertIntoReportedV1, initStatements, indices, report)
+	benchmarkInsertReportsIntoReportedTableImpl(b, insertIntoReportedV1, initStatements, indices, report)
 }
 
 // BenchmarkInsertMiddleReportIntoReportedTableV2 checks the speed of inserting
@@ -651,7 +651,7 @@ func BenchmarkInsertMiddleReportIntoReportedTableV2(b *testing.B) {
 	indices := getIndicesForReportedTableV2()
 
 	// run benchmarks with various combination of indices
-	benchmarkInsertEmptyReportIntoReportedTableImpl(b, insertIntoReportedV2, initStatements, indices, report)
+	benchmarkInsertReportsIntoReportedTableImpl(b, insertIntoReportedV2, initStatements, indices, report)
 }
 
 // BenchmarkInsertLargeReportIntoReportedTableV1 checks the speed of inserting
@@ -670,7 +670,7 @@ func BenchmarkInsertLargeReportIntoReportedTableV1(b *testing.B) {
 	indices := getIndicesForReportedTableV1()
 
 	// run benchmarks with various combination of indices
-	benchmarkInsertEmptyReportIntoReportedTableImpl(b, insertIntoReportedV1, initStatements, indices, report)
+	benchmarkInsertReportsIntoReportedTableImpl(b, insertIntoReportedV1, initStatements, indices, report)
 }
 
 // BenchmarkInsertLargeReportIntoReportedTableV2 checks the speed of inserting
@@ -689,5 +689,5 @@ func BenchmarkInsertLargeReportIntoReportedTableV2(b *testing.B) {
 	indices := getIndicesForReportedTableV2()
 
 	// run benchmarks with various combination of indices
-	benchmarkInsertEmptyReportIntoReportedTableImpl(b, insertIntoReportedV2, initStatements, indices, report)
+	benchmarkInsertReportsIntoReportedTableImpl(b, insertIntoReportedV2, initStatements, indices, report)
 }
