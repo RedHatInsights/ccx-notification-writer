@@ -205,20 +205,6 @@ const (
                  WHERE updated_at < NOW() - $1::INTERVAL
                  ORDER BY updated_at
         `
-
-	// SQL query used to display older records from reported table
-	deleteOldRecordsFromReportedTableV1 = `
-                DELETE
-                  FROM reported_benchmark_1
-                 WHERE updated_at < NOW() - $1::INTERVAL
-        `
-
-	// SQL query used to display older records from reported table
-	deleteOldRecordsFromReportedTableV2 = `
-                DELETE
-                  FROM reported_benchmark_2
-                 WHERE updated_at < NOW() - $1::INTERVAL
-        `
 )
 
 // insertIntoReportedFunc type represents any function to be called to insert
