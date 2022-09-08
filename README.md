@@ -30,6 +30,7 @@ CCX Notification Writer service
     * [Start PostgreSQL database](#start-postgresql-database)
     * [Login into the database](#login-into-the-database)
 * [Testing](#testing)
+* [Benchmarks](#benchmarks)
 * [Package manifest](#package-manifest)
 
 <!-- vim-markdown-toc -->
@@ -283,6 +284,11 @@ List of tables:
 ## Testing
 
 Tests and its configuration is described [in this document](https://redhatinsights.github.io/ccx-notification-writer/testing.html)
+
+
+## Benchmarks
+
+Benchmarks and its preparation and configuration is described [in this document](https://redhatinsights.github.io/ccx-notification-writer/benchmarks.html)
 
 
 ## Package manifest
