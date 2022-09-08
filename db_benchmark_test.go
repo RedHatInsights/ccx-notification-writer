@@ -51,6 +51,14 @@ const (
 	reportDirectory   = "tests/reports/"
 )
 
+// JSON files containing reports
+const (
+	reportWithAnalysisMetadataOnlyInJSON = "analysis_metadata_only.json"
+	smallReportInJSON                    = "small_size.json"
+	middleReportInJSON                   = "middle_size.json"
+	largeReportInJSON                    = "large_size.json"
+)
+
 // SQL statements
 //
 // Table reported V1 is reported table without event_type column and constraint for this column
@@ -537,7 +545,7 @@ func BenchmarkInsertEmptyReportIntoReportedTableV2(b *testing.B) {
 // into reported table without event_type column
 func BenchmarkInsertAnalysisMetadataOnlyReportIntoReportedTableV1(b *testing.B) {
 	// report with size approx 0.5kB
-	report := readReport(b, "analysis_metadata_only.json")
+	report := readReport(b, reportWithAnalysisMetadataOnlyInJSON)
 
 	// default init statements for reported table without event_type_id column
 	initStatements := []string{
@@ -556,7 +564,7 @@ func BenchmarkInsertAnalysisMetadataOnlyReportIntoReportedTableV1(b *testing.B) 
 // into reported table with event_type column
 func BenchmarkInsertAnalysisMetadataOnlyReportIntoReportedTableV2(b *testing.B) {
 	// report with size approx 0.5kB
-	report := readReport(b, "analysis_metadata_only.json")
+	report := readReport(b, reportWithAnalysisMetadataOnlyInJSON)
 
 	// default init statements for reported table with event_type_id column
 	initStatements := []string{
@@ -575,7 +583,7 @@ func BenchmarkInsertAnalysisMetadataOnlyReportIntoReportedTableV2(b *testing.B) 
 // into reported table without event_type column
 func BenchmarkInsertSmallReportIntoReportedTableV1(b *testing.B) {
 	// report with size approx 2kB
-	report := readReport(b, "small_size.json")
+	report := readReport(b, smallReportInJSON)
 
 	// default init statements for reported table without event_type_id column
 	initStatements := []string{
@@ -594,7 +602,7 @@ func BenchmarkInsertSmallReportIntoReportedTableV1(b *testing.B) {
 // into reported table with event_type column
 func BenchmarkInsertSmallReportIntoReportedTableV2(b *testing.B) {
 	// report with size approx 2kB
-	report := readReport(b, "small_size.json")
+	report := readReport(b, smallReportInJSON)
 
 	// default init statements for reported table with event_type_id column
 	initStatements := []string{
@@ -613,7 +621,7 @@ func BenchmarkInsertSmallReportIntoReportedTableV2(b *testing.B) {
 // into reported table without event_type column
 func BenchmarkInsertMiddleReportIntoReportedTableV1(b *testing.B) {
 	// report with size approx 4kB
-	report := readReport(b, "middle_size.json")
+	report := readReport(b, middleReportInJSON)
 
 	// default init statements for reported table without event_type_id column
 	initStatements := []string{
@@ -632,7 +640,7 @@ func BenchmarkInsertMiddleReportIntoReportedTableV1(b *testing.B) {
 // into reported table with event_type column
 func BenchmarkInsertMiddleReportIntoReportedTableV2(b *testing.B) {
 	// report with size approx 4kB
-	report := readReport(b, "middle_size.json")
+	report := readReport(b, middleReportInJSON)
 
 	// default init statements for reported table with event_type_id column
 	initStatements := []string{
@@ -651,7 +659,7 @@ func BenchmarkInsertMiddleReportIntoReportedTableV2(b *testing.B) {
 // into reported table without event_type column
 func BenchmarkInsertLargeReportIntoReportedTableV1(b *testing.B) {
 	// report with size over 8kB
-	report := readReport(b, "large_size.json")
+	report := readReport(b, largeReportInJSON)
 
 	// default init statements for reported table without event_type_id column
 	initStatements := []string{
@@ -670,7 +678,7 @@ func BenchmarkInsertLargeReportIntoReportedTableV1(b *testing.B) {
 // into reported table with event_type column
 func BenchmarkInsertLargeReportIntoReportedTableV2(b *testing.B) {
 	// report with size over 8kB
-	report := readReport(b, "large_size.json")
+	report := readReport(b, largeReportInJSON)
 
 	// default init statements for reported table with event_type_id column
 	initStatements := []string{
