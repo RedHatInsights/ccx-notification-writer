@@ -384,6 +384,26 @@ func readReport(b *testing.B, filename string) string {
 	return string(content)
 }
 
+// getIndicesForReportedTableV1 is helper function to return map with all
+// possible indices combinations
+func getIndicesForReportedTableV1() map[string][]string {
+	indices := make(map[string][]string)
+
+	indices["no indices]"] = []string{}
+
+	indices["notified_at_desc"] = []string{
+		createIndexReportedNotifiedAtDescV1}
+
+	indices["updated_at_asc"] = []string{
+		createIndexReportedUpdatedAtAscV1}
+
+	indices["notified_at_desc and updated_at_asc"] = []string{
+		createIndexReportedNotifiedAtDescV1,
+		createIndexReportedUpdatedAtAscV1}
+
+	return indices
+}
+
 // BenchmarkInsertEmptyReportIntoReportedTableV1 checks the speed of inserting
 // into reported table without event_type column
 func BenchmarkInsertEmptyReportIntoReportedTableV1(b *testing.B) {
