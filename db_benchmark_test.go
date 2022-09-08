@@ -404,6 +404,64 @@ func getIndicesForReportedTableV1() map[string][]string {
 	return indices
 }
 
+// getIndicesForReportedTableV2 is helper function to return map with all
+// possible indices combinations
+func getIndicesForReportedTableV2() map[string][]string {
+	indices := make(map[string][]string)
+
+	indices["no indices]"] = []string{}
+
+	indices["notified_at_desc"] = []string{
+		createIndexReportedNotifiedAtDescV2}
+
+	indices["updated_at_asc"] = []string{
+		createIndexReportedUpdatedAtAscV2}
+
+	indices["notified_at_desc and updated_at_asc"] = []string{
+		createIndexReportedNotifiedAtDescV2,
+		createIndexReportedUpdatedAtAscV2}
+
+	indices["notified_at_desc and event_type(BTree)"] = []string{
+		createIndexReportedNotifiedAtDescV2,
+		createIndexReportedEventTypeBtreeV2}
+
+	indices["notified_at_desc and event_type(hash)"] = []string{
+		createIndexReportedNotifiedAtDescV2,
+		createIndexReportedEventTypeHashV2}
+
+	indices["notified_at_desc and event_type(BRIN)"] = []string{
+		createIndexReportedNotifiedAtDescV2,
+		createIndexReportedEventTypeBrinV2}
+
+	indices["updated_at_asc and event_type(BTree)"] = []string{
+		createIndexReportedUpdatedAtAscV2,
+		createIndexReportedEventTypeBtreeV2}
+
+	indices["updated_at_asc and event_type(hash)"] = []string{
+		createIndexReportedUpdatedAtAscV2,
+		createIndexReportedEventTypeHashV2}
+
+	indices["updated_at_asc and event_type(BRIN)"] = []string{
+		createIndexReportedUpdatedAtAscV2,
+		createIndexReportedEventTypeBrinV2}
+
+	indices["notified_at_desc and updated_at_asc and event_type(BTree)"] = []string{
+		createIndexReportedNotifiedAtDescV2,
+		createIndexReportedUpdatedAtAscV2,
+		createIndexReportedEventTypeBtreeV2}
+
+	indices["notified_at_desc and updated_at_asc and event_type(hash)"] = []string{
+		createIndexReportedNotifiedAtDescV2,
+		createIndexReportedUpdatedAtAscV2,
+		createIndexReportedEventTypeHashV2}
+
+	indices["notified_at_desc and updated_at_asc and event_type(BRIN)"] = []string{
+		createIndexReportedNotifiedAtDescV2,
+		createIndexReportedUpdatedAtAscV2,
+		createIndexReportedEventTypeBrinV2}
+	return indices
+}
+
 // BenchmarkInsertEmptyReportIntoReportedTableV1 checks the speed of inserting
 // into reported table without event_type column
 func BenchmarkInsertEmptyReportIntoReportedTableV1(b *testing.B) {
