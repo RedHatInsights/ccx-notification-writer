@@ -23,14 +23,14 @@ def sequence_diagram(c):
     ingress = c.object('"Ingress\\nservice"')
     storage_broker = c.object('"Insights-storage-broker\\nservice"')
     s3 = c.object('"S3 bucket"')
-    buckit = c.object('"Kafka topic\\nplatform.upload.buckit"')
+    buckit = c.object('"Kafka topic\\nplatform.upload.announce"')
     ccx_data_pipeline = c.object('"ccx-data-pipeline\\nservice"')
     results = c.object('"Kafka topic\\nccx.ocp.results"')
     writer = c.object('"ccx-notification-writer\\nservice"')
     db = c.object('"Notification\\ndatabase"')
 
     # sending data from customer cluster to S3 and
-    # Kafka topic platform.upload.buckit
+    # Kafka topic platform.upload.announce
     with cluster:
         with ingress.send("data from IO"):
             with storage_broker.send("data from IO"):
