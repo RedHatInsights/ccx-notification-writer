@@ -59,7 +59,7 @@ Grafana tools.
 ### Architecture
 
 Overall architecture and integration of this service into the whole pipeline is
-described [in this document](https://redhatinsights.github.io/ccx-notification-writer/)
+described [in this document](https://redhatinsights.github.io/ccx-notification-writer/architecture.html)
 
 ## Building
 
