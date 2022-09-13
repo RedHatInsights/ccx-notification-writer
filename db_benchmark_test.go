@@ -221,10 +221,6 @@ const (
                   FROM reported_benchmark_2
                  WHERE updated_at < NOW() - $1::INTERVAL
         `
-
-	// vacuuming statements for both tables used by benchmarks
-	vacuumTableReportedV1Statement = `vacuum reported_benchmark_1`
-	vacuumTableReportedV2Statement = `vacuum reported_benchmark_2`
 )
 
 // insertIntoReportedFunc type represents any function to be called to insert
