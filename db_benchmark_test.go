@@ -1009,3 +1009,45 @@ func BenchmarkSelectOldLargeRecordsFromReportedTableV2(b *testing.B) {
 		insertIntoReportedV2, displayOldRecordsFromReportedTableV2, noOpStatement,
 		initStatements, indices, report)
 }
+
+// BenchmarkDeleteOldEmptyRecordsFromReportedTableV1 tests the deletion statement
+// from reported table used inside CCX Notification Service
+func BenchmarkDeleteOldEmptyRecordsFromReportedTableV1(b *testing.B) {
+	// empty report
+	report := ``
+
+	// default init statements for reported table without event_type_id column
+	initStatements := []string{
+		dropTableReportedV1,
+		createTableReportedV1,
+	}
+
+	// all possible indices combinatiors for reported table without event_type_id column
+	indices := getIndicesForReportedTableV1()
+
+	// run benchmarks with various combination of indices
+	benchmarkSelectOrDeleteOldReportsFromReportedTableImpl(b,
+		insertIntoReportedV1, noOpStatement, deleteOldRecordsFromReportedTableV1,
+		initStatements, indices, report)
+}
+
+// BenchmarkDeleteOldEmptyRecordsFromReportedTableV2 tests the deletion statement
+// from reported table used inside CCX Notification Service
+func BenchmarkDeleteOldEmptyRecordsFromReportedTableV2(b *testing.B) {
+	// empty report
+	report := ``
+
+	// default init statements for reported table without event_type_id column
+	initStatements := []string{
+		dropTableReportedV2,
+		createTableReportedV2,
+	}
+
+	// all possible indices combinatiors for reported table without event_type_id column
+	indices := getIndicesForReportedTableV2()
+
+	// run benchmarks with various combination of indices
+	benchmarkSelectOrDeleteOldReportsFromReportedTableImpl(b,
+		insertIntoReportedV2, noOpStatement, deleteOldRecordsFromReportedTableV2,
+		initStatements, indices, report)
+}
