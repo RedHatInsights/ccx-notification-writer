@@ -474,6 +474,12 @@ func runBenchmarkSelectOrDeleteFromReportedTable(b *testing.B, insertFunction in
 			if err != nil {
 				b.Fatal(err)
 			}
+			// fill-in the table again (no part of benchmark, so don't measure time there)
+			b.StopTimer()
+			for i := 0; i < reportsCount; i++ {
+				insertFunction(b, connection, i, report)
+			}
+			b.StartTimer()
 		}
 	}
 }
