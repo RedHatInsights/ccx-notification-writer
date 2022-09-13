@@ -68,6 +68,8 @@ const (
 // Table reported V1 is reported table without event_type column and constraint for this column
 // Table reported V2 is reported table with event_type column and constraint for this column
 const (
+	noOpStatement = ``
+
 	dropTableReportedV1 = `DROP TABLE IF EXISTS reported_benchmark_1;`
 	dropTableReportedV2 = `DROP TABLE IF EXISTS reported_benchmark_2;`
 
@@ -205,6 +207,24 @@ const (
                  WHERE updated_at < NOW() - $1::INTERVAL
                  ORDER BY updated_at
         `
+
+	// SQL query used to display older records from reported table
+	deleteOldRecordsFromReportedTableV1 = `
+                DELETE
+                  FROM reported_benchmark_1
+                 WHERE updated_at < NOW() - $1::INTERVAL
+        `
+
+	// SQL query used to display older records from reported table
+	deleteOldRecordsFromReportedTableV2 = `
+                DELETE
+                  FROM reported_benchmark_2
+                 WHERE updated_at < NOW() - $1::INTERVAL
+        `
+
+	// vacuuming statements for both tables used by benchmarks
+	vacuumTableReportedV1Statement = `vacuum reported_benchmark_1`
+	vacuumTableReportedV2Statement = `vacuum reported_benchmark_2`
 )
 
 // insertIntoReportedFunc type represents any function to be called to insert
@@ -434,7 +454,7 @@ func runBenchmarkSelectOrDeleteFromReportedTable(b *testing.B, insertFunction in
 	// perform DB benchmark
 	for i := 0; i < b.N; i++ {
 		// perform benchmarks for SELECT statement (query)
-		if selectStatement != "" {
+		if selectStatement != noOpStatement {
 			rows, err := connection.Query(selectStatement, "8 days")
 			if err != nil {
 				b.Fatal(err)
@@ -449,7 +469,7 @@ func runBenchmarkSelectOrDeleteFromReportedTable(b *testing.B, insertFunction in
 			}
 		}
 		// perform benchmarks for DELETE statement
-		if deleteStatement != "" {
+		if deleteStatement != noOpStatement {
 			_, err := connection.Exec(deleteStatement, "8 days")
 			if err != nil {
 				b.Fatal(err)
@@ -833,7 +853,7 @@ func BenchmarkSelectOldEmptyRecordsFromReportedTableV1(b *testing.B) {
 
 	// run benchmarks with various combination of indices
 	benchmarkSelectOrDeleteOldReportsFromReportedTableImpl(b,
-		insertIntoReportedV1, displayOldRecordsFromReportedTableV1, "",
+		insertIntoReportedV1, displayOldRecordsFromReportedTableV1, noOpStatement,
 		initStatements, indices, report)
 }
 
@@ -854,7 +874,7 @@ func BenchmarkSelectOldEmptyRecordsFromReportedTableV2(b *testing.B) {
 
 	// run benchmarks with various combination of indices
 	benchmarkSelectOrDeleteOldReportsFromReportedTableImpl(b,
-		insertIntoReportedV2, displayOldRecordsFromReportedTableV2, "",
+		insertIntoReportedV2, displayOldRecordsFromReportedTableV2, noOpStatement,
 		initStatements, indices, report)
 }
 
@@ -875,7 +895,7 @@ func BenchmarkSelectOldSmallRecordsFromReportedTableV1(b *testing.B) {
 
 	// run benchmarks with various combination of indices
 	benchmarkSelectOrDeleteOldReportsFromReportedTableImpl(b,
-		insertIntoReportedV1, displayOldRecordsFromReportedTableV1, "",
+		insertIntoReportedV1, displayOldRecordsFromReportedTableV1, noOpStatement,
 		initStatements, indices, report)
 }
 
@@ -896,7 +916,7 @@ func BenchmarkSelectOldSmallRecordsFromReportedTableV2(b *testing.B) {
 
 	// run benchmarks with various combination of indices
 	benchmarkSelectOrDeleteOldReportsFromReportedTableImpl(b,
-		insertIntoReportedV2, displayOldRecordsFromReportedTableV2, "",
+		insertIntoReportedV2, displayOldRecordsFromReportedTableV2, noOpStatement,
 		initStatements, indices, report)
 }
 
@@ -917,7 +937,7 @@ func BenchmarkSelectOldMiddleRecordsFromReportedTableV1(b *testing.B) {
 
 	// run benchmarks with various combination of indices
 	benchmarkSelectOrDeleteOldReportsFromReportedTableImpl(b,
-		insertIntoReportedV1, displayOldRecordsFromReportedTableV1, "",
+		insertIntoReportedV1, displayOldRecordsFromReportedTableV1, noOpStatement,
 		initStatements, indices, report)
 }
 
@@ -938,7 +958,7 @@ func BenchmarkSelectOldMiddleRecordsFromReportedTableV2(b *testing.B) {
 
 	// run benchmarks with various combination of indices
 	benchmarkSelectOrDeleteOldReportsFromReportedTableImpl(b,
-		insertIntoReportedV2, displayOldRecordsFromReportedTableV2, "",
+		insertIntoReportedV2, displayOldRecordsFromReportedTableV2, noOpStatement,
 		initStatements, indices, report)
 }
 
@@ -959,7 +979,7 @@ func BenchmarkSelectOldLargeRecordsFromReportedTableV1(b *testing.B) {
 
 	// run benchmarks with various combination of indices
 	benchmarkSelectOrDeleteOldReportsFromReportedTableImpl(b,
-		insertIntoReportedV1, displayOldRecordsFromReportedTableV1, "",
+		insertIntoReportedV1, displayOldRecordsFromReportedTableV1, noOpStatement,
 		initStatements, indices, report)
 }
 
@@ -980,6 +1000,6 @@ func BenchmarkSelectOldLargeRecordsFromReportedTableV2(b *testing.B) {
 
 	// run benchmarks with various combination of indices
 	benchmarkSelectOrDeleteOldReportsFromReportedTableImpl(b,
-		insertIntoReportedV2, displayOldRecordsFromReportedTableV2, "",
+		insertIntoReportedV2, displayOldRecordsFromReportedTableV2, noOpStatement,
 		initStatements, indices, report)
 }
