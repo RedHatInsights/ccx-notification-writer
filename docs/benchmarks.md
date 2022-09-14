@@ -28,7 +28,7 @@ make benchmark
 
 Database benchmarks can be run against local or remote database. The
 configuration is stored in
-[tests/benchmark.tom](https://github.com/RedHatInsights/ccx-notification-writer/blob/master/tests/benchmark.toml)
+[tests/benchmark.toml](https://github.com/RedHatInsights/ccx-notification-writer/blob/master/tests/benchmark.toml)
 file.
 
 ### Configuring remote database
