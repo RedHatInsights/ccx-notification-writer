@@ -89,6 +89,7 @@ abcgo                Run ABC metrics checker
 style                Run all the formatting related commands (fmt, vet, lint, cyclo) + check shell scripts
 run                  Build the project and executes the binary
 test                 Run the unit tests
+build-test           Build native binary with unit tests and benchmarks
 profiler             Run the unit tests with profiler enabled
 benchmark            Run benchmarks
 cover                Generate HTML pages with code coverage
