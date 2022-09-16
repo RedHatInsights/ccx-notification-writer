@@ -45,7 +45,7 @@ These three paramers can be used to create a sequence compatible with Python's `
 
 Additionally it is possible to specify inserted reports counts explicitly:
 
-1. `reports-step=1,2,5,1000
+1. `reports-count=1,2,5,1000
 
 Please note that CLI arguments for tests/benchmarks need to be prepended by `-args`
 
