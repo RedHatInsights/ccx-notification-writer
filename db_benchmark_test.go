@@ -34,8 +34,11 @@ package main_test
 // https://redhatinsights.github.io/ccx-notification-writer/packages/db_benchmark_test.html
 
 import (
+	"flag"
 	"fmt"
 	"os"
+	"strconv"
+	"strings"
 	"testing"
 	"time"
 
@@ -226,6 +229,13 @@ const (
 // insertIntoReportedFunc type represents any function to be called to insert
 // records into reported table
 type insertIntoReportedFunc func(b *testing.B, connection *sql.DB, i int, report *string)
+
+// CLI flags that can be provided
+// (please note that in tests it is NOT NEEDED to parse flags)
+var minReportsParam = flag.Int("min-reports", 1, "minimal number of reports to be inserted into database (inclusive)")
+var maxReportsParam = flag.Int("max-reports", 10, "maximal number of reports to be inserted into database (exclusive)")
+var reportsStepParam = flag.Int("reports-step", 1, "steps between consecutive reports count")
+var reportsCountParam = flag.String("reports-count", "", "explicit reports count")
 
 // initLogging function initializes logging that's used internally by functions
 // from github.com/RedHatInsights/ccx-notification-writer package
