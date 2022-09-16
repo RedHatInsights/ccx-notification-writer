@@ -1,6 +1,6 @@
 SHELL := /bin/bash
 
-.PHONY: default clean build build-tests fmt lint vet cyclo ineffassign shellcheck errcheck goconst gosec abcgo style run test test-postgres cover integration_tests rest_api_tests sqlite_db license before_commit bdd_tests help godoc install_docgo install_addlicense
+.PHONY: default clean benchmarks build build-tests fmt lint vet cyclo ineffassign shellcheck errcheck goconst gosec abcgo style run test test-postgres cover integration_tests rest_api_tests sqlite_db license before_commit bdd_tests help godoc install_docgo install_addlicense
 
 SOURCES:=$(shell find . -name '*.go')
 BINARY:=ccx-notification-writer
@@ -69,8 +69,13 @@ build-test: ## Build native binary with unit tests and benchmarks
 profiler: ${BINARY} ## Run the unit tests with profiler enabled
 	./profile.sh
 
+benchmark.txt:	benchmark
+
 benchmark: ${BINARY} ## Run benchmarks
-	go test -bench=. -run=^$
+	go test -bench=. -run=^$ | tee benchmark.txt
+
+benchmark.csv:	benchmark.txt ## Export benchmark results into CSV
+	awk '/Benchmark/{count ++; gsub(/BenchmarkTest/,""); printf("%d,%s,%s,%s\n",count,$$1,$$2,$$3)}' $< > $@
 
 cover: test ## Generate HTML pages with code coverage
 	@go tool cover -html=coverage.out
@@ -93,7 +98,7 @@ help: ## Show this help screen
 	@echo ''
 	@echo 'Available targets are:'
 	@echo ''
-	@grep -E '^[ a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
+	@grep -E '^[ a-zA-Z._-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
 		awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
 	@echo ''
 
