@@ -31,6 +31,34 @@ configuration is stored in
 [tests/benchmark.toml](https://github.com/RedHatInsights/ccx-notification-writer/blob/master/tests/benchmark.toml)
 file.
 
+### Number of records to be inserted into tested database table
+
+In order to be able to check time complexity of SELECT/INSERT/DELETE operations
+it is needed to have a technology to specify number of inserted records. It can
+be specified via the followin CLI arguments during test/benchmark invocation:
+
+1. `-min-reports`
+1. `-max-reports`
+1. `-reports-step`
+
+These three paramers can be used to create a sequence compatible with Python's `range` generator.
+
+Additionally it is possible to specify inserted reports counts explicitly:
+
+1. `reports-count=1,2,5,1000
+
+Please note that CLI arguments for tests/benchmarks need to be prepended by `-args`
+
+#### Examples
+
+```bash
+go test -run=^$
+go test -bench="BenchmarkDelete.*" -count=1 -benchtime=1s -timeout 100m -run=^$
+go test -bench="BenchmarkDelete.*" -count=1 -benchtime=2s -timeout 200m -run=^$$ -args -min-reports=3 -max-reports=7 -reports-step=2
+go test -bench="BenchmarkDelete.*" -count=1 -benchtime=2s -timeout 200m -run=^$$ -args -reports-count=1,2,5
+go test -bench="BenchmarkDelete.*" -count=1 -benchtime=2s -timeout 200m -run=^$$ -args -min-reports=1 -max-reports=10 -reports-step=2 -reports-count=1,2,5
+```
+
 ### Configuring remote database
 
 For benchmarking against remote database (which is real-world scenarion) the

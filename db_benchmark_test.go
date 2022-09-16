@@ -34,8 +34,11 @@ package main_test
 // https://redhatinsights.github.io/ccx-notification-writer/packages/db_benchmark_test.html
 
 import (
+	"flag"
 	"fmt"
 	"os"
+	"strconv"
+	"strings"
 	"testing"
 	"time"
 
@@ -227,6 +230,13 @@ const (
 // records into reported table
 type insertIntoReportedFunc func(b *testing.B, connection *sql.DB, i int, report *string)
 
+// CLI flags that can be provided
+// (please note that in tests it is NOT NEEDED to parse flags)
+var minReportsParam = flag.Int("min-reports", 1, "minimal number of reports to be inserted into database (inclusive)")
+var maxReportsParam = flag.Int("max-reports", 10, "maximal number of reports to be inserted into database (exclusive)")
+var reportsStepParam = flag.Int("reports-step", 1, "steps between consecutive reports count")
+var reportsCountParam = flag.String("reports-count", "", "explicit reports count")
+
 // initLogging function initializes logging that's used internally by functions
 // from github.com/RedHatInsights/ccx-notification-writer package
 func initLogging() {
@@ -405,7 +415,7 @@ func runBenchmarkInsertIntoReportedTable(b *testing.B, insertFunction insertInto
 	}
 
 	// good citizens cleanup properly
-	//defer execSQLStatement(b, connection, dropTableReportedV1)
+	// defer execSQLStatement(b, connection, dropTableReportedV1)
 
 	// time to start benchmark
 	b.ResetTimer()
@@ -437,7 +447,7 @@ func runBenchmarkSelectOrDeleteFromReportedTable(b *testing.B, insertFunction in
 	}
 
 	// good citizens cleanup properly
-	//defer execSQLStatement(b, connection, dropTableReportedV1)
+	// defer execSQLStatement(b, connection, dropTableReportedV1)
 
 	// fill-in the table (no part of benchmark, so don't measure time there)
 	for i := 0; i < reportsCount; i++ {
@@ -608,10 +618,8 @@ func benchmarkSelectOrDeleteOldReportsFromReportedTableImpl(
 	deleteStatement string,
 	initStatements []string,
 	indices map[string][]string,
-	report string) {
-
-	// number of reports to be insterted into the table
-	var possibleReportsCount []int = []int{1, 100, 1000}
+	report string,
+	possibleReportsCount []int) {
 
 	// try all indices combinations
 	for description, indexStatements := range indices {
@@ -636,6 +644,74 @@ func benchmarkSelectOrDeleteOldReportsFromReportedTableImpl(
 			})
 		}
 	}
+}
+
+// computeLength function calculates correct length of slice with values in
+// range <min, max) with given step
+func computeLength(min, max, step int) int {
+	diff := max - min
+	length := diff / step
+
+	// poor man's integer ceiling
+	if diff%step != 0 {
+		length++
+	}
+	return length
+}
+
+// parseReportsCount tries to parse -reports-count parameter that have following format:
+// -reports-count=1,2,5
+func parseReportsCount(param string) []int {
+	var count []int = []int{}
+
+	// split the string first
+	parts := strings.Split(param, ",")
+
+	// now try to parse parts sequentially
+	for _, part := range parts {
+		value, err := strconv.Atoi(part)
+
+		// skip problematic part
+		if err != nil {
+			continue
+		}
+
+		// append parsed value
+		count = append(count, value)
+	}
+
+	return count
+}
+
+// readPossibleReportsCount read sequence of # reports to be inserted into
+// tested table.
+//
+// It is based on following CLI flags:
+// -min-reports=1 -max-reports=10 -reports-step=2 -reports-count=1,2,5
+func readPossibleReportsCount() []int {
+	if *reportsCountParam != "" {
+		return parseReportsCount(*reportsCountParam)
+	}
+
+	// check if CLI flags are specified
+	if minReportsParam == nil || maxReportsParam == nil || reportsStepParam == nil {
+		var defaultCounts = []int{1, 10, 100, 1000}
+		return defaultCounts
+	}
+
+	// make slice to store all reports count
+	length := computeLength(*minReportsParam, *maxReportsParam, *reportsStepParam)
+	var counts = make([]int, length)
+
+	// fill-in the slice with correct values
+	count := *minReportsParam
+	for i := 0; i < length; i++ {
+		counts[i] = count
+		count += *reportsStepParam
+	}
+
+	return counts
+
 }
 
 // BenchmarkInsertReportsIntoReportedTableV1 checks the speed of inserting
@@ -853,10 +929,13 @@ func BenchmarkSelectOldEmptyRecordsFromReportedTableV1(b *testing.B) {
 	// all possible indices combinatiors for reported table without event_type_id column
 	indices := getIndicesForReportedTableV1()
 
+	// read number of reports to be inserted into the table under tests
+	reportsCount := readPossibleReportsCount()
+
 	// run benchmarks with various combination of indices
 	benchmarkSelectOrDeleteOldReportsFromReportedTableImpl(b,
 		insertIntoReportedV1, displayOldRecordsFromReportedTableV1, noOpStatement,
-		initStatements, indices, report)
+		initStatements, indices, report, reportsCount)
 }
 
 // BenchmarkSelectOldEmptyRecordsFromReportedTableV2 tests the query to reported
@@ -874,10 +953,13 @@ func BenchmarkSelectOldEmptyRecordsFromReportedTableV2(b *testing.B) {
 	// all possible indices combinatiors for reported table without event_type_id column
 	indices := getIndicesForReportedTableV2()
 
+	// read number of reports to be inserted into the table under tests
+	reportsCount := readPossibleReportsCount()
+
 	// run benchmarks with various combination of indices
 	benchmarkSelectOrDeleteOldReportsFromReportedTableImpl(b,
 		insertIntoReportedV2, displayOldRecordsFromReportedTableV2, noOpStatement,
-		initStatements, indices, report)
+		initStatements, indices, report, reportsCount)
 }
 
 // BenchmarkSelectOldSmallRecordsFromReportedTableV1 tests the query to reported
@@ -895,10 +977,13 @@ func BenchmarkSelectOldSmallRecordsFromReportedTableV1(b *testing.B) {
 	// all possible indices combinatiors for reported table without event_type_id column
 	indices := getIndicesForReportedTableV1()
 
+	// read number of reports to be inserted into the table under tests
+	reportsCount := readPossibleReportsCount()
+
 	// run benchmarks with various combination of indices
 	benchmarkSelectOrDeleteOldReportsFromReportedTableImpl(b,
 		insertIntoReportedV1, displayOldRecordsFromReportedTableV1, noOpStatement,
-		initStatements, indices, report)
+		initStatements, indices, report, reportsCount)
 }
 
 // BenchmarkSelectOldSmallRecordsFromReportedTableV2 tests the query to reported
@@ -916,10 +1001,13 @@ func BenchmarkSelectOldSmallRecordsFromReportedTableV2(b *testing.B) {
 	// all possible indices combinatiors for reported table without event_type_id column
 	indices := getIndicesForReportedTableV2()
 
+	// read number of reports to be inserted into the table under tests
+	reportsCount := readPossibleReportsCount()
+
 	// run benchmarks with various combination of indices
 	benchmarkSelectOrDeleteOldReportsFromReportedTableImpl(b,
 		insertIntoReportedV2, displayOldRecordsFromReportedTableV2, noOpStatement,
-		initStatements, indices, report)
+		initStatements, indices, report, reportsCount)
 }
 
 // BenchmarkSelectOldMiddleRecordsFromReportedTableV1 tests the query to reported
@@ -937,10 +1025,13 @@ func BenchmarkSelectOldMiddleRecordsFromReportedTableV1(b *testing.B) {
 	// all possible indices combinatiors for reported table without event_type_id column
 	indices := getIndicesForReportedTableV1()
 
+	// read number of reports to be inserted into the table under tests
+	reportsCount := readPossibleReportsCount()
+
 	// run benchmarks with various combination of indices
 	benchmarkSelectOrDeleteOldReportsFromReportedTableImpl(b,
 		insertIntoReportedV1, displayOldRecordsFromReportedTableV1, noOpStatement,
-		initStatements, indices, report)
+		initStatements, indices, report, reportsCount)
 }
 
 // BenchmarkSelectOldMiddleRecordsFromReportedTableV2 tests the query to reported
@@ -958,10 +1049,13 @@ func BenchmarkSelectOldMiddleRecordsFromReportedTableV2(b *testing.B) {
 	// all possible indices combinatiors for reported table without event_type_id column
 	indices := getIndicesForReportedTableV2()
 
+	// read number of reports to be inserted into the table under tests
+	reportsCount := readPossibleReportsCount()
+
 	// run benchmarks with various combination of indices
 	benchmarkSelectOrDeleteOldReportsFromReportedTableImpl(b,
 		insertIntoReportedV2, displayOldRecordsFromReportedTableV2, noOpStatement,
-		initStatements, indices, report)
+		initStatements, indices, report, reportsCount)
 }
 
 // BenchmarkSelectOldLargeRecordsFromReportedTableV1 tests the query to reported
@@ -979,10 +1073,13 @@ func BenchmarkSelectOldLargeRecordsFromReportedTableV1(b *testing.B) {
 	// all possible indices combinatiors for reported table without event_type_id column
 	indices := getIndicesForReportedTableV1()
 
+	// read number of reports to be inserted into the table under tests
+	reportsCount := readPossibleReportsCount()
+
 	// run benchmarks with various combination of indices
 	benchmarkSelectOrDeleteOldReportsFromReportedTableImpl(b,
 		insertIntoReportedV1, displayOldRecordsFromReportedTableV1, noOpStatement,
-		initStatements, indices, report)
+		initStatements, indices, report, reportsCount)
 }
 
 // BenchmarkSelectOldLargeRecordsFromReportedTableV2 tests the query to reported
@@ -1000,10 +1097,13 @@ func BenchmarkSelectOldLargeRecordsFromReportedTableV2(b *testing.B) {
 	// all possible indices combinatiors for reported table without event_type_id column
 	indices := getIndicesForReportedTableV2()
 
+	// read number of reports to be inserted into the table under tests
+	reportsCount := readPossibleReportsCount()
+
 	// run benchmarks with various combination of indices
 	benchmarkSelectOrDeleteOldReportsFromReportedTableImpl(b,
 		insertIntoReportedV2, displayOldRecordsFromReportedTableV2, noOpStatement,
-		initStatements, indices, report)
+		initStatements, indices, report, reportsCount)
 }
 
 // BenchmarkDeleteOldEmptyRecordsFromReportedTableV1 tests the deletion statement
@@ -1021,10 +1121,13 @@ func BenchmarkDeleteOldEmptyRecordsFromReportedTableV1(b *testing.B) {
 	// all possible indices combinatiors for reported table without event_type_id column
 	indices := getIndicesForReportedTableV1()
 
+	// read number of reports to be inserted into the table under tests
+	reportsCount := readPossibleReportsCount()
+
 	// run benchmarks with various combination of indices
 	benchmarkSelectOrDeleteOldReportsFromReportedTableImpl(b,
 		insertIntoReportedV1, noOpStatement, deleteOldRecordsFromReportedTableV1,
-		initStatements, indices, report)
+		initStatements, indices, report, reportsCount)
 }
 
 // BenchmarkDeleteOldEmptyRecordsFromReportedTableV2 tests the deletion statement
@@ -1042,10 +1145,13 @@ func BenchmarkDeleteOldEmptyRecordsFromReportedTableV2(b *testing.B) {
 	// all possible indices combinatiors for reported table without event_type_id column
 	indices := getIndicesForReportedTableV2()
 
+	// read number of reports to be inserted into the table under tests
+	reportsCount := readPossibleReportsCount()
+
 	// run benchmarks with various combination of indices
 	benchmarkSelectOrDeleteOldReportsFromReportedTableImpl(b,
 		insertIntoReportedV2, noOpStatement, deleteOldRecordsFromReportedTableV2,
-		initStatements, indices, report)
+		initStatements, indices, report, reportsCount)
 }
 
 // BenchmarkDeleteOldSmallRecordsFromReportedTableV1 tests the deletion statement
@@ -1063,10 +1169,13 @@ func BenchmarkDeleteOldSmallRecordsFromReportedTableV1(b *testing.B) {
 	// all possible indices combinatiors for reported table without event_type_id column
 	indices := getIndicesForReportedTableV1()
 
+	// read number of reports to be inserted into the table under tests
+	reportsCount := readPossibleReportsCount()
+
 	// run benchmarks with various combination of indices
 	benchmarkSelectOrDeleteOldReportsFromReportedTableImpl(b,
 		insertIntoReportedV1, noOpStatement, deleteOldRecordsFromReportedTableV1,
-		initStatements, indices, report)
+		initStatements, indices, report, reportsCount)
 }
 
 // BenchmarkDeleteOldSmallRecordsFromReportedTableV2 tests the deletion statement
@@ -1084,10 +1193,13 @@ func BenchmarkDeleteOldSmallRecordsFromReportedTableV2(b *testing.B) {
 	// all possible indices combinatiors for reported table without event_type_id column
 	indices := getIndicesForReportedTableV2()
 
+	// read number of reports to be inserted into the table under tests
+	reportsCount := readPossibleReportsCount()
+
 	// run benchmarks with various combination of indices
 	benchmarkSelectOrDeleteOldReportsFromReportedTableImpl(b,
 		insertIntoReportedV2, noOpStatement, deleteOldRecordsFromReportedTableV2,
-		initStatements, indices, report)
+		initStatements, indices, report, reportsCount)
 }
 
 // BenchmarkDeleteOldMiddleRecordsFromReportedTableV1 tests the deletion statement
@@ -1105,10 +1217,13 @@ func BenchmarkDeleteOldMiddleRecordsFromReportedTableV1(b *testing.B) {
 	// all possible indices combinatiors for reported table without event_type_id column
 	indices := getIndicesForReportedTableV1()
 
+	// read number of reports to be inserted into the table under tests
+	reportsCount := readPossibleReportsCount()
+
 	// run benchmarks with various combination of indices
 	benchmarkSelectOrDeleteOldReportsFromReportedTableImpl(b,
 		insertIntoReportedV1, noOpStatement, deleteOldRecordsFromReportedTableV1,
-		initStatements, indices, report)
+		initStatements, indices, report, reportsCount)
 }
 
 // BenchmarkDeleteOldMiddleRecordsFromReportedTableV2 tests the deletion statement
@@ -1126,10 +1241,13 @@ func BenchmarkDeleteOldMiddleRecordsFromReportedTableV2(b *testing.B) {
 	// all possible indices combinatiors for reported table without event_type_id column
 	indices := getIndicesForReportedTableV2()
 
+	// read number of reports to be inserted into the table under tests
+	reportsCount := readPossibleReportsCount()
+
 	// run benchmarks with various combination of indices
 	benchmarkSelectOrDeleteOldReportsFromReportedTableImpl(b,
 		insertIntoReportedV2, noOpStatement, deleteOldRecordsFromReportedTableV2,
-		initStatements, indices, report)
+		initStatements, indices, report, reportsCount)
 }
 
 // BenchmarkDeleteOldLargeRecordsFromReportedTableV1 tests the deletion statement
@@ -1147,10 +1265,13 @@ func BenchmarkDeleteOldLargeRecordsFromReportedTableV1(b *testing.B) {
 	// all possible indices combinatiors for reported table without event_type_id column
 	indices := getIndicesForReportedTableV1()
 
+	// read number of reports to be inserted into the table under tests
+	reportsCount := readPossibleReportsCount()
+
 	// run benchmarks with various combination of indices
 	benchmarkSelectOrDeleteOldReportsFromReportedTableImpl(b,
 		insertIntoReportedV1, noOpStatement, deleteOldRecordsFromReportedTableV1,
-		initStatements, indices, report)
+		initStatements, indices, report, reportsCount)
 }
 
 // BenchmarkDeleteOldLargeRecordsFromReportedTableV2 tests the deletion statement
@@ -1168,8 +1289,11 @@ func BenchmarkDeleteOldLargeRecordsFromReportedTableV2(b *testing.B) {
 	// all possible indices combinatiors for reported table without event_type_id column
 	indices := getIndicesForReportedTableV2()
 
+	// read number of reports to be inserted into the table under tests
+	reportsCount := readPossibleReportsCount()
+
 	// run benchmarks with various combination of indices
 	benchmarkSelectOrDeleteOldReportsFromReportedTableImpl(b,
 		insertIntoReportedV2, noOpStatement, deleteOldRecordsFromReportedTableV2,
-		initStatements, indices, report)
+		initStatements, indices, report, reportsCount)
 }
