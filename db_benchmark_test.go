@@ -405,7 +405,7 @@ func runBenchmarkInsertIntoReportedTable(b *testing.B, insertFunction insertInto
 	}
 
 	// good citizens cleanup properly
-	//defer execSQLStatement(b, connection, dropTableReportedV1)
+	// defer execSQLStatement(b, connection, dropTableReportedV1)
 
 	// time to start benchmark
 	b.ResetTimer()
@@ -437,7 +437,7 @@ func runBenchmarkSelectOrDeleteFromReportedTable(b *testing.B, insertFunction in
 	}
 
 	// good citizens cleanup properly
-	//defer execSQLStatement(b, connection, dropTableReportedV1)
+	// defer execSQLStatement(b, connection, dropTableReportedV1)
 
 	// fill-in the table (no part of benchmark, so don't measure time there)
 	for i := 0; i < reportsCount; i++ {
