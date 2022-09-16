@@ -646,6 +646,74 @@ func benchmarkSelectOrDeleteOldReportsFromReportedTableImpl(
 	}
 }
 
+// computeLength function calculates correct length of slice with values in
+// range <min, max) with given step
+func computeLength(min, max, step int) int {
+	diff := max - min
+	length := diff / step
+
+	// poor man's integer ceiling
+	if diff%step != 0 {
+		length++
+	}
+	return length
+}
+
+// parseReportsCount tries to parse -reports-count parameter that have following format:
+// -reports-count=1,2,5
+func parseReportsCount(param string) []int {
+	var count []int = []int{}
+
+	// split the string first
+	parts := strings.Split(param, ",")
+
+	// now try to parse parts sequentially
+	for _, part := range parts {
+		value, err := strconv.Atoi(part)
+
+		// skip problematic part
+		if err != nil {
+			continue
+		}
+
+		// append parsed value
+		count = append(count, value)
+	}
+
+	return count
+}
+
+// readPossibleReportsCount read sequence of # reports to be inserted into
+// tested table.
+//
+// It is based on following CLI flags:
+// -min-reports=1 -max-reports=10 -reports-step=2 -reports-count=1,2,5
+func readPossibleReportsCount() []int {
+	if *reportsCountParam != "" {
+		return parseReportsCount(*reportsCountParam)
+	}
+
+	// check if CLI flags are specified
+	if minReportsParam == nil || maxReportsParam == nil || reportsStepParam == nil {
+		var defaultCounts = []int{1, 10, 100, 1000}
+		return defaultCounts
+	}
+
+	// make slice to store all reports count
+	length := computeLength(*minReportsParam, *maxReportsParam, *reportsStepParam)
+	var counts = make([]int, length)
+
+	// fill-in the slice with correct values
+	count := *minReportsParam
+	for i := 0; i < length; i++ {
+		counts[i] = count
+		count += *reportsStepParam
+	}
+
+	return counts
+
+}
+
 // BenchmarkInsertReportsIntoReportedTableV1 checks the speed of inserting
 // into reported table without event_type column
 func BenchmarkInsertReportsIntoReportedTableV1(b *testing.B) {
