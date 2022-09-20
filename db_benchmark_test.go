@@ -263,8 +263,8 @@ func loadConfiguration() (main.ConfigStruct, error) {
 
 // initializeStorage function initializes storage and perform connection to
 // database
-func initializeStorage(config main.ConfigStruct) (*sql.DB, error) {
-	storageConfiguration := main.GetStorageConfiguration(config)
+func initializeStorage(configuration main.ConfigStruct) (*sql.DB, error) {
+	storageConfiguration := main.GetStorageConfiguration(configuration)
 
 	// perform storage initialization
 	storage, err := main.NewStorage(storageConfiguration)
@@ -300,12 +300,12 @@ func setup(b *testing.B) *sql.DB {
 
 	initLogging()
 
-	config, err := loadConfiguration()
+	configuration, err := loadConfiguration()
 	if err != nil {
 		b.Fatal(err)
 	}
 
-	connection, err = initializeStorage(config)
+	connection, err = initializeStorage(configuration)
 	if err != nil {
 		b.Fatal(err)
 	}

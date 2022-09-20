@@ -115,32 +115,32 @@ type KafkaConsumer struct {
 var DefaultSaramaConfig *sarama.Config
 
 // NewConsumer constructs new implementation of Consumer interface
-func NewConsumer(brokerCfg BrokerConfiguration, storage Storage) (*KafkaConsumer, error) {
-	return NewWithSaramaConfig(brokerCfg, DefaultSaramaConfig, storage)
+func NewConsumer(brokerConfiguration BrokerConfiguration, storage Storage) (*KafkaConsumer, error) {
+	return NewWithSaramaConfig(brokerConfiguration, DefaultSaramaConfig, storage)
 }
 
 // NewWithSaramaConfig constructs new implementation of Consumer interface with custom sarama config
 func NewWithSaramaConfig(
-	brokerCfg BrokerConfiguration,
+	brokerConfiguration BrokerConfiguration,
 	saramaConfig *sarama.Config,
 	storage Storage,
 ) (*KafkaConsumer, error) {
 	var err error
 	if saramaConfig == nil {
-		saramaConfig, err = saramaConfigFromBrokerConfig(brokerCfg)
+		saramaConfig, err = saramaConfigFromBrokerConfig(brokerConfiguration)
 		if err != nil {
 			log.Error().Err(err).Msg("unable to create sarama configuration from current broker configuration")
 			return nil, err
 		}
 	}
 
-	consumerGroup, err := sarama.NewConsumerGroup([]string{brokerCfg.Address}, brokerCfg.Group, saramaConfig)
+	consumerGroup, err := sarama.NewConsumerGroup([]string{brokerConfiguration.Address}, brokerConfiguration.Group, saramaConfig)
 	if err != nil {
 		return nil, err
 	}
 
 	consumer := &KafkaConsumer{
-		Configuration:                        brokerCfg,
+		Configuration:                        brokerConfiguration,
 		ConsumerGroup:                        consumerGroup,
 		Storage:                              storage,
 		numberOfSuccessfullyConsumedMessages: 0,
@@ -538,34 +538,34 @@ func parseMessage(messageValue []byte) (IncomingMessage, error) {
 	return deserialized, nil
 }
 
-func saramaConfigFromBrokerConfig(cfg BrokerConfiguration) (*sarama.Config, error) {
+func saramaConfigFromBrokerConfig(brokerConfiguration BrokerConfiguration) (*sarama.Config, error) {
 	saramaConfig := sarama.NewConfig()
 	saramaConfig.Version = sarama.V0_10_2_0
 
 	/* TODO: we need to do it in production code
 	if brokerCfg.Timeout > 0 {
-		saramaConfig.Net.DialTimeout = brokerCfg.Timeout
-		saramaConfig.Net.ReadTimeout = brokerCfg.Timeout
-		saramaConfig.Net.WriteTimeout = brokerCfg.Timeout
+		saramaConfig.Net.DialTimeout = brokerConfiguration.Timeout
+		saramaConfig.Net.ReadTimeout = brokerConfiguration.Timeout
+		saramaConfig.Net.WriteTimeout = brokerConfiguration.Timeout
 	}
 	*/
-	if strings.Contains(cfg.SecurityProtocol, "SSL") {
+	if strings.Contains(brokerConfiguration.SecurityProtocol, "SSL") {
 		saramaConfig.Net.TLS.Enable = true
 	}
-	if cfg.CertPath != "" {
-		tlsConfig, err := tlsutils.NewTLSConfig(cfg.CertPath)
+	if brokerConfiguration.CertPath != "" {
+		tlsConfig, err := tlsutils.NewTLSConfig(brokerConfiguration.CertPath)
 		if err != nil {
-			log.Error().Msgf("Unable to load TLS config for %s cert", cfg.CertPath)
+			log.Error().Msgf("Unable to load TLS config for %s cert", brokerConfiguration.CertPath)
 			return nil, err
 		}
 		saramaConfig.Net.TLS.Config = tlsConfig
 	}
-	if strings.HasPrefix(cfg.SecurityProtocol, "SASL_") {
+	if strings.HasPrefix(brokerConfiguration.SecurityProtocol, "SASL_") {
 		log.Info().Msg("Configuring SASL authentication")
 		saramaConfig.Net.SASL.Enable = true
-		saramaConfig.Net.SASL.User = cfg.SaslUsername
-		saramaConfig.Net.SASL.Password = cfg.SaslPassword
-		saramaConfig.Net.SASL.Mechanism = sarama.SASLMechanism(cfg.SaslMechanism)
+		saramaConfig.Net.SASL.User = brokerConfiguration.SaslUsername
+		saramaConfig.Net.SASL.Password = brokerConfiguration.SaslPassword
+		saramaConfig.Net.SASL.Mechanism = sarama.SASLMechanism(brokerConfiguration.SaslMechanism)
 	}
 	return saramaConfig, nil
 }

@@ -147,7 +147,7 @@ type StorageConfiguration struct {
 // LoadConfiguration loads configuration from defaultConfigFile, file set in
 // configFileEnvVariableName or from env
 func LoadConfiguration(configFileEnvVariableName, defaultConfigFile string) (ConfigStruct, error) {
-	var config ConfigStruct
+	var configuration ConfigStruct
 
 	// env. variable holding name of configuration file
 	configFile, specified := os.LookupEnv(configFileEnvVariableName)
@@ -177,9 +177,9 @@ func LoadConfiguration(configFileEnvVariableName, defaultConfigFile string) (Con
 		// itself, so we need to read fake config file
 		fakeTomlConfigWriter := new(bytes.Buffer)
 
-		err := toml.NewEncoder(fakeTomlConfigWriter).Encode(config)
+		err := toml.NewEncoder(fakeTomlConfigWriter).Encode(configuration)
 		if err != nil {
-			return config, err
+			return configuration, err
 		}
 
 		fakeTomlConfig := fakeTomlConfigWriter.String()
@@ -188,14 +188,14 @@ func LoadConfiguration(configFileEnvVariableName, defaultConfigFile string) (Con
 
 		err = viper.ReadConfig(strings.NewReader(fakeTomlConfig))
 		if err != nil {
-			return config, err
+			return configuration, err
 		}
 	} else if err != nil {
 		// error is processed on caller side
-		return config, fmt.Errorf("fatal error config file: %s", err)
+		return configuration, fmt.Errorf("fatal error config file: %s", err)
 	}
 
-	// override config from env if there's variable in env
+	// override configuration from env if there's variable in env
 
 	const envPrefix = "CCX_NOTIFICATION_WRITER_"
 
@@ -203,39 +203,39 @@ func LoadConfiguration(configFileEnvVariableName, defaultConfigFile string) (Con
 	viper.SetEnvPrefix(envPrefix)
 	viper.SetEnvKeyReplacer(strings.NewReplacer("-", "_", ".", "__"))
 
-	err = viper.Unmarshal(&config)
+	err = viper.Unmarshal(&configuration)
 	if err != nil {
-		return config, err
+		return configuration, err
 	}
 
-	updateConfigFromClowder(&config)
+	updateConfigFromClowder(&configuration)
 
 	// everything's should be ok
-	return config, nil
+	return configuration, nil
 }
 
 // GetStorageConfiguration returns storage configuration
-func GetStorageConfiguration(config ConfigStruct) StorageConfiguration {
-	return config.Storage
+func GetStorageConfiguration(configuration ConfigStruct) StorageConfiguration {
+	return configuration.Storage
 }
 
 // GetLoggingConfiguration returns logging configuration
-func GetLoggingConfiguration(config ConfigStruct) LoggingConfiguration {
-	return config.Logging
+func GetLoggingConfiguration(configuration ConfigStruct) LoggingConfiguration {
+	return configuration.Logging
 }
 
 // GetBrokerConfiguration returns broker configuration
-func GetBrokerConfiguration(config ConfigStruct) BrokerConfiguration {
-	return config.Broker
+func GetBrokerConfiguration(configuration ConfigStruct) BrokerConfiguration {
+	return configuration.Broker
 }
 
 // GetMetricsConfiguration returns metrics configuration
-func GetMetricsConfiguration(config ConfigStruct) MetricsConfiguration {
-	return config.Metrics
+func GetMetricsConfiguration(configuration ConfigStruct) MetricsConfiguration {
+	return configuration.Metrics
 }
 
 // updateConfigFromClowder updates the current config with the values defined in clowder
-func updateConfigFromClowder(c *ConfigStruct) {
+func updateConfigFromClowder(configuration *ConfigStruct) {
 	if !clowder.IsClowderEnabled() || clowder.LoadedConfig == nil {
 		fmt.Println("Clowder is disabled")
 		return
@@ -250,22 +250,22 @@ func updateConfigFromClowder(c *ConfigStruct) {
 			broker := clowder.LoadedConfig.Kafka.Brokers[0]
 			// port can be empty in clowder, so taking it into account
 			if broker.Port != nil {
-				c.Broker.Address = fmt.Sprintf("%s:%d", broker.Hostname, *broker.Port)
+				configuration.Broker.Address = fmt.Sprintf("%s:%d", broker.Hostname, *broker.Port)
 			} else {
-				c.Broker.Address = broker.Hostname
+				configuration.Broker.Address = broker.Hostname
 			}
 
 			// SSL config
 			if broker.Authtype != nil {
 				fmt.Println("kafka is configured to use authentication")
 				if broker.Sasl != nil {
-					c.Broker.SaslUsername = *broker.Sasl.Username
-					c.Broker.SaslPassword = *broker.Sasl.Password
-					c.Broker.SaslMechanism = *broker.Sasl.SaslMechanism
-					c.Broker.SecurityProtocol = *broker.Sasl.SecurityProtocol
+					configuration.Broker.SaslUsername = *broker.Sasl.Username
+					configuration.Broker.SaslPassword = *broker.Sasl.Password
+					configuration.Broker.SaslMechanism = *broker.Sasl.SaslMechanism
+					configuration.Broker.SecurityProtocol = *broker.Sasl.SecurityProtocol
 
 					if caPath, err := clowder.LoadedConfig.KafkaCa(broker); err == nil {
-						c.Broker.CertPath = caPath
+						configuration.Broker.CertPath = caPath
 					}
 				} else {
 					fmt.Println("warning: SASL configuration is missing")
@@ -274,24 +274,24 @@ func updateConfigFromClowder(c *ConfigStruct) {
 		} else {
 			fmt.Println("warning: no broker configurations found in clowder config")
 		}
-		useCLowderTopics(&c.Broker)
+		useCLowderTopics(&configuration.Broker)
 	}
 
 	if clowder.LoadedConfig.Database != nil {
 		// get DB configuration from clowder
-		c.Storage.PGDBName = clowder.LoadedConfig.Database.Name
-		c.Storage.PGHost = clowder.LoadedConfig.Database.Hostname
-		c.Storage.PGPort = clowder.LoadedConfig.Database.Port
-		c.Storage.PGUsername = clowder.LoadedConfig.Database.Username
-		c.Storage.PGPassword = clowder.LoadedConfig.Database.Password
+		configuration.Storage.PGDBName = clowder.LoadedConfig.Database.Name
+		configuration.Storage.PGHost = clowder.LoadedConfig.Database.Hostname
+		configuration.Storage.PGPort = clowder.LoadedConfig.Database.Port
+		configuration.Storage.PGUsername = clowder.LoadedConfig.Database.Username
+		configuration.Storage.PGPassword = clowder.LoadedConfig.Database.Password
 	}
 }
 
-func useCLowderTopics(c *BrokerConfiguration) {
+func useCLowderTopics(configuration *BrokerConfiguration) {
 	// Get the correct topic name from clowder mapping if available
-	if clowderTopic, ok := clowder.KafkaTopics[c.Topic]; ok {
-		c.Topic = clowderTopic.Name
+	if clowderTopic, ok := clowder.KafkaTopics[configuration.Topic]; ok {
+		configuration.Topic = clowderTopic.Name
 	} else {
-		fmt.Printf("warning: no topic name found for topic %s in clowder configuration", c.Topic)
+		fmt.Printf("warning: no topic name found for topic %s in clowder configuration", configuration.Topic)
 	}
 }
