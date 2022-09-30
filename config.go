@@ -77,6 +77,11 @@ import (
 const (
 	filenameAttribute               = "filename"
 	parsingConfigurationFileMessage = "parsing configuration file"
+	noKafkaConfig                   = "no Kafka configuration available in Clowder, using default one"
+	noBrokerConfig                  = "warning: no broker configurations found in clowder config"
+	noSaslConfig                    = "warning: SASL configuration is missing"
+	noTopicMapping                  = "warning: no kafka mapping found for topic %s"
+	noStorage                       = "warning: no storage section in Clowder config"
 )
 
 // ConfigStruct is a structure holding the whole notification service
@@ -243,7 +248,7 @@ func updateConfigFromClowder(configuration *ConfigStruct) {
 
 	fmt.Println("Clowder is enabled")
 	if clowder.LoadedConfig.Kafka == nil {
-		fmt.Println("No Kafka configuration available in Clowder, using default one")
+		fmt.Println(noKafkaConfig)
 	} else {
 		// make sure broker(s) are configured in Clowder
 		if len(clowder.LoadedConfig.Kafka.Brokers) > 0 {
@@ -268,12 +273,14 @@ func updateConfigFromClowder(configuration *ConfigStruct) {
 						configuration.Broker.CertPath = caPath
 					}
 				} else {
-					fmt.Println("warning: SASL configuration is missing")
+					fmt.Println(noSaslConfig)
 				}
 			}
+
 		} else {
-			fmt.Println("warning: no broker configurations found in clowder config")
+			fmt.Println(noBrokerConfig)
 		}
+
 		useCLowderTopics(&configuration.Broker)
 	}
 
@@ -284,6 +291,8 @@ func updateConfigFromClowder(configuration *ConfigStruct) {
 		configuration.Storage.PGPort = clowder.LoadedConfig.Database.Port
 		configuration.Storage.PGUsername = clowder.LoadedConfig.Database.Username
 		configuration.Storage.PGPassword = clowder.LoadedConfig.Database.Password
+	} else {
+		fmt.Println(noStorage)
 	}
 }
 
@@ -292,6 +301,6 @@ func useCLowderTopics(configuration *BrokerConfiguration) {
 	if clowderTopic, ok := clowder.KafkaTopics[configuration.Topic]; ok {
 		configuration.Topic = clowderTopic.Name
 	} else {
-		fmt.Printf("warning: no topic name found for topic %s in clowder configuration", configuration.Topic)
+		fmt.Printf(noTopicMapping, configuration.Topic)
 	}
 }
