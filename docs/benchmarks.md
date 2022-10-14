@@ -18,10 +18,19 @@ It is needed to perform the following steps:
 1. run `./ccx-notification-writer -migrate latest`
 
 ## Running benchmarks
+
 Benchmarks can be started from command line by the following command:
 
 ```
 make benchmark
+```
+
+## Exporting results into CSV format
+
+It is possible to convert benchmark results into CSV format by using the following command:
+
+```
+make benchmark.csv
 ```
 
 ## Database benchmarks
