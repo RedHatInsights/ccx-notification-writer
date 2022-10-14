@@ -133,11 +133,23 @@ limitations under the License.</p>
 </td>
 	<td class="code"><pre><code><div class="keyword">package</div> <div class="ident">main</div><div class="operator"></div>
 
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>Generated documentation is available at:
+https://pkg.go.dev/github.com/RedHatInsights/ccx-notification-writer/</p>
+
+<p>Documentation in literate-programming-style is available at:
+https://redhatinsights.github.io/ccx-notification-writer/packages/mig<em>0003</em>populate<em>event</em>tables.html</p>
+</td>
+	<td class="code"><pre><code>
 <div class="keyword">import</div> <div class="operator">(</div>
 	<div class="literal">&#34;database/sql&#34;</div><div class="operator"></div>
 
 	<div class="ident">mig</div> <div class="literal">&#34;github.com/RedHatInsights/insights-operator-utils/migrations&#34;</div><div class="operator"></div>
 	<div class="ident">types</div> <div class="literal">&#34;github.com/RedHatInsights/insights-results-types&#34;</div><div class="operator"></div>
+	<div class="literal">&#34;github.com/rs/zerolog/log&#34;</div><div class="operator"></div>
 <div class="operator">)</div><div class="operator"></div>
 
 </code></pre></td>
@@ -154,16 +166,26 @@ backend</code>.</p>
 </td>
 	<td class="code"><pre><code><div class="keyword">var</div> <div class="ident">mig0003PopulateEventTables</div> <div class="operator">=</div> <div class="ident">mig</div><div class="operator">.</div><div class="ident">Migration</div><div class="operator">{</div>
 	<div class="ident">StepUp</div><div class="operator">:</div> <div class="keyword">func</div><div class="operator">(</div><div class="ident">tx</div> <div class="operator">*</div><div class="ident">sql</div><div class="operator">.</div><div class="ident">Tx</div><div class="operator">,</div> <div class="ident">_</div> <div class="ident">types</div><div class="operator">.</div><div class="ident">DBDriver</div><div class="operator">)</div> <div class="ident">error</div> <div class="operator">{</div>
-		<div class="ident">_</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">tx</div><div class="operator">.</div><div class="ident">Exec</div><div class="operator">(</div><div class="literal">`
-			INSERT INTO event_targets (id, name, metainfo) 
-				VALUES (1, &#39;notifications backend&#39;, &#39;the target of the report is the ccx notification service back end&#39;),
-				       (2, &#39;service log&#39;, &#39;the target of the report is the ServiceLog&#39;)
-
-		`</div><div class="operator">)</div><div class="operator"></div>
+		<div class="ident">log</div><div class="operator">.</div><div class="ident">Debug</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;Executing mig0003PopulateEventTables stepUp function&#34;</div><div class="operator">)</div><div class="operator"></div>
+		<div class="ident">query</div> <div class="operator">:=</div> <div class="literal">`
+ 			INSERT INTO event_targets (id, name, metainfo) 
+ 				VALUES (1, &#39;notifications backend&#39;, &#39;the target of the report is the ccx notification service back end&#39;),
+ 				       (2, &#39;service log&#39;, &#39;the target of the report is the ServiceLog&#39;)`</div><div class="operator"></div>
+		<div class="ident">result</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">executeQuery</div><div class="operator">(</div><div class="ident">tx</div><div class="operator">,</div> <div class="ident">query</div><div class="operator">)</div><div class="operator"></div>
+		<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">==</div> <div class="ident">nil</div> <div class="operator">{</div>
+			<div class="ident">rows</div><div class="operator">,</div> <div class="ident">_</div> <div class="operator">:=</div> <div class="ident">result</div><div class="operator">.</div><div class="ident">RowsAffected</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+			<div class="ident">log</div><div class="operator">.</div><div class="ident">Debug</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Int64</div><div class="operator">(</div><div class="ident">rowsInsertedMessage</div><div class="operator">,</div> <div class="ident">rows</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;Table event_targets altered successfully&#34;</div><div class="operator">)</div><div class="operator"></div>
+		<div class="operator">}</div><div class="operator"></div>
 		<div class="keyword">return</div> <div class="ident">err</div><div class="operator"></div>
 	<div class="operator">}</div><div class="operator">,</div>
 	<div class="ident">StepDown</div><div class="operator">:</div> <div class="keyword">func</div><div class="operator">(</div><div class="ident">tx</div> <div class="operator">*</div><div class="ident">sql</div><div class="operator">.</div><div class="ident">Tx</div><div class="operator">,</div> <div class="ident">_</div> <div class="ident">types</div><div class="operator">.</div><div class="ident">DBDriver</div><div class="operator">)</div> <div class="ident">error</div> <div class="operator">{</div>
-		<div class="ident">_</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">tx</div><div class="operator">.</div><div class="ident">Exec</div><div class="operator">(</div><div class="literal">`DELETE FROM event_targets`</div><div class="operator">)</div><div class="operator"></div>
+		<div class="ident">log</div><div class="operator">.</div><div class="ident">Debug</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;Executing mig0003PopulateEventTables stepDown function&#34;</div><div class="operator">)</div><div class="operator"></div>
+		<div class="ident">query</div> <div class="operator">:=</div> <div class="literal">&#34;DELETE FROM event_targets&#34;</div><div class="operator"></div>
+		<div class="ident">result</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">executeQuery</div><div class="operator">(</div><div class="ident">tx</div><div class="operator">,</div> <div class="ident">query</div><div class="operator">)</div><div class="operator"></div>
+		<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">==</div> <div class="ident">nil</div> <div class="operator">{</div>
+			<div class="ident">rows</div><div class="operator">,</div> <div class="ident">_</div> <div class="operator">:=</div> <div class="ident">result</div><div class="operator">.</div><div class="ident">RowsAffected</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+			<div class="ident">log</div><div class="operator">.</div><div class="ident">Debug</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Int64</div><div class="operator">(</div><div class="ident">rowsDeletedMessage</div><div class="operator">,</div> <div class="ident">rows</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;Table event_targets cleaned up successfully&#34;</div><div class="operator">)</div><div class="operator"></div>
+		<div class="operator">}</div><div class="operator"></div>
 		<div class="keyword">return</div> <div class="ident">err</div><div class="operator"></div>
 	<div class="operator">}</div><div class="operator">,</div>
 <div class="operator">}</div><div class="operator"></div>

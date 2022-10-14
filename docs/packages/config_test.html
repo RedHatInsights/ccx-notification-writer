@@ -147,6 +147,7 @@ https://redhatinsights.github.io/ccx-notification-writer/packages/config_test.ht
 </td>
 	<td class="code"><pre><code>
 <div class="keyword">import</div> <div class="operator">(</div>
+	<div class="literal">&#34;fmt&#34;</div><div class="operator"></div>
 	<div class="literal">&#34;os&#34;</div><div class="operator"></div>
 
 	<div class="literal">&#34;testing&#34;</div><div class="operator"></div>
@@ -824,6 +825,70 @@ is correct</p>
 	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">password</div><div class="operator">,</div> <div class="ident">brokerCfg</div><div class="operator">.</div><div class="ident">SaslPassword</div><div class="operator">)</div><div class="operator"></div>
 	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">saslMechanism</div><div class="operator">,</div> <div class="ident">brokerCfg</div><div class="operator">.</div><div class="ident">SaslMechanism</div><div class="operator">)</div><div class="operator"></div>
 	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">securityProtocol</div><div class="operator">,</div> <div class="ident">brokerCfg</div><div class="operator">.</div><div class="ident">SecurityProtocol</div><div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>TestLoadConfigurationKafkaTopicUpdatedFromClowder tests that when applying the config,
+if the Clowder config is enabled, the Kafka topics are replaced by the ones defined in
+LoadedConfig.Kafka.Topics if found, and used as-is if not.</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">TestLoadConfigurationKafkaTopicUpdatedFromClowder</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+
+	<div class="ident">os</div><div class="operator">.</div><div class="ident">Clearenv</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">hostname</div> <div class="operator">:=</div> <div class="literal">&#34;kafka&#34;</div><div class="operator"></div>
+	<div class="ident">port</div> <div class="operator">:=</div> <div class="literal">9092</div><div class="operator"></div>
+	<div class="ident">topicName</div> <div class="operator">:=</div> <div class="literal">&#34;ccx_test_notifications&#34;</div><div class="operator"></div>
+	<div class="ident">newTopicName</div> <div class="operator">:=</div> <div class="literal">&#34;the.clowder.kafka.topic&#34;</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>explicit database and broker config</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">clowder</div><div class="operator">.</div><div class="ident">LoadedConfig</div> <div class="operator">=</div> <div class="operator">&amp;</div><div class="ident">clowder</div><div class="operator">.</div><div class="ident">AppConfig</div><div class="operator">{</div>
+		<div class="ident">Kafka</div><div class="operator">:</div> <div class="operator">&amp;</div><div class="ident">clowder</div><div class="operator">.</div><div class="ident">KafkaConfig</div><div class="operator">{</div>
+			<div class="ident">Brokers</div><div class="operator">:</div> <div class="operator">[</div><div class="operator">]</div><div class="ident">clowder</div><div class="operator">.</div><div class="ident">BrokerConfig</div><div class="operator">{</div>
+				<div class="operator">{</div>
+					<div class="ident">Hostname</div><div class="operator">:</div> <div class="ident">hostname</div><div class="operator">,</div>
+					<div class="ident">Port</div><div class="operator">:</div>     <div class="operator">&amp;</div><div class="ident">port</div><div class="operator">,</div>
+				<div class="operator">}</div><div class="operator">,</div>
+			<div class="operator">}</div><div class="operator">,</div>
+		<div class="operator">}</div><div class="operator">,</div>
+	<div class="operator">}</div><div class="operator"></div>
+
+	<div class="ident">clowder</div><div class="operator">.</div><div class="ident">KafkaTopics</div> <div class="operator">=</div> <div class="ident">make</div><div class="operator">(</div><div class="keyword">map</div><div class="operator">[</div><div class="ident">string</div><div class="operator">]</div><div class="ident">clowder</div><div class="operator">.</div><div class="ident">TopicConfig</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">clowder</div><div class="operator">.</div><div class="ident">KafkaTopics</div><div class="operator">[</div><div class="ident">topicName</div><div class="operator">]</div> <div class="operator">=</div> <div class="ident">clowder</div><div class="operator">.</div><div class="ident">TopicConfig</div><div class="operator">{</div>
+		<div class="ident">Name</div><div class="operator">:</div>          <div class="ident">newTopicName</div><div class="operator">,</div>
+		<div class="ident">RequestedName</div><div class="operator">:</div> <div class="ident">topicName</div><div class="operator">,</div>
+	<div class="operator">}</div><div class="operator"></div>
+
+	<div class="ident">mustSetEnv</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="literal">&#34;ACG_CONFIG&#34;</div><div class="operator">,</div> <div class="literal">&#34;tests/clowder_config.json&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="ident">config</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">LoadConfiguration</div><div class="operator">(</div><div class="literal">&#34;CCX_NOTIFICATION_WRITER_CONFIG_FILE&#34;</div><div class="operator">,</div> <div class="literal">&#34;tests/config2&#34;</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">NoError</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">,</div> <div class="literal">&#34;Failed loading configuration file&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="ident">brokerCfg</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">GetBrokerConfiguration</div><div class="operator">(</div><div class="ident">config</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">fmt</div><div class="operator">.</div><div class="ident">Sprintf</div><div class="operator">(</div><div class="literal">&#34;%s:%d&#34;</div><div class="operator">,</div> <div class="ident">hostname</div><div class="operator">,</div> <div class="ident">port</div><div class="operator">)</div><div class="operator">,</div> <div class="ident">brokerCfg</div><div class="operator">.</div><div class="ident">Address</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">newTopicName</div><div class="operator">,</div> <div class="ident">brokerCfg</div><div class="operator">.</div><div class="ident">Topic</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>config with different broker configuration, broker's hostname taken from clowder, but no topic to map to</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">topicName</div> <div class="operator">=</div> <div class="literal">&#34;test_notification_topic&#34;</div><div class="operator"></div>
+
+	<div class="ident">config</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">LoadConfiguration</div><div class="operator">(</div><div class="literal">&#34;CCX_NOTIFICATION_WRITER_CONFIG_FILE&#34;</div><div class="operator">,</div> <div class="literal">&#34;tests/config1&#34;</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">NoError</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">,</div> <div class="literal">&#34;Failed loading configuration file&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="ident">brokerCfg</div> <div class="operator">=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">GetBrokerConfiguration</div><div class="operator">(</div><div class="ident">config</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">fmt</div><div class="operator">.</div><div class="ident">Sprintf</div><div class="operator">(</div><div class="literal">&#34;%s:%d&#34;</div><div class="operator">,</div> <div class="ident">hostname</div><div class="operator">,</div> <div class="ident">port</div><div class="operator">)</div><div class="operator">,</div> <div class="ident">brokerCfg</div><div class="operator">.</div><div class="ident">Address</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">topicName</div><div class="operator">,</div> <div class="ident">brokerCfg</div><div class="operator">.</div><div class="ident">Topic</div><div class="operator">)</div><div class="operator"></div>
 <div class="operator">}</div><div class="operator"></div>
 
 </code></pre></td>

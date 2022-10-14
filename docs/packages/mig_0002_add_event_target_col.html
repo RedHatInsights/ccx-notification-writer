@@ -149,6 +149,7 @@ https://redhatinsights.github.io/ccx-notification-writer/packages/mig<em>0002</e
 
 	<div class="ident">mig</div> <div class="literal">&#34;github.com/RedHatInsights/insights-operator-utils/migrations&#34;</div><div class="operator"></div>
 	<div class="ident">types</div> <div class="literal">&#34;github.com/RedHatInsights/insights-results-types&#34;</div><div class="operator"></div>
+	<div class="literal">&#34;github.com/rs/zerolog/log&#34;</div><div class="operator"></div>
 <div class="operator">)</div><div class="operator"></div>
 
 </code></pre></td>
@@ -161,17 +162,25 @@ table.</p>
 </td>
 	<td class="code"><pre><code><div class="keyword">var</div> <div class="ident">mig0002AddEventTargetCol</div> <div class="operator">=</div> <div class="ident">mig</div><div class="operator">.</div><div class="ident">Migration</div><div class="operator">{</div>
 	<div class="ident">StepUp</div><div class="operator">:</div> <div class="keyword">func</div><div class="operator">(</div><div class="ident">tx</div> <div class="operator">*</div><div class="ident">sql</div><div class="operator">.</div><div class="ident">Tx</div><div class="operator">,</div> <div class="ident">_</div> <div class="ident">types</div><div class="operator">.</div><div class="ident">DBDriver</div><div class="operator">)</div> <div class="ident">error</div> <div class="operator">{</div>
-		<div class="ident">_</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">tx</div><div class="operator">.</div><div class="ident">Exec</div><div class="operator">(</div><div class="literal">`
-		ALTER TABLE reported 
-		ADD COLUMN IF NOT EXISTS event_type_id INTEGER,
-		ADD FOREIGN KEY (event_type_id) REFERENCES event_targets(id)
-	`</div><div class="operator">)</div><div class="operator"></div>
+		<div class="ident">log</div><div class="operator">.</div><div class="ident">Debug</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;Executing mig0002AddEventTargetCol stepUp function&#34;</div><div class="operator">)</div><div class="operator"></div>
+		<div class="ident">query</div> <div class="operator">:=</div> <div class="literal">`
+			ALTER TABLE reported 
+			ADD COLUMN IF NOT EXISTS event_type_id INTEGER,
+			ADD FOREIGN KEY (event_type_id) REFERENCES event_targets(id)
+ 		`</div><div class="operator"></div>
+		<div class="ident">_</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">executeQuery</div><div class="operator">(</div><div class="ident">tx</div><div class="operator">,</div> <div class="ident">query</div><div class="operator">)</div><div class="operator"></div>
+		<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">==</div> <div class="ident">nil</div> <div class="operator">{</div>
+			<div class="ident">log</div><div class="operator">.</div><div class="ident">Debug</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;Table reported altered successfully&#34;</div><div class="operator">)</div><div class="operator"></div>
+		<div class="operator">}</div><div class="operator"></div>
 		<div class="keyword">return</div> <div class="ident">err</div><div class="operator"></div>
 	<div class="operator">}</div><div class="operator">,</div>
 	<div class="ident">StepDown</div><div class="operator">:</div> <div class="keyword">func</div><div class="operator">(</div><div class="ident">tx</div> <div class="operator">*</div><div class="ident">sql</div><div class="operator">.</div><div class="ident">Tx</div><div class="operator">,</div> <div class="ident">driver</div> <div class="ident">types</div><div class="operator">.</div><div class="ident">DBDriver</div><div class="operator">)</div> <div class="ident">error</div> <div class="operator">{</div>
-		<div class="ident">_</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">tx</div><div class="operator">.</div><div class="ident">Exec</div><div class="operator">(</div><div class="literal">`
-		ALTER TABLE reported DROP COLUMN event_type_id
-	`</div><div class="operator">)</div><div class="operator"></div>
+		<div class="ident">log</div><div class="operator">.</div><div class="ident">Debug</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;Executing mig0002AddEventTargetCol stepDown function&#34;</div><div class="operator">)</div><div class="operator"></div>
+		<div class="ident">query</div> <div class="operator">:=</div> <div class="literal">&#34;ALTER TABLE reported DROP COLUMN event_type_id&#34;</div><div class="operator"></div>
+		<div class="ident">_</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">executeQuery</div><div class="operator">(</div><div class="ident">tx</div><div class="operator">,</div> <div class="ident">query</div><div class="operator">)</div><div class="operator"></div>
+		<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">==</div> <div class="ident">nil</div> <div class="operator">{</div>
+			<div class="ident">log</div><div class="operator">.</div><div class="ident">Debug</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;Column event_type_id dropped successfully&#34;</div><div class="operator">)</div><div class="operator"></div>
+		<div class="operator">}</div><div class="operator"></div>
 		<div class="keyword">return</div> <div class="ident">err</div><div class="operator"></div>
 	<div class="operator">}</div><div class="operator">,</div>
 <div class="operator">}</div><div class="operator"></div>
