@@ -248,6 +248,39 @@ func TestNewConsumerCertPath(t *testing.T) {
 	)
 }
 
+// TestNewConsumerInvalidCertPath function checks the consumer creation by using a
+// non accessible Kafka broker. This test assumes there is no local Kafka
+// instance currently running. Invalid cert. path is provided by tests.
+func TestNewConsumerInvalidCertPath(t *testing.T) {
+	const expectedErr = "open /foo/bar/baz: no such file or directory"
+
+	// valid broker configuration for local Kafka instance
+	var brokerConfiguration = main.BrokerConfiguration{
+		Address:  "localhost:9092",
+		Topic:    "platform.notifications.ingress",
+		Group:    "",
+		Enabled:  true,
+		CertPath: "/foo/bar/baz",
+	}
+
+	// dummy storage not really useable as the driver is not specified
+	dummyStorage := main.NewFromConnection(nil, 1)
+
+	// try to construct new consumer
+	mockConsumer, err := main.NewConsumer(brokerConfiguration, dummyStorage)
+
+	// check that error is really reported
+	assert.Contains(t, err.Error(), expectedErr)
+
+	// test the return value
+	assert.Equal(
+		t,
+		(*main.KafkaConsumer)(nil),
+		mockConsumer,
+		"invalid cert path",
+	)
+}
+
 // TestParseEmptyMessage checks how empty message is handled by
 // consumer.
 func TestParseEmptyMessage(t *testing.T) {
