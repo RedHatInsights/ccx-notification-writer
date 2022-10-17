@@ -215,6 +215,39 @@ func TestNewConsumerSASLEnabled(t *testing.T) {
 	)
 }
 
+// TestNewConsumerCertPath function checks the consumer creation by using a
+// non accessible Kafka broker. This test assumes there is no local Kafka
+// instance currently running. Valid cert. path is provided by tests.
+func TestNewConsumerCertPath(t *testing.T) {
+	const expectedErr = "kafka: client has run out of available brokers to talk to"
+
+	// valid broker configuration for local Kafka instance
+	var brokerConfiguration = main.BrokerConfiguration{
+		Address:  "localhost:9092",
+		Topic:    "platform.notifications.ingress",
+		Group:    "",
+		Enabled:  true,
+		CertPath: "testdata/cert.pem",
+	}
+
+	// dummy storage not really useable as the driver is not specified
+	dummyStorage := main.NewFromConnection(nil, 1)
+
+	// try to construct new consumer
+	mockConsumer, err := main.NewConsumer(brokerConfiguration, dummyStorage)
+
+	// check that error is really reported
+	assert.Contains(t, err.Error(), expectedErr)
+
+	// test the return value
+	assert.Equal(
+		t,
+		(*main.KafkaConsumer)(nil),
+		mockConsumer,
+		"invalid cert path",
+	)
+}
+
 // TestParseEmptyMessage checks how empty message is handled by
 // consumer.
 func TestParseEmptyMessage(t *testing.T) {
