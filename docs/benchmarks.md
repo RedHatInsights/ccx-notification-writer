@@ -56,7 +56,26 @@ Additionally it is possible to specify inserted reports counts explicitly:
 
 1. `reports-count=1,2,5,1000
 
-Please note that CLI arguments for tests/benchmarks need to be prepended by `-args`
+Please note that CLI arguments for tests/benchmarks need to be prepended by `-args` to be distinguished from standard configuration options.
+
+#### Examples
+
+```bash
+go test
+go test -args -min-reports=3 -max-reports=7 -reports-step=2
+go test -args -reports-count=1,2,5
+go test -args -min-reports=1 -max-reports=10 -reports-step=2 -reports-count=1,2,5
+```
+
+### Other configuration options
+
+There are other configuration options that can be specified on command line:
+
+1. `-count` - how many times the benchmark is repeated
+1. `-benchtime` - total benchmark tile for each case
+1. `-timeout` - total benchmark timeout
+1. `-bench=regexp` - which benchmark(s) to run based on regular expression
+1. `-run=regexp` - which other test files to include
 
 #### Examples
 
