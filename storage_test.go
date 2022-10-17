@@ -854,13 +854,13 @@ func TestClose(t *testing.T) {
 	})
 
 	// we just happen to make connection without trying to actually connect
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 
 	// try to close the storage
 	err = storage.Close()
 
 	// it should not fail
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 }
 
 // TestConnection function checks the method Storage.Connection.
@@ -871,7 +871,7 @@ func TestConnection(t *testing.T) {
 	})
 
 	// we just happen to make connection without trying to actually connect
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 
 	// try to retrieve connection
 	returned := storage.Connection()
@@ -881,5 +881,5 @@ func TestConnection(t *testing.T) {
 	err = storage.Close()
 
 	// it should not fail
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 }
