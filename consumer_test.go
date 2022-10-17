@@ -114,6 +114,38 @@ func TestNewConsumerLocalBroker(t *testing.T) {
 	)
 }
 
+// TestNewConsumerConsumerGroup function checks the consumer creation by using a
+// non accessible Kafka broker. This test assumes there is no local Kafka
+// instance currently running. Consumer group is enabled and setup for this test.
+func TestNewConsumerSaramaConfig(t *testing.T) {
+	const expectedErr = "kafka: client has run out of available brokers to talk to"
+
+	// valid broker configuration for local Kafka instance
+	var brokerConfiguration = main.BrokerConfiguration{
+		Address: "localhost:9092",
+		Topic:   "platform.notifications.ingress",
+		Group:   "test-group",
+		Enabled: true,
+	}
+
+	// dummy storage not really useable as the driver is not specified
+	dummyStorage := main.NewFromConnection(nil, 1)
+
+	// try to construct new consumer
+	mockConsumer, err := main.NewConsumer(brokerConfiguration, dummyStorage)
+
+	// check that error is really reported
+	assert.Contains(t, err.Error(), expectedErr)
+
+	// test the return value
+	assert.Equal(
+		t,
+		(*main.KafkaConsumer)(nil),
+		mockConsumer,
+		"consumer.New should return nil instead of Consumer implementation",
+	)
+}
+
 // TestParseEmptyMessage checks how empty message is handled by
 // consumer.
 func TestParseEmptyMessage(t *testing.T) {
