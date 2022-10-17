@@ -21,6 +21,7 @@ package main_test
 // https://redhatinsights.github.io/ccx-notification-writer/packages/migration_test.html
 
 import (
+	"errors"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
@@ -360,6 +361,46 @@ func Test0004MigrationStepDown(t *testing.T) {
 
 	utils.Set(main.All())
 	assert.NoError(t, main.Migrate(connection, 3))
+
+	// check if all expectations were met
+	checkAllExpectations(t, mock)
+}
+
+// Test the 4th migration in case the table update fails.
+func Test0004MigrationStepDown2(t *testing.T) {
+	// error to be thrown
+	mockedError := errors.New("mocked error")
+
+	// prepare new mocked connection to database
+	connection, mock := mustCreateMockConnection(t)
+
+	// prepare mocked result for SQL query
+	rows := sqlmock.NewRows([]string{"version"})
+	rows.AddRow("4")
+
+	count := sqlmock.NewRows([]string{"count"})
+	count.AddRow("1")
+
+	// expected query performed by tested function
+	expectedQuery0 := "SELECT COUNT\\(\\*\\) FROM migration_info;"
+	expectedQuery1 := "SELECT version FROM migration_info;"
+	expectedAlter := "ALTER TABLE reported ALTER COLUMN event_type_id DROP NOT NULL"
+
+	mock.ExpectQuery(expectedQuery0).WillReturnRows(count)
+	mock.ExpectQuery(expectedQuery1).WillReturnRows(rows)
+	mock.ExpectBegin()
+
+	// alter table will fail
+	mock.ExpectExec(expectedAlter).WillReturnError(mockedError)
+
+	// so we expect roll back instead of transaction commit
+	mock.ExpectRollback()
+	mock.ExpectClose()
+
+	utils.Set(main.All())
+
+	// migration should end with error
+	assert.Error(t, main.Migrate(connection, 3), mockedError)
 
 	// check if all expectations were met
 	checkAllExpectations(t, mock)
