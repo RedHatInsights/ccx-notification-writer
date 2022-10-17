@@ -854,11 +854,32 @@ func TestClose(t *testing.T) {
 	})
 
 	// we just happen to make connection without trying to actually connect
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 
 	// try to close the storage
 	err = storage.Close()
 
 	// it should not fail
-	assert.Nil(t, err)
+	assert.NoError(t, err)
+}
+
+// TestConnection function checks the method Storage.Connection.
+func TestConnection(t *testing.T) {
+	storage, err := main.NewStorage(main.StorageConfiguration{
+		Driver:        "sqlite3",
+		LogSQLQueries: false,
+	})
+
+	// we just happen to make connection without trying to actually connect
+	assert.NoError(t, err)
+
+	// try to retrieve connection
+	returned := storage.Connection()
+	assert.NotNil(t, returned)
+
+	// try to close the storage
+	err = storage.Close()
+
+	// it should not fail
+	assert.NoError(t, err)
 }
