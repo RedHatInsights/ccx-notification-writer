@@ -116,8 +116,8 @@ objects:
             httpGet:
               path: /metrics
               port: 8080
-            # Wait for 3x10 seconds
-            failureThreshold: 3
+            # Wait for 10x10 seconds
+            failureThreshold: 10
             periodSeconds: 10
           resources:
             limits:
