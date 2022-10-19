@@ -101,6 +101,24 @@ objects:
                   memory: ${MEMORY_REQUEST}
               # End of initContainer
           image: ${IMAGE}:${IMAGE_TAG}
+          readinessProbe:
+            httpGet:
+              path: /metrics
+              port: 8080
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /metrics
+              port: 8080
+            failureThreshold: 1
+            periodSeconds: 10
+          startupProbe:
+            httpGet:
+              path: /metrics
+              port: 8080
+            # Wait for 10x10 seconds
+            failureThreshold: 10
+            periodSeconds: 10
           resources:
             limits:
               cpu: ${CPU_LIMIT}
