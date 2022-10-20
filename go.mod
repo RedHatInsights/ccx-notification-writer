@@ -11,11 +11,15 @@ require (
 	github.com/google/uuid v1.3.0
 	github.com/lib/pq v1.10.0
 	github.com/mattn/go-sqlite3 v2.0.3+incompatible
+	github.com/microcosm-cc/bluemonday v1.0.21 // indirect
 	github.com/pierrec/lz4 v2.6.0+incompatible // indirect
 	github.com/prometheus/client_golang v1.12.1
+	github.com/prometheus/procfs v0.7.3 // indirect
 	github.com/redhatinsights/app-common-go v1.6.3
 	github.com/rs/zerolog v1.21.0
+	github.com/spf13/afero v1.5.1 // indirect
 	github.com/spf13/viper v1.7.2-0.20210415161207-7fdb267c730d
 	github.com/stretchr/testify v1.8.0
 	github.com/tisnik/go-capture v1.0.1
+	golang.org/x/net v0.1.0 // indirect
 )
