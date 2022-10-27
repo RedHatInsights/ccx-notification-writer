@@ -128,7 +128,7 @@ func showConfiguration(configuration ConfigStruct) {
 		Bool("Pretty colored debug logging", loggingConfig.Debug).
 		Msg("Logging configuration")
 
-	metricsConfig := GetMetricsConfiguration(configuration)
+	metricsConfig := GetMetricsConfiguration(&configuration)
 	log.Info().
 		Str("Namespace", metricsConfig.Namespace).
 		Str("Address", metricsConfig.Address).
@@ -337,7 +337,7 @@ func startService(configuration ConfigStruct) (int, error) {
 	showConfiguration(configuration)
 
 	// configure metrics
-	metricsConfig := GetMetricsConfiguration(configuration)
+	metricsConfig := GetMetricsConfiguration(&configuration)
 	if metricsConfig.Namespace != "" {
 		log.Info().Str("namespace", metricsConfig.Namespace).Msg("Setting metrics namespace")
 		AddMetricsWithNamespace(metricsConfig.Namespace)
