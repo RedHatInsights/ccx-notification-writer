@@ -115,7 +115,7 @@ func TestLoadBrokerConfiguration(t *testing.T) {
 	config, err := main.LoadConfiguration(envVar, "")
 	assert.Nil(t, err, "Failed loading configuration file from env var!")
 
-	brokerCfg := main.GetBrokerConfiguration(config)
+	brokerCfg := main.GetBrokerConfiguration(&config)
 
 	assert.Equal(t, "localhost:29092", brokerCfg.Address)
 	assert.Equal(t, "ccx_test_notifications", brokerCfg.Topic)
@@ -212,7 +212,7 @@ func TestLoadConfigurationNoKafkaBroker(t *testing.T) {
 	assert.NoError(t, err, "Failed loading configuration file")
 
 	// retrieve broker configuration that was just loaded
-	brokerCfg := main.GetBrokerConfiguration(config)
+	brokerCfg := main.GetBrokerConfiguration(&config)
 
 	// check broker configuration
 	assert.Equal(t, "localhost:29092", brokerCfg.Address)
@@ -248,7 +248,7 @@ func TestLoadConfigurationKafkaBrokerEmptyConfig(t *testing.T) {
 	assert.NoError(t, err, "Failed loading configuration file")
 
 	// retrieve broker configuration that was just loaded
-	brokerCfg := main.GetBrokerConfiguration(config)
+	brokerCfg := main.GetBrokerConfiguration(&config)
 
 	// check broker configuration
 	assert.Equal(t, "", brokerCfg.Address)
@@ -285,7 +285,7 @@ func TestLoadConfigurationKafkaBrokerNoPort(t *testing.T) {
 	assert.NoError(t, err, "Failed loading configuration file")
 
 	// retrieve broker configuration that was just loaded
-	brokerCfg := main.GetBrokerConfiguration(config)
+	brokerCfg := main.GetBrokerConfiguration(&config)
 
 	// check broker configuration
 	// no port should be set
@@ -325,7 +325,7 @@ func TestLoadConfigurationKafkaBrokerPort(t *testing.T) {
 	assert.NoError(t, err, "Failed loading configuration file")
 
 	// retrieve broker configuration that was just loaded
-	brokerCfg := main.GetBrokerConfiguration(config)
+	brokerCfg := main.GetBrokerConfiguration(&config)
 
 	// check broker configuration
 	assert.Equal(t, "test:1234", brokerCfg.Address)
@@ -368,7 +368,7 @@ func TestLoadConfigurationKafkaBrokerAuthConfigMissingSASL(t *testing.T) {
 	assert.NoError(t, err, "Failed loading configuration file")
 
 	// retrieve broker configuration that was just loaded
-	brokerCfg := main.GetBrokerConfiguration(config)
+	brokerCfg := main.GetBrokerConfiguration(&config)
 
 	// check broker configuration
 	assert.Equal(t, "test:1234", brokerCfg.Address)
@@ -428,7 +428,7 @@ func TestLoadConfigurationKafkaBrokerAuthConfig(t *testing.T) {
 	assert.NoError(t, err, "Failed loading configuration file")
 
 	// retrieve broker configuration that was just loaded
-	brokerCfg := main.GetBrokerConfiguration(config)
+	brokerCfg := main.GetBrokerConfiguration(&config)
 
 	// check broker configuration
 	assert.Equal(t, "test:1234", brokerCfg.Address)
@@ -477,7 +477,7 @@ func TestLoadConfigurationKafkaTopicUpdatedFromClowder(t *testing.T) {
 	config, err := main.LoadConfiguration("CCX_NOTIFICATION_WRITER_CONFIG_FILE", "tests/config2")
 	assert.NoError(t, err, "Failed loading configuration file")
 
-	brokerCfg := main.GetBrokerConfiguration(config)
+	brokerCfg := main.GetBrokerConfiguration(&config)
 	assert.Equal(t, fmt.Sprintf("%s:%d", hostname, port), brokerCfg.Address)
 	assert.Equal(t, newTopicName, brokerCfg.Topic)
 
@@ -487,7 +487,7 @@ func TestLoadConfigurationKafkaTopicUpdatedFromClowder(t *testing.T) {
 	config, err = main.LoadConfiguration("CCX_NOTIFICATION_WRITER_CONFIG_FILE", "tests/config1")
 	assert.NoError(t, err, "Failed loading configuration file")
 
-	brokerCfg = main.GetBrokerConfiguration(config)
+	brokerCfg = main.GetBrokerConfiguration(&config)
 	assert.Equal(t, fmt.Sprintf("%s:%d", hostname, port), brokerCfg.Address)
 	assert.Equal(t, topicName, brokerCfg.Topic)
 }
