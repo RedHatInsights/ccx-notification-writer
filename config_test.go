@@ -128,7 +128,7 @@ func TestLoadStorageConfiguration(t *testing.T) {
 	config, err := main.LoadConfiguration(envVar, "")
 	assert.Nil(t, err, "Failed loading configuration file from env var!")
 
-	storageCfg := main.GetStorageConfiguration(config)
+	storageCfg := main.GetStorageConfiguration(&config)
 
 	assert.Equal(t, "sqlite3", storageCfg.Driver)
 	assert.Equal(t, "user", storageCfg.PGUsername)
@@ -187,7 +187,7 @@ func TestLoadConfigurationFromEnvVariableClowderEnabled(t *testing.T) {
 	assert.NoError(t, err, "Failed loading configuration file")
 
 	// check if database configuration has been loaded properly
-	dbCfg := main.GetStorageConfiguration(config)
+	dbCfg := main.GetStorageConfiguration(&config)
 	assert.Equal(t, testDB, dbCfg.PGDBName)
 }
 
