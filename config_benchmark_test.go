@@ -32,9 +32,9 @@ func mustLoadBenchmarkConfiguration(b *testing.B) main.ConfigStruct {
 	return configuration
 }
 
-// BenchmarkGetMetricsConfigurarion measures the speed of
+// BenchmarkGetMetricsConfiguration measures the speed of
 // GetMetricsConfiguration function from the main module.
-func BenchmarkGetMetricsConfigurarion(b *testing.B) {
+func BenchmarkGetMetricsConfiguration(b *testing.B) {
 	initLogging()
 	configuration := mustLoadBenchmarkConfiguration(b)
 
@@ -54,9 +54,9 @@ func BenchmarkGetMetricsConfigurarion(b *testing.B) {
 
 }
 
-// BenchmarkGetBrokerConfigurarion measures the speed of
+// BenchmarkGetBrokerConfiguration measures the speed of
 // GetBrokerConfiguration function from the main module.
-func BenchmarkGetBrokerConfigurarion(b *testing.B) {
+func BenchmarkGetBrokerConfiguration(b *testing.B) {
 	initLogging()
 	configuration := mustLoadBenchmarkConfiguration(b)
 
@@ -73,9 +73,9 @@ func BenchmarkGetBrokerConfigurarion(b *testing.B) {
 
 }
 
-// BenchmarkGetLoggingConfigurarion measures the speed of
+// BenchmarkGetLoggingConfiguration measures the speed of
 // GetLoggingConfiguration function from the main module.
-func BenchmarkGetLoggingConfigurarion(b *testing.B) {
+func BenchmarkGetLoggingConfiguration(b *testing.B) {
 	initLogging()
 	configuration := mustLoadBenchmarkConfiguration(b)
 
@@ -89,6 +89,25 @@ func BenchmarkGetLoggingConfigurarion(b *testing.B) {
 		}
 		if m.LogLevel != "" {
 			b.Fatal("Wrong configuration: loglevel = '" + m.LogLevel + "'")
+		}
+		b.StartTimer()
+	}
+
+}
+
+// BenchmarkGetStorageConfiguration measures the speed of
+// GetStorageConfiguration function from the main module.
+func BenchmarkGetStorageConfiguration(b *testing.B) {
+	initLogging()
+	configuration := mustLoadBenchmarkConfiguration(b)
+
+	for i := 0; i < b.N; i++ {
+		// call benchmarked function
+		m := main.GetStorageConfiguration(&configuration)
+
+		b.StopTimer()
+		if m.Driver != "postgres" {
+			b.Fatal("Wrong configuration: driver = '" + m.Driver + "'")
 		}
 		b.StartTimer()
 	}
