@@ -34,7 +34,7 @@ func mustLoadBenchmarkConfiguration(b *testing.B) main.ConfigStruct {
 
 // BenchmarkGetMetricsConfigurarion measures the speed of
 // GetMetricsConfiguration function from the main module.
-func BenchmarkGetMetricsConfigurarion(b *testing.B) {
+func _BenchmarkGetMetricsConfigurarion(b *testing.B) {
 	initLogging()
 	configuration := mustLoadBenchmarkConfiguration(b)
 
@@ -56,7 +56,7 @@ func BenchmarkGetMetricsConfigurarion(b *testing.B) {
 
 // BenchmarkGetBrokerConfigurarion measures the speed of
 // GetBrokerConfiguration function from the main module.
-func BenchmarkGetBrokerConfigurarion(b *testing.B) {
+func _BenchmarkGetBrokerConfigurarion(b *testing.B) {
 	initLogging()
 	configuration := mustLoadBenchmarkConfiguration(b)
 
@@ -67,6 +67,28 @@ func BenchmarkGetBrokerConfigurarion(b *testing.B) {
 		b.StopTimer()
 		if m.Address != "kafka:29092" {
 			b.Fatal("Wrong configuration: address = '" + m.Address + "'")
+		}
+		b.StartTimer()
+	}
+
+}
+
+// BenchmarkGetLoggingConfigurarion measures the speed of
+// GetLoggingConfiguration function from the main module.
+func BenchmarkGetLoggingConfigurarion(b *testing.B) {
+	initLogging()
+	configuration := mustLoadBenchmarkConfiguration(b)
+
+	for i := 0; i < b.N; i++ {
+		// call benchmarked function
+		m := main.GetLoggingConfiguration(&configuration)
+
+		b.StopTimer()
+		if !m.Debug {
+			b.Fatal("Wrong configuration: debug is set to false")
+		}
+		if m.LogLevel != "" {
+			b.Fatal("Wrong configuration: loglevel = '" + m.LogLevel + "'")
 		}
 		b.StartTimer()
 	}
