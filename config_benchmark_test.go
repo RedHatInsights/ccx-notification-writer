@@ -34,7 +34,7 @@ func mustLoadBenchmarkConfiguration(b *testing.B) main.ConfigStruct {
 
 // BenchmarkGetMetricsConfigurarion measures the speed of
 // GetMetricsConfiguration function from the main module.
-func _BenchmarkGetMetricsConfigurarion(b *testing.B) {
+func BenchmarkGetMetricsConfigurarion(b *testing.B) {
 	initLogging()
 	configuration := mustLoadBenchmarkConfiguration(b)
 
@@ -56,7 +56,7 @@ func _BenchmarkGetMetricsConfigurarion(b *testing.B) {
 
 // BenchmarkGetBrokerConfigurarion measures the speed of
 // GetBrokerConfiguration function from the main module.
-func _BenchmarkGetBrokerConfigurarion(b *testing.B) {
+func BenchmarkGetBrokerConfigurarion(b *testing.B) {
 	initLogging()
 	configuration := mustLoadBenchmarkConfiguration(b)
 
