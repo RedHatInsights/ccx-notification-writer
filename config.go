@@ -230,7 +230,7 @@ func GetLoggingConfiguration(configuration ConfigStruct) LoggingConfiguration {
 }
 
 // GetBrokerConfiguration returns broker configuration
-func GetBrokerConfiguration(configuration ConfigStruct) BrokerConfiguration {
+func GetBrokerConfiguration(configuration *ConfigStruct) BrokerConfiguration {
 	return configuration.Broker
 }
 

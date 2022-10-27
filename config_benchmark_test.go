@@ -53,3 +53,22 @@ func BenchmarkGetMetricsConfigurarion(b *testing.B) {
 	}
 
 }
+
+// BenchmarkGetBrokerConfigurarion measures the speed of
+// GetBrokerConfiguration function from the main module.
+func BenchmarkGetBrokerConfigurarion(b *testing.B) {
+	initLogging()
+	configuration := mustLoadBenchmarkConfiguration(b)
+
+	for i := 0; i < b.N; i++ {
+		// call benchmarked function
+		m := main.GetBrokerConfiguration(&configuration)
+
+		b.StopTimer()
+		if m.Address != "kafka:29092" {
+			b.Fatal("Wrong configuration: address = '" + m.Address + "'")
+		}
+		b.StartTimer()
+	}
+
+}

@@ -100,7 +100,7 @@ func showAuthors() {
 
 // showConfiguration function displays actual configuration.
 func showConfiguration(configuration ConfigStruct) {
-	brokerConfig := GetBrokerConfiguration(configuration)
+	brokerConfig := GetBrokerConfiguration(&configuration)
 	log.Info().
 		Str(brokerAddress, brokerConfig.Address).
 		Str("Security protocol", brokerConfig.SecurityProtocol).
@@ -140,7 +140,7 @@ func tryToConnectToKafka(configuration ConfigStruct) (int, error) {
 	log.Info().Msg("Checking connection to Kafka")
 
 	// prepare broker configuration
-	brokerConfiguration := GetBrokerConfiguration(configuration)
+	brokerConfiguration := GetBrokerConfiguration(&configuration)
 
 	log.Info().Str("broker address", brokerConfiguration.Address).Msg(brokerAddress)
 
@@ -359,7 +359,7 @@ func startService(configuration ConfigStruct) (int, error) {
 	}
 
 	// prepare broker
-	brokerConfiguration := GetBrokerConfiguration(configuration)
+	brokerConfiguration := GetBrokerConfiguration(&configuration)
 
 	// if broker is disabled, simply don't start it
 	if brokerConfiguration.Enabled {
