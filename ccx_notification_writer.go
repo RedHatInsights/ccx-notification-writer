@@ -112,7 +112,7 @@ func showConfiguration(configuration ConfigStruct) {
 		Bool("Enabled", brokerConfig.Enabled).
 		Msg("Broker configuration")
 
-	storageConfig := GetStorageConfiguration(configuration)
+	storageConfig := GetStorageConfiguration(&configuration)
 	log.Info().
 		Str("Driver", storageConfig.Driver).
 		Str("DB Name", storageConfig.PGDBName).
@@ -175,7 +175,7 @@ func tryToConnectToKafka(configuration ConfigStruct) (int, error) {
 // creates all tables in database.
 func performDatabaseInitialization(configuration ConfigStruct) (int, error) {
 	// prepare the storage
-	storageConfiguration := GetStorageConfiguration(configuration)
+	storageConfiguration := GetStorageConfiguration(&configuration)
 	storage, err := NewStorage(storageConfiguration)
 	if err != nil {
 		log.Err(err).Msg(operationFailedMessage)
@@ -194,7 +194,7 @@ func performDatabaseInitialization(configuration ConfigStruct) (int, error) {
 // performDatabaseInitMigration function initialize migration table
 func performDatabaseInitMigration(configuration ConfigStruct) (int, error) {
 	// prepare the storage
-	storageConfiguration := GetStorageConfiguration(configuration)
+	storageConfiguration := GetStorageConfiguration(&configuration)
 	storage, err := NewStorage(storageConfiguration)
 	if err != nil {
 		log.Err(err).Msg(operationFailedMessage)
@@ -214,7 +214,7 @@ func performDatabaseInitMigration(configuration ConfigStruct) (int, error) {
 // of all tables in database.
 func performDatabaseCleanup(configuration ConfigStruct) (int, error) {
 	// prepare the storage
-	storageConfiguration := GetStorageConfiguration(configuration)
+	storageConfiguration := GetStorageConfiguration(&configuration)
 	storage, err := NewStorage(storageConfiguration)
 	if err != nil {
 		log.Err(err).Msg(operationFailedMessage)
@@ -233,7 +233,7 @@ func performDatabaseCleanup(configuration ConfigStruct) (int, error) {
 // performDatabaseDropTables function performs drop of all databases tables.
 func performDatabaseDropTables(configuration ConfigStruct) (int, error) {
 	// prepare the storage
-	storageConfiguration := GetStorageConfiguration(configuration)
+	storageConfiguration := GetStorageConfiguration(&configuration)
 	storage, err := NewStorage(storageConfiguration)
 	if err != nil {
 		log.Err(err).Msg(operationFailedMessage)
@@ -253,7 +253,7 @@ func performDatabaseDropTables(configuration ConfigStruct) (int, error) {
 // that are older than specified max age.
 func printNewReportsForCleanup(configuration ConfigStruct, cliFlags CliFlags) (int, error) {
 	// prepare the storage
-	storageConfiguration := GetStorageConfiguration(configuration)
+	storageConfiguration := GetStorageConfiguration(&configuration)
 	storage, err := NewStorage(storageConfiguration)
 	if err != nil {
 		log.Error().Err(err).Msg(operationFailedMessage)
@@ -273,7 +273,7 @@ func printNewReportsForCleanup(configuration ConfigStruct, cliFlags CliFlags) (i
 // table that are older than specified max age.
 func performNewReportsCleanup(configuration ConfigStruct, cliFlags CliFlags) (int, error) {
 	// prepare the storage
-	storageConfiguration := GetStorageConfiguration(configuration)
+	storageConfiguration := GetStorageConfiguration(&configuration)
 	storage, err := NewStorage(storageConfiguration)
 	if err != nil {
 		log.Error().Err(err).Msg(operationFailedMessage)
@@ -294,7 +294,7 @@ func performNewReportsCleanup(configuration ConfigStruct, cliFlags CliFlags) (in
 // that are older than specified max age.
 func printOldReportsForCleanup(configuration ConfigStruct, cliFlags CliFlags) (int, error) {
 	// prepare the storage
-	storageConfiguration := GetStorageConfiguration(configuration)
+	storageConfiguration := GetStorageConfiguration(&configuration)
 	storage, err := NewStorage(storageConfiguration)
 	if err != nil {
 		log.Error().Err(err).Msg(operationFailedMessage)
@@ -314,7 +314,7 @@ func printOldReportsForCleanup(configuration ConfigStruct, cliFlags CliFlags) (i
 // that are older than specified max age.
 func performOldReportsCleanup(configuration ConfigStruct, cliFlags CliFlags) (int, error) {
 	// prepare the storage
-	storageConfiguration := GetStorageConfiguration(configuration)
+	storageConfiguration := GetStorageConfiguration(&configuration)
 	storage, err := NewStorage(storageConfiguration)
 	if err != nil {
 		log.Error().Err(err).Msg(operationFailedMessage)
@@ -344,7 +344,7 @@ func startService(configuration ConfigStruct) (int, error) {
 	}
 
 	// prepare the storage
-	storageConfiguration := GetStorageConfiguration(configuration)
+	storageConfiguration := GetStorageConfiguration(&configuration)
 	storage, err := NewStorage(storageConfiguration)
 	if err != nil {
 		log.Err(err).Msg(operationFailedMessage)

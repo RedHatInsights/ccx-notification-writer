@@ -220,7 +220,7 @@ func LoadConfiguration(configFileEnvVariableName, defaultConfigFile string) (Con
 }
 
 // GetStorageConfiguration returns storage configuration
-func GetStorageConfiguration(configuration ConfigStruct) StorageConfiguration {
+func GetStorageConfiguration(configuration *ConfigStruct) StorageConfiguration {
 	return configuration.Storage
 }
 
