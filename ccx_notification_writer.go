@@ -122,7 +122,7 @@ func showConfiguration(configuration ConfigStruct) {
 		Bool("LogSQLQueries", storageConfig.LogSQLQueries).
 		Msg("Storage configuration")
 
-	loggingConfig := GetLoggingConfiguration(configuration)
+	loggingConfig := GetLoggingConfiguration(&configuration)
 	log.Info().
 		Str("Level", loggingConfig.LogLevel).
 		Bool("Pretty colored debug logging", loggingConfig.Debug).

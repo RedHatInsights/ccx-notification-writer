@@ -72,3 +72,25 @@ func BenchmarkGetBrokerConfigurarion(b *testing.B) {
 	}
 
 }
+
+// BenchmarkGetLoggingConfigurarion measures the speed of
+// GetLoggingConfiguration function from the main module.
+func BenchmarkGetLoggingConfigurarion(b *testing.B) {
+	initLogging()
+	configuration := mustLoadBenchmarkConfiguration(b)
+
+	for i := 0; i < b.N; i++ {
+		// call benchmarked function
+		m := main.GetLoggingConfiguration(&configuration)
+
+		b.StopTimer()
+		if !m.Debug {
+			b.Fatal("Wrong configuration: debug is set to false")
+		}
+		if m.LogLevel != "" {
+			b.Fatal("Wrong configuration: loglevel = '" + m.LogLevel + "'")
+		}
+		b.StartTimer()
+	}
+
+}
