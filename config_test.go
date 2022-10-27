@@ -160,7 +160,7 @@ func TestLoadMetricsConfiguration(t *testing.T) {
 	config, err := main.LoadConfiguration(envVar, "")
 	assert.Nil(t, err, "Failed loading configuration file from env var!")
 
-	metricsCfg := main.GetMetricsConfiguration(config)
+	metricsCfg := main.GetMetricsConfiguration(&config)
 
 	assert.Equal(t, "notification_writer", metricsCfg.Namespace)
 	assert.Equal(t, ":8080", metricsCfg.Address)
