@@ -1,5 +1,5 @@
 /*
-Copyright © 2021 Red Hat, Inc.
+Copyright © 2021, 2022 Red Hat, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -235,7 +235,7 @@ func GetBrokerConfiguration(configuration ConfigStruct) BrokerConfiguration {
 }
 
 // GetMetricsConfiguration returns metrics configuration
-func GetMetricsConfiguration(configuration ConfigStruct) MetricsConfiguration {
+func GetMetricsConfiguration(configuration *ConfigStruct) MetricsConfiguration {
 	return configuration.Metrics
 }
 
