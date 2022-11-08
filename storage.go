@@ -319,7 +319,7 @@ var tableNames []string
 var initStatements []string
 
 // NewStorage function creates and initializes a new instance of Storage interface
-func NewStorage(configuration StorageConfiguration) (*DBStorage, error) {
+func NewStorage(configuration *StorageConfiguration) (*DBStorage, error) {
 	log.Info().Msg("Initializing connection to storage")
 
 	driverType, driverName, dataSource, err := initAndGetDriver(configuration)
