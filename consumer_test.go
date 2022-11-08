@@ -68,7 +68,7 @@ func TestNewConsumerBadBroker(t *testing.T) {
 	dummyStorage := main.NewFromConnection(nil, 1)
 
 	// try to construct new consumer
-	mockConsumer, err := main.NewConsumer(brokerConfiguration, dummyStorage)
+	mockConsumer, err := main.NewConsumer(&brokerConfiguration, dummyStorage)
 
 	// check that error is really reported
 	assert.Contains(t, err.Error(), expectedErr)
@@ -100,7 +100,7 @@ func TestNewConsumerLocalBroker(t *testing.T) {
 	dummyStorage := main.NewFromConnection(nil, 1)
 
 	// try to construct new consumer
-	mockConsumer, err := main.NewConsumer(brokerConfiguration, dummyStorage)
+	mockConsumer, err := main.NewConsumer(&brokerConfiguration, dummyStorage)
 
 	// check that error is really reported
 	assert.Contains(t, err.Error(), expectedErr)
@@ -132,7 +132,7 @@ func TestNewConsumerSaramaConfig(t *testing.T) {
 	dummyStorage := main.NewFromConnection(nil, 1)
 
 	// try to construct new consumer
-	mockConsumer, err := main.NewConsumer(brokerConfiguration, dummyStorage)
+	mockConsumer, err := main.NewConsumer(&brokerConfiguration, dummyStorage)
 
 	// check that error is really reported
 	assert.Contains(t, err.Error(), expectedErr)
@@ -165,7 +165,7 @@ func TestNewConsumerTLSEnabled(t *testing.T) {
 	dummyStorage := main.NewFromConnection(nil, 1)
 
 	// try to construct new consumer
-	mockConsumer, err := main.NewConsumer(brokerConfiguration, dummyStorage)
+	mockConsumer, err := main.NewConsumer(&brokerConfiguration, dummyStorage)
 
 	// check that error is really reported
 	assert.Contains(t, err.Error(), expectedErr)
@@ -201,7 +201,7 @@ func TestNewConsumerSASLEnabled(t *testing.T) {
 	dummyStorage := main.NewFromConnection(nil, 1)
 
 	// try to construct new consumer
-	mockConsumer, err := main.NewConsumer(brokerConfiguration, dummyStorage)
+	mockConsumer, err := main.NewConsumer(&brokerConfiguration, dummyStorage)
 
 	// check that error is really reported
 	assert.Contains(t, err.Error(), expectedErr)
@@ -234,7 +234,7 @@ func TestNewConsumerCertPath(t *testing.T) {
 	dummyStorage := main.NewFromConnection(nil, 1)
 
 	// try to construct new consumer
-	mockConsumer, err := main.NewConsumer(brokerConfiguration, dummyStorage)
+	mockConsumer, err := main.NewConsumer(&brokerConfiguration, dummyStorage)
 
 	// check that error is really reported
 	assert.Contains(t, err.Error(), expectedErr)
@@ -267,7 +267,7 @@ func TestNewConsumerInvalidCertPath(t *testing.T) {
 	dummyStorage := main.NewFromConnection(nil, 1)
 
 	// try to construct new consumer
-	mockConsumer, err := main.NewConsumer(brokerConfiguration, dummyStorage)
+	mockConsumer, err := main.NewConsumer(&brokerConfiguration, dummyStorage)
 
 	// check that error is really reported
 	assert.Contains(t, err.Error(), expectedErr)

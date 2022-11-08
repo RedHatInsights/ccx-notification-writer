@@ -126,7 +126,7 @@ type KafkaConsumer struct {
 var DefaultSaramaConfig *sarama.Config
 
 // NewConsumer constructs new implementation of Consumer interface
-func NewConsumer(brokerConfiguration BrokerConfiguration, storage Storage) (*KafkaConsumer, error) {
+func NewConsumer(brokerConfiguration *BrokerConfiguration, storage Storage) (*KafkaConsumer, error) {
 	return NewWithSaramaConfig(brokerConfiguration, DefaultSaramaConfig, storage)
 }
 
