@@ -35,6 +35,7 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"strings"
 
 	utils "github.com/RedHatInsights/insights-operator-utils/migrations"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -447,6 +448,24 @@ func doSelectedOperation(configuration ConfigStruct, cliFlags CliFlags) (int, er
 	// this can not happen: return ExitStatusOK, nil
 }
 
+func convertLogLevel(level string) zerolog.Level {
+	level = strings.ToLower(strings.TrimSpace(level))
+	switch level {
+	case "debug":
+		return zerolog.DebugLevel
+	case "info":
+		return zerolog.InfoLevel
+	case "warn", "warning":
+		return zerolog.WarnLevel
+	case "error":
+		return zerolog.ErrorLevel
+	case "fatal":
+		return zerolog.FatalLevel
+	}
+
+	return zerolog.DebugLevel
+}
+
 // main function is entry point to the Notification writer service.
 func main() {
 	var cliFlags CliFlags
@@ -478,6 +497,15 @@ func main() {
 	if configuration.Logging.Debug {
 		log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
 	}
+
+	// set log level
+	// TODO: refactor utils/logger appropriately
+	logLevel := convertLogLevel(configuration.Logging.LogLevel)
+	zerolog.SetGlobalLevel(logLevel)
+	log.Info().
+		Str("configured", configuration.Logging.LogLevel).
+		Int("internal", int(logLevel)).
+		Msg("Log level")
 
 	log.Debug().Msg("Started")
 
