@@ -151,7 +151,7 @@ func NewWithSaramaConfig(
 	}
 
 	consumer := &KafkaConsumer{
-		Configuration:                        brokerConfiguration,
+		Configuration:                        *brokerConfiguration,
 		ConsumerGroup:                        consumerGroup,
 		Storage:                              storage,
 		numberOfSuccessfullyConsumedMessages: 0,
