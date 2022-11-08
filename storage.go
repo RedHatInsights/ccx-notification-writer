@@ -390,7 +390,7 @@ func NewFromConnection(connection *sql.DB, dbDriverType DBDriver) *DBStorage {
 
 // initAndGetDriver initializes driver(with logs if logSQLQueries is true),
 // checks if it's supported and returns driver type, driver name, dataSource and error
-func initAndGetDriver(configuration StorageConfiguration) (driverType DBDriver, driverName, dataSource string, err error) {
+func initAndGetDriver(configuration *StorageConfiguration) (driverType DBDriver, driverName, dataSource string, err error) {
 	driverName = configuration.Driver
 
 	switch driverName {
