@@ -64,6 +64,17 @@ const (
 	durationKey = "duration"
 )
 
+// Attribute names in incoming messages
+const (
+	systemAttribute           = "system"
+	fingerprintsAttribute     = "fingerprints"
+	skipsAttribute            = "skips"
+	infoAttribute             = "info"
+	passAttribute             = "pass"
+	analysisMetadataAttribute = "analysis_metadata"
+	reportsAttribute          = "reports"
+)
+
 // CurrentSchemaVersion represents the currently supported data schema version
 const CurrentSchemaVersion = SchemaVersion(2)
 
@@ -328,12 +339,12 @@ func checkMessageVersion(consumer *KafkaConsumer, message *IncomingMessage, msg 
 // shrinkMessage function shrink the original message by removing unused parts.
 func shrinkMessage(message *Report) {
 	// delete all unneeded 'root' attributes
-	tryToDeleteAttribute(message, "system")
-	tryToDeleteAttribute(message, "fingerprints")
-	tryToDeleteAttribute(message, "skips")
-	tryToDeleteAttribute(message, "info")
-	tryToDeleteAttribute(message, "pass")
-	tryToDeleteAttribute(message, "analysis_metadata")
+	tryToDeleteAttribute(message, systemAttribute)
+	tryToDeleteAttribute(message, fingerprintsAttribute)
+	tryToDeleteAttribute(message, skipsAttribute)
+	tryToDeleteAttribute(message, infoAttribute)
+	tryToDeleteAttribute(message, passAttribute)
+	tryToDeleteAttribute(message, analysisMetadataAttribute)
 }
 
 // tryToDeleteAttribute function deletes selected attribute from input map. If
@@ -484,7 +495,12 @@ func logShrunkMessage(reportAsBytes, shrunkAsBytes []byte) {
 // checkReportStructure tests if the report has correct structure
 func checkReportStructure(r Report) error {
 	// the structure is not well defined yet, so all we should do is to check if all keys are there
-	expectedKeys := []string{"fingerprints", "info", "reports", "system"}
+	expectedKeys := []string{
+		fingerprintsAttribute,
+		infoAttribute,
+		reportsAttribute,
+		systemAttribute,
+	}
 
 	// 'skips' key is now optional, we should not expect it anymore:
 	// https://github.com/RedHatInsights/insights-results-aggregator/issues/1206
