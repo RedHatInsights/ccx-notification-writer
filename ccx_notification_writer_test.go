@@ -174,3 +174,65 @@ func TestDoSelectedOperationShowConfiguration(t *testing.T) {
 	assert.Contains(t, output, "broker_topic")
 	assert.Contains(t, output, "metrics_namespace")
 }
+
+// TestConvertLogLevel tests the convertLogLevel function.
+func TestConvertLogLevel(t *testing.T) {
+	type TestData struct {
+		Input  string
+		Output zerolog.Level
+	}
+
+	testData := []TestData{
+		TestData{
+			Input:  "",
+			Output: zerolog.DebugLevel,
+		},
+		TestData{
+			Input:  "debug",
+			Output: zerolog.DebugLevel,
+		},
+		TestData{
+			Input:  " debug",
+			Output: zerolog.DebugLevel,
+		},
+		TestData{
+			Input:  " debug ",
+			Output: zerolog.DebugLevel,
+		},
+		TestData{
+			Input:  "info",
+			Output: zerolog.InfoLevel,
+		},
+		TestData{
+			Input:  "warn",
+			Output: zerolog.WarnLevel,
+		},
+		TestData{
+			Input:  "warning",
+			Output: zerolog.WarnLevel,
+		},
+		TestData{
+			Input:  "error",
+			Output: zerolog.ErrorLevel,
+		},
+		TestData{
+			Input:  "fatal",
+			Output: zerolog.FatalLevel,
+		},
+		TestData{
+			Input:  " fatal",
+			Output: zerolog.FatalLevel,
+		},
+		TestData{
+			Input:  "fatal ",
+			Output: zerolog.FatalLevel,
+		},
+	}
+
+	for _, td := range testData {
+		// perform conversion
+		output := main.ConvertLogLevel(td.Input)
+		// check if converted value is eqaual to expected one
+		assert.Equal(t, output, td.Output)
+	}
+}
