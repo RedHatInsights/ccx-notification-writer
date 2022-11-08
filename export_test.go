@@ -29,6 +29,9 @@ package main
 // https://medium.com/@robiplus/golang-trick-export-for-test-aa16cbd7b8cd
 // to see why this trick is needed.
 var (
+	// functions from ccx-notification-writer.go
+	ConvertLogLevel = convertLogLevel
+
 	// functions from the logging.go source file
 	LogDuration             = logDuration
 	LogMessageInfo          = logMessageInfo
