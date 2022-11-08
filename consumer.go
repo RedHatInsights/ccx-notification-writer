@@ -73,7 +73,6 @@ const (
 	passAttribute             = "pass"
 	analysisMetadataAttribute = "analysis_metadata"
 	reportsAttribute          = "reports"
-	systemAttribute           = "system"
 )
 
 // CurrentSchemaVersion represents the currently supported data schema version
