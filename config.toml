@@ -20,7 +20,7 @@ log_sql_queries = true
 
 [logging]
 debug = true
-log_level = ""
+log_level = "info"
 
 [metrics]
 namespace = "notification_writer"
