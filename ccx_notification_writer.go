@@ -364,7 +364,7 @@ func startService(configuration ConfigStruct) (int, error) {
 
 	// if broker is disabled, simply don't start it
 	if brokerConfiguration.Enabled {
-		err := startConsumer(brokerConfiguration, storage)
+		err := startConsumer(&brokerConfiguration, storage)
 		if err != nil {
 			log.Error().Err(err)
 			return ExitStatusConsumerError, err
@@ -377,7 +377,7 @@ func startService(configuration ConfigStruct) (int, error) {
 }
 
 // startConsumer function starts the Kafka consumer.
-func startConsumer(brokerConfiguration BrokerConfiguration, storage Storage) error {
+func startConsumer(brokerConfiguration *BrokerConfiguration, storage Storage) error {
 	consumer, err := NewConsumer(brokerConfiguration, storage)
 	if err != nil {
 		log.Error().Err(err).Msg("Construct broker failed")
