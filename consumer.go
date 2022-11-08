@@ -126,13 +126,13 @@ type KafkaConsumer struct {
 var DefaultSaramaConfig *sarama.Config
 
 // NewConsumer constructs new implementation of Consumer interface
-func NewConsumer(brokerConfiguration BrokerConfiguration, storage Storage) (*KafkaConsumer, error) {
+func NewConsumer(brokerConfiguration *BrokerConfiguration, storage Storage) (*KafkaConsumer, error) {
 	return NewWithSaramaConfig(brokerConfiguration, DefaultSaramaConfig, storage)
 }
 
 // NewWithSaramaConfig constructs new implementation of Consumer interface with custom sarama config
 func NewWithSaramaConfig(
-	brokerConfiguration BrokerConfiguration,
+	brokerConfiguration *BrokerConfiguration,
 	saramaConfig *sarama.Config,
 	storage Storage,
 ) (*KafkaConsumer, error) {
@@ -151,7 +151,7 @@ func NewWithSaramaConfig(
 	}
 
 	consumer := &KafkaConsumer{
-		Configuration:                        brokerConfiguration,
+		Configuration:                        *brokerConfiguration,
 		ConsumerGroup:                        consumerGroup,
 		Storage:                              storage,
 		numberOfSuccessfullyConsumedMessages: 0,
@@ -554,7 +554,7 @@ func parseMessage(messageValue []byte) (IncomingMessage, error) {
 	return deserialized, nil
 }
 
-func saramaConfigFromBrokerConfig(brokerConfiguration BrokerConfiguration) (*sarama.Config, error) {
+func saramaConfigFromBrokerConfig(brokerConfiguration *BrokerConfiguration) (*sarama.Config, error) {
 	saramaConfig := sarama.NewConfig()
 	saramaConfig.Version = sarama.V0_10_2_0
 
