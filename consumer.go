@@ -132,7 +132,7 @@ func NewConsumer(brokerConfiguration *BrokerConfiguration, storage Storage) (*Ka
 
 // NewWithSaramaConfig constructs new implementation of Consumer interface with custom sarama config
 func NewWithSaramaConfig(
-	brokerConfiguration BrokerConfiguration,
+	brokerConfiguration *BrokerConfiguration,
 	saramaConfig *sarama.Config,
 	storage Storage,
 ) (*KafkaConsumer, error) {
@@ -554,7 +554,7 @@ func parseMessage(messageValue []byte) (IncomingMessage, error) {
 	return deserialized, nil
 }
 
-func saramaConfigFromBrokerConfig(brokerConfiguration BrokerConfiguration) (*sarama.Config, error) {
+func saramaConfigFromBrokerConfig(brokerConfiguration *BrokerConfiguration) (*sarama.Config, error) {
 	saramaConfig := sarama.NewConfig()
 	saramaConfig.Version = sarama.V0_10_2_0
 
