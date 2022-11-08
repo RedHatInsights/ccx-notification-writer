@@ -267,7 +267,7 @@ func initializeStorage(configuration *main.ConfigStruct) (*sql.DB, error) {
 	storageConfiguration := main.GetStorageConfiguration(configuration)
 
 	// perform storage initialization
-	storage, err := main.NewStorage(storageConfiguration)
+	storage, err := main.NewStorage(&storageConfiguration)
 	if err != nil {
 		return nil, err
 	}

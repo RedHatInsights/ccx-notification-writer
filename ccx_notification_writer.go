@@ -177,7 +177,7 @@ func tryToConnectToKafka(configuration ConfigStruct) (int, error) {
 func performDatabaseInitialization(configuration ConfigStruct) (int, error) {
 	// prepare the storage
 	storageConfiguration := GetStorageConfiguration(&configuration)
-	storage, err := NewStorage(storageConfiguration)
+	storage, err := NewStorage(&storageConfiguration)
 	if err != nil {
 		log.Err(err).Msg(operationFailedMessage)
 		return ExitStatusStorageError, err
@@ -196,7 +196,7 @@ func performDatabaseInitialization(configuration ConfigStruct) (int, error) {
 func performDatabaseInitMigration(configuration ConfigStruct) (int, error) {
 	// prepare the storage
 	storageConfiguration := GetStorageConfiguration(&configuration)
-	storage, err := NewStorage(storageConfiguration)
+	storage, err := NewStorage(&storageConfiguration)
 	if err != nil {
 		log.Err(err).Msg(operationFailedMessage)
 		return ExitStatusStorageError, err
@@ -216,7 +216,7 @@ func performDatabaseInitMigration(configuration ConfigStruct) (int, error) {
 func performDatabaseCleanup(configuration ConfigStruct) (int, error) {
 	// prepare the storage
 	storageConfiguration := GetStorageConfiguration(&configuration)
-	storage, err := NewStorage(storageConfiguration)
+	storage, err := NewStorage(&storageConfiguration)
 	if err != nil {
 		log.Err(err).Msg(operationFailedMessage)
 		return ExitStatusStorageError, err
@@ -235,7 +235,7 @@ func performDatabaseCleanup(configuration ConfigStruct) (int, error) {
 func performDatabaseDropTables(configuration ConfigStruct) (int, error) {
 	// prepare the storage
 	storageConfiguration := GetStorageConfiguration(&configuration)
-	storage, err := NewStorage(storageConfiguration)
+	storage, err := NewStorage(&storageConfiguration)
 	if err != nil {
 		log.Err(err).Msg(operationFailedMessage)
 		return ExitStatusStorageError, err
@@ -255,7 +255,7 @@ func performDatabaseDropTables(configuration ConfigStruct) (int, error) {
 func printNewReportsForCleanup(configuration ConfigStruct, cliFlags CliFlags) (int, error) {
 	// prepare the storage
 	storageConfiguration := GetStorageConfiguration(&configuration)
-	storage, err := NewStorage(storageConfiguration)
+	storage, err := NewStorage(&storageConfiguration)
 	if err != nil {
 		log.Error().Err(err).Msg(operationFailedMessage)
 		return ExitStatusStorageError, err
@@ -275,7 +275,7 @@ func printNewReportsForCleanup(configuration ConfigStruct, cliFlags CliFlags) (i
 func performNewReportsCleanup(configuration ConfigStruct, cliFlags CliFlags) (int, error) {
 	// prepare the storage
 	storageConfiguration := GetStorageConfiguration(&configuration)
-	storage, err := NewStorage(storageConfiguration)
+	storage, err := NewStorage(&storageConfiguration)
 	if err != nil {
 		log.Error().Err(err).Msg(operationFailedMessage)
 		return ExitStatusStorageError, err
@@ -296,7 +296,7 @@ func performNewReportsCleanup(configuration ConfigStruct, cliFlags CliFlags) (in
 func printOldReportsForCleanup(configuration ConfigStruct, cliFlags CliFlags) (int, error) {
 	// prepare the storage
 	storageConfiguration := GetStorageConfiguration(&configuration)
-	storage, err := NewStorage(storageConfiguration)
+	storage, err := NewStorage(&storageConfiguration)
 	if err != nil {
 		log.Error().Err(err).Msg(operationFailedMessage)
 		return ExitStatusStorageError, err
@@ -316,7 +316,7 @@ func printOldReportsForCleanup(configuration ConfigStruct, cliFlags CliFlags) (i
 func performOldReportsCleanup(configuration ConfigStruct, cliFlags CliFlags) (int, error) {
 	// prepare the storage
 	storageConfiguration := GetStorageConfiguration(&configuration)
-	storage, err := NewStorage(storageConfiguration)
+	storage, err := NewStorage(&storageConfiguration)
 	if err != nil {
 		log.Error().Err(err).Msg(operationFailedMessage)
 		return ExitStatusStorageError, err
@@ -346,7 +346,7 @@ func startService(configuration ConfigStruct) (int, error) {
 
 	// prepare the storage
 	storageConfiguration := GetStorageConfiguration(&configuration)
-	storage, err := NewStorage(storageConfiguration)
+	storage, err := NewStorage(&storageConfiguration)
 	if err != nil {
 		log.Err(err).Msg(operationFailedMessage)
 		return ExitStatusStorageError, err
@@ -528,7 +528,8 @@ func main() {
 // PrintMigrationInfo function prints information about current DB migration
 // version without making any modifications.
 func PrintMigrationInfo(configuration ConfigStruct) (int, error) {
-	storage, err := NewStorage(configuration.Storage)
+	storageConfiguration := GetStorageConfiguration(&configuration)
+	storage, err := NewStorage(&storageConfiguration)
 	if err != nil {
 		log.Error().Err(err).Msg(StorageHandleErr)
 		return ExitStatusMigrationError, err
@@ -551,7 +552,8 @@ func PerformMigrations(configuration ConfigStruct, migParam string) (exitStatus 
 	utils.Set(All())
 
 	// get db handle
-	storage, err := NewStorage(configuration.Storage)
+	storageConfiguration := GetStorageConfiguration(&configuration)
+	storage, err := NewStorage(&storageConfiguration)
 	if err != nil {
 		log.Error().Err(err).Msg(StorageHandleErr)
 		exitStatus = ExitStatusMigrationError

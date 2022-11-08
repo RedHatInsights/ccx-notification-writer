@@ -319,7 +319,7 @@ var tableNames []string
 var initStatements []string
 
 // NewStorage function creates and initializes a new instance of Storage interface
-func NewStorage(configuration StorageConfiguration) (*DBStorage, error) {
+func NewStorage(configuration *StorageConfiguration) (*DBStorage, error) {
 	log.Info().Msg("Initializing connection to storage")
 
 	driverType, driverName, dataSource, err := initAndGetDriver(configuration)
@@ -390,7 +390,7 @@ func NewFromConnection(connection *sql.DB, dbDriverType DBDriver) *DBStorage {
 
 // initAndGetDriver initializes driver(with logs if logSQLQueries is true),
 // checks if it's supported and returns driver type, driver name, dataSource and error
-func initAndGetDriver(configuration StorageConfiguration) (driverType DBDriver, driverName, dataSource string, err error) {
+func initAndGetDriver(configuration *StorageConfiguration) (driverType DBDriver, driverName, dataSource string, err error) {
 	driverName = configuration.Driver
 
 	switch driverName {
