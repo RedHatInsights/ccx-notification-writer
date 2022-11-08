@@ -100,8 +100,8 @@ func showAuthors() {
 }
 
 // showConfiguration function displays actual configuration.
-func showConfiguration(configuration ConfigStruct) {
-	brokerConfig := GetBrokerConfiguration(&configuration)
+func showConfiguration(configuration *ConfigStruct) {
+	brokerConfig := GetBrokerConfiguration(configuration)
 	log.Info().
 		Str(brokerAddress, brokerConfig.Address).
 		Str("Security protocol", brokerConfig.SecurityProtocol).
@@ -113,7 +113,7 @@ func showConfiguration(configuration ConfigStruct) {
 		Bool("Enabled", brokerConfig.Enabled).
 		Msg("Broker configuration")
 
-	storageConfig := GetStorageConfiguration(&configuration)
+	storageConfig := GetStorageConfiguration(configuration)
 	log.Info().
 		Str("Driver", storageConfig.Driver).
 		Str("DB Name", storageConfig.PGDBName).
@@ -123,13 +123,13 @@ func showConfiguration(configuration ConfigStruct) {
 		Bool("LogSQLQueries", storageConfig.LogSQLQueries).
 		Msg("Storage configuration")
 
-	loggingConfig := GetLoggingConfiguration(&configuration)
+	loggingConfig := GetLoggingConfiguration(configuration)
 	log.Info().
 		Str("Level", loggingConfig.LogLevel).
 		Bool("Pretty colored debug logging", loggingConfig.Debug).
 		Msg("Logging configuration")
 
-	metricsConfig := GetMetricsConfiguration(&configuration)
+	metricsConfig := GetMetricsConfiguration(configuration)
 	log.Info().
 		Str("Namespace", metricsConfig.Namespace).
 		Str("Address", metricsConfig.Address).
@@ -137,11 +137,11 @@ func showConfiguration(configuration ConfigStruct) {
 }
 
 // tryToConnectToKafka function just tries connection to Kafka broker
-func tryToConnectToKafka(configuration ConfigStruct) (int, error) {
+func tryToConnectToKafka(configuration *ConfigStruct) (int, error) {
 	log.Info().Msg("Checking connection to Kafka")
 
 	// prepare broker configuration
-	brokerConfiguration := GetBrokerConfiguration(&configuration)
+	brokerConfiguration := GetBrokerConfiguration(configuration)
 
 	log.Info().Str("broker address", brokerConfiguration.Address).Msg(brokerAddress)
 
@@ -174,9 +174,9 @@ func tryToConnectToKafka(configuration ConfigStruct) (int, error) {
 
 // performDatabaseInitialization function performs database initialization -
 // creates all tables in database.
-func performDatabaseInitialization(configuration ConfigStruct) (int, error) {
+func performDatabaseInitialization(configuration *ConfigStruct) (int, error) {
 	// prepare the storage
-	storageConfiguration := GetStorageConfiguration(&configuration)
+	storageConfiguration := GetStorageConfiguration(configuration)
 	storage, err := NewStorage(&storageConfiguration)
 	if err != nil {
 		log.Err(err).Msg(operationFailedMessage)
@@ -193,9 +193,9 @@ func performDatabaseInitialization(configuration ConfigStruct) (int, error) {
 }
 
 // performDatabaseInitMigration function initialize migration table
-func performDatabaseInitMigration(configuration ConfigStruct) (int, error) {
+func performDatabaseInitMigration(configuration *ConfigStruct) (int, error) {
 	// prepare the storage
-	storageConfiguration := GetStorageConfiguration(&configuration)
+	storageConfiguration := GetStorageConfiguration(configuration)
 	storage, err := NewStorage(&storageConfiguration)
 	if err != nil {
 		log.Err(err).Msg(operationFailedMessage)
@@ -213,9 +213,9 @@ func performDatabaseInitMigration(configuration ConfigStruct) (int, error) {
 
 // performDatabaseCleanup function performs database cleanup - deletes content
 // of all tables in database.
-func performDatabaseCleanup(configuration ConfigStruct) (int, error) {
+func performDatabaseCleanup(configuration *ConfigStruct) (int, error) {
 	// prepare the storage
-	storageConfiguration := GetStorageConfiguration(&configuration)
+	storageConfiguration := GetStorageConfiguration(configuration)
 	storage, err := NewStorage(&storageConfiguration)
 	if err != nil {
 		log.Err(err).Msg(operationFailedMessage)
@@ -232,9 +232,9 @@ func performDatabaseCleanup(configuration ConfigStruct) (int, error) {
 }
 
 // performDatabaseDropTables function performs drop of all databases tables.
-func performDatabaseDropTables(configuration ConfigStruct) (int, error) {
+func performDatabaseDropTables(configuration *ConfigStruct) (int, error) {
 	// prepare the storage
-	storageConfiguration := GetStorageConfiguration(&configuration)
+	storageConfiguration := GetStorageConfiguration(configuration)
 	storage, err := NewStorage(&storageConfiguration)
 	if err != nil {
 		log.Err(err).Msg(operationFailedMessage)
@@ -252,9 +252,9 @@ func performDatabaseDropTables(configuration ConfigStruct) (int, error) {
 
 // printNewReportsForCleanup function print all reports for `new_reports` table
 // that are older than specified max age.
-func printNewReportsForCleanup(configuration ConfigStruct, cliFlags CliFlags) (int, error) {
+func printNewReportsForCleanup(configuration *ConfigStruct, cliFlags CliFlags) (int, error) {
 	// prepare the storage
-	storageConfiguration := GetStorageConfiguration(&configuration)
+	storageConfiguration := GetStorageConfiguration(configuration)
 	storage, err := NewStorage(&storageConfiguration)
 	if err != nil {
 		log.Error().Err(err).Msg(operationFailedMessage)
@@ -272,9 +272,9 @@ func printNewReportsForCleanup(configuration ConfigStruct, cliFlags CliFlags) (i
 
 // performNewReportsCleanup function deletes all reports from `new_reports`
 // table that are older than specified max age.
-func performNewReportsCleanup(configuration ConfigStruct, cliFlags CliFlags) (int, error) {
+func performNewReportsCleanup(configuration *ConfigStruct, cliFlags CliFlags) (int, error) {
 	// prepare the storage
-	storageConfiguration := GetStorageConfiguration(&configuration)
+	storageConfiguration := GetStorageConfiguration(configuration)
 	storage, err := NewStorage(&storageConfiguration)
 	if err != nil {
 		log.Error().Err(err).Msg(operationFailedMessage)
@@ -293,9 +293,9 @@ func performNewReportsCleanup(configuration ConfigStruct, cliFlags CliFlags) (in
 
 // printOldReportsForCleanup function print all reports for `reported` table
 // that are older than specified max age.
-func printOldReportsForCleanup(configuration ConfigStruct, cliFlags CliFlags) (int, error) {
+func printOldReportsForCleanup(configuration *ConfigStruct, cliFlags CliFlags) (int, error) {
 	// prepare the storage
-	storageConfiguration := GetStorageConfiguration(&configuration)
+	storageConfiguration := GetStorageConfiguration(configuration)
 	storage, err := NewStorage(&storageConfiguration)
 	if err != nil {
 		log.Error().Err(err).Msg(operationFailedMessage)
@@ -313,9 +313,9 @@ func printOldReportsForCleanup(configuration ConfigStruct, cliFlags CliFlags) (i
 
 // performOldReportsCleanup function deletes all reports from `reported` table
 // that are older than specified max age.
-func performOldReportsCleanup(configuration ConfigStruct, cliFlags CliFlags) (int, error) {
+func performOldReportsCleanup(configuration *ConfigStruct, cliFlags CliFlags) (int, error) {
 	// prepare the storage
-	storageConfiguration := GetStorageConfiguration(&configuration)
+	storageConfiguration := GetStorageConfiguration(configuration)
 	storage, err := NewStorage(&storageConfiguration)
 	if err != nil {
 		log.Error().Err(err).Msg(operationFailedMessage)
@@ -333,19 +333,19 @@ func performOldReportsCleanup(configuration ConfigStruct, cliFlags CliFlags) (in
 }
 
 // startService function tries to start the notification writer service.
-func startService(configuration ConfigStruct) (int, error) {
+func startService(configuration *ConfigStruct) (int, error) {
 	// show configuration at startup
 	showConfiguration(configuration)
 
 	// configure metrics
-	metricsConfig := GetMetricsConfiguration(&configuration)
+	metricsConfig := GetMetricsConfiguration(configuration)
 	if metricsConfig.Namespace != "" {
 		log.Info().Str("namespace", metricsConfig.Namespace).Msg("Setting metrics namespace")
 		AddMetricsWithNamespace(metricsConfig.Namespace)
 	}
 
 	// prepare the storage
-	storageConfiguration := GetStorageConfiguration(&configuration)
+	storageConfiguration := GetStorageConfiguration(configuration)
 	storage, err := NewStorage(&storageConfiguration)
 	if err != nil {
 		log.Err(err).Msg(operationFailedMessage)
@@ -360,7 +360,7 @@ func startService(configuration ConfigStruct) (int, error) {
 	}
 
 	// prepare broker
-	brokerConfiguration := GetBrokerConfiguration(&configuration)
+	brokerConfiguration := GetBrokerConfiguration(configuration)
 
 	// if broker is disabled, simply don't start it
 	if brokerConfiguration.Enabled {
@@ -408,7 +408,7 @@ func startHTTPServer(address string) error {
 // instead.
 //
 //gocyclo:ignore
-func doSelectedOperation(configuration ConfigStruct, cliFlags CliFlags) (int, error) {
+func doSelectedOperation(configuration *ConfigStruct, cliFlags CliFlags) (int, error) {
 	switch {
 	case cliFlags.ShowVersion:
 		showVersion()
@@ -515,7 +515,7 @@ func main() {
 	}
 
 	// perform selected operation
-	exitStatus, err := doSelectedOperation(configuration, cliFlags)
+	exitStatus, err := doSelectedOperation(&configuration, cliFlags)
 	if err != nil {
 		log.Err(err).Msg("Do selected operation")
 		os.Exit(exitStatus)
@@ -527,8 +527,8 @@ func main() {
 
 // PrintMigrationInfo function prints information about current DB migration
 // version without making any modifications.
-func PrintMigrationInfo(configuration ConfigStruct) (int, error) {
-	storageConfiguration := GetStorageConfiguration(&configuration)
+func PrintMigrationInfo(configuration *ConfigStruct) (int, error) {
+	storageConfiguration := GetStorageConfiguration(configuration)
 	storage, err := NewStorage(&storageConfiguration)
 	if err != nil {
 		log.Error().Err(err).Msg(StorageHandleErr)
@@ -547,12 +547,12 @@ func PrintMigrationInfo(configuration ConfigStruct) (int, error) {
 
 // PerformMigrations migrates the database to the version
 // specified in params
-func PerformMigrations(configuration ConfigStruct, migParam string) (exitStatus int, err error) {
+func PerformMigrations(configuration *ConfigStruct, migParam string) (exitStatus int, err error) {
 	// init migration utils
 	utils.Set(All())
 
 	// get db handle
-	storageConfiguration := GetStorageConfiguration(&configuration)
+	storageConfiguration := GetStorageConfiguration(configuration)
 	storage, err := NewStorage(&storageConfiguration)
 	if err != nil {
 		log.Error().Err(err).Msg(StorageHandleErr)
