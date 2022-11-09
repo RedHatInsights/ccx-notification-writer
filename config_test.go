@@ -491,3 +491,23 @@ func TestLoadConfigurationKafkaTopicUpdatedFromClowder(t *testing.T) {
 	assert.Equal(t, fmt.Sprintf("%s:%d", hostname, port), brokerCfg.Address)
 	assert.Equal(t, topicName, brokerCfg.Topic)
 }
+
+// TestGetStorageConfigurationIsImmutable checks if function
+// GetStorageConfiguration is not mutable
+func TestGetStorageConfigurationIsImmutable(t *testing.T) {
+	envVar := "CCX_NOTIFICATION_WRITER_CONFIG_FILE"
+	mustSetEnv(t, envVar, "tests/config2")
+
+	// load configuration with check if loading was ok
+	config, err := main.LoadConfiguration(envVar, "")
+	assert.Nil(t, err, "Failed loading configuration file from env var!")
+
+	// clone the configuration
+	origConfig := config
+
+	// call the tested function
+	main.GetStorageConfiguration(&config)
+
+	// and compare original configuration with possibly mutated one
+	assert.Equal(t, config, origConfig, "GetStorageConfiguration must not be mutable")
+}
