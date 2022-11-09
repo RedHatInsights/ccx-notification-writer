@@ -531,3 +531,23 @@ func TestGetLoggingConfigurationIsImmutable(t *testing.T) {
 	// and compare original configuration with possibly mutated one
 	assert.Equal(t, config, origConfig, "GetLoggingConfiguration must not be mutable")
 }
+
+// TestGetBrokerConfigurationIsImmutable checks if function
+// GetBrokerConfiguration is not mutable
+func TestGetBrokerConfigurationIsImmutable(t *testing.T) {
+	envVar := "CCX_NOTIFICATION_WRITER_CONFIG_FILE"
+	mustSetEnv(t, envVar, "tests/config2")
+
+	// load configuration with check if loading was ok
+	config, err := main.LoadConfiguration(envVar, "")
+	assert.Nil(t, err, "Failed loading configuration file from env var!")
+
+	// clone the configuration
+	origConfig := config
+
+	// call the tested function
+	main.GetBrokerConfiguration(&config)
+
+	// and compare original configuration with possibly mutated one
+	assert.Equal(t, config, origConfig, "GetBrokerConfiguration must not be mutable")
+}
