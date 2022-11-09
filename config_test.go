@@ -511,3 +511,23 @@ func TestGetStorageConfigurationIsImmutable(t *testing.T) {
 	// and compare original configuration with possibly mutated one
 	assert.Equal(t, config, origConfig, "GetStorageConfiguration must not be mutable")
 }
+
+// TestGetLoggingConfigurationIsImmutable checks if function
+// GetLoggingConfiguration is not mutable
+func TestGetLoggingConfigurationIsImmutable(t *testing.T) {
+	envVar := "CCX_NOTIFICATION_WRITER_CONFIG_FILE"
+	mustSetEnv(t, envVar, "tests/config2")
+
+	// load configuration with check if loading was ok
+	config, err := main.LoadConfiguration(envVar, "")
+	assert.Nil(t, err, "Failed loading configuration file from env var!")
+
+	// clone the configuration
+	origConfig := config
+
+	// call the tested function
+	main.GetLoggingConfiguration(&config)
+
+	// and compare original configuration with possibly mutated one
+	assert.Equal(t, config, origConfig, "GetLoggingConfiguration must not be mutable")
+}
