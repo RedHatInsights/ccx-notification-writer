@@ -97,6 +97,7 @@ cover                Generate HTML pages with code coverage
 coverage             Display code coverage on terminal
 bdd_tests            Run BDD tests
 before_commit        Checks done before commit
+function_list        List all functions in generated binary file
 help                 Show this help screen
 ```
 
