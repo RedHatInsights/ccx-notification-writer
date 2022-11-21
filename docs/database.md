@@ -9,7 +9,7 @@ nav_order: 5
 
 ## Schema description
 
-Database schema is described [in this document](https://redhatinsights.github.io/ccx-notification-writer/database.html)
+Database schema is described [in this document](https://redhatinsights.github.io/ccx-notification-writer/db-description/)
 
 ## Schema regeneration
 
