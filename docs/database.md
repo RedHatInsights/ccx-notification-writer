@@ -7,6 +7,24 @@ nav_order: 5
 
 * PostgreSQL database is used as a storage.
 
+## List of tables
+
+```
+                List of relations
+ Schema |         Name         | Type  |  Owner
+--------+----------------------+-------+----------
+ public | event_targets        | table | postgres
+ public | migration_info       | table | postgres
+ public | new_reports          | table | postgres
+ public | notification_types   | table | postgres
+ public | read_errors          | table | postgres
+ public | reported             | table | postgres
+ public | states               | table | postgres
+(7 rows)
+```
+
+
+
 ## Schema description
 
 Database schema is described [in this document](https://redhatinsights.github.io/ccx-notification-writer/db-description/)
@@ -171,5 +189,30 @@ Currently the following values are stored in this read-only table:
   1 | notifications backend | the target of the report is the ccx notification s ervice back end
   2 | service log           | the target of the report is the ServiceLog
 (2 rows)
+```
+
+### Table `read_errors`
+
+This table stores information about errors that are detected during new reports
+collection. There's 1:N mapping between `new_reports` and `read_errors` tables
+which means that multiple errors can be stored for one new report.
+
+```
+                                        Table "public.read_errors"
+   Column   |            Type             |                           Modifiers
+------------+-----------------------------+----------------------------------------------------------------
+ error_id   | integer                     | not null default nextval('read_errors_error_id_seq'::regclass)
+ org_id     | integer                     | not null
+ cluster    | character(36)               | not null
+ updated_at | timestamp without time zone | not null
+ error_text | character varying(1000)     | not null
+ created_at | timestamp without time zone | not null
+Indexes:
+    "read_errors_pkey" PRIMARY KEY, btree (error_id)
+    "read_errors_error_id_org_id_cluster_updated_at_key"
+    UNIQUE CONSTRAINT, btree (error_id, org_id, cluster, updated_at)
+Foreign-key constraints:
+    "read_errors_org_id_fkey" FOREIGN KEY (org_id, cluster, updated_at)
+    REFERENCES new_reports(org_id, cluster, updated_at)
 ```
 

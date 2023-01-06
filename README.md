@@ -281,7 +281,8 @@ List of tables:
  public | states             | table | postgres
  public | migration_info     | table | postgres
  public | event_targets      | table | postgres
-(6 rows)
+ public | read_errors        | table | postgres
+(7 rows)
 ```
 
 ## Testing
