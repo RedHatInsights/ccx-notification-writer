@@ -1,4 +1,4 @@
-// Copyright 2020, 2021, 2022 Red Hat, Inc
+// Copyright 2020, 2021, 2022, 2023 Red Hat, Inc
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -401,6 +401,41 @@ func Test0004MigrationStepDown2(t *testing.T) {
 
 	// migration should end with error
 	assert.Error(t, main.Migrate(connection, 3), mockedError)
+
+	// check if all expectations were met
+	checkAllExpectations(t, mock)
+}
+
+func Test0005MigrationStepUp(t *testing.T) {
+	// prepare new mocked connection to database
+	connection, mock := mustCreateMockConnection(t)
+
+	// prepare mocked result for SQL query
+	rows := sqlmock.NewRows([]string{"version"})
+	rows.AddRow("4")
+
+	count := sqlmock.NewRows([]string{"count"})
+	count.AddRow("1")
+
+	resultCreate := sqlmock.NewResult(0, 1)
+	resultUpdate := sqlmock.NewResult(1, 1)
+
+	// expected query performed by tested function
+	expectedQuery0 := "SELECT COUNT\\(\\*\\) FROM migration_info;"
+	expectedQuery1 := "SELECT version FROM migration_info;"
+	expectedCreate := "CREATE TABLE IF NOT EXISTS read_errors .*"
+	expectedUpdate := "UPDATE migration_info SET version=\\$1;"
+
+	mock.ExpectQuery(expectedQuery0).WillReturnRows(count)
+	mock.ExpectQuery(expectedQuery1).WillReturnRows(rows)
+	mock.ExpectBegin()
+	mock.ExpectExec(expectedCreate).WillReturnResult(resultCreate)
+	mock.ExpectExec(expectedUpdate).WillReturnResult(resultUpdate)
+	mock.ExpectCommit()
+	mock.ExpectClose()
+
+	utils.Set(main.All())
+	assert.NoError(t, main.Migrate(connection, 5))
 
 	// check if all expectations were met
 	checkAllExpectations(t, mock)
