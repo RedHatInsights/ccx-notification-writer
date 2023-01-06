@@ -47,7 +47,7 @@ var mig0005CreateReadErrorsTable = mig.Migration{
 			)`
 		_, err := executeQuery(tx, query)
 		if err == nil {
-			log.Debug().Msg("Table event_targets created successfully")
+			log.Debug().Msg("Table read_errors created successfully")
 		}
 		return err
 	},
@@ -56,7 +56,7 @@ var mig0005CreateReadErrorsTable = mig.Migration{
 		query := "DROP TABLE read_errors"
 		_, err := executeQuery(tx, query)
 		if err == nil {
-			log.Debug().Msg("Table event_targets dropped successfully")
+			log.Debug().Msg("Table read_errors dropped successfully")
 		}
 		return err
 	},
