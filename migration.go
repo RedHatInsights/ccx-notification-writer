@@ -1,4 +1,4 @@
-// Copyright 2020, 2021, 2022 Red Hat, Inc
+// Copyright 2020, 2021, 2022, 2023 Red Hat, Inc
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -36,6 +36,7 @@ var migrations = []utils.Migration{
 	mig0002AddEventTargetCol,
 	mig0003PopulateEventTables,
 	mig0004UpdateEventTypeIDInReportedTable,
+	mig0005CreateReadErrorsTable,
 }
 
 // All returns "migration" , the list of implemented utils.Migration
