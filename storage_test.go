@@ -550,7 +550,7 @@ func TestWriteReportForClusterWrongDriver(t *testing.T) {
 	// call the tested method
 	err := storage.WriteReportForCluster(1, 2, "foo", "", time.Now(), 42)
 	if err == nil {
-		t.Errorf("error was not expected while writing report for cluster: %s", err)
+		t.Errorf("error was expected while writing report for cluster")
 	}
 
 	// connection to mocked DB needs to be closed properly
