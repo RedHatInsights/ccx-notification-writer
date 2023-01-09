@@ -1,5 +1,5 @@
 /*
-Copyright © 2021 Red Hat, Inc.
+Copyright © 2021, 2022, 2023 Red Hat, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -34,6 +34,11 @@ import (
 
 	main "github.com/RedHatInsights/ccx-notification-writer"
 )
+
+// wrongDatabaseDriver is any integer value different from DBDriverSQLite3 and
+// DBDriverPostgres
+// (for selected DB operations)
+const wrongDatabaseDriver = 10
 
 // mustCreateMockConnection function tries to create a new mock connection and
 // checks if the operation was finished without problems.
@@ -521,7 +526,31 @@ func TestWriteReportForClusterOnError(t *testing.T) {
 	// call the tested method
 	err := storage.WriteReportForCluster(1, 2, "foo", "", time.Now(), 42)
 	if err == nil {
-		t.Errorf("error was not expected while writing report for cluster: %s", err)
+		t.Errorf("error was expected while writing report for cluster: %s", err)
+	}
+
+	// connection to mocked DB needs to be closed properly
+	checkConnectionClose(t, connection)
+
+	// check if all expectations were met
+	checkAllExpectations(t, mock)
+}
+
+// TestWriteReportForClusterWrongDriver function checks the method
+// Storage.WriteReportForCluster.
+func TestWriteReportForClusterWrongDriver(t *testing.T) {
+	// prepare new mocked connection to database
+	connection, mock := mustCreateMockConnection(t)
+
+	mock.ExpectClose()
+
+	// prepare connection to mocked database
+	storage := main.NewFromConnection(connection, wrongDatabaseDriver)
+
+	// call the tested method
+	err := storage.WriteReportForCluster(1, 2, "foo", "", time.Now(), 42)
+	if err == nil {
+		t.Errorf("error was expected while writing report for cluster")
 	}
 
 	// connection to mocked DB needs to be closed properly
