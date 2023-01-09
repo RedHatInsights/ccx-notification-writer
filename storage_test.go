@@ -35,9 +35,10 @@ import (
 	main "github.com/RedHatInsights/ccx-notification-writer"
 )
 
-// WrongDatabaseDriver is any integer value different from DBDriverSQLite3 and
+// wrongDatabaseDriver is any integer value different from DBDriverSQLite3 and
 // DBDriverPostgres
-const WrongDatabaseDriver = 10
+// (for selected DB operations)
+const wrongDatabaseDriver = 10
 
 // mustCreateMockConnection function tries to create a new mock connection and
 // checks if the operation was finished without problems.
@@ -544,7 +545,7 @@ func TestWriteReportForClusterWrongDriver(t *testing.T) {
 	mock.ExpectClose()
 
 	// prepare connection to mocked database
-	storage := main.NewFromConnection(connection, WrongDatabaseDriver)
+	storage := main.NewFromConnection(connection, wrongDatabaseDriver)
 
 	// call the tested method
 	err := storage.WriteReportForCluster(1, 2, "foo", "", time.Now(), 42)
