@@ -229,7 +229,7 @@ func TestLoadConfigurationKafkaBrokerEmptyConfig(t *testing.T) {
 
 	// just one empty broker configuration
 	var brokersConfig []clowder.BrokerConfig = []clowder.BrokerConfig{
-		clowder.BrokerConfig{},
+		{},
 	}
 
 	// explicit database and broker configuration
@@ -264,7 +264,7 @@ func TestLoadConfigurationKafkaBrokerNoPort(t *testing.T) {
 
 	// just one non-empty broker configuration
 	var brokersConfig []clowder.BrokerConfig = []clowder.BrokerConfig{
-		clowder.BrokerConfig{
+		{
 			Hostname: "test",
 			Port:     nil}, // port is not set
 	}
@@ -304,7 +304,7 @@ func TestLoadConfigurationKafkaBrokerPort(t *testing.T) {
 
 	// just one non-empty broker configuration
 	var brokersConfig []clowder.BrokerConfig = []clowder.BrokerConfig{
-		clowder.BrokerConfig{
+		{
 			Hostname: "test",
 			Port:     &port}, // port is set
 	}
@@ -344,7 +344,7 @@ func TestLoadConfigurationKafkaBrokerAuthConfigMissingSASL(t *testing.T) {
 	var authType clowder.BrokerConfigAuthtype = ""
 
 	var brokersConfig []clowder.BrokerConfig = []clowder.BrokerConfig{
-		clowder.BrokerConfig{
+		{
 			Hostname: "test",
 			Port:     &port,
 			Authtype: &authType,
@@ -398,7 +398,7 @@ func TestLoadConfigurationKafkaBrokerAuthConfig(t *testing.T) {
 	var securityProtocol = "security_protocol"
 
 	var brokersConfig []clowder.BrokerConfig = []clowder.BrokerConfig{
-		clowder.BrokerConfig{
+		{
 			Hostname: "test",
 			Port:     &port,
 			Authtype: &authType,
