@@ -183,47 +183,47 @@ func TestConvertLogLevel(t *testing.T) {
 	}
 
 	testData := []TestData{
-		TestData{
+		{
 			Input:  "",
 			Output: zerolog.DebugLevel,
 		},
-		TestData{
+		{
 			Input:  "debug",
 			Output: zerolog.DebugLevel,
 		},
-		TestData{
+		{
 			Input:  " debug",
 			Output: zerolog.DebugLevel,
 		},
-		TestData{
+		{
 			Input:  " debug ",
 			Output: zerolog.DebugLevel,
 		},
-		TestData{
+		{
 			Input:  "info",
 			Output: zerolog.InfoLevel,
 		},
-		TestData{
+		{
 			Input:  "warn",
 			Output: zerolog.WarnLevel,
 		},
-		TestData{
+		{
 			Input:  "warning",
 			Output: zerolog.WarnLevel,
 		},
-		TestData{
+		{
 			Input:  "error",
 			Output: zerolog.ErrorLevel,
 		},
-		TestData{
+		{
 			Input:  "fatal",
 			Output: zerolog.FatalLevel,
 		},
-		TestData{
+		{
 			Input:  " fatal",
 			Output: zerolog.FatalLevel,
 		},
-		TestData{
+		{
 			Input:  "fatal ",
 			Output: zerolog.FatalLevel,
 		},
