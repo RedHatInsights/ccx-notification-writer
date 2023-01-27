@@ -291,6 +291,7 @@ List of tables:
 Tests and its configuration is described [in this document](https://redhatinsights.github.io/ccx-notification-writer/testing.html)
 
 
+
 ## BDD tests
 
 Behaviour tests for this service are included in [Insights Behavioral
