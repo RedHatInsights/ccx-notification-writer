@@ -43,7 +43,7 @@ var mig0006OnCascadeDeleteFromErrorsTable = mig.Migration{
 		`
 		_, err := executeQuery(tx, query)
 		if err == nil {
-			log.Debug().Msg("Constraints for table read_errors updated successfully")
+			log.Debug().Msg("Constraints for table read_errors updated successfully: added on delete cascade")
 		}
 		return err
 	},
@@ -58,7 +58,7 @@ var mig0006OnCascadeDeleteFromErrorsTable = mig.Migration{
 		`
 		_, err := executeQuery(tx, query)
 		if err == nil {
-			log.Debug().Msg("Constraints for table read_errors updated successfully")
+			log.Debug().Msg("Constraints for table read_errors updated successfully: dropped on delete cascade")
 		}
 		return err
 	},
