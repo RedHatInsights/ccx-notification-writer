@@ -35,8 +35,9 @@ var mig0006OnCascadeDeleteFromErrorsTable = mig.Migration{
 		log.Debug().Msg("Executing mig0006OnCascadeDeleteFromErrorsTable stepUp function")
 		query := `
 		    ALTER TABLE read_errors
-		    DROP CONSTRAINT read_errors_org_id_fkey,
-		    ADD CONSTRAINT  read_errors_org_id_fkey
+		    DROP CONSTRAINT IF EXISTS read_errors_org_id_fkey,
+		    DROP CONSTRAINT IF EXISTS read_errors_org_id_cluster_updated_at_fkey,
+		    ADD CONSTRAINT  read_errors_org_id_cluster_updated_at_fkey
 		       FOREIGN KEY (org_id, cluster, updated_at)
 		       REFERENCES  new_reports(org_id, cluster, updated_at)
 		       ON DELETE CASCADE;
@@ -51,8 +52,8 @@ var mig0006OnCascadeDeleteFromErrorsTable = mig.Migration{
 		log.Debug().Msg("Executing mig0006OnCascadeDeleteFromErrorsTable stepDown function")
 		query := `
 		    ALTER TABLE read_errors
-		    DROP CONSTRAINT read_errors_org_id_fkey,
-		    ADD CONSTRAINT  read_errors_org_id_fkey
+		    DROP CONSTRAINT read_errors_org_id_cluster_updated_at_fkey,
+		    ADD CONSTRAINT  read_errors_org_id_cluster_updated_at_fkey
 		       FOREIGN KEY (org_id, cluster, updated_at)
 		       REFERENCES  new_reports(org_id, cluster, updated_at);
 		`

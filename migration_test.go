@@ -495,8 +495,9 @@ func Test0006MigrationStepUp(t *testing.T) {
 	expectedQuery1 := "SELECT version FROM migration_info;"
 	expectedAlter := `
 		    ALTER TABLE read_errors
-		    DROP CONSTRAINT read_errors_org_id_fkey,
-		    ADD CONSTRAINT  read_errors_org_id_fkey
+		    DROP CONSTRAINT IF EXISTS read_errors_org_id_fkey,
+		    DROP CONSTRAINT IF EXISTS read_errors_org_id_cluster_updated_at_fkey,
+		    ADD CONSTRAINT  read_errors_org_id_cluster_updated_at_fkey
 		       FOREIGN KEY \(org_id, cluster, updated_at\)
 		       REFERENCES  new_reports\(org_id, cluster, updated_at\)
 		       ON DELETE CASCADE;
@@ -537,8 +538,8 @@ func Test0006MigrationStepDown(t *testing.T) {
 	expectedQuery1 := "SELECT version FROM migration_info;"
 	expectedAlter := `
 		    ALTER TABLE read_errors
-		    DROP CONSTRAINT read_errors_org_id_fkey,
-		    ADD CONSTRAINT  read_errors_org_id_fkey
+		    DROP CONSTRAINT read_errors_org_id_cluster_updated_at_fkey,
+		    ADD CONSTRAINT  read_errors_org_id_cluster_updated_at_fkey
 		       FOREIGN KEY \(org_id, cluster, updated_at\)
 		       REFERENCES  new_reports\(org_id, cluster, updated_at\);
 		`
