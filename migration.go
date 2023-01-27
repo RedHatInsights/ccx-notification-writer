@@ -37,6 +37,7 @@ var migrations = []utils.Migration{
 	mig0003PopulateEventTables,
 	mig0004UpdateEventTypeIDInReportedTable,
 	mig0005CreateReadErrorsTable,
+	mig0006OnCascadeDeleteFromErrorsTable,
 }
 
 // All returns "migration" , the list of implemented utils.Migration

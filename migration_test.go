@@ -475,3 +475,87 @@ func Test0005MigrationStepDown(t *testing.T) {
 	// check if all expectations were met
 	checkAllExpectations(t, mock)
 }
+
+func Test0006MigrationStepUp(t *testing.T) {
+	// prepare new mocked connection to database
+	connection, mock := mustCreateMockConnection(t)
+
+	// prepare mocked result for SQL query
+	rows := sqlmock.NewRows([]string{"version"})
+	rows.AddRow("5")
+
+	count := sqlmock.NewRows([]string{"count"})
+	count.AddRow("1")
+
+	resultAlter := sqlmock.NewResult(0, 1)
+	resultUpdate := sqlmock.NewResult(1, 1)
+
+	// expected query performed by tested function
+	expectedQuery0 := "SELECT COUNT\\(\\*\\) FROM migration_info;"
+	expectedQuery1 := "SELECT version FROM migration_info;"
+	expectedAlter := `
+		    ALTER TABLE read_errors
+		    DROP CONSTRAINT IF EXISTS read_errors_org_id_fkey,
+		    DROP CONSTRAINT IF EXISTS read_errors_org_id_cluster_updated_at_fkey,
+		    ADD CONSTRAINT  read_errors_org_id_cluster_updated_at_fkey
+		       FOREIGN KEY \(org_id, cluster, updated_at\)
+		       REFERENCES  new_reports\(org_id, cluster, updated_at\)
+		       ON DELETE CASCADE;
+		`
+	expectedUpdate := "UPDATE migration_info SET version=\\$1;"
+
+	mock.ExpectQuery(expectedQuery0).WillReturnRows(count)
+	mock.ExpectQuery(expectedQuery1).WillReturnRows(rows)
+	mock.ExpectBegin()
+	mock.ExpectExec(expectedAlter).WillReturnResult(resultAlter)
+	mock.ExpectExec(expectedUpdate).WillReturnResult(resultUpdate)
+	mock.ExpectCommit()
+	mock.ExpectClose()
+
+	utils.Set(main.All())
+	assert.NoError(t, main.Migrate(connection, 6))
+
+	// check if all expectations were met
+	checkAllExpectations(t, mock)
+}
+
+func Test0006MigrationStepDown(t *testing.T) {
+	// prepare new mocked connection to database
+	connection, mock := mustCreateMockConnection(t)
+
+	// prepare mocked result for SQL query
+	rows := sqlmock.NewRows([]string{"version"})
+	rows.AddRow("6")
+
+	count := sqlmock.NewRows([]string{"count"})
+	count.AddRow("1")
+
+	resultAlter := sqlmock.NewResult(0, 1)
+	resultUpdate := sqlmock.NewResult(1, 1)
+
+	// expected query performed by tested function
+	expectedQuery0 := "SELECT COUNT\\(\\*\\) FROM migration_info;"
+	expectedQuery1 := "SELECT version FROM migration_info;"
+	expectedAlter := `
+		    ALTER TABLE read_errors
+		    DROP CONSTRAINT read_errors_org_id_cluster_updated_at_fkey,
+		    ADD CONSTRAINT  read_errors_org_id_cluster_updated_at_fkey
+		       FOREIGN KEY \(org_id, cluster, updated_at\)
+		       REFERENCES  new_reports\(org_id, cluster, updated_at\);
+		`
+	expectedUpdate := "UPDATE migration_info SET version=\\$1;"
+
+	mock.ExpectQuery(expectedQuery0).WillReturnRows(count)
+	mock.ExpectQuery(expectedQuery1).WillReturnRows(rows)
+	mock.ExpectBegin()
+	mock.ExpectExec(expectedAlter).WillReturnResult(resultAlter)
+	mock.ExpectExec(expectedUpdate).WillReturnResult(resultUpdate)
+	mock.ExpectCommit()
+	mock.ExpectClose()
+
+	utils.Set(main.All())
+	assert.NoError(t, main.Migrate(connection, 5))
+
+	// check if all expectations were met
+	checkAllExpectations(t, mock)
+}
