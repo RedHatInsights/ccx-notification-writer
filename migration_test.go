@@ -559,3 +559,48 @@ func Test0006MigrationStepDown(t *testing.T) {
 	// check if all expectations were met
 	checkAllExpectations(t, mock)
 }
+
+func Test0007MigrationStepUp(t *testing.T) {
+	// prepare new mocked connection to database
+	connection, mock := mustCreateMockConnection(t)
+
+	// prepare mocked result for SQL query
+	rows := sqlmock.NewRows([]string{"version"})
+	rows.AddRow("6")
+
+	count := sqlmock.NewRows([]string{"count"})
+	count.AddRow("1")
+
+	resultStatement := sqlmock.NewResult(0, 1)
+	resultUpdate := sqlmock.NewResult(1, 1)
+
+	// expected query performed by tested function
+	expectedQuery0 := "SELECT COUNT\\(\\*\\) FROM migration_info;"
+	expectedQuery1 := "SELECT version FROM migration_info;"
+	expectedStatements := []string{
+		"COMMENT ON TABLE event_targets IS 'specification of all event targets currently supported';",
+		"COMMENT ON TABLE migration_info IS 'information about the latest DB schema and migration status';",
+		"COMMENT ON TABLE new_reports IS 'new reports consumed from Kafka topic and stored to database in shrunk format';",
+		"COMMENT ON TABLE notification_types IS 'list of all notification types used by Notification service';",
+		"COMMENT ON TABLE read_errors IS 'errors that are detected during new reports collection';",
+		"COMMENT ON TABLE reported IS 'notifications reported to user or skipped due to some conditions';",
+		"COMMENT ON TABLE states IS 'states for each row stored in reported table';",
+	}
+	expectedUpdate := "UPDATE migration_info SET version=\\$1;"
+
+	mock.ExpectQuery(expectedQuery0).WillReturnRows(count)
+	mock.ExpectQuery(expectedQuery1).WillReturnRows(rows)
+	mock.ExpectBegin()
+	for _, expectedStatement := range expectedStatements {
+		mock.ExpectExec(expectedStatement).WillReturnResult(resultStatement)
+	}
+	mock.ExpectExec(expectedUpdate).WillReturnResult(resultUpdate)
+	mock.ExpectCommit()
+	mock.ExpectClose()
+
+	utils.Set(main.All())
+	assert.NoError(t, main.Migrate(connection, 7))
+
+	// check if all expectations were met
+	checkAllExpectations(t, mock)
+}
