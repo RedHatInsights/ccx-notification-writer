@@ -372,7 +372,7 @@ func Test0004MigrationStepUp(t *testing.T) {
 }
 
 // Test the 4th migration in case the table update fails.
-func Test0004MigrationStepUp2(t *testing.T) {
+func Test0004MigrationStepUpOnMigrationFailure(t *testing.T) {
 	// error to be thrown
 	mockedError := errors.New("mocked error")
 
@@ -456,7 +456,7 @@ func Test0004MigrationStepDown(t *testing.T) {
 }
 
 // Test the 4th migration in case the table update fails.
-func Test0004MigrationStepDown2(t *testing.T) {
+func Test0004MigrationStepDownOnMigrationFailure(t *testing.T) {
 	// error to be thrown
 	mockedError := errors.New("mocked error")
 
