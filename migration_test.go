@@ -30,6 +30,34 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+// TestMigrationErrorDuringQueryingMigrationInfo1 test checks proper handling
+// query errors during retrieving migration info from database (concretely
+// during checking if migration table contains any value).
+func TestMigrationErrorDuringQueryingMigrationInfo1(t *testing.T) {
+	// error to be thrown
+	mockedError := errors.New("mocked error")
+
+	// prepare new mocked connection to database
+	connection, mock := mustCreateMockConnection(t)
+
+	// expected SQL query performed by tested function
+	expectedQuery0 := "SELECT COUNT\\(\\*\\) FROM migration_info;"
+
+	// the (only) query will throw an error
+	mock.ExpectQuery(expectedQuery0).WillReturnError(mockedError)
+	mock.ExpectClose()
+
+	utils.Set(main.All())
+
+	// migration should end with error
+
+	// migrate to version 1
+	assert.Error(t, main.Migrate(connection, 1), mockedError)
+
+	// check if all expectations were met
+	checkAllExpectations(t, mock)
+}
+
 func Test0001MigrationStepUp(t *testing.T) {
 	// prepare new mocked connection to database
 	connection, mock := mustCreateMockConnection(t)
