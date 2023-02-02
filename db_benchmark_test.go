@@ -285,7 +285,7 @@ func initializeStorage(configuration *main.ConfigStruct) (*sql.DB, error) {
 	return connection, nil
 }
 
-// unfortunatelly there seems to be no other way how to handle per-benchmark
+// unfortunately there seems to be no other way how to handle per-benchmark
 // setup properly than to use global variables
 var connection *sql.DB
 var initialized bool = false
