@@ -58,6 +58,41 @@ func TestMigrationErrorDuringQueryingMigrationInfo1(t *testing.T) {
 	checkAllExpectations(t, mock)
 }
 
+// TestMigrationErrorDuringQueryingMigrationInfo2 test checks proper handling
+// query error during retrieving migration info from database (concretely
+// during reading actual database version).
+func TestMigrationErrorDuringQueryingMigrationInfo2(t *testing.T) {
+	// error to be thrown
+	mockedError := errors.New("mocked error")
+
+	// prepare new mocked connection to database
+	connection, mock := mustCreateMockConnection(t)
+
+	// prepare mocked result for SQL query
+	count := sqlmock.NewRows([]string{"count"})
+	count.AddRow("1")
+
+	// expected SQL queries performed by tested function
+	expectedQuery0 := "SELECT COUNT\\(\\*\\) FROM migration_info;"
+	expectedQuery1 := "SELECT version FROM migration_info;"
+
+	// first query will succeed
+	// second query will throw an error
+	mock.ExpectQuery(expectedQuery0).WillReturnRows(count)
+	mock.ExpectQuery(expectedQuery1).WillReturnError(mockedError)
+	mock.ExpectClose()
+
+	utils.Set(main.All())
+
+	// migration should end with error
+
+	// migrate to version 1
+	assert.Error(t, main.Migrate(connection, 1), mockedError)
+
+	// check if all expectations were met
+	checkAllExpectations(t, mock)
+}
+
 func Test0001MigrationStepUp(t *testing.T) {
 	// prepare new mocked connection to database
 	connection, mock := mustCreateMockConnection(t)
