@@ -132,6 +132,7 @@ func Test0001MigrationStepUp(t *testing.T) {
 	checkAllExpectations(t, mock)
 }
 
+// Test0001MigrationStepDown test checks migration #1, step down part.
 func Test0001MigrationStepDown(t *testing.T) {
 	// prepare new mocked connection to database
 	connection, mock := mustCreateMockConnection(t)
@@ -169,6 +170,7 @@ func Test0001MigrationStepDown(t *testing.T) {
 	checkAllExpectations(t, mock)
 }
 
+// Test0002MigrationStepUp test checks migration #2, step up part.
 func Test0002MigrationStepUp(t *testing.T) {
 	// prepare new mocked connection to database
 	connection, mock := mustCreateMockConnection(t)
@@ -210,6 +212,7 @@ func Test0002MigrationStepUp(t *testing.T) {
 
 }
 
+// Test0002MigrationStepDown test checks migration #2, step down part.
 func Test0002MigrationStepDown(t *testing.T) {
 	// prepare new mocked connection to database
 	connection, mock := mustCreateMockConnection(t)
@@ -247,6 +250,7 @@ func Test0002MigrationStepDown(t *testing.T) {
 	checkAllExpectations(t, mock)
 }
 
+// Test0003MigrationStepUp test checks migration #3, step up part.
 func Test0003MigrationStepUp(t *testing.T) {
 	// prepare new mocked connection to database
 	connection, mock := mustCreateMockConnection(t)
@@ -290,6 +294,7 @@ func Test0003MigrationStepUp(t *testing.T) {
 	checkAllExpectations(t, mock)
 }
 
+// Test0003MigrationStepUp test checks migration #3, step down part.
 func Test0003MigrationStepDown(t *testing.T) {
 	// prepare new mocked connection to database
 	connection, mock := mustCreateMockConnection(t)
@@ -327,6 +332,7 @@ func Test0003MigrationStepDown(t *testing.T) {
 	checkAllExpectations(t, mock)
 }
 
+// Test0004MigrationStepUp test checks migration #4, step up part.
 func Test0004MigrationStepUp(t *testing.T) {
 	// prepare new mocked connection to database
 	connection, mock := mustCreateMockConnection(t)
@@ -408,6 +414,7 @@ func Test0004MigrationStepUp2(t *testing.T) {
 	checkAllExpectations(t, mock)
 }
 
+// Test0004MigrationStepDown test checks migration #4, step down part.
 func Test0004MigrationStepDown(t *testing.T) {
 	// prepare new mocked connection to database
 	connection, mock := mustCreateMockConnection(t)
@@ -491,6 +498,7 @@ func Test0004MigrationStepDown2(t *testing.T) {
 	checkAllExpectations(t, mock)
 }
 
+// Test0005MigrationStepUp test checks migration #5, step up part.
 func Test0005MigrationStepUp(t *testing.T) {
 	// prepare new mocked connection to database
 	connection, mock := mustCreateMockConnection(t)
@@ -528,6 +536,7 @@ func Test0005MigrationStepUp(t *testing.T) {
 	checkAllExpectations(t, mock)
 }
 
+// Test0005MigrationStepDown test checks migration #5, step down part.
 func Test0005MigrationStepDown(t *testing.T) {
 	// prepare new mocked connection to database
 	connection, mock := mustCreateMockConnection(t)
@@ -565,6 +574,7 @@ func Test0005MigrationStepDown(t *testing.T) {
 	checkAllExpectations(t, mock)
 }
 
+// Test0006MigrationStepUp test checks migration #6, step up part.
 func Test0006MigrationStepUp(t *testing.T) {
 	// prepare new mocked connection to database
 	connection, mock := mustCreateMockConnection(t)
@@ -610,6 +620,7 @@ func Test0006MigrationStepUp(t *testing.T) {
 	checkAllExpectations(t, mock)
 }
 
+// Test0006MigrationStepDown test checks migration #6, step down part.
 func Test0006MigrationStepDown(t *testing.T) {
 	// prepare new mocked connection to database
 	connection, mock := mustCreateMockConnection(t)
@@ -653,6 +664,7 @@ func Test0006MigrationStepDown(t *testing.T) {
 	checkAllExpectations(t, mock)
 }
 
+// Test0007MigrationStepUp test checks migration #7, step up part.
 func Test0007MigrationStepUp(t *testing.T) {
 	// prepare new mocked connection to database
 	connection, mock := mustCreateMockConnection(t)
@@ -700,6 +712,7 @@ func Test0007MigrationStepUp(t *testing.T) {
 	checkAllExpectations(t, mock)
 }
 
+// Test0007MigrationStepDown test checks migration #7, step down part.
 func Test0007MigrationStepDown(t *testing.T) {
 	// prepare new mocked connection to database
 	connection, mock := mustCreateMockConnection(t)
