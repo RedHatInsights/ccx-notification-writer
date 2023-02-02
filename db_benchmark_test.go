@@ -285,14 +285,14 @@ func initializeStorage(configuration *main.ConfigStruct) (*sql.DB, error) {
 	return connection, nil
 }
 
-// unfortunatelly there seems to be no other way how to handle per-benchmark
+// unfortunately there seems to be no other way how to handle per-benchmark
 // setup properly than to use global variables
 var connection *sql.DB
 var initialized bool = false
 
 // setup function performs all DB initializations needed for DB benchmarks. Can
 // be called from any benchmark. In case of any error detected, benchmarks fail
-// immediatelly.
+// immediately.
 func setup(b *testing.B) *sql.DB {
 	if initialized {
 		return connection
@@ -318,18 +318,18 @@ func setup(b *testing.B) *sql.DB {
 }
 
 // execSQLStatement function executes any provided SQL statement. In case of
-// any error detected, benchmarks fail immediatelly.
+// any error detected, benchmarks fail immediately.
 func execSQLStatement(b *testing.B, connection *sql.DB, statement string) {
 	_, err := connection.Exec(statement)
 
-	// check for any error, possible to exit immediatelly
+	// check for any error, possible to exit immediately
 	if err != nil {
 		b.Fatal(err)
 	}
 }
 
 // insertIntoReportedV1Statement function inserts one new record into reported
-// table v1. In case of any error detected, benchmarks fail immediatelly.
+// table v1. In case of any error detected, benchmarks fail immediately.
 func insertIntoReportedV1(b *testing.B, connection *sql.DB, i int, report *string) {
 	// following columns needs to be updated with data:
 	// 1 | org_id            | integer                     | not null  |
@@ -356,14 +356,14 @@ func insertIntoReportedV1(b *testing.B, connection *sql.DB, i int, report *strin
 		accountNumber, clusterName, notificationTypeID, stateID,
 		report, updatedAt, notifiedAt, errorLog)
 
-	// check for any error, possible to exit immediatelly
+	// check for any error, possible to exit immediately
 	if err != nil {
 		b.Fatal(err)
 	}
 }
 
 // insertIntoReportedV2Statement function inserts one new record into reported
-// table v2. In case of any error detected, benchmarks fail immediatelly.
+// table v2. In case of any error detected, benchmarks fail immediately.
 func insertIntoReportedV2(b *testing.B, connection *sql.DB, i int, report *string) {
 	// following columns needs to be updated with data:
 	// 1 | org_id            | integer                     | not null  |
@@ -392,7 +392,7 @@ func insertIntoReportedV2(b *testing.B, connection *sql.DB, i int, report *strin
 		accountNumber, clusterName, notificationTypeID, stateID,
 		report, updatedAt, notifiedAt, errorLog, eventTypeID)
 
-	// check for any error, possible to exit immediatelly
+	// check for any error, possible to exit immediately
 	if err != nil {
 		b.Fatal(err)
 	}
@@ -400,7 +400,7 @@ func insertIntoReportedV2(b *testing.B, connection *sql.DB, i int, report *strin
 
 // runBenchmarkInsertIntoReportedTable function perform several inserts into
 // reported table v1 or v2 (depending on injected function). In case of any
-// error detected, benchmarks fail immediatelly.
+// error detected, benchmarks fail immediately.
 func runBenchmarkInsertIntoReportedTable(b *testing.B, insertFunction insertIntoReportedFunc,
 	initStatements []string, scaleFactor int, report *string) {
 	// retrieve DB connection
@@ -431,7 +431,7 @@ func runBenchmarkInsertIntoReportedTable(b *testing.B, insertFunction insertInto
 // runBenchmarkSelectOrDeleteFromReportedTable function perform several inserts
 // into reported table v1 or v2 (depending on injected function) and the run
 // queries or delete statements against such table. In case of any error
-// detected, benchmarks fail immediatelly.
+// detected, benchmarks fail immediately.
 func runBenchmarkSelectOrDeleteFromReportedTable(b *testing.B, insertFunction insertIntoReportedFunc,
 	selectStatement string, deleteStatement string,
 	initStatements []string, reportsCount int, report *string) {
