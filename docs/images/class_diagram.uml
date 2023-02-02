@@ -2,6 +2,11 @@
 namespace main {
     class BrokerConfiguration << (S,Aquamarine) >> {
         + Address string
+        + SecurityProtocol string
+        + CertPath string
+        + SaslMechanism string
+        + SaslUsername string
+        + SaslPassword string
         + Topic string
         + Group string
         + Enabled bool
@@ -20,7 +25,9 @@ namespace main {
         + PerformNewReportsCleanup bool
         + PrintOldReportsForCleanup bool
         + PerformOldReportsCleanup bool
+        + MigrationInfo bool
         + MaxAge string
+        + PerformMigrations string
 
     }
     class ConfigStruct << (S,Aquamarine) >> {
@@ -57,6 +64,7 @@ namespace main {
         + Cleanup(maxAge string, statement string) (int, error)
         + CleanupNewReports(maxAge string) (int, error)
         + CleanupOldReports(maxAge string) (int, error)
+        + Connection() *sql.DB
 
     }
     class IncomingMessage << (S,Aquamarine) >> {
@@ -100,12 +108,6 @@ namespace main {
         + Address string
 
     }
-    class ReportItem << (S,Aquamarine) >> {
-        + Module RuleID
-        + ErrorKey ErrorKey
-        + TemplateData json.RawMessage
-
-    }
     interface Storage  {
         + Close() error
         + WriteReportForCluster(orgID OrgID, accountNumber AccountNumber, clusterName ClusterName, report ClusterReport, collectedAtTime time.Time, kafkaOffset KafkaOffset) error
@@ -140,8 +142,6 @@ namespace main {
     }
     class main.DBDriver << (T, #FF7700) >>  {
     }
-    class main.ErrorKey << (T, #FF7700) >>  {
-    }
     class main.KafkaOffset << (T, #FF7700) >>  {
     }
     class main.OrgID << (T, #FF7700) >>  {
@@ -149,8 +149,6 @@ namespace main {
     class main.Report << (T, #FF7700) >>  {
     }
     class main.RequestID << (T, #FF7700) >>  {
-    }
-    class main.RuleID << (T, #FF7700) >>  {
     }
     class main.SchemaVersion << (T, #FF7700) >>  {
     }
@@ -166,9 +164,7 @@ namespace main {
 "__builtin__.int64" #.. "main.KafkaOffset"
 "__builtin__.string" #.. "main.ClusterName"
 "__builtin__.string" #.. "main.ClusterReport"
-"__builtin__.string" #.. "main.ErrorKey"
 "__builtin__.string" #.. "main.RequestID"
-"__builtin__.string" #.. "main.RuleID"
 "__builtin__.uint32" #.. "main.AccountNumber"
 "__builtin__.uint32" #.. "main.OrgID"
 "__builtin__.uint8" #.. "main.SchemaVersion"

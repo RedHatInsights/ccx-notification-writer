@@ -16,7 +16,6 @@ require (
 	github.com/prometheus/client_golang v1.14.0
 	github.com/redhatinsights/app-common-go v1.6.3
 	github.com/rs/zerolog v1.21.0
-	github.com/spf13/afero v1.5.1 // indirect
 	github.com/spf13/viper v1.7.2-0.20210415161207-7fdb267c730d
 	github.com/stretchr/testify v1.8.0
 	github.com/tisnik/go-capture v1.0.1
