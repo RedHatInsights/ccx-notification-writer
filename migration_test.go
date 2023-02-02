@@ -30,11 +30,76 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+// TestMigrationErrorDuringQueryingMigrationInfo1 test checks proper handling
+// query errors during retrieving migration info from database (concretely
+// during checking if migration table contains any value).
+func TestMigrationErrorDuringQueryingMigrationInfo1(t *testing.T) {
+	// error to be thrown
+	mockedError := errors.New("mocked error")
+
+	// prepare new mocked connection to database
+	connection, mock := mustCreateMockConnection(t)
+
+	// expected SQL query performed by tested function
+	expectedQuery0 := "SELECT COUNT\\(\\*\\) FROM migration_info;"
+
+	// the (only) query will throw an error
+	mock.ExpectQuery(expectedQuery0).WillReturnError(mockedError)
+	mock.ExpectClose()
+
+	utils.Set(main.All())
+
+	// migration should end with error
+
+	// migrate to version 1
+	assert.Error(t, main.Migrate(connection, 1), mockedError)
+
+	// check if all expectations were met
+	checkAllExpectations(t, mock)
+}
+
+// TestMigrationErrorDuringQueryingMigrationInfo2 test checks proper handling
+// query error during retrieving migration info from database (concretely
+// during reading actual database version).
+func TestMigrationErrorDuringQueryingMigrationInfo2(t *testing.T) {
+	// error to be thrown
+	mockedError := errors.New("mocked error")
+
+	// prepare new mocked connection to database
+	connection, mock := mustCreateMockConnection(t)
+
+	// prepare mocked result for SQL query
+	count := sqlmock.NewRows([]string{"count"})
+	count.AddRow("1")
+
+	// expected SQL queries performed by tested function
+	expectedQuery0 := "SELECT COUNT\\(\\*\\) FROM migration_info;"
+	expectedQuery1 := "SELECT version FROM migration_info;"
+
+	// first query will succeed
+	// second query will throw an error
+	mock.ExpectQuery(expectedQuery0).WillReturnRows(count)
+	mock.ExpectQuery(expectedQuery1).WillReturnError(mockedError)
+	mock.ExpectClose()
+
+	utils.Set(main.All())
+
+	// migration should end with error
+
+	// migrate to version 1
+	assert.Error(t, main.Migrate(connection, 1), mockedError)
+
+	// check if all expectations were met
+	checkAllExpectations(t, mock)
+}
+
+// Test0001MigrationStepUp test checks migration #1, step up part.
 func Test0001MigrationStepUp(t *testing.T) {
 	// prepare new mocked connection to database
 	connection, mock := mustCreateMockConnection(t)
 
 	// prepare mocked result for SQL query
+	// initial database version
 	rows := sqlmock.NewRows([]string{"version"})
 	rows.AddRow("0")
 
@@ -59,12 +124,15 @@ func Test0001MigrationStepUp(t *testing.T) {
 	mock.ExpectClose()
 
 	utils.Set(main.All())
+
+	// migrate to version 1
 	assert.NoError(t, main.Migrate(connection, 1))
 
 	// check if all expectations were met
 	checkAllExpectations(t, mock)
 }
 
+// Test0001MigrationStepDown test checks migration #1, step down part.
 func Test0001MigrationStepDown(t *testing.T) {
 	// prepare new mocked connection to database
 	connection, mock := mustCreateMockConnection(t)
@@ -94,12 +162,15 @@ func Test0001MigrationStepDown(t *testing.T) {
 	mock.ExpectClose()
 
 	utils.Set(main.All())
+
+	// migrate to version 0
 	assert.NoError(t, main.Migrate(connection, 0))
 
 	// check if all expectations were met
 	checkAllExpectations(t, mock)
 }
 
+// Test0002MigrationStepUp test checks migration #2, step up part.
 func Test0002MigrationStepUp(t *testing.T) {
 	// prepare new mocked connection to database
 	connection, mock := mustCreateMockConnection(t)
@@ -132,6 +203,8 @@ func Test0002MigrationStepUp(t *testing.T) {
 	mock.ExpectClose()
 
 	utils.Set(main.All())
+
+	// migrate to version 2
 	assert.NoError(t, main.Migrate(connection, 2))
 
 	// check if all expectations were met
@@ -139,6 +212,7 @@ func Test0002MigrationStepUp(t *testing.T) {
 
 }
 
+// Test0002MigrationStepDown test checks migration #2, step down part.
 func Test0002MigrationStepDown(t *testing.T) {
 	// prepare new mocked connection to database
 	connection, mock := mustCreateMockConnection(t)
@@ -168,12 +242,15 @@ func Test0002MigrationStepDown(t *testing.T) {
 	mock.ExpectClose()
 
 	utils.Set(main.All())
+
+	// migrate to version 1
 	assert.NoError(t, main.Migrate(connection, 1))
 
 	// check if all expectations were met
 	checkAllExpectations(t, mock)
 }
 
+// Test0003MigrationStepUp test checks migration #3, step up part.
 func Test0003MigrationStepUp(t *testing.T) {
 	// prepare new mocked connection to database
 	connection, mock := mustCreateMockConnection(t)
@@ -209,12 +286,15 @@ func Test0003MigrationStepUp(t *testing.T) {
 	mock.ExpectClose()
 
 	utils.Set(main.All())
+
+	// migrate to version 3
 	assert.NoError(t, main.Migrate(connection, 3))
 
 	// check if all expectations were met
 	checkAllExpectations(t, mock)
 }
 
+// Test0003MigrationStepUp test checks migration #3, step down part.
 func Test0003MigrationStepDown(t *testing.T) {
 	// prepare new mocked connection to database
 	connection, mock := mustCreateMockConnection(t)
@@ -244,12 +324,15 @@ func Test0003MigrationStepDown(t *testing.T) {
 	mock.ExpectClose()
 
 	utils.Set(main.All())
+
+	// migrate to version 2
 	assert.NoError(t, main.Migrate(connection, 2))
 
 	// check if all expectations were met
 	checkAllExpectations(t, mock)
 }
 
+// Test0004MigrationStepUp test checks migration #4, step up part.
 func Test0004MigrationStepUp(t *testing.T) {
 	// prepare new mocked connection to database
 	connection, mock := mustCreateMockConnection(t)
@@ -289,7 +372,7 @@ func Test0004MigrationStepUp(t *testing.T) {
 }
 
 // Test the 4th migration in case the table update fails.
-func Test0004MigrationStepUp2(t *testing.T) {
+func Test0004MigrationStepUpOnMigrationFailure(t *testing.T) {
 	// error to be thrown
 	mockedError := errors.New("mocked error")
 
@@ -308,6 +391,7 @@ func Test0004MigrationStepUp2(t *testing.T) {
 	expectedQuery1 := "SELECT version FROM migration_info;"
 	expectedUpdate1 := "UPDATE reported SET event_type_id = 1 WHERE event_type_id IS NULL"
 
+	// queries to retrieve DB version should succeed
 	mock.ExpectQuery(expectedQuery0).WillReturnRows(count)
 	mock.ExpectQuery(expectedQuery1).WillReturnRows(rows)
 	mock.ExpectBegin()
@@ -322,12 +406,15 @@ func Test0004MigrationStepUp2(t *testing.T) {
 	utils.Set(main.All())
 
 	// migration should end with error
+
+	// migrate to version 4
 	assert.Error(t, main.Migrate(connection, 4), mockedError)
 
 	// check if all expectations were met
 	checkAllExpectations(t, mock)
 }
 
+// Test0004MigrationStepDown test checks migration #4, step down part.
 func Test0004MigrationStepDown(t *testing.T) {
 	// prepare new mocked connection to database
 	connection, mock := mustCreateMockConnection(t)
@@ -360,6 +447,8 @@ func Test0004MigrationStepDown(t *testing.T) {
 	mock.ExpectClose()
 
 	utils.Set(main.All())
+
+	// migrate to version 3
 	assert.NoError(t, main.Migrate(connection, 3))
 
 	// check if all expectations were met
@@ -367,7 +456,7 @@ func Test0004MigrationStepDown(t *testing.T) {
 }
 
 // Test the 4th migration in case the table update fails.
-func Test0004MigrationStepDown2(t *testing.T) {
+func Test0004MigrationStepDownOnMigrationFailure(t *testing.T) {
 	// error to be thrown
 	mockedError := errors.New("mocked error")
 
@@ -386,6 +475,7 @@ func Test0004MigrationStepDown2(t *testing.T) {
 	expectedQuery1 := "SELECT version FROM migration_info;"
 	expectedAlter := "ALTER TABLE reported ALTER COLUMN event_type_id DROP NOT NULL"
 
+	// queries to retrieve DB version should succeed
 	mock.ExpectQuery(expectedQuery0).WillReturnRows(count)
 	mock.ExpectQuery(expectedQuery1).WillReturnRows(rows)
 	mock.ExpectBegin()
@@ -400,12 +490,15 @@ func Test0004MigrationStepDown2(t *testing.T) {
 	utils.Set(main.All())
 
 	// migration should end with error
+
+	// migrate to version 3
 	assert.Error(t, main.Migrate(connection, 3), mockedError)
 
 	// check if all expectations were met
 	checkAllExpectations(t, mock)
 }
 
+// Test0005MigrationStepUp test checks migration #5, step up part.
 func Test0005MigrationStepUp(t *testing.T) {
 	// prepare new mocked connection to database
 	connection, mock := mustCreateMockConnection(t)
@@ -435,12 +528,15 @@ func Test0005MigrationStepUp(t *testing.T) {
 	mock.ExpectClose()
 
 	utils.Set(main.All())
+
+	// migrate to version 5
 	assert.NoError(t, main.Migrate(connection, 5))
 
 	// check if all expectations were met
 	checkAllExpectations(t, mock)
 }
 
+// Test0005MigrationStepDown test checks migration #5, step down part.
 func Test0005MigrationStepDown(t *testing.T) {
 	// prepare new mocked connection to database
 	connection, mock := mustCreateMockConnection(t)
@@ -470,12 +566,15 @@ func Test0005MigrationStepDown(t *testing.T) {
 	mock.ExpectClose()
 
 	utils.Set(main.All())
+
+	// migrate to version 4
 	assert.NoError(t, main.Migrate(connection, 4))
 
 	// check if all expectations were met
 	checkAllExpectations(t, mock)
 }
 
+// Test0006MigrationStepUp test checks migration #6, step up part.
 func Test0006MigrationStepUp(t *testing.T) {
 	// prepare new mocked connection to database
 	connection, mock := mustCreateMockConnection(t)
@@ -513,12 +612,15 @@ func Test0006MigrationStepUp(t *testing.T) {
 	mock.ExpectClose()
 
 	utils.Set(main.All())
+
+	// migrate to version 6
 	assert.NoError(t, main.Migrate(connection, 6))
 
 	// check if all expectations were met
 	checkAllExpectations(t, mock)
 }
 
+// Test0006MigrationStepDown test checks migration #6, step down part.
 func Test0006MigrationStepDown(t *testing.T) {
 	// prepare new mocked connection to database
 	connection, mock := mustCreateMockConnection(t)
@@ -554,12 +656,15 @@ func Test0006MigrationStepDown(t *testing.T) {
 	mock.ExpectClose()
 
 	utils.Set(main.All())
+
+	// migrate to version 5
 	assert.NoError(t, main.Migrate(connection, 5))
 
 	// check if all expectations were met
 	checkAllExpectations(t, mock)
 }
 
+// Test0007MigrationStepUp test checks migration #7, step up part.
 func Test0007MigrationStepUp(t *testing.T) {
 	// prepare new mocked connection to database
 	connection, mock := mustCreateMockConnection(t)
@@ -599,12 +704,15 @@ func Test0007MigrationStepUp(t *testing.T) {
 	mock.ExpectClose()
 
 	utils.Set(main.All())
+
+	// migrate to version 7
 	assert.NoError(t, main.Migrate(connection, 7))
 
 	// check if all expectations were met
 	checkAllExpectations(t, mock)
 }
 
+// Test0007MigrationStepDown test checks migration #7, step down part.
 func Test0007MigrationStepDown(t *testing.T) {
 	// prepare new mocked connection to database
 	connection, mock := mustCreateMockConnection(t)
@@ -643,6 +751,8 @@ func Test0007MigrationStepDown(t *testing.T) {
 	mock.ExpectClose()
 
 	utils.Set(main.All())
+
+	// migrate to version 6
 	assert.NoError(t, main.Migrate(connection, 6))
 
 	// check if all expectations were met
