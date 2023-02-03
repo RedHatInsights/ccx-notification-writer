@@ -299,6 +299,51 @@ func Test0002MigrationStepUp(t *testing.T) {
 
 }
 
+// Test0002MigrationStepUpOnMigrationFailure test checks migration #2 in case
+// the migration fails.
+func Test0002MigrationStepUpOnMigrationFailure(t *testing.T) {
+	// error to be thrown
+	mockedError := errors.New("mocked error")
+
+	// prepare new mocked connection to database
+	connection, mock := mustCreateMockConnection(t)
+
+	// prepare mocked result for SQL query
+	// initial database version
+	rows := sqlmock.NewRows([]string{"version"})
+	rows.AddRow("1")
+
+	count := sqlmock.NewRows([]string{"count"})
+	count.AddRow("1")
+
+	// expected query performed by tested function
+	expectedQuery0 := "SELECT COUNT\\(\\*\\) FROM migration_info;"
+	expectedQuery1 := "SELECT version FROM migration_info;"
+	expectedAlter := "ALTER TABLE reported ADD COLUMN .*"
+
+	// queries to retrieve DB version should succeed
+	mock.ExpectQuery(expectedQuery0).WillReturnRows(count)
+	mock.ExpectQuery(expectedQuery1).WillReturnRows(rows)
+	mock.ExpectBegin()
+
+	// alter table will fail
+	mock.ExpectExec(expectedAlter).WillReturnError(mockedError)
+
+	// so we expect roll back instead of transaction commit
+	mock.ExpectRollback()
+	mock.ExpectClose()
+
+	utils.Set(main.All())
+
+	// migration should end with error
+
+	// migrate to version 2
+	assert.Error(t, main.Migrate(connection, 2), mockedError)
+
+	// check if all expectations were met
+	checkAllExpectations(t, mock)
+}
+
 // Test0002MigrationStepDown test checks migration #2, step down part.
 func Test0002MigrationStepDown(t *testing.T) {
 	// prepare new mocked connection to database
