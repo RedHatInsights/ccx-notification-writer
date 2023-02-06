@@ -1054,3 +1054,40 @@ func TestDatabaseInitMigrationCreateTableFailure(t *testing.T) {
 	// check if all expectations were met
 	checkAllExpectations(t, mock)
 }
+
+// TestDatabaseInitMigrationInsertFailure function checks the method
+// Storage.DatabaseInitMigration when inserting new info into migration table
+// fails.
+func TestDatabaseInitMigrationInsertFailure(t *testing.T) {
+	// error to be thrown
+	noSuchTable := errors.New("no such table: migration_info")
+
+	// insert into table error
+	insertIntoTableError := errors.New("INSERT INTO table error")
+
+	// prepare new mocked connection to database
+	connection, mock := mustCreateMockConnection(t)
+
+	// expected SQL statements to be called
+	mock.ExpectBegin()
+
+	// first expected SQL statement - it should mimic empty table
+	mock.ExpectQuery("SELECT count\\(\\*\\) FROM migration_info;").WillReturnError(noSuchTable)
+	mock.ExpectExec("DROP TABLE IF EXISTS migration_info").WillReturnResult(sqlmock.NewResult(1, 1))
+	mock.ExpectExec("CREATE TABLE IF NOT EXISTS migration_info \\( version integer not null \\);").WillReturnResult(sqlmock.NewResult(1, 1))
+	mock.ExpectExec("INSERT INTO migration_info \\(version\\) VALUES \\(0\\);").WillReturnError(insertIntoTableError)
+
+	// transaction should be rollback-ed
+	mock.ExpectRollback()
+
+	// prepare connection to mocked database
+	storage := main.NewFromConnection(connection, 1)
+
+	// call the tested method
+	err := storage.DatabaseInitMigration()
+	assert.Error(t, err, "error WAS expected during migration init")
+	assert.Equal(t, err, insertIntoTableError)
+
+	// check if all expectations were met
+	checkAllExpectations(t, mock)
+}
