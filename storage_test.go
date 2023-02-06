@@ -912,3 +912,43 @@ func TestConnection(t *testing.T) {
 	// it should not fail
 	assert.NoError(t, err)
 }
+
+// TestDatabaseInitMigrationMigrationTableExistAlready function checks the
+// method Storage.DatabaseInitMigration when migration table already exist.
+func TestDatabaseInitMigrationTableExistAlready(t *testing.T) {
+	// prepare new mocked connection to database
+	connection, mock := mustCreateMockConnection(t)
+
+	// expected database version
+	expectedVersion := 42
+
+	// prepare mocked result for SQL query
+	rowsCount := sqlmock.NewRows([]string{"count"})
+	rowsCount.AddRow(1)
+
+	// prepare mocked result for SQL query
+	rowsVersion := sqlmock.NewRows([]string{"version"})
+	rowsVersion.AddRow(expectedVersion)
+
+	// expected SQL statements to be called
+	mock.ExpectBegin()
+
+	// first expected SQL statement
+	mock.ExpectQuery("SELECT count\\(\\*\\) FROM migration_info;").WillReturnRows(rowsCount)
+
+	// second expected SQL statement
+	mock.ExpectQuery("SELECT version FROM migration_info LIMIT 1;").WillReturnRows(rowsVersion)
+
+	// transaction should be commited
+	mock.ExpectCommit()
+
+	// prepare connection to mocked database
+	storage := main.NewFromConnection(connection, 1)
+
+	// call the tested method
+	err := storage.DatabaseInitMigration()
+	assert.NoError(t, err, "error was not expected during migration init")
+
+	// check if all expectations were met
+	checkAllExpectations(t, mock)
+}
