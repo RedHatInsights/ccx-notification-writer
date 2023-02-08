@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <!--
- Copyright 2022 Red Hat, Inc
+ Copyright 2023 Red Hat, Inc
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
 
-      http://www.apache.org/licenses/LICENSE-2.0
+     http://www.apache.org/licenses/LICENSE-2.0
 
  Unless required by applicable law or agreed to in writing, software
  distributed under the License is distributed on an "AS IS" BASIS,
@@ -237,6 +237,22 @@ https://redhatinsights.github.io/ccx-notification-writer/packages/consumer.html<
       </tr>
       
       <tr class="section">
+	<td class="doc"><p>Attribute names in incoming messages</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">const</div> <div class="operator">(</div>
+	<div class="ident">systemAttribute</div>           <div class="operator">=</div> <div class="literal">&#34;system&#34;</div><div class="operator"></div>
+	<div class="ident">fingerprintsAttribute</div>     <div class="operator">=</div> <div class="literal">&#34;fingerprints&#34;</div><div class="operator"></div>
+	<div class="ident">skipsAttribute</div>            <div class="operator">=</div> <div class="literal">&#34;skips&#34;</div><div class="operator"></div>
+	<div class="ident">infoAttribute</div>             <div class="operator">=</div> <div class="literal">&#34;info&#34;</div><div class="operator"></div>
+	<div class="ident">passAttribute</div>             <div class="operator">=</div> <div class="literal">&#34;pass&#34;</div><div class="operator"></div>
+	<div class="ident">analysisMetadataAttribute</div> <div class="operator">=</div> <div class="literal">&#34;analysis_metadata&#34;</div><div class="operator"></div>
+	<div class="ident">reportsAttribute</div>          <div class="operator">=</div> <div class="literal">&#34;reports&#34;</div><div class="operator"></div>
+<div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
 	<td class="doc"><p>CurrentSchemaVersion represents the currently supported data schema version</p>
 </td>
 	<td class="code"><pre><code><div class="keyword">const</div> <div class="ident">CurrentSchemaVersion</div> <div class="operator">=</div> <div class="ident">SchemaVersion</div><div class="operator">(</div><div class="literal">2</div><div class="operator">)</div><div class="operator"></div>
@@ -319,7 +335,7 @@ useful for testing</p>
       <tr class="section">
 	<td class="doc"><p>NewConsumer constructs new implementation of Consumer interface</p>
 </td>
-	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">NewConsumer</div><div class="operator">(</div><div class="ident">brokerConfiguration</div> <div class="ident">BrokerConfiguration</div><div class="operator">,</div> <div class="ident">storage</div> <div class="ident">Storage</div><div class="operator">)</div> <div class="operator">(</div><div class="operator">*</div><div class="ident">KafkaConsumer</div><div class="operator">,</div> <div class="ident">error</div><div class="operator">)</div> <div class="operator">{</div>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">NewConsumer</div><div class="operator">(</div><div class="ident">brokerConfiguration</div> <div class="operator">*</div><div class="ident">BrokerConfiguration</div><div class="operator">,</div> <div class="ident">storage</div> <div class="ident">Storage</div><div class="operator">)</div> <div class="operator">(</div><div class="operator">*</div><div class="ident">KafkaConsumer</div><div class="operator">,</div> <div class="ident">error</div><div class="operator">)</div> <div class="operator">{</div>
 	<div class="keyword">return</div> <div class="ident">NewWithSaramaConfig</div><div class="operator">(</div><div class="ident">brokerConfiguration</div><div class="operator">,</div> <div class="ident">DefaultSaramaConfig</div><div class="operator">,</div> <div class="ident">storage</div><div class="operator">)</div><div class="operator"></div>
 <div class="operator">}</div><div class="operator"></div>
 
@@ -330,7 +346,7 @@ useful for testing</p>
 	<td class="doc"><p>NewWithSaramaConfig constructs new implementation of Consumer interface with custom sarama config</p>
 </td>
 	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">NewWithSaramaConfig</div><div class="operator">(</div>
-	<div class="ident">brokerConfiguration</div> <div class="ident">BrokerConfiguration</div><div class="operator">,</div>
+	<div class="ident">brokerConfiguration</div> <div class="operator">*</div><div class="ident">BrokerConfiguration</div><div class="operator">,</div>
 	<div class="ident">saramaConfig</div> <div class="operator">*</div><div class="ident">sarama</div><div class="operator">.</div><div class="ident">Config</div><div class="operator">,</div>
 	<div class="ident">storage</div> <div class="ident">Storage</div><div class="operator">,</div>
 <div class="operator">)</div> <div class="operator">(</div><div class="operator">*</div><div class="ident">KafkaConsumer</div><div class="operator">,</div> <div class="ident">error</div><div class="operator">)</div> <div class="operator">{</div>
@@ -349,7 +365,7 @@ useful for testing</p>
 	<div class="operator">}</div><div class="operator"></div>
 
 	<div class="ident">consumer</div> <div class="operator">:=</div> <div class="operator">&amp;</div><div class="ident">KafkaConsumer</div><div class="operator">{</div>
-		<div class="ident">Configuration</div><div class="operator">:</div>                        <div class="ident">brokerConfiguration</div><div class="operator">,</div>
+		<div class="ident">Configuration</div><div class="operator">:</div>                        <div class="operator">*</div><div class="ident">brokerConfiguration</div><div class="operator">,</div>
 		<div class="ident">ConsumerGroup</div><div class="operator">:</div>                        <div class="ident">consumerGroup</div><div class="operator">,</div>
 		<div class="ident">Storage</div><div class="operator">:</div>                              <div class="ident">storage</div><div class="operator">,</div>
 		<div class="ident">numberOfSuccessfullyConsumedMessages</div><div class="operator">:</div> <div class="literal">0</div><div class="operator">,</div>
@@ -627,12 +643,12 @@ since creating KafkaConsumer obj</p>
       <tr class="section">
 	<td class="doc"><p>delete all unneeded 'root' attributes</p>
 </td>
-	<td class="code"><pre><code>	<div class="ident">tryToDeleteAttribute</div><div class="operator">(</div><div class="ident">message</div><div class="operator">,</div> <div class="literal">&#34;system&#34;</div><div class="operator">)</div><div class="operator"></div>
-	<div class="ident">tryToDeleteAttribute</div><div class="operator">(</div><div class="ident">message</div><div class="operator">,</div> <div class="literal">&#34;fingerprints&#34;</div><div class="operator">)</div><div class="operator"></div>
-	<div class="ident">tryToDeleteAttribute</div><div class="operator">(</div><div class="ident">message</div><div class="operator">,</div> <div class="literal">&#34;skips&#34;</div><div class="operator">)</div><div class="operator"></div>
-	<div class="ident">tryToDeleteAttribute</div><div class="operator">(</div><div class="ident">message</div><div class="operator">,</div> <div class="literal">&#34;info&#34;</div><div class="operator">)</div><div class="operator"></div>
-	<div class="ident">tryToDeleteAttribute</div><div class="operator">(</div><div class="ident">message</div><div class="operator">,</div> <div class="literal">&#34;pass&#34;</div><div class="operator">)</div><div class="operator"></div>
-	<div class="ident">tryToDeleteAttribute</div><div class="operator">(</div><div class="ident">message</div><div class="operator">,</div> <div class="literal">&#34;analysis_metadata&#34;</div><div class="operator">)</div><div class="operator"></div>
+	<td class="code"><pre><code>	<div class="ident">tryToDeleteAttribute</div><div class="operator">(</div><div class="ident">message</div><div class="operator">,</div> <div class="ident">systemAttribute</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">tryToDeleteAttribute</div><div class="operator">(</div><div class="ident">message</div><div class="operator">,</div> <div class="ident">fingerprintsAttribute</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">tryToDeleteAttribute</div><div class="operator">(</div><div class="ident">message</div><div class="operator">,</div> <div class="ident">skipsAttribute</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">tryToDeleteAttribute</div><div class="operator">(</div><div class="ident">message</div><div class="operator">,</div> <div class="ident">infoAttribute</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">tryToDeleteAttribute</div><div class="operator">(</div><div class="ident">message</div><div class="operator">,</div> <div class="ident">passAttribute</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">tryToDeleteAttribute</div><div class="operator">(</div><div class="ident">message</div><div class="operator">,</div> <div class="ident">analysisMetadataAttribute</div><div class="operator">)</div><div class="operator"></div>
 <div class="operator">}</div><div class="operator"></div>
 
 </code></pre></td>
@@ -893,7 +909,12 @@ shrinking the message.</p>
       <tr class="section">
 	<td class="doc"><p>the structure is not well defined yet, so all we should do is to check if all keys are there</p>
 </td>
-	<td class="code"><pre><code>	<div class="ident">expectedKeys</div> <div class="operator">:=</div> <div class="operator">[</div><div class="operator">]</div><div class="ident">string</div><div class="operator">{</div><div class="literal">&#34;fingerprints&#34;</div><div class="operator">,</div> <div class="literal">&#34;info&#34;</div><div class="operator">,</div> <div class="literal">&#34;reports&#34;</div><div class="operator">,</div> <div class="literal">&#34;system&#34;</div><div class="operator">}</div><div class="operator"></div>
+	<td class="code"><pre><code>	<div class="ident">expectedKeys</div> <div class="operator">:=</div> <div class="operator">[</div><div class="operator">]</div><div class="ident">string</div><div class="operator">{</div>
+		<div class="ident">fingerprintsAttribute</div><div class="operator">,</div>
+		<div class="ident">infoAttribute</div><div class="operator">,</div>
+		<div class="ident">reportsAttribute</div><div class="operator">,</div>
+		<div class="ident">systemAttribute</div><div class="operator">,</div>
+	<div class="operator">}</div><div class="operator"></div>
 
 </code></pre></td>
       </tr>
@@ -962,7 +983,7 @@ expectedKeys := []string{&quot;fingerprints&quot;, &quot;info&quot;, &quot;repor
 	<div class="keyword">return</div> <div class="ident">deserialized</div><div class="operator">,</div> <div class="ident">nil</div><div class="operator"></div>
 <div class="operator">}</div><div class="operator"></div>
 
-<div class="keyword">func</div> <div class="ident">saramaConfigFromBrokerConfig</div><div class="operator">(</div><div class="ident">brokerConfiguration</div> <div class="ident">BrokerConfiguration</div><div class="operator">)</div> <div class="operator">(</div><div class="operator">*</div><div class="ident">sarama</div><div class="operator">.</div><div class="ident">Config</div><div class="operator">,</div> <div class="ident">error</div><div class="operator">)</div> <div class="operator">{</div>
+<div class="keyword">func</div> <div class="ident">saramaConfigFromBrokerConfig</div><div class="operator">(</div><div class="ident">brokerConfiguration</div> <div class="operator">*</div><div class="ident">BrokerConfiguration</div><div class="operator">)</div> <div class="operator">(</div><div class="operator">*</div><div class="ident">sarama</div><div class="operator">.</div><div class="ident">Config</div><div class="operator">,</div> <div class="ident">error</div><div class="operator">)</div> <div class="operator">{</div>
 	<div class="ident">saramaConfig</div> <div class="operator">:=</div> <div class="ident">sarama</div><div class="operator">.</div><div class="ident">NewConfig</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
 	<div class="ident">saramaConfig</div><div class="operator">.</div><div class="ident">Version</div> <div class="operator">=</div> <div class="ident">sarama</div><div class="operator">.</div><div class="ident">V0_10_2_0</div><div class="operator"></div>
 

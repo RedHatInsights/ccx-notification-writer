@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <!--
- Copyright 2022 Red Hat, Inc
+ Copyright 2023 Red Hat, Inc
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
 
-      http://www.apache.org/licenses/LICENSE-2.0
+     http://www.apache.org/licenses/LICENSE-2.0
 
  Unless required by applicable law or agreed to in writing, software
  distributed under the License is distributed on an "AS IS" BASIS,
@@ -492,7 +492,7 @@ benchmarks</p>
 	<td class="doc"><p>initializeStorage function initializes storage and perform connection to
 database</p>
 </td>
-	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">initializeStorage</div><div class="operator">(</div><div class="ident">configuration</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">ConfigStruct</div><div class="operator">)</div> <div class="operator">(</div><div class="operator">*</div><div class="ident">sql</div><div class="operator">.</div><div class="ident">DB</div><div class="operator">,</div> <div class="ident">error</div><div class="operator">)</div> <div class="operator">{</div>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">initializeStorage</div><div class="operator">(</div><div class="ident">configuration</div> <div class="operator">*</div><div class="ident">main</div><div class="operator">.</div><div class="ident">ConfigStruct</div><div class="operator">)</div> <div class="operator">(</div><div class="operator">*</div><div class="ident">sql</div><div class="operator">.</div><div class="ident">DB</div><div class="operator">,</div> <div class="ident">error</div><div class="operator">)</div> <div class="operator">{</div>
 	<div class="ident">storageConfiguration</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">GetStorageConfiguration</div><div class="operator">(</div><div class="ident">configuration</div><div class="operator">)</div><div class="operator"></div>
 
 </code></pre></td>
@@ -501,7 +501,7 @@ database</p>
       <tr class="section">
 	<td class="doc"><p>perform storage initialization</p>
 </td>
-	<td class="code"><pre><code>	<div class="ident">storage</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">NewStorage</div><div class="operator">(</div><div class="ident">storageConfiguration</div><div class="operator">)</div><div class="operator"></div>
+	<td class="code"><pre><code>	<div class="ident">storage</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">NewStorage</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">storageConfiguration</div><div class="operator">)</div><div class="operator"></div>
 	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
 		<div class="keyword">return</div> <div class="ident">nil</div><div class="operator">,</div> <div class="ident">err</div><div class="operator"></div>
 	<div class="operator">}</div><div class="operator"></div>
@@ -538,7 +538,7 @@ Storage structure</p>
       </tr>
       
       <tr class="section">
-	<td class="doc"><p>unfortunatelly there seems to be no other way how to handle per-benchmark
+	<td class="doc"><p>unfortunately there seems to be no other way how to handle per-benchmark
 setup properly than to use global variables</p>
 </td>
 	<td class="code"><pre><code><div class="keyword">var</div> <div class="ident">connection</div> <div class="operator">*</div><div class="ident">sql</div><div class="operator">.</div><div class="ident">DB</div><div class="operator"></div>
@@ -550,7 +550,7 @@ setup properly than to use global variables</p>
       <tr class="section">
 	<td class="doc"><p>setup function performs all DB initializations needed for DB benchmarks. Can
 be called from any benchmark. In case of any error detected, benchmarks fail
-immediatelly.</p>
+immediately.</p>
 </td>
 	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">setup</div><div class="operator">(</div><div class="ident">b</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">B</div><div class="operator">)</div> <div class="operator">*</div><div class="ident">sql</div><div class="operator">.</div><div class="ident">DB</div> <div class="operator">{</div>
 	<div class="keyword">if</div> <div class="ident">initialized</div> <div class="operator">{</div>
@@ -564,7 +564,7 @@ immediatelly.</p>
 		<div class="ident">b</div><div class="operator">.</div><div class="ident">Fatal</div><div class="operator">(</div><div class="ident">err</div><div class="operator">)</div><div class="operator"></div>
 	<div class="operator">}</div><div class="operator"></div>
 
-	<div class="ident">connection</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">=</div> <div class="ident">initializeStorage</div><div class="operator">(</div><div class="ident">configuration</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">connection</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">=</div> <div class="ident">initializeStorage</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">configuration</div><div class="operator">)</div><div class="operator"></div>
 	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
 		<div class="ident">b</div><div class="operator">.</div><div class="ident">Fatal</div><div class="operator">(</div><div class="ident">err</div><div class="operator">)</div><div class="operator"></div>
 	<div class="operator">}</div><div class="operator"></div>
@@ -586,7 +586,7 @@ database</p>
       
       <tr class="section">
 	<td class="doc"><p>execSQLStatement function executes any provided SQL statement. In case of
-any error detected, benchmarks fail immediatelly.</p>
+any error detected, benchmarks fail immediately.</p>
 </td>
 	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">execSQLStatement</div><div class="operator">(</div><div class="ident">b</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">B</div><div class="operator">,</div> <div class="ident">connection</div> <div class="operator">*</div><div class="ident">sql</div><div class="operator">.</div><div class="ident">DB</div><div class="operator">,</div> <div class="ident">statement</div> <div class="ident">string</div><div class="operator">)</div> <div class="operator">{</div>
 	<div class="ident">_</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">connection</div><div class="operator">.</div><div class="ident">Exec</div><div class="operator">(</div><div class="ident">statement</div><div class="operator">)</div><div class="operator"></div>
@@ -595,7 +595,7 @@ any error detected, benchmarks fail immediatelly.</p>
       </tr>
       
       <tr class="section">
-	<td class="doc"><p>check for any error, possible to exit immediatelly</p>
+	<td class="doc"><p>check for any error, possible to exit immediately</p>
 </td>
 	<td class="code"><pre><code>	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
 		<div class="ident">b</div><div class="operator">.</div><div class="ident">Fatal</div><div class="operator">(</div><div class="ident">err</div><div class="operator">)</div><div class="operator"></div>
@@ -607,7 +607,7 @@ any error detected, benchmarks fail immediatelly.</p>
       
       <tr class="section">
 	<td class="doc"><p>insertIntoReportedV1Statement function inserts one new record into reported
-table v1. In case of any error detected, benchmarks fail immediatelly.</p>
+table v1. In case of any error detected, benchmarks fail immediately.</p>
 </td>
 	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">insertIntoReportedV1</div><div class="operator">(</div><div class="ident">b</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">B</div><div class="operator">,</div> <div class="ident">connection</div> <div class="operator">*</div><div class="ident">sql</div><div class="operator">.</div><div class="ident">DB</div><div class="operator">,</div> <div class="ident">i</div> <div class="ident">int</div><div class="operator">,</div> <div class="ident">report</div> <div class="operator">*</div><div class="ident">string</div><div class="operator">)</div> <div class="operator">{</div>
 </code></pre></td>
@@ -649,7 +649,7 @@ table v1. In case of any error detected, benchmarks fail immediatelly.</p>
       </tr>
       
       <tr class="section">
-	<td class="doc"><p>check for any error, possible to exit immediatelly</p>
+	<td class="doc"><p>check for any error, possible to exit immediately</p>
 </td>
 	<td class="code"><pre><code>	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
 		<div class="ident">b</div><div class="operator">.</div><div class="ident">Fatal</div><div class="operator">(</div><div class="ident">err</div><div class="operator">)</div><div class="operator"></div>
@@ -661,7 +661,7 @@ table v1. In case of any error detected, benchmarks fail immediatelly.</p>
       
       <tr class="section">
 	<td class="doc"><p>insertIntoReportedV2Statement function inserts one new record into reported
-table v2. In case of any error detected, benchmarks fail immediatelly.</p>
+table v2. In case of any error detected, benchmarks fail immediately.</p>
 </td>
 	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">insertIntoReportedV2</div><div class="operator">(</div><div class="ident">b</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">B</div><div class="operator">,</div> <div class="ident">connection</div> <div class="operator">*</div><div class="ident">sql</div><div class="operator">.</div><div class="ident">DB</div><div class="operator">,</div> <div class="ident">i</div> <div class="ident">int</div><div class="operator">,</div> <div class="ident">report</div> <div class="operator">*</div><div class="ident">string</div><div class="operator">)</div> <div class="operator">{</div>
 </code></pre></td>
@@ -705,7 +705,7 @@ table v2. In case of any error detected, benchmarks fail immediatelly.</p>
       </tr>
       
       <tr class="section">
-	<td class="doc"><p>check for any error, possible to exit immediatelly</p>
+	<td class="doc"><p>check for any error, possible to exit immediately</p>
 </td>
 	<td class="code"><pre><code>	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
 		<div class="ident">b</div><div class="operator">.</div><div class="ident">Fatal</div><div class="operator">(</div><div class="ident">err</div><div class="operator">)</div><div class="operator"></div>
@@ -718,7 +718,7 @@ table v2. In case of any error detected, benchmarks fail immediatelly.</p>
       <tr class="section">
 	<td class="doc"><p>runBenchmarkInsertIntoReportedTable function perform several inserts into
 reported table v1 or v2 (depending on injected function). In case of any
-error detected, benchmarks fail immediatelly.</p>
+error detected, benchmarks fail immediately.</p>
 </td>
 	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">runBenchmarkInsertIntoReportedTable</div><div class="operator">(</div><div class="ident">b</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">B</div><div class="operator">,</div> <div class="ident">insertFunction</div> <div class="ident">insertIntoReportedFunc</div><div class="operator">,</div>
 	<div class="ident">initStatements</div> <div class="operator">[</div><div class="operator">]</div><div class="ident">string</div><div class="operator">,</div> <div class="ident">scaleFactor</div> <div class="ident">int</div><div class="operator">,</div> <div class="ident">report</div> <div class="operator">*</div><div class="ident">string</div><div class="operator">)</div> <div class="operator">{</div>
@@ -779,7 +779,7 @@ defer execSQLStatement(b, connection, dropTableReportedV1)</p>
 	<td class="doc"><p>runBenchmarkSelectOrDeleteFromReportedTable function perform several inserts
 into reported table v1 or v2 (depending on injected function) and the run
 queries or delete statements against such table. In case of any error
-detected, benchmarks fail immediatelly.</p>
+detected, benchmarks fail immediately.</p>
 </td>
 	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">runBenchmarkSelectOrDeleteFromReportedTable</div><div class="operator">(</div><div class="ident">b</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">B</div><div class="operator">,</div> <div class="ident">insertFunction</div> <div class="ident">insertIntoReportedFunc</div><div class="operator">,</div>
 	<div class="ident">selectStatement</div> <div class="ident">string</div><div class="operator">,</div> <div class="ident">deleteStatement</div> <div class="ident">string</div><div class="operator">,</div>

@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <!--
- Copyright 2022 Red Hat, Inc
+ Copyright 2023 Red Hat, Inc
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
 
-      http://www.apache.org/licenses/LICENSE-2.0
+     http://www.apache.org/licenses/LICENSE-2.0
 
  Unless required by applicable law or agreed to in writing, software
  distributed under the License is distributed on an "AS IS" BASIS,
@@ -217,7 +217,7 @@ using a non accessible Kafka broker.</p>
       <tr class="section">
 	<td class="doc"><p>try to construct new consumer</p>
 </td>
-	<td class="code"><pre><code>	<div class="ident">mockConsumer</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">NewConsumer</div><div class="operator">(</div><div class="ident">brokerConfiguration</div><div class="operator">,</div> <div class="ident">dummyStorage</div><div class="operator">)</div><div class="operator"></div>
+	<td class="code"><pre><code>	<div class="ident">mockConsumer</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">NewConsumer</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">brokerConfiguration</div><div class="operator">,</div> <div class="ident">dummyStorage</div><div class="operator">)</div><div class="operator"></div>
 
 </code></pre></td>
       </tr>
@@ -279,7 +279,7 @@ instance currently running</p>
       <tr class="section">
 	<td class="doc"><p>try to construct new consumer</p>
 </td>
-	<td class="code"><pre><code>	<div class="ident">mockConsumer</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">NewConsumer</div><div class="operator">(</div><div class="ident">brokerConfiguration</div><div class="operator">,</div> <div class="ident">dummyStorage</div><div class="operator">)</div><div class="operator"></div>
+	<td class="code"><pre><code>	<div class="ident">mockConsumer</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">NewConsumer</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">brokerConfiguration</div><div class="operator">,</div> <div class="ident">dummyStorage</div><div class="operator">)</div><div class="operator"></div>
 
 </code></pre></td>
       </tr>
@@ -300,6 +300,323 @@ instance currently running</p>
 		<div class="operator">(</div><div class="operator">*</div><div class="ident">main</div><div class="operator">.</div><div class="ident">KafkaConsumer</div><div class="operator">)</div><div class="operator">(</div><div class="ident">nil</div><div class="operator">)</div><div class="operator">,</div>
 		<div class="ident">mockConsumer</div><div class="operator">,</div>
 		<div class="literal">&#34;consumer.New should return nil instead of Consumer implementation&#34;</div><div class="operator">,</div>
+	<div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>TestNewConsumerConsumerGroup function checks the consumer creation by using a
+non accessible Kafka broker. This test assumes there is no local Kafka
+instance currently running. Consumer group is enabled and setup for this test.</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">TestNewConsumerSaramaConfig</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+	<div class="keyword">const</div> <div class="ident">expectedErr</div> <div class="operator">=</div> <div class="literal">&#34;kafka: client has run out of available brokers to talk to&#34;</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>valid broker configuration for local Kafka instance</p>
+</td>
+	<td class="code"><pre><code>	<div class="keyword">var</div> <div class="ident">brokerConfiguration</div> <div class="operator">=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">BrokerConfiguration</div><div class="operator">{</div>
+		<div class="ident">Address</div><div class="operator">:</div> <div class="literal">&#34;localhost:9092&#34;</div><div class="operator">,</div>
+		<div class="ident">Topic</div><div class="operator">:</div>   <div class="literal">&#34;platform.notifications.ingress&#34;</div><div class="operator">,</div>
+		<div class="ident">Group</div><div class="operator">:</div>   <div class="literal">&#34;test-group&#34;</div><div class="operator">,</div>
+		<div class="ident">Enabled</div><div class="operator">:</div> <div class="ident">true</div><div class="operator">,</div>
+	<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>dummy storage not really useable as the driver is not specified</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">dummyStorage</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">NewFromConnection</div><div class="operator">(</div><div class="ident">nil</div><div class="operator">,</div> <div class="literal">1</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>try to construct new consumer</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">mockConsumer</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">NewConsumer</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">brokerConfiguration</div><div class="operator">,</div> <div class="ident">dummyStorage</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>check that error is really reported</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Contains</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">.</div><div class="ident">Error</div><div class="operator">(</div><div class="operator">)</div><div class="operator">,</div> <div class="ident">expectedErr</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>test the return value</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div>
+		<div class="ident">t</div><div class="operator">,</div>
+		<div class="operator">(</div><div class="operator">*</div><div class="ident">main</div><div class="operator">.</div><div class="ident">KafkaConsumer</div><div class="operator">)</div><div class="operator">(</div><div class="ident">nil</div><div class="operator">)</div><div class="operator">,</div>
+		<div class="ident">mockConsumer</div><div class="operator">,</div>
+		<div class="literal">&#34;consumer.New should return nil instead of Consumer implementation&#34;</div><div class="operator">,</div>
+	<div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>TestNewConsumerTLSEnabled function checks the consumer creation by using a
+non accessible Kafka broker. This test assumes there is no local Kafka
+instance currently running. TSL is enabled in broker configuration.</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">TestNewConsumerTLSEnabled</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+	<div class="keyword">const</div> <div class="ident">expectedErr</div> <div class="operator">=</div> <div class="literal">&#34;kafka: client has run out of available brokers to talk to&#34;</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>valid broker configuration for local Kafka instance</p>
+</td>
+	<td class="code"><pre><code>	<div class="keyword">var</div> <div class="ident">brokerConfiguration</div> <div class="operator">=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">BrokerConfiguration</div><div class="operator">{</div>
+		<div class="ident">Address</div><div class="operator">:</div>          <div class="literal">&#34;localhost:9092&#34;</div><div class="operator">,</div>
+		<div class="ident">Topic</div><div class="operator">:</div>            <div class="literal">&#34;platform.notifications.ingress&#34;</div><div class="operator">,</div>
+		<div class="ident">Group</div><div class="operator">:</div>            <div class="literal">&#34;&#34;</div><div class="operator">,</div>
+		<div class="ident">Enabled</div><div class="operator">:</div>          <div class="ident">true</div><div class="operator">,</div>
+		<div class="ident">SecurityProtocol</div><div class="operator">:</div> <div class="literal">&#34;SSL&#34;</div><div class="operator">,</div>
+	<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>dummy storage not really useable as the driver is not specified</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">dummyStorage</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">NewFromConnection</div><div class="operator">(</div><div class="ident">nil</div><div class="operator">,</div> <div class="literal">1</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>try to construct new consumer</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">mockConsumer</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">NewConsumer</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">brokerConfiguration</div><div class="operator">,</div> <div class="ident">dummyStorage</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>check that error is really reported</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Contains</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">.</div><div class="ident">Error</div><div class="operator">(</div><div class="operator">)</div><div class="operator">,</div> <div class="ident">expectedErr</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>test the return value</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div>
+		<div class="ident">t</div><div class="operator">,</div>
+		<div class="operator">(</div><div class="operator">*</div><div class="ident">main</div><div class="operator">.</div><div class="ident">KafkaConsumer</div><div class="operator">)</div><div class="operator">(</div><div class="ident">nil</div><div class="operator">)</div><div class="operator">,</div>
+		<div class="ident">mockConsumer</div><div class="operator">,</div>
+		<div class="literal">&#34;consumer.New should return nil instead of Consumer implementation&#34;</div><div class="operator">,</div>
+	<div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>TestNewConsumerSASLEnabled function checks the consumer creation by using a
+non accessible Kafka broker. This test assumes there is no local Kafka
+instance currently running. SASL is enabled in broker configuration.</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">TestNewConsumerSASLEnabled</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+	<div class="keyword">const</div> <div class="ident">expectedErr</div> <div class="operator">=</div> <div class="literal">&#34;kafka: client has run out of available brokers to talk to&#34;</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>valid broker configuration for local Kafka instance</p>
+</td>
+	<td class="code"><pre><code>	<div class="keyword">var</div> <div class="ident">brokerConfiguration</div> <div class="operator">=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">BrokerConfiguration</div><div class="operator">{</div>
+		<div class="ident">Address</div><div class="operator">:</div>          <div class="literal">&#34;localhost:9092&#34;</div><div class="operator">,</div>
+		<div class="ident">Topic</div><div class="operator">:</div>            <div class="literal">&#34;platform.notifications.ingress&#34;</div><div class="operator">,</div>
+		<div class="ident">Group</div><div class="operator">:</div>            <div class="literal">&#34;&#34;</div><div class="operator">,</div>
+		<div class="ident">Enabled</div><div class="operator">:</div>          <div class="ident">true</div><div class="operator">,</div>
+		<div class="ident">SecurityProtocol</div><div class="operator">:</div> <div class="literal">&#34;SASL_&#34;</div><div class="operator">,</div>
+		<div class="ident">SaslUsername</div><div class="operator">:</div>     <div class="literal">&#34;sasl_user&#34;</div><div class="operator">,</div>
+		<div class="ident">SaslPassword</div><div class="operator">:</div>     <div class="literal">&#34;sasl_password&#34;</div><div class="operator">,</div>
+		<div class="ident">SaslMechanism</div><div class="operator">:</div>    <div class="literal">&#34;&#34;</div><div class="operator">,</div>
+	<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>dummy storage not really useable as the driver is not specified</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">dummyStorage</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">NewFromConnection</div><div class="operator">(</div><div class="ident">nil</div><div class="operator">,</div> <div class="literal">1</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>try to construct new consumer</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">mockConsumer</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">NewConsumer</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">brokerConfiguration</div><div class="operator">,</div> <div class="ident">dummyStorage</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>check that error is really reported</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Contains</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">.</div><div class="ident">Error</div><div class="operator">(</div><div class="operator">)</div><div class="operator">,</div> <div class="ident">expectedErr</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>test the return value</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div>
+		<div class="ident">t</div><div class="operator">,</div>
+		<div class="operator">(</div><div class="operator">*</div><div class="ident">main</div><div class="operator">.</div><div class="ident">KafkaConsumer</div><div class="operator">)</div><div class="operator">(</div><div class="ident">nil</div><div class="operator">)</div><div class="operator">,</div>
+		<div class="ident">mockConsumer</div><div class="operator">,</div>
+		<div class="literal">&#34;consumer.New should return nil instead of Consumer implementation&#34;</div><div class="operator">,</div>
+	<div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>TestNewConsumerCertPath function checks the consumer creation by using a
+non accessible Kafka broker. This test assumes there is no local Kafka
+instance currently running. Valid cert. path is provided by tests.</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">TestNewConsumerCertPath</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+	<div class="keyword">const</div> <div class="ident">expectedErr</div> <div class="operator">=</div> <div class="literal">&#34;kafka: client has run out of available brokers to talk to&#34;</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>valid broker configuration for local Kafka instance</p>
+</td>
+	<td class="code"><pre><code>	<div class="keyword">var</div> <div class="ident">brokerConfiguration</div> <div class="operator">=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">BrokerConfiguration</div><div class="operator">{</div>
+		<div class="ident">Address</div><div class="operator">:</div>  <div class="literal">&#34;localhost:9092&#34;</div><div class="operator">,</div>
+		<div class="ident">Topic</div><div class="operator">:</div>    <div class="literal">&#34;platform.notifications.ingress&#34;</div><div class="operator">,</div>
+		<div class="ident">Group</div><div class="operator">:</div>    <div class="literal">&#34;&#34;</div><div class="operator">,</div>
+		<div class="ident">Enabled</div><div class="operator">:</div>  <div class="ident">true</div><div class="operator">,</div>
+		<div class="ident">CertPath</div><div class="operator">:</div> <div class="literal">&#34;testdata/cert.pem&#34;</div><div class="operator">,</div>
+	<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>dummy storage not really useable as the driver is not specified</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">dummyStorage</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">NewFromConnection</div><div class="operator">(</div><div class="ident">nil</div><div class="operator">,</div> <div class="literal">1</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>try to construct new consumer</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">mockConsumer</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">NewConsumer</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">brokerConfiguration</div><div class="operator">,</div> <div class="ident">dummyStorage</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>check that error is really reported</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Contains</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">.</div><div class="ident">Error</div><div class="operator">(</div><div class="operator">)</div><div class="operator">,</div> <div class="ident">expectedErr</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>test the return value</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div>
+		<div class="ident">t</div><div class="operator">,</div>
+		<div class="operator">(</div><div class="operator">*</div><div class="ident">main</div><div class="operator">.</div><div class="ident">KafkaConsumer</div><div class="operator">)</div><div class="operator">(</div><div class="ident">nil</div><div class="operator">)</div><div class="operator">,</div>
+		<div class="ident">mockConsumer</div><div class="operator">,</div>
+		<div class="literal">&#34;invalid cert path&#34;</div><div class="operator">,</div>
+	<div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>TestNewConsumerInvalidCertPath function checks the consumer creation by using a
+non accessible Kafka broker. This test assumes there is no local Kafka
+instance currently running. Invalid cert. path is provided by tests.</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">TestNewConsumerInvalidCertPath</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+	<div class="keyword">const</div> <div class="ident">expectedErr</div> <div class="operator">=</div> <div class="literal">&#34;open /foo/bar/baz: no such file or directory&#34;</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>valid broker configuration for local Kafka instance</p>
+</td>
+	<td class="code"><pre><code>	<div class="keyword">var</div> <div class="ident">brokerConfiguration</div> <div class="operator">=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">BrokerConfiguration</div><div class="operator">{</div>
+		<div class="ident">Address</div><div class="operator">:</div>  <div class="literal">&#34;localhost:9092&#34;</div><div class="operator">,</div>
+		<div class="ident">Topic</div><div class="operator">:</div>    <div class="literal">&#34;platform.notifications.ingress&#34;</div><div class="operator">,</div>
+		<div class="ident">Group</div><div class="operator">:</div>    <div class="literal">&#34;&#34;</div><div class="operator">,</div>
+		<div class="ident">Enabled</div><div class="operator">:</div>  <div class="ident">true</div><div class="operator">,</div>
+		<div class="ident">CertPath</div><div class="operator">:</div> <div class="literal">&#34;/foo/bar/baz&#34;</div><div class="operator">,</div>
+	<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>dummy storage not really useable as the driver is not specified</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">dummyStorage</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">NewFromConnection</div><div class="operator">(</div><div class="ident">nil</div><div class="operator">,</div> <div class="literal">1</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>try to construct new consumer</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">mockConsumer</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">NewConsumer</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">brokerConfiguration</div><div class="operator">,</div> <div class="ident">dummyStorage</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>check that error is really reported</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Contains</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">.</div><div class="ident">Error</div><div class="operator">(</div><div class="operator">)</div><div class="operator">,</div> <div class="ident">expectedErr</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>test the return value</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div>
+		<div class="ident">t</div><div class="operator">,</div>
+		<div class="operator">(</div><div class="operator">*</div><div class="ident">main</div><div class="operator">.</div><div class="ident">KafkaConsumer</div><div class="operator">)</div><div class="operator">(</div><div class="ident">nil</div><div class="operator">)</div><div class="operator">,</div>
+		<div class="ident">mockConsumer</div><div class="operator">,</div>
+		<div class="literal">&#34;invalid cert path&#34;</div><div class="operator">,</div>
 	<div class="operator">)</div><div class="operator"></div>
 <div class="operator">}</div><div class="operator"></div>
 

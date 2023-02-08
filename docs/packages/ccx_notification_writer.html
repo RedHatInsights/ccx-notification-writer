@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <!--
- Copyright 2022 Red Hat, Inc
+ Copyright 2023 Red Hat, Inc
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
 
-      http://www.apache.org/licenses/LICENSE-2.0
+     http://www.apache.org/licenses/LICENSE-2.0
 
  Unless required by applicable law or agreed to in writing, software
  distributed under the License is distributed on an "AS IS" BASIS,
@@ -118,7 +118,7 @@
       <tr class="section">
 	<td class="doc"></td>
 	<td class="code"><pre><code><div class="comment">/*
-Copyright © 2021, 2022 Red Hat, Inc.
+Copyright © 2021, 2022, 2023 Red Hat, Inc.
 
 Licensed under the Apache License, Version 2.0 (the &#34;License&#34;);
 you may not use this file except in compliance with the License.
@@ -142,6 +142,21 @@ limitations under the License.
 <p>The service contains consumer (usually Kafka consumer) that consumes
 messages from given source, processes those messages and stores them
 in configured data store.</p>
+
+<p>The main task for this service is to listen to configured Kafka topic,
+consume all messages from such topic, and write OCP results (in JSON format)
+with additional information (like organization ID, cluster name, Kafka
+offset etc.) into a database table named new<em>reports. Multiple reports can
+be consumed and written into the database for the same cluster, because the
+primary (compound) key for new</em>reports table is set to the combination
+(org<em>id, cluster, updated</em>at).</p>
+
+<p>When some message does not conform to expected schema (for example if org_id
+is missing for any reason), such message is dropped and the error message
+with all relevant information about the issue is stored into the log.
+Messages are expected to contain report body represented as JSON.  This body
+is shrunk before it's stored into database so the database remains
+relatively small.</p>
 </td>
 	<td class="code"><pre><code><div class="keyword">package</div> <div class="ident">main</div><div class="operator"></div>
 
@@ -169,6 +184,7 @@ https://redhatinsights.github.io/ccx-notification-writer/packages/ccx<em>notific
 	<div class="literal">&#34;net/http&#34;</div><div class="operator"></div>
 	<div class="literal">&#34;os&#34;</div><div class="operator"></div>
 	<div class="literal">&#34;strconv&#34;</div><div class="operator"></div>
+	<div class="literal">&#34;strings&#34;</div><div class="operator"></div>
 
 	<div class="ident">utils</div> <div class="literal">&#34;github.com/RedHatInsights/insights-operator-utils/migrations&#34;</div><div class="operator"></div>
 	<div class="literal">&#34;github.com/prometheus/client_golang/prometheus/promhttp&#34;</div><div class="operator"></div>
@@ -293,7 +309,7 @@ https://redhatinsights.github.io/ccx-notification-writer/packages/ccx<em>notific
       <tr class="section">
 	<td class="doc"><p>showConfiguration function displays actual configuration.</p>
 </td>
-	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">showConfiguration</div><div class="operator">(</div><div class="ident">configuration</div> <div class="ident">ConfigStruct</div><div class="operator">)</div> <div class="operator">{</div>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">showConfiguration</div><div class="operator">(</div><div class="ident">configuration</div> <div class="operator">*</div><div class="ident">ConfigStruct</div><div class="operator">)</div> <div class="operator">{</div>
 	<div class="ident">brokerConfig</div> <div class="operator">:=</div> <div class="ident">GetBrokerConfiguration</div><div class="operator">(</div><div class="ident">configuration</div><div class="operator">)</div><div class="operator"></div>
 	<div class="ident">log</div><div class="operator">.</div><div class="ident">Info</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div>
 		<div class="ident">Str</div><div class="operator">(</div><div class="ident">brokerAddress</div><div class="operator">,</div> <div class="ident">brokerConfig</div><div class="operator">.</div><div class="ident">Address</div><div class="operator">)</div><div class="operator">.</div>
@@ -335,7 +351,7 @@ https://redhatinsights.github.io/ccx-notification-writer/packages/ccx<em>notific
       <tr class="section">
 	<td class="doc"><p>tryToConnectToKafka function just tries connection to Kafka broker</p>
 </td>
-	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">tryToConnectToKafka</div><div class="operator">(</div><div class="ident">configuration</div> <div class="ident">ConfigStruct</div><div class="operator">)</div> <div class="operator">(</div><div class="ident">int</div><div class="operator">,</div> <div class="ident">error</div><div class="operator">)</div> <div class="operator">{</div>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">tryToConnectToKafka</div><div class="operator">(</div><div class="ident">configuration</div> <div class="operator">*</div><div class="ident">ConfigStruct</div><div class="operator">)</div> <div class="operator">(</div><div class="ident">int</div><div class="operator">,</div> <div class="ident">error</div><div class="operator">)</div> <div class="operator">{</div>
 	<div class="ident">log</div><div class="operator">.</div><div class="ident">Info</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;Checking connection to Kafka&#34;</div><div class="operator">)</div><div class="operator"></div>
 
 </code></pre></td>
@@ -402,7 +418,7 @@ https://redhatinsights.github.io/ccx-notification-writer/packages/ccx<em>notific
 	<td class="doc"><p>performDatabaseInitialization function performs database initialization -
 creates all tables in database.</p>
 </td>
-	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">performDatabaseInitialization</div><div class="operator">(</div><div class="ident">configuration</div> <div class="ident">ConfigStruct</div><div class="operator">)</div> <div class="operator">(</div><div class="ident">int</div><div class="operator">,</div> <div class="ident">error</div><div class="operator">)</div> <div class="operator">{</div>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">performDatabaseInitialization</div><div class="operator">(</div><div class="ident">configuration</div> <div class="operator">*</div><div class="ident">ConfigStruct</div><div class="operator">)</div> <div class="operator">(</div><div class="ident">int</div><div class="operator">,</div> <div class="ident">error</div><div class="operator">)</div> <div class="operator">{</div>
 </code></pre></td>
       </tr>
       
@@ -410,7 +426,7 @@ creates all tables in database.</p>
 	<td class="doc"><p>prepare the storage</p>
 </td>
 	<td class="code"><pre><code>	<div class="ident">storageConfiguration</div> <div class="operator">:=</div> <div class="ident">GetStorageConfiguration</div><div class="operator">(</div><div class="ident">configuration</div><div class="operator">)</div><div class="operator"></div>
-	<div class="ident">storage</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">NewStorage</div><div class="operator">(</div><div class="ident">storageConfiguration</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">storage</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">NewStorage</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">storageConfiguration</div><div class="operator">)</div><div class="operator"></div>
 	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
 		<div class="ident">log</div><div class="operator">.</div><div class="ident">Err</div><div class="operator">(</div><div class="ident">err</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="ident">operationFailedMessage</div><div class="operator">)</div><div class="operator"></div>
 		<div class="keyword">return</div> <div class="ident">ExitStatusStorageError</div><div class="operator">,</div> <div class="ident">err</div><div class="operator"></div>
@@ -431,7 +447,7 @@ creates all tables in database.</p>
       <tr class="section">
 	<td class="doc"><p>performDatabaseInitMigration function initialize migration table</p>
 </td>
-	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">performDatabaseInitMigration</div><div class="operator">(</div><div class="ident">configuration</div> <div class="ident">ConfigStruct</div><div class="operator">)</div> <div class="operator">(</div><div class="ident">int</div><div class="operator">,</div> <div class="ident">error</div><div class="operator">)</div> <div class="operator">{</div>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">performDatabaseInitMigration</div><div class="operator">(</div><div class="ident">configuration</div> <div class="operator">*</div><div class="ident">ConfigStruct</div><div class="operator">)</div> <div class="operator">(</div><div class="ident">int</div><div class="operator">,</div> <div class="ident">error</div><div class="operator">)</div> <div class="operator">{</div>
 </code></pre></td>
       </tr>
       
@@ -439,7 +455,7 @@ creates all tables in database.</p>
 	<td class="doc"><p>prepare the storage</p>
 </td>
 	<td class="code"><pre><code>	<div class="ident">storageConfiguration</div> <div class="operator">:=</div> <div class="ident">GetStorageConfiguration</div><div class="operator">(</div><div class="ident">configuration</div><div class="operator">)</div><div class="operator"></div>
-	<div class="ident">storage</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">NewStorage</div><div class="operator">(</div><div class="ident">storageConfiguration</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">storage</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">NewStorage</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">storageConfiguration</div><div class="operator">)</div><div class="operator"></div>
 	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
 		<div class="ident">log</div><div class="operator">.</div><div class="ident">Err</div><div class="operator">(</div><div class="ident">err</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="ident">operationFailedMessage</div><div class="operator">)</div><div class="operator"></div>
 		<div class="keyword">return</div> <div class="ident">ExitStatusStorageError</div><div class="operator">,</div> <div class="ident">err</div><div class="operator"></div>
@@ -461,7 +477,7 @@ creates all tables in database.</p>
 	<td class="doc"><p>performDatabaseCleanup function performs database cleanup - deletes content
 of all tables in database.</p>
 </td>
-	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">performDatabaseCleanup</div><div class="operator">(</div><div class="ident">configuration</div> <div class="ident">ConfigStruct</div><div class="operator">)</div> <div class="operator">(</div><div class="ident">int</div><div class="operator">,</div> <div class="ident">error</div><div class="operator">)</div> <div class="operator">{</div>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">performDatabaseCleanup</div><div class="operator">(</div><div class="ident">configuration</div> <div class="operator">*</div><div class="ident">ConfigStruct</div><div class="operator">)</div> <div class="operator">(</div><div class="ident">int</div><div class="operator">,</div> <div class="ident">error</div><div class="operator">)</div> <div class="operator">{</div>
 </code></pre></td>
       </tr>
       
@@ -469,7 +485,7 @@ of all tables in database.</p>
 	<td class="doc"><p>prepare the storage</p>
 </td>
 	<td class="code"><pre><code>	<div class="ident">storageConfiguration</div> <div class="operator">:=</div> <div class="ident">GetStorageConfiguration</div><div class="operator">(</div><div class="ident">configuration</div><div class="operator">)</div><div class="operator"></div>
-	<div class="ident">storage</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">NewStorage</div><div class="operator">(</div><div class="ident">storageConfiguration</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">storage</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">NewStorage</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">storageConfiguration</div><div class="operator">)</div><div class="operator"></div>
 	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
 		<div class="ident">log</div><div class="operator">.</div><div class="ident">Err</div><div class="operator">(</div><div class="ident">err</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="ident">operationFailedMessage</div><div class="operator">)</div><div class="operator"></div>
 		<div class="keyword">return</div> <div class="ident">ExitStatusStorageError</div><div class="operator">,</div> <div class="ident">err</div><div class="operator"></div>
@@ -490,7 +506,7 @@ of all tables in database.</p>
       <tr class="section">
 	<td class="doc"><p>performDatabaseDropTables function performs drop of all databases tables.</p>
 </td>
-	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">performDatabaseDropTables</div><div class="operator">(</div><div class="ident">configuration</div> <div class="ident">ConfigStruct</div><div class="operator">)</div> <div class="operator">(</div><div class="ident">int</div><div class="operator">,</div> <div class="ident">error</div><div class="operator">)</div> <div class="operator">{</div>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">performDatabaseDropTables</div><div class="operator">(</div><div class="ident">configuration</div> <div class="operator">*</div><div class="ident">ConfigStruct</div><div class="operator">)</div> <div class="operator">(</div><div class="ident">int</div><div class="operator">,</div> <div class="ident">error</div><div class="operator">)</div> <div class="operator">{</div>
 </code></pre></td>
       </tr>
       
@@ -498,7 +514,7 @@ of all tables in database.</p>
 	<td class="doc"><p>prepare the storage</p>
 </td>
 	<td class="code"><pre><code>	<div class="ident">storageConfiguration</div> <div class="operator">:=</div> <div class="ident">GetStorageConfiguration</div><div class="operator">(</div><div class="ident">configuration</div><div class="operator">)</div><div class="operator"></div>
-	<div class="ident">storage</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">NewStorage</div><div class="operator">(</div><div class="ident">storageConfiguration</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">storage</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">NewStorage</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">storageConfiguration</div><div class="operator">)</div><div class="operator"></div>
 	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
 		<div class="ident">log</div><div class="operator">.</div><div class="ident">Err</div><div class="operator">(</div><div class="ident">err</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="ident">operationFailedMessage</div><div class="operator">)</div><div class="operator"></div>
 		<div class="keyword">return</div> <div class="ident">ExitStatusStorageError</div><div class="operator">,</div> <div class="ident">err</div><div class="operator"></div>
@@ -520,7 +536,7 @@ of all tables in database.</p>
 	<td class="doc"><p>printNewReportsForCleanup function print all reports for <code>new_reports</code> table
 that are older than specified max age.</p>
 </td>
-	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">printNewReportsForCleanup</div><div class="operator">(</div><div class="ident">configuration</div> <div class="ident">ConfigStruct</div><div class="operator">,</div> <div class="ident">cliFlags</div> <div class="ident">CliFlags</div><div class="operator">)</div> <div class="operator">(</div><div class="ident">int</div><div class="operator">,</div> <div class="ident">error</div><div class="operator">)</div> <div class="operator">{</div>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">printNewReportsForCleanup</div><div class="operator">(</div><div class="ident">configuration</div> <div class="operator">*</div><div class="ident">ConfigStruct</div><div class="operator">,</div> <div class="ident">cliFlags</div> <div class="ident">CliFlags</div><div class="operator">)</div> <div class="operator">(</div><div class="ident">int</div><div class="operator">,</div> <div class="ident">error</div><div class="operator">)</div> <div class="operator">{</div>
 </code></pre></td>
       </tr>
       
@@ -528,7 +544,7 @@ that are older than specified max age.</p>
 	<td class="doc"><p>prepare the storage</p>
 </td>
 	<td class="code"><pre><code>	<div class="ident">storageConfiguration</div> <div class="operator">:=</div> <div class="ident">GetStorageConfiguration</div><div class="operator">(</div><div class="ident">configuration</div><div class="operator">)</div><div class="operator"></div>
-	<div class="ident">storage</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">NewStorage</div><div class="operator">(</div><div class="ident">storageConfiguration</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">storage</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">NewStorage</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">storageConfiguration</div><div class="operator">)</div><div class="operator"></div>
 	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
 		<div class="ident">log</div><div class="operator">.</div><div class="ident">Error</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Err</div><div class="operator">(</div><div class="ident">err</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="ident">operationFailedMessage</div><div class="operator">)</div><div class="operator"></div>
 		<div class="keyword">return</div> <div class="ident">ExitStatusStorageError</div><div class="operator">,</div> <div class="ident">err</div><div class="operator"></div>
@@ -550,7 +566,7 @@ that are older than specified max age.</p>
 	<td class="doc"><p>performNewReportsCleanup function deletes all reports from <code>new_reports</code>
 table that are older than specified max age.</p>
 </td>
-	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">performNewReportsCleanup</div><div class="operator">(</div><div class="ident">configuration</div> <div class="ident">ConfigStruct</div><div class="operator">,</div> <div class="ident">cliFlags</div> <div class="ident">CliFlags</div><div class="operator">)</div> <div class="operator">(</div><div class="ident">int</div><div class="operator">,</div> <div class="ident">error</div><div class="operator">)</div> <div class="operator">{</div>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">performNewReportsCleanup</div><div class="operator">(</div><div class="ident">configuration</div> <div class="operator">*</div><div class="ident">ConfigStruct</div><div class="operator">,</div> <div class="ident">cliFlags</div> <div class="ident">CliFlags</div><div class="operator">)</div> <div class="operator">(</div><div class="ident">int</div><div class="operator">,</div> <div class="ident">error</div><div class="operator">)</div> <div class="operator">{</div>
 </code></pre></td>
       </tr>
       
@@ -558,7 +574,7 @@ table that are older than specified max age.</p>
 	<td class="doc"><p>prepare the storage</p>
 </td>
 	<td class="code"><pre><code>	<div class="ident">storageConfiguration</div> <div class="operator">:=</div> <div class="ident">GetStorageConfiguration</div><div class="operator">(</div><div class="ident">configuration</div><div class="operator">)</div><div class="operator"></div>
-	<div class="ident">storage</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">NewStorage</div><div class="operator">(</div><div class="ident">storageConfiguration</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">storage</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">NewStorage</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">storageConfiguration</div><div class="operator">)</div><div class="operator"></div>
 	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
 		<div class="ident">log</div><div class="operator">.</div><div class="ident">Error</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Err</div><div class="operator">(</div><div class="ident">err</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="ident">operationFailedMessage</div><div class="operator">)</div><div class="operator"></div>
 		<div class="keyword">return</div> <div class="ident">ExitStatusStorageError</div><div class="operator">,</div> <div class="ident">err</div><div class="operator"></div>
@@ -581,7 +597,7 @@ table that are older than specified max age.</p>
 	<td class="doc"><p>printOldReportsForCleanup function print all reports for <code>reported</code> table
 that are older than specified max age.</p>
 </td>
-	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">printOldReportsForCleanup</div><div class="operator">(</div><div class="ident">configuration</div> <div class="ident">ConfigStruct</div><div class="operator">,</div> <div class="ident">cliFlags</div> <div class="ident">CliFlags</div><div class="operator">)</div> <div class="operator">(</div><div class="ident">int</div><div class="operator">,</div> <div class="ident">error</div><div class="operator">)</div> <div class="operator">{</div>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">printOldReportsForCleanup</div><div class="operator">(</div><div class="ident">configuration</div> <div class="operator">*</div><div class="ident">ConfigStruct</div><div class="operator">,</div> <div class="ident">cliFlags</div> <div class="ident">CliFlags</div><div class="operator">)</div> <div class="operator">(</div><div class="ident">int</div><div class="operator">,</div> <div class="ident">error</div><div class="operator">)</div> <div class="operator">{</div>
 </code></pre></td>
       </tr>
       
@@ -589,7 +605,7 @@ that are older than specified max age.</p>
 	<td class="doc"><p>prepare the storage</p>
 </td>
 	<td class="code"><pre><code>	<div class="ident">storageConfiguration</div> <div class="operator">:=</div> <div class="ident">GetStorageConfiguration</div><div class="operator">(</div><div class="ident">configuration</div><div class="operator">)</div><div class="operator"></div>
-	<div class="ident">storage</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">NewStorage</div><div class="operator">(</div><div class="ident">storageConfiguration</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">storage</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">NewStorage</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">storageConfiguration</div><div class="operator">)</div><div class="operator"></div>
 	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
 		<div class="ident">log</div><div class="operator">.</div><div class="ident">Error</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Err</div><div class="operator">(</div><div class="ident">err</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="ident">operationFailedMessage</div><div class="operator">)</div><div class="operator"></div>
 		<div class="keyword">return</div> <div class="ident">ExitStatusStorageError</div><div class="operator">,</div> <div class="ident">err</div><div class="operator"></div>
@@ -611,7 +627,7 @@ that are older than specified max age.</p>
 	<td class="doc"><p>performOldReportsCleanup function deletes all reports from <code>reported</code> table
 that are older than specified max age.</p>
 </td>
-	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">performOldReportsCleanup</div><div class="operator">(</div><div class="ident">configuration</div> <div class="ident">ConfigStruct</div><div class="operator">,</div> <div class="ident">cliFlags</div> <div class="ident">CliFlags</div><div class="operator">)</div> <div class="operator">(</div><div class="ident">int</div><div class="operator">,</div> <div class="ident">error</div><div class="operator">)</div> <div class="operator">{</div>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">performOldReportsCleanup</div><div class="operator">(</div><div class="ident">configuration</div> <div class="operator">*</div><div class="ident">ConfigStruct</div><div class="operator">,</div> <div class="ident">cliFlags</div> <div class="ident">CliFlags</div><div class="operator">)</div> <div class="operator">(</div><div class="ident">int</div><div class="operator">,</div> <div class="ident">error</div><div class="operator">)</div> <div class="operator">{</div>
 </code></pre></td>
       </tr>
       
@@ -619,7 +635,7 @@ that are older than specified max age.</p>
 	<td class="doc"><p>prepare the storage</p>
 </td>
 	<td class="code"><pre><code>	<div class="ident">storageConfiguration</div> <div class="operator">:=</div> <div class="ident">GetStorageConfiguration</div><div class="operator">(</div><div class="ident">configuration</div><div class="operator">)</div><div class="operator"></div>
-	<div class="ident">storage</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">NewStorage</div><div class="operator">(</div><div class="ident">storageConfiguration</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">storage</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">NewStorage</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">storageConfiguration</div><div class="operator">)</div><div class="operator"></div>
 	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
 		<div class="ident">log</div><div class="operator">.</div><div class="ident">Error</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Err</div><div class="operator">(</div><div class="ident">err</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="ident">operationFailedMessage</div><div class="operator">)</div><div class="operator"></div>
 		<div class="keyword">return</div> <div class="ident">ExitStatusStorageError</div><div class="operator">,</div> <div class="ident">err</div><div class="operator"></div>
@@ -641,7 +657,7 @@ that are older than specified max age.</p>
       <tr class="section">
 	<td class="doc"><p>startService function tries to start the notification writer service.</p>
 </td>
-	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">startService</div><div class="operator">(</div><div class="ident">configuration</div> <div class="ident">ConfigStruct</div><div class="operator">)</div> <div class="operator">(</div><div class="ident">int</div><div class="operator">,</div> <div class="ident">error</div><div class="operator">)</div> <div class="operator">{</div>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">startService</div><div class="operator">(</div><div class="ident">configuration</div> <div class="operator">*</div><div class="ident">ConfigStruct</div><div class="operator">)</div> <div class="operator">(</div><div class="ident">int</div><div class="operator">,</div> <div class="ident">error</div><div class="operator">)</div> <div class="operator">{</div>
 </code></pre></td>
       </tr>
       
@@ -669,7 +685,7 @@ that are older than specified max age.</p>
 	<td class="doc"><p>prepare the storage</p>
 </td>
 	<td class="code"><pre><code>	<div class="ident">storageConfiguration</div> <div class="operator">:=</div> <div class="ident">GetStorageConfiguration</div><div class="operator">(</div><div class="ident">configuration</div><div class="operator">)</div><div class="operator"></div>
-	<div class="ident">storage</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">NewStorage</div><div class="operator">(</div><div class="ident">storageConfiguration</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">storage</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">NewStorage</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">storageConfiguration</div><div class="operator">)</div><div class="operator"></div>
 	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
 		<div class="ident">log</div><div class="operator">.</div><div class="ident">Err</div><div class="operator">(</div><div class="ident">err</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="ident">operationFailedMessage</div><div class="operator">)</div><div class="operator"></div>
 		<div class="keyword">return</div> <div class="ident">ExitStatusStorageError</div><div class="operator">,</div> <div class="ident">err</div><div class="operator"></div>
@@ -702,7 +718,7 @@ that are older than specified max age.</p>
 	<td class="doc"><p>if broker is disabled, simply don't start it</p>
 </td>
 	<td class="code"><pre><code>	<div class="keyword">if</div> <div class="ident">brokerConfiguration</div><div class="operator">.</div><div class="ident">Enabled</div> <div class="operator">{</div>
-		<div class="ident">err</div> <div class="operator">:=</div> <div class="ident">startConsumer</div><div class="operator">(</div><div class="ident">brokerConfiguration</div><div class="operator">,</div> <div class="ident">storage</div><div class="operator">)</div><div class="operator"></div>
+		<div class="ident">err</div> <div class="operator">:=</div> <div class="ident">startConsumer</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">brokerConfiguration</div><div class="operator">,</div> <div class="ident">storage</div><div class="operator">)</div><div class="operator"></div>
 		<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
 			<div class="ident">log</div><div class="operator">.</div><div class="ident">Error</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Err</div><div class="operator">(</div><div class="ident">err</div><div class="operator">)</div><div class="operator"></div>
 			<div class="keyword">return</div> <div class="ident">ExitStatusConsumerError</div><div class="operator">,</div> <div class="ident">err</div><div class="operator"></div>
@@ -720,7 +736,7 @@ that are older than specified max age.</p>
       <tr class="section">
 	<td class="doc"><p>startConsumer function starts the Kafka consumer.</p>
 </td>
-	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">startConsumer</div><div class="operator">(</div><div class="ident">brokerConfiguration</div> <div class="ident">BrokerConfiguration</div><div class="operator">,</div> <div class="ident">storage</div> <div class="ident">Storage</div><div class="operator">)</div> <div class="ident">error</div> <div class="operator">{</div>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">startConsumer</div><div class="operator">(</div><div class="ident">brokerConfiguration</div> <div class="operator">*</div><div class="ident">BrokerConfiguration</div><div class="operator">,</div> <div class="ident">storage</div> <div class="ident">Storage</div><div class="operator">)</div> <div class="ident">error</div> <div class="operator">{</div>
 	<div class="ident">consumer</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">NewConsumer</div><div class="operator">(</div><div class="ident">brokerConfiguration</div><div class="operator">,</div> <div class="ident">storage</div><div class="operator">)</div><div class="operator"></div>
 	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
 		<div class="ident">log</div><div class="operator">.</div><div class="ident">Error</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Err</div><div class="operator">(</div><div class="ident">err</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;Construct broker failed&#34;</div><div class="operator">)</div><div class="operator"></div>
@@ -771,7 +787,7 @@ instead.</p>
 
 <p>gocyclo:ignore</p>
 </td>
-	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">doSelectedOperation</div><div class="operator">(</div><div class="ident">configuration</div> <div class="ident">ConfigStruct</div><div class="operator">,</div> <div class="ident">cliFlags</div> <div class="ident">CliFlags</div><div class="operator">)</div> <div class="operator">(</div><div class="ident">int</div><div class="operator">,</div> <div class="ident">error</div><div class="operator">)</div> <div class="operator">{</div>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">doSelectedOperation</div><div class="operator">(</div><div class="ident">configuration</div> <div class="operator">*</div><div class="ident">ConfigStruct</div><div class="operator">,</div> <div class="ident">cliFlags</div> <div class="ident">CliFlags</div><div class="operator">)</div> <div class="operator">(</div><div class="ident">int</div><div class="operator">,</div> <div class="ident">error</div><div class="operator">)</div> <div class="operator">{</div>
 	<div class="keyword">switch</div> <div class="operator">{</div>
 	<div class="keyword">case</div> <div class="ident">cliFlags</div><div class="operator">.</div><div class="ident">ShowVersion</div><div class="operator">:</div>
 		<div class="ident">showVersion</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
@@ -815,6 +831,24 @@ instead.</p>
 	<td class="doc"><p>this can not happen: return ExitStatusOK, nil</p>
 </td>
 	<td class="code"><pre><code><div class="operator">}</div><div class="operator"></div>
+
+<div class="keyword">func</div> <div class="ident">convertLogLevel</div><div class="operator">(</div><div class="ident">level</div> <div class="ident">string</div><div class="operator">)</div> <div class="ident">zerolog</div><div class="operator">.</div><div class="ident">Level</div> <div class="operator">{</div>
+	<div class="ident">level</div> <div class="operator">=</div> <div class="ident">strings</div><div class="operator">.</div><div class="ident">ToLower</div><div class="operator">(</div><div class="ident">strings</div><div class="operator">.</div><div class="ident">TrimSpace</div><div class="operator">(</div><div class="ident">level</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
+	<div class="keyword">switch</div> <div class="ident">level</div> <div class="operator">{</div>
+	<div class="keyword">case</div> <div class="literal">&#34;debug&#34;</div><div class="operator">:</div>
+		<div class="keyword">return</div> <div class="ident">zerolog</div><div class="operator">.</div><div class="ident">DebugLevel</div><div class="operator"></div>
+	<div class="keyword">case</div> <div class="literal">&#34;info&#34;</div><div class="operator">:</div>
+		<div class="keyword">return</div> <div class="ident">zerolog</div><div class="operator">.</div><div class="ident">InfoLevel</div><div class="operator"></div>
+	<div class="keyword">case</div> <div class="literal">&#34;warn&#34;</div><div class="operator">,</div> <div class="literal">&#34;warning&#34;</div><div class="operator">:</div>
+		<div class="keyword">return</div> <div class="ident">zerolog</div><div class="operator">.</div><div class="ident">WarnLevel</div><div class="operator"></div>
+	<div class="keyword">case</div> <div class="literal">&#34;error&#34;</div><div class="operator">:</div>
+		<div class="keyword">return</div> <div class="ident">zerolog</div><div class="operator">.</div><div class="ident">ErrorLevel</div><div class="operator"></div>
+	<div class="keyword">case</div> <div class="literal">&#34;fatal&#34;</div><div class="operator">:</div>
+		<div class="keyword">return</div> <div class="ident">zerolog</div><div class="operator">.</div><div class="ident">FatalLevel</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+
+	<div class="keyword">return</div> <div class="ident">zerolog</div><div class="operator">.</div><div class="ident">DebugLevel</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
 
 </code></pre></td>
       </tr>
@@ -863,6 +897,20 @@ instead.</p>
 		<div class="ident">log</div><div class="operator">.</div><div class="ident">Logger</div> <div class="operator">=</div> <div class="ident">log</div><div class="operator">.</div><div class="ident">Output</div><div class="operator">(</div><div class="ident">zerolog</div><div class="operator">.</div><div class="ident">ConsoleWriter</div><div class="operator">{</div><div class="ident">Out</div><div class="operator">:</div> <div class="ident">os</div><div class="operator">.</div><div class="ident">Stderr</div><div class="operator">}</div><div class="operator">)</div><div class="operator"></div>
 	<div class="operator">}</div><div class="operator"></div>
 
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>set log level
+TODO: refactor utils/logger appropriately</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">logLevel</div> <div class="operator">:=</div> <div class="ident">convertLogLevel</div><div class="operator">(</div><div class="ident">configuration</div><div class="operator">.</div><div class="ident">Logging</div><div class="operator">.</div><div class="ident">LogLevel</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">zerolog</div><div class="operator">.</div><div class="ident">SetGlobalLevel</div><div class="operator">(</div><div class="ident">logLevel</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">log</div><div class="operator">.</div><div class="ident">Info</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div>
+		<div class="ident">Str</div><div class="operator">(</div><div class="literal">&#34;configured&#34;</div><div class="operator">,</div> <div class="ident">configuration</div><div class="operator">.</div><div class="ident">Logging</div><div class="operator">.</div><div class="ident">LogLevel</div><div class="operator">)</div><div class="operator">.</div>
+		<div class="ident">Int</div><div class="operator">(</div><div class="literal">&#34;internal&#34;</div><div class="operator">,</div> <div class="ident">int</div><div class="operator">(</div><div class="ident">logLevel</div><div class="operator">)</div><div class="operator">)</div><div class="operator">.</div>
+		<div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;Log level&#34;</div><div class="operator">)</div><div class="operator"></div>
+
 	<div class="ident">log</div><div class="operator">.</div><div class="ident">Debug</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;Started&#34;</div><div class="operator">)</div><div class="operator"></div>
 
 </code></pre></td>
@@ -881,7 +929,7 @@ instead.</p>
       <tr class="section">
 	<td class="doc"><p>perform selected operation</p>
 </td>
-	<td class="code"><pre><code>	<div class="ident">exitStatus</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">doSelectedOperation</div><div class="operator">(</div><div class="ident">configuration</div><div class="operator">,</div> <div class="ident">cliFlags</div><div class="operator">)</div><div class="operator"></div>
+	<td class="code"><pre><code>	<div class="ident">exitStatus</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">doSelectedOperation</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">configuration</div><div class="operator">,</div> <div class="ident">cliFlags</div><div class="operator">)</div><div class="operator"></div>
 	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
 		<div class="ident">log</div><div class="operator">.</div><div class="ident">Err</div><div class="operator">(</div><div class="ident">err</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;Do selected operation&#34;</div><div class="operator">)</div><div class="operator"></div>
 		<div class="ident">os</div><div class="operator">.</div><div class="ident">Exit</div><div class="operator">(</div><div class="ident">exitStatus</div><div class="operator">)</div><div class="operator"></div>
@@ -898,8 +946,9 @@ instead.</p>
 	<td class="doc"><p>PrintMigrationInfo function prints information about current DB migration
 version without making any modifications.</p>
 </td>
-	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">PrintMigrationInfo</div><div class="operator">(</div><div class="ident">configuration</div> <div class="ident">ConfigStruct</div><div class="operator">)</div> <div class="operator">(</div><div class="ident">int</div><div class="operator">,</div> <div class="ident">error</div><div class="operator">)</div> <div class="operator">{</div>
-	<div class="ident">storage</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">NewStorage</div><div class="operator">(</div><div class="ident">configuration</div><div class="operator">.</div><div class="ident">Storage</div><div class="operator">)</div><div class="operator"></div>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">PrintMigrationInfo</div><div class="operator">(</div><div class="ident">configuration</div> <div class="operator">*</div><div class="ident">ConfigStruct</div><div class="operator">)</div> <div class="operator">(</div><div class="ident">int</div><div class="operator">,</div> <div class="ident">error</div><div class="operator">)</div> <div class="operator">{</div>
+	<div class="ident">storageConfiguration</div> <div class="operator">:=</div> <div class="ident">GetStorageConfiguration</div><div class="operator">(</div><div class="ident">configuration</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">storage</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">NewStorage</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">storageConfiguration</div><div class="operator">)</div><div class="operator"></div>
 	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
 		<div class="ident">log</div><div class="operator">.</div><div class="ident">Error</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Err</div><div class="operator">(</div><div class="ident">err</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="ident">StorageHandleErr</div><div class="operator">)</div><div class="operator"></div>
 		<div class="keyword">return</div> <div class="ident">ExitStatusMigrationError</div><div class="operator">,</div> <div class="ident">err</div><div class="operator"></div>
@@ -922,7 +971,7 @@ version without making any modifications.</p>
 	<td class="doc"><p>PerformMigrations migrates the database to the version
 specified in params</p>
 </td>
-	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">PerformMigrations</div><div class="operator">(</div><div class="ident">configuration</div> <div class="ident">ConfigStruct</div><div class="operator">,</div> <div class="ident">migParam</div> <div class="ident">string</div><div class="operator">)</div> <div class="operator">(</div><div class="ident">exitStatus</div> <div class="ident">int</div><div class="operator">,</div> <div class="ident">err</div> <div class="ident">error</div><div class="operator">)</div> <div class="operator">{</div>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">PerformMigrations</div><div class="operator">(</div><div class="ident">configuration</div> <div class="operator">*</div><div class="ident">ConfigStruct</div><div class="operator">,</div> <div class="ident">migParam</div> <div class="ident">string</div><div class="operator">)</div> <div class="operator">(</div><div class="ident">exitStatus</div> <div class="ident">int</div><div class="operator">,</div> <div class="ident">err</div> <div class="ident">error</div><div class="operator">)</div> <div class="operator">{</div>
 </code></pre></td>
       </tr>
       
@@ -937,7 +986,8 @@ specified in params</p>
       <tr class="section">
 	<td class="doc"><p>get db handle</p>
 </td>
-	<td class="code"><pre><code>	<div class="ident">storage</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">NewStorage</div><div class="operator">(</div><div class="ident">configuration</div><div class="operator">.</div><div class="ident">Storage</div><div class="operator">)</div><div class="operator"></div>
+	<td class="code"><pre><code>	<div class="ident">storageConfiguration</div> <div class="operator">:=</div> <div class="ident">GetStorageConfiguration</div><div class="operator">(</div><div class="ident">configuration</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">storage</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">NewStorage</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">storageConfiguration</div><div class="operator">)</div><div class="operator"></div>
 	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
 		<div class="ident">log</div><div class="operator">.</div><div class="ident">Error</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Err</div><div class="operator">(</div><div class="ident">err</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="ident">StorageHandleErr</div><div class="operator">)</div><div class="operator"></div>
 		<div class="ident">exitStatus</div> <div class="operator">=</div> <div class="ident">ExitStatusMigrationError</div><div class="operator"></div>
