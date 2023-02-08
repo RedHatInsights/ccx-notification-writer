@@ -17,6 +17,9 @@ limitations under the License.
 package main_test
 
 // Benchmark for config module
+//
+// Documentation in literate-programming-style is available at:
+// https://redhatinsights.github.io/ccx-notification-writer/packages/config_benchmark_test.html
 
 import (
 	"testing"
