@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <!--
- Copyright 2022 Red Hat, Inc
+ Copyright 2023 Red Hat, Inc
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
 
-      http://www.apache.org/licenses/LICENSE-2.0
+     http://www.apache.org/licenses/LICENSE-2.0
 
  Unless required by applicable law or agreed to in writing, software
  distributed under the License is distributed on an "AS IS" BASIS,
@@ -116,7 +116,7 @@
     <tbody>
       
       <tr class="section">
-	<td class="doc"><p>Copyright 2020, 2021, 2022 Red Hat, Inc</p>
+	<td class="doc"><p>Copyright 2020, 2021, 2022, 2023 Red Hat, Inc</p>
 
 <p>Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
 you may not use this file except in compliance with the License.
@@ -145,6 +145,7 @@ https://redhatinsights.github.io/ccx-notification-writer/packages/migration_test
 </td>
 	<td class="code"><pre><code>
 <div class="keyword">import</div> <div class="operator">(</div>
+	<div class="literal">&#34;errors&#34;</div><div class="operator"></div>
 	<div class="literal">&#34;testing&#34;</div><div class="operator"></div>
 
 	<div class="literal">&#34;github.com/DATA-DOG/go-sqlmock&#34;</div><div class="operator"></div>
@@ -153,7 +154,91 @@ https://redhatinsights.github.io/ccx-notification-writer/packages/migration_test
 	<div class="literal">&#34;github.com/stretchr/testify/assert&#34;</div><div class="operator"></div>
 <div class="operator">)</div><div class="operator"></div>
 
-<div class="keyword">func</div> <div class="ident">Test0001MigrationStepUp</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>TestMigrationErrorDuringQueryingMigrationInfo1 test checks proper handling
+query errors during retrieving migration info from database (concretely
+during checking if migration table contains any value).</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">TestMigrationErrorDuringQueryingMigrationInfo1</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>error to be thrown</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">mockedError</div> <div class="operator">:=</div> <div class="ident">errors</div><div class="operator">.</div><div class="ident">New</div><div class="operator">(</div><div class="literal">&#34;mocked error&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>prepare new mocked connection to database</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">connection</div><div class="operator">,</div> <div class="ident">mock</div> <div class="operator">:=</div> <div class="ident">mustCreateMockConnection</div><div class="operator">(</div><div class="ident">t</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>expected SQL query performed by tested function</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">expectedQuery0</div> <div class="operator">:=</div> <div class="literal">&#34;SELECT COUNT\\(\\*\\) FROM migration_info;&#34;</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>the (only) query will throw an error</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectQuery</div><div class="operator">(</div><div class="ident">expectedQuery0</div><div class="operator">)</div><div class="operator">.</div><div class="ident">WillReturnError</div><div class="operator">(</div><div class="ident">mockedError</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectClose</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="ident">utils</div><div class="operator">.</div><div class="ident">Set</div><div class="operator">(</div><div class="ident">main</div><div class="operator">.</div><div class="ident">All</div><div class="operator">(</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>migration should end with error</p>
+</td>
+	<td class="code"><pre><code>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>migrate to version 1</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Error</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">Migrate</div><div class="operator">(</div><div class="ident">connection</div><div class="operator">,</div> <div class="literal">1</div><div class="operator">)</div><div class="operator">,</div> <div class="ident">mockedError</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>check if all expectations were met</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">checkAllExpectations</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">mock</div><div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>TestMigrationErrorDuringQueryingMigrationInfo2 test checks proper handling
+query error during retrieving migration info from database (concretely
+during reading actual database version).</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">TestMigrationErrorDuringQueryingMigrationInfo2</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>error to be thrown</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">mockedError</div> <div class="operator">:=</div> <div class="ident">errors</div><div class="operator">.</div><div class="ident">New</div><div class="operator">(</div><div class="literal">&#34;mocked error&#34;</div><div class="operator">)</div><div class="operator"></div>
+
 </code></pre></td>
       </tr>
       
@@ -167,6 +252,77 @@ https://redhatinsights.github.io/ccx-notification-writer/packages/migration_test
       
       <tr class="section">
 	<td class="doc"><p>prepare mocked result for SQL query</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">count</div> <div class="operator">:=</div> <div class="ident">sqlmock</div><div class="operator">.</div><div class="ident">NewRows</div><div class="operator">(</div><div class="operator">[</div><div class="operator">]</div><div class="ident">string</div><div class="operator">{</div><div class="literal">&#34;count&#34;</div><div class="operator">}</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">count</div><div class="operator">.</div><div class="ident">AddRow</div><div class="operator">(</div><div class="literal">&#34;1&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>expected SQL queries performed by tested function</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">expectedQuery0</div> <div class="operator">:=</div> <div class="literal">&#34;SELECT COUNT\\(\\*\\) FROM migration_info;&#34;</div><div class="operator"></div>
+	<div class="ident">expectedQuery1</div> <div class="operator">:=</div> <div class="literal">&#34;SELECT version FROM migration_info;&#34;</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>first query will succeed
+second query will throw an error</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectQuery</div><div class="operator">(</div><div class="ident">expectedQuery0</div><div class="operator">)</div><div class="operator">.</div><div class="ident">WillReturnRows</div><div class="operator">(</div><div class="ident">count</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectQuery</div><div class="operator">(</div><div class="ident">expectedQuery1</div><div class="operator">)</div><div class="operator">.</div><div class="ident">WillReturnError</div><div class="operator">(</div><div class="ident">mockedError</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectClose</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="ident">utils</div><div class="operator">.</div><div class="ident">Set</div><div class="operator">(</div><div class="ident">main</div><div class="operator">.</div><div class="ident">All</div><div class="operator">(</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>migration should end with error</p>
+</td>
+	<td class="code"><pre><code>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>migrate to version 1</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Error</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">Migrate</div><div class="operator">(</div><div class="ident">connection</div><div class="operator">,</div> <div class="literal">1</div><div class="operator">)</div><div class="operator">,</div> <div class="ident">mockedError</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>check if all expectations were met</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">checkAllExpectations</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">mock</div><div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>Test0001MigrationStepUp test checks migration #1, step up part.</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">Test0001MigrationStepUp</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>prepare new mocked connection to database</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">connection</div><div class="operator">,</div> <div class="ident">mock</div> <div class="operator">:=</div> <div class="ident">mustCreateMockConnection</div><div class="operator">(</div><div class="ident">t</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>prepare mocked result for SQL query
+initial database version</p>
 </td>
 	<td class="code"><pre><code>	<div class="ident">rows</div> <div class="operator">:=</div> <div class="ident">sqlmock</div><div class="operator">.</div><div class="ident">NewRows</div><div class="operator">(</div><div class="operator">[</div><div class="operator">]</div><div class="ident">string</div><div class="operator">{</div><div class="literal">&#34;version&#34;</div><div class="operator">}</div><div class="operator">)</div><div class="operator"></div>
 	<div class="ident">rows</div><div class="operator">.</div><div class="ident">AddRow</div><div class="operator">(</div><div class="literal">&#34;0&#34;</div><div class="operator">)</div><div class="operator"></div>
@@ -197,7 +353,14 @@ https://redhatinsights.github.io/ccx-notification-writer/packages/migration_test
 	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectClose</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
 
 	<div class="ident">utils</div><div class="operator">.</div><div class="ident">Set</div><div class="operator">(</div><div class="ident">main</div><div class="operator">.</div><div class="ident">All</div><div class="operator">(</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
-	<div class="ident">assert</div><div class="operator">.</div><div class="ident">NoError</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">Migrate</div><div class="operator">(</div><div class="ident">connection</div><div class="operator">,</div> <div class="literal">1</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>migrate to version 1</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">assert</div><div class="operator">.</div><div class="ident">NoError</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">Migrate</div><div class="operator">(</div><div class="ident">connection</div><div class="operator">,</div> <div class="literal">1</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
 
 </code></pre></td>
       </tr>
@@ -208,7 +371,106 @@ https://redhatinsights.github.io/ccx-notification-writer/packages/migration_test
 	<td class="code"><pre><code>	<div class="ident">checkAllExpectations</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">mock</div><div class="operator">)</div><div class="operator"></div>
 <div class="operator">}</div><div class="operator"></div>
 
-<div class="keyword">func</div> <div class="ident">Test0001MigrationStepDown</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>Test0001MigrationStepUpOnMigrationFailure test checks migration #1 in case
+the table create fails.</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">Test0001MigrationStepUpOnMigrationFailure</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>error to be thrown</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">mockedError</div> <div class="operator">:=</div> <div class="ident">errors</div><div class="operator">.</div><div class="ident">New</div><div class="operator">(</div><div class="literal">&#34;mocked error&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>prepare new mocked connection to database</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">connection</div><div class="operator">,</div> <div class="ident">mock</div> <div class="operator">:=</div> <div class="ident">mustCreateMockConnection</div><div class="operator">(</div><div class="ident">t</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>prepare mocked result for SQL query
+initial database version</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">rows</div> <div class="operator">:=</div> <div class="ident">sqlmock</div><div class="operator">.</div><div class="ident">NewRows</div><div class="operator">(</div><div class="operator">[</div><div class="operator">]</div><div class="ident">string</div><div class="operator">{</div><div class="literal">&#34;version&#34;</div><div class="operator">}</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">rows</div><div class="operator">.</div><div class="ident">AddRow</div><div class="operator">(</div><div class="literal">&#34;0&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="ident">count</div> <div class="operator">:=</div> <div class="ident">sqlmock</div><div class="operator">.</div><div class="ident">NewRows</div><div class="operator">(</div><div class="operator">[</div><div class="operator">]</div><div class="ident">string</div><div class="operator">{</div><div class="literal">&#34;count&#34;</div><div class="operator">}</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">count</div><div class="operator">.</div><div class="ident">AddRow</div><div class="operator">(</div><div class="literal">&#34;1&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>expected query performed by tested function</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">expectedQuery0</div> <div class="operator">:=</div> <div class="literal">&#34;SELECT COUNT\\(\\*\\) FROM migration_info;&#34;</div><div class="operator"></div>
+	<div class="ident">expectedQuery1</div> <div class="operator">:=</div> <div class="literal">&#34;SELECT version FROM migration_info;&#34;</div><div class="operator"></div>
+	<div class="ident">expectedCreate</div> <div class="operator">:=</div> <div class="literal">&#34;CREATE TABLE IF NOT EXISTS event_targets .*&#34;</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>queries to retrieve DB version should succeed</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectQuery</div><div class="operator">(</div><div class="ident">expectedQuery0</div><div class="operator">)</div><div class="operator">.</div><div class="ident">WillReturnRows</div><div class="operator">(</div><div class="ident">count</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectQuery</div><div class="operator">(</div><div class="ident">expectedQuery1</div><div class="operator">)</div><div class="operator">.</div><div class="ident">WillReturnRows</div><div class="operator">(</div><div class="ident">rows</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectBegin</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>table create will fail</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectExec</div><div class="operator">(</div><div class="ident">expectedCreate</div><div class="operator">)</div><div class="operator">.</div><div class="ident">WillReturnError</div><div class="operator">(</div><div class="ident">mockedError</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>so we expect roll back instead of transaction commit</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectRollback</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectClose</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="ident">utils</div><div class="operator">.</div><div class="ident">Set</div><div class="operator">(</div><div class="ident">main</div><div class="operator">.</div><div class="ident">All</div><div class="operator">(</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>migrate to version 1</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Error</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">Migrate</div><div class="operator">(</div><div class="ident">connection</div><div class="operator">,</div> <div class="literal">1</div><div class="operator">)</div><div class="operator">,</div> <div class="ident">mockedError</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>check if all expectations were met</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">checkAllExpectations</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">mock</div><div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>Test0001MigrationStepDown test checks migration #1, step down part.</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">Test0001MigrationStepDown</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
 </code></pre></td>
       </tr>
       
@@ -252,7 +514,14 @@ https://redhatinsights.github.io/ccx-notification-writer/packages/migration_test
 	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectClose</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
 
 	<div class="ident">utils</div><div class="operator">.</div><div class="ident">Set</div><div class="operator">(</div><div class="ident">main</div><div class="operator">.</div><div class="ident">All</div><div class="operator">(</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
-	<div class="ident">assert</div><div class="operator">.</div><div class="ident">NoError</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">Migrate</div><div class="operator">(</div><div class="ident">connection</div><div class="operator">,</div> <div class="literal">0</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>migrate to version 0</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">assert</div><div class="operator">.</div><div class="ident">NoError</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">Migrate</div><div class="operator">(</div><div class="ident">connection</div><div class="operator">,</div> <div class="literal">0</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
 
 </code></pre></td>
       </tr>
@@ -263,7 +532,112 @@ https://redhatinsights.github.io/ccx-notification-writer/packages/migration_test
 	<td class="code"><pre><code>	<div class="ident">checkAllExpectations</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">mock</div><div class="operator">)</div><div class="operator"></div>
 <div class="operator">}</div><div class="operator"></div>
 
-<div class="keyword">func</div> <div class="ident">Test0002MigrationStepUp</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>Test0001MigrationStepDownOnMigrationFailure test checks migration #1, step
+down part in case table update fails</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">Test0001MigrationStepDownOnMigrationFailure</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>error to be thrown</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">mockedError</div> <div class="operator">:=</div> <div class="ident">errors</div><div class="operator">.</div><div class="ident">New</div><div class="operator">(</div><div class="literal">&#34;mocked error&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>prepare new mocked connection to database</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">connection</div><div class="operator">,</div> <div class="ident">mock</div> <div class="operator">:=</div> <div class="ident">mustCreateMockConnection</div><div class="operator">(</div><div class="ident">t</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>prepare mocked result for SQL query</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">rows</div> <div class="operator">:=</div> <div class="ident">sqlmock</div><div class="operator">.</div><div class="ident">NewRows</div><div class="operator">(</div><div class="operator">[</div><div class="operator">]</div><div class="ident">string</div><div class="operator">{</div><div class="literal">&#34;version&#34;</div><div class="operator">}</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">rows</div><div class="operator">.</div><div class="ident">AddRow</div><div class="operator">(</div><div class="literal">&#34;1&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="ident">count</div> <div class="operator">:=</div> <div class="ident">sqlmock</div><div class="operator">.</div><div class="ident">NewRows</div><div class="operator">(</div><div class="operator">[</div><div class="operator">]</div><div class="ident">string</div><div class="operator">{</div><div class="literal">&#34;count&#34;</div><div class="operator">}</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">count</div><div class="operator">.</div><div class="ident">AddRow</div><div class="operator">(</div><div class="literal">&#34;1&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>expected query performed by tested function</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">expectedQuery0</div> <div class="operator">:=</div> <div class="literal">&#34;SELECT COUNT\\(\\*\\) FROM migration_info;&#34;</div><div class="operator"></div>
+	<div class="ident">expectedQuery1</div> <div class="operator">:=</div> <div class="literal">&#34;SELECT version FROM migration_info;&#34;</div><div class="operator"></div>
+	<div class="ident">expectedDrop</div> <div class="operator">:=</div> <div class="literal">&#34;DROP TABLE event_targets&#34;</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>queries to retrieve DB version should succeed</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectQuery</div><div class="operator">(</div><div class="ident">expectedQuery0</div><div class="operator">)</div><div class="operator">.</div><div class="ident">WillReturnRows</div><div class="operator">(</div><div class="ident">count</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectQuery</div><div class="operator">(</div><div class="ident">expectedQuery1</div><div class="operator">)</div><div class="operator">.</div><div class="ident">WillReturnRows</div><div class="operator">(</div><div class="ident">rows</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectBegin</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>drop table will fail</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectExec</div><div class="operator">(</div><div class="ident">expectedDrop</div><div class="operator">)</div><div class="operator">.</div><div class="ident">WillReturnError</div><div class="operator">(</div><div class="ident">mockedError</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>so we expect roll back instead of transaction commit</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectRollback</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectClose</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="ident">utils</div><div class="operator">.</div><div class="ident">Set</div><div class="operator">(</div><div class="ident">main</div><div class="operator">.</div><div class="ident">All</div><div class="operator">(</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>migration should end with error</p>
+</td>
+	<td class="code"><pre><code>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>migrate to version 0</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Error</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">Migrate</div><div class="operator">(</div><div class="ident">connection</div><div class="operator">,</div> <div class="literal">0</div><div class="operator">)</div><div class="operator">,</div> <div class="ident">mockedError</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>check if all expectations were met</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">checkAllExpectations</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">mock</div><div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>Test0002MigrationStepUp test checks migration #2, step up part.</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">Test0002MigrationStepUp</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
 </code></pre></td>
       </tr>
       
@@ -310,7 +684,14 @@ https://redhatinsights.github.io/ccx-notification-writer/packages/migration_test
 	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectClose</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
 
 	<div class="ident">utils</div><div class="operator">.</div><div class="ident">Set</div><div class="operator">(</div><div class="ident">main</div><div class="operator">.</div><div class="ident">All</div><div class="operator">(</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
-	<div class="ident">assert</div><div class="operator">.</div><div class="ident">NoError</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">Migrate</div><div class="operator">(</div><div class="ident">connection</div><div class="operator">,</div> <div class="literal">2</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>migrate to version 2</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">assert</div><div class="operator">.</div><div class="ident">NoError</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">Migrate</div><div class="operator">(</div><div class="ident">connection</div><div class="operator">,</div> <div class="literal">2</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
 
 </code></pre></td>
       </tr>
@@ -322,7 +703,113 @@ https://redhatinsights.github.io/ccx-notification-writer/packages/migration_test
 
 <div class="operator">}</div><div class="operator"></div>
 
-<div class="keyword">func</div> <div class="ident">Test0002MigrationStepDown</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>Test0002MigrationStepUpOnMigrationFailure test checks migration #2 in case
+the migration fails.</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">Test0002MigrationStepUpOnMigrationFailure</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>error to be thrown</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">mockedError</div> <div class="operator">:=</div> <div class="ident">errors</div><div class="operator">.</div><div class="ident">New</div><div class="operator">(</div><div class="literal">&#34;mocked error&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>prepare new mocked connection to database</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">connection</div><div class="operator">,</div> <div class="ident">mock</div> <div class="operator">:=</div> <div class="ident">mustCreateMockConnection</div><div class="operator">(</div><div class="ident">t</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>prepare mocked result for SQL query
+initial database version</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">rows</div> <div class="operator">:=</div> <div class="ident">sqlmock</div><div class="operator">.</div><div class="ident">NewRows</div><div class="operator">(</div><div class="operator">[</div><div class="operator">]</div><div class="ident">string</div><div class="operator">{</div><div class="literal">&#34;version&#34;</div><div class="operator">}</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">rows</div><div class="operator">.</div><div class="ident">AddRow</div><div class="operator">(</div><div class="literal">&#34;1&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="ident">count</div> <div class="operator">:=</div> <div class="ident">sqlmock</div><div class="operator">.</div><div class="ident">NewRows</div><div class="operator">(</div><div class="operator">[</div><div class="operator">]</div><div class="ident">string</div><div class="operator">{</div><div class="literal">&#34;count&#34;</div><div class="operator">}</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">count</div><div class="operator">.</div><div class="ident">AddRow</div><div class="operator">(</div><div class="literal">&#34;1&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>expected query performed by tested function</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">expectedQuery0</div> <div class="operator">:=</div> <div class="literal">&#34;SELECT COUNT\\(\\*\\) FROM migration_info;&#34;</div><div class="operator"></div>
+	<div class="ident">expectedQuery1</div> <div class="operator">:=</div> <div class="literal">&#34;SELECT version FROM migration_info;&#34;</div><div class="operator"></div>
+	<div class="ident">expectedAlter</div> <div class="operator">:=</div> <div class="literal">&#34;ALTER TABLE reported ADD COLUMN .*&#34;</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>queries to retrieve DB version should succeed</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectQuery</div><div class="operator">(</div><div class="ident">expectedQuery0</div><div class="operator">)</div><div class="operator">.</div><div class="ident">WillReturnRows</div><div class="operator">(</div><div class="ident">count</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectQuery</div><div class="operator">(</div><div class="ident">expectedQuery1</div><div class="operator">)</div><div class="operator">.</div><div class="ident">WillReturnRows</div><div class="operator">(</div><div class="ident">rows</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectBegin</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>alter table will fail</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectExec</div><div class="operator">(</div><div class="ident">expectedAlter</div><div class="operator">)</div><div class="operator">.</div><div class="ident">WillReturnError</div><div class="operator">(</div><div class="ident">mockedError</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>so we expect roll back instead of transaction commit</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectRollback</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectClose</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="ident">utils</div><div class="operator">.</div><div class="ident">Set</div><div class="operator">(</div><div class="ident">main</div><div class="operator">.</div><div class="ident">All</div><div class="operator">(</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>migration should end with error</p>
+</td>
+	<td class="code"><pre><code>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>migrate to version 2</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Error</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">Migrate</div><div class="operator">(</div><div class="ident">connection</div><div class="operator">,</div> <div class="literal">2</div><div class="operator">)</div><div class="operator">,</div> <div class="ident">mockedError</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>check if all expectations were met</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">checkAllExpectations</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">mock</div><div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>Test0002MigrationStepDown test checks migration #2, step down part.</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">Test0002MigrationStepDown</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
 </code></pre></td>
       </tr>
       
@@ -366,7 +853,14 @@ https://redhatinsights.github.io/ccx-notification-writer/packages/migration_test
 	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectClose</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
 
 	<div class="ident">utils</div><div class="operator">.</div><div class="ident">Set</div><div class="operator">(</div><div class="ident">main</div><div class="operator">.</div><div class="ident">All</div><div class="operator">(</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
-	<div class="ident">assert</div><div class="operator">.</div><div class="ident">NoError</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">Migrate</div><div class="operator">(</div><div class="ident">connection</div><div class="operator">,</div> <div class="literal">1</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>migrate to version 1</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">assert</div><div class="operator">.</div><div class="ident">NoError</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">Migrate</div><div class="operator">(</div><div class="ident">connection</div><div class="operator">,</div> <div class="literal">1</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
 
 </code></pre></td>
       </tr>
@@ -377,7 +871,112 @@ https://redhatinsights.github.io/ccx-notification-writer/packages/migration_test
 	<td class="code"><pre><code>	<div class="ident">checkAllExpectations</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">mock</div><div class="operator">)</div><div class="operator"></div>
 <div class="operator">}</div><div class="operator"></div>
 
-<div class="keyword">func</div> <div class="ident">Test0003MigrationStepUp</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>Test0002MigrationStepDownOnMigrationFailure test checks migration #2 in case
+the migration fails.</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">Test0002MigrationStepDownOnMigrationFailure</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>error to be thrown</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">mockedError</div> <div class="operator">:=</div> <div class="ident">errors</div><div class="operator">.</div><div class="ident">New</div><div class="operator">(</div><div class="literal">&#34;mocked error&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>prepare new mocked connection to database</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">connection</div><div class="operator">,</div> <div class="ident">mock</div> <div class="operator">:=</div> <div class="ident">mustCreateMockConnection</div><div class="operator">(</div><div class="ident">t</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>prepare mocked result for SQL query</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">rows</div> <div class="operator">:=</div> <div class="ident">sqlmock</div><div class="operator">.</div><div class="ident">NewRows</div><div class="operator">(</div><div class="operator">[</div><div class="operator">]</div><div class="ident">string</div><div class="operator">{</div><div class="literal">&#34;version&#34;</div><div class="operator">}</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">rows</div><div class="operator">.</div><div class="ident">AddRow</div><div class="operator">(</div><div class="literal">&#34;2&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="ident">count</div> <div class="operator">:=</div> <div class="ident">sqlmock</div><div class="operator">.</div><div class="ident">NewRows</div><div class="operator">(</div><div class="operator">[</div><div class="operator">]</div><div class="ident">string</div><div class="operator">{</div><div class="literal">&#34;count&#34;</div><div class="operator">}</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">count</div><div class="operator">.</div><div class="ident">AddRow</div><div class="operator">(</div><div class="literal">&#34;1&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>expected query performed by tested function</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">expectedQuery0</div> <div class="operator">:=</div> <div class="literal">&#34;SELECT COUNT\\(\\*\\) FROM migration_info;&#34;</div><div class="operator"></div>
+	<div class="ident">expectedQuery1</div> <div class="operator">:=</div> <div class="literal">&#34;SELECT version FROM migration_info;&#34;</div><div class="operator"></div>
+	<div class="ident">expectedDrop</div> <div class="operator">:=</div> <div class="literal">&#34;ALTER TABLE reported DROP COLUMN event_type_id&#34;</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>queries to retrieve DB version should succeed</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectQuery</div><div class="operator">(</div><div class="ident">expectedQuery0</div><div class="operator">)</div><div class="operator">.</div><div class="ident">WillReturnRows</div><div class="operator">(</div><div class="ident">count</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectQuery</div><div class="operator">(</div><div class="ident">expectedQuery1</div><div class="operator">)</div><div class="operator">.</div><div class="ident">WillReturnRows</div><div class="operator">(</div><div class="ident">rows</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectBegin</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>drop table will fail</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectExec</div><div class="operator">(</div><div class="ident">expectedDrop</div><div class="operator">)</div><div class="operator">.</div><div class="ident">WillReturnError</div><div class="operator">(</div><div class="ident">mockedError</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>so we expect roll back instead of transaction commit</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectRollback</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectClose</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="ident">utils</div><div class="operator">.</div><div class="ident">Set</div><div class="operator">(</div><div class="ident">main</div><div class="operator">.</div><div class="ident">All</div><div class="operator">(</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>migration should end with error</p>
+</td>
+	<td class="code"><pre><code>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>migrate to version 1</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Error</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">Migrate</div><div class="operator">(</div><div class="ident">connection</div><div class="operator">,</div> <div class="literal">1</div><div class="operator">)</div><div class="operator">,</div> <div class="ident">mockedError</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>check if all expectations were met</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">checkAllExpectations</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">mock</div><div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>Test0003MigrationStepUp test checks migration #3, step up part.</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">Test0003MigrationStepUp</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
 </code></pre></td>
       </tr>
       
@@ -427,7 +1026,14 @@ https://redhatinsights.github.io/ccx-notification-writer/packages/migration_test
 	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectClose</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
 
 	<div class="ident">utils</div><div class="operator">.</div><div class="ident">Set</div><div class="operator">(</div><div class="ident">main</div><div class="operator">.</div><div class="ident">All</div><div class="operator">(</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
-	<div class="ident">assert</div><div class="operator">.</div><div class="ident">NoError</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">Migrate</div><div class="operator">(</div><div class="ident">connection</div><div class="operator">,</div> <div class="literal">3</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>migrate to version 3</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">assert</div><div class="operator">.</div><div class="ident">NoError</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">Migrate</div><div class="operator">(</div><div class="ident">connection</div><div class="operator">,</div> <div class="literal">3</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
 
 </code></pre></td>
       </tr>
@@ -438,7 +1044,119 @@ https://redhatinsights.github.io/ccx-notification-writer/packages/migration_test
 	<td class="code"><pre><code>	<div class="ident">checkAllExpectations</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">mock</div><div class="operator">)</div><div class="operator"></div>
 <div class="operator">}</div><div class="operator"></div>
 
-<div class="keyword">func</div> <div class="ident">Test0003MigrationStepDown</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>Test0003MigrationStepUpOnMigrationFailure test checks migration #1 in case
+the migration fails.</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">Test0003MigrationStepUpOnMigrationFailure</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>error to be thrown</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">mockedError</div> <div class="operator">:=</div> <div class="ident">errors</div><div class="operator">.</div><div class="ident">New</div><div class="operator">(</div><div class="literal">&#34;mocked error&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>prepare new mocked connection to database</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">connection</div><div class="operator">,</div> <div class="ident">mock</div> <div class="operator">:=</div> <div class="ident">mustCreateMockConnection</div><div class="operator">(</div><div class="ident">t</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>prepare mocked result for SQL query</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">rows</div> <div class="operator">:=</div> <div class="ident">sqlmock</div><div class="operator">.</div><div class="ident">NewRows</div><div class="operator">(</div><div class="operator">[</div><div class="operator">]</div><div class="ident">string</div><div class="operator">{</div><div class="literal">&#34;version&#34;</div><div class="operator">}</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">rows</div><div class="operator">.</div><div class="ident">AddRow</div><div class="operator">(</div><div class="literal">&#34;0&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="ident">count</div> <div class="operator">:=</div> <div class="ident">sqlmock</div><div class="operator">.</div><div class="ident">NewRows</div><div class="operator">(</div><div class="operator">[</div><div class="operator">]</div><div class="ident">string</div><div class="operator">{</div><div class="literal">&#34;count&#34;</div><div class="operator">}</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">count</div><div class="operator">.</div><div class="ident">AddRow</div><div class="operator">(</div><div class="literal">&#34;1&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="ident">resultCreate</div> <div class="operator">:=</div> <div class="ident">sqlmock</div><div class="operator">.</div><div class="ident">NewResult</div><div class="operator">(</div><div class="literal">0</div><div class="operator">,</div> <div class="literal">1</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">resultAlter</div> <div class="operator">:=</div> <div class="ident">sqlmock</div><div class="operator">.</div><div class="ident">NewResult</div><div class="operator">(</div><div class="literal">0</div><div class="operator">,</div> <div class="literal">1</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>expected query performed by tested function</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">expectedQuery0</div> <div class="operator">:=</div> <div class="literal">&#34;SELECT COUNT\\(\\*\\) FROM migration_info;&#34;</div><div class="operator"></div>
+	<div class="ident">expectedQuery1</div> <div class="operator">:=</div> <div class="literal">&#34;SELECT version FROM migration_info;&#34;</div><div class="operator"></div>
+	<div class="ident">expectedCreate</div> <div class="operator">:=</div> <div class="literal">&#34;CREATE TABLE IF NOT EXISTS event_targets .*&#34;</div><div class="operator"></div>
+	<div class="ident">expectedInsert</div> <div class="operator">:=</div> <div class="literal">&#34;INSERT INTO event_targets \\(id, name, metainfo\\) VALUES .*&#34;</div><div class="operator"></div>
+	<div class="ident">expectedAlter</div> <div class="operator">:=</div> <div class="literal">&#34;ALTER TABLE reported ADD COLUMN .*&#34;</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>queries to retrieve DB version should succeed</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectQuery</div><div class="operator">(</div><div class="ident">expectedQuery0</div><div class="operator">)</div><div class="operator">.</div><div class="ident">WillReturnRows</div><div class="operator">(</div><div class="ident">count</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectQuery</div><div class="operator">(</div><div class="ident">expectedQuery1</div><div class="operator">)</div><div class="operator">.</div><div class="ident">WillReturnRows</div><div class="operator">(</div><div class="ident">rows</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectBegin</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectExec</div><div class="operator">(</div><div class="ident">expectedCreate</div><div class="operator">)</div><div class="operator">.</div><div class="ident">WillReturnResult</div><div class="operator">(</div><div class="ident">resultCreate</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectExec</div><div class="operator">(</div><div class="ident">expectedAlter</div><div class="operator">)</div><div class="operator">.</div><div class="ident">WillReturnResult</div><div class="operator">(</div><div class="ident">resultAlter</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>insert into table will fail</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectExec</div><div class="operator">(</div><div class="ident">expectedInsert</div><div class="operator">)</div><div class="operator">.</div><div class="ident">WillReturnError</div><div class="operator">(</div><div class="ident">mockedError</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>so we expect roll back instead of transaction commit</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectRollback</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectClose</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>migration should end with error</p>
+</td>
+	<td class="code"><pre><code>
+	<div class="ident">utils</div><div class="operator">.</div><div class="ident">Set</div><div class="operator">(</div><div class="ident">main</div><div class="operator">.</div><div class="ident">All</div><div class="operator">(</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>migrate to version 3</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Error</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">Migrate</div><div class="operator">(</div><div class="ident">connection</div><div class="operator">,</div> <div class="literal">3</div><div class="operator">)</div><div class="operator">,</div> <div class="ident">mockedError</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>check if all expectations were met</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">checkAllExpectations</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">mock</div><div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>Test0003MigrationStepUp test checks migration #3, step down part.</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">Test0003MigrationStepDown</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
 </code></pre></td>
       </tr>
       
@@ -482,7 +1200,14 @@ https://redhatinsights.github.io/ccx-notification-writer/packages/migration_test
 	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectClose</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
 
 	<div class="ident">utils</div><div class="operator">.</div><div class="ident">Set</div><div class="operator">(</div><div class="ident">main</div><div class="operator">.</div><div class="ident">All</div><div class="operator">(</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
-	<div class="ident">assert</div><div class="operator">.</div><div class="ident">NoError</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">Migrate</div><div class="operator">(</div><div class="ident">connection</div><div class="operator">,</div> <div class="literal">2</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>migrate to version 2</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">assert</div><div class="operator">.</div><div class="ident">NoError</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">Migrate</div><div class="operator">(</div><div class="ident">connection</div><div class="operator">,</div> <div class="literal">2</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
 
 </code></pre></td>
       </tr>
@@ -493,7 +1218,112 @@ https://redhatinsights.github.io/ccx-notification-writer/packages/migration_test
 	<td class="code"><pre><code>	<div class="ident">checkAllExpectations</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">mock</div><div class="operator">)</div><div class="operator"></div>
 <div class="operator">}</div><div class="operator"></div>
 
-<div class="keyword">func</div> <div class="ident">Test0004MigrationStepUp</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>Test0003MigrationStepDownOnMigrationFailure test checks migration #1 in case
+the migration fails.</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">Test0003MigrationStepDownOnMigrationFailure</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>error to be thrown</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">mockedError</div> <div class="operator">:=</div> <div class="ident">errors</div><div class="operator">.</div><div class="ident">New</div><div class="operator">(</div><div class="literal">&#34;mocked error&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>prepare new mocked connection to database</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">connection</div><div class="operator">,</div> <div class="ident">mock</div> <div class="operator">:=</div> <div class="ident">mustCreateMockConnection</div><div class="operator">(</div><div class="ident">t</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>prepare mocked result for SQL query</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">rows</div> <div class="operator">:=</div> <div class="ident">sqlmock</div><div class="operator">.</div><div class="ident">NewRows</div><div class="operator">(</div><div class="operator">[</div><div class="operator">]</div><div class="ident">string</div><div class="operator">{</div><div class="literal">&#34;version&#34;</div><div class="operator">}</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">rows</div><div class="operator">.</div><div class="ident">AddRow</div><div class="operator">(</div><div class="literal">&#34;3&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="ident">count</div> <div class="operator">:=</div> <div class="ident">sqlmock</div><div class="operator">.</div><div class="ident">NewRows</div><div class="operator">(</div><div class="operator">[</div><div class="operator">]</div><div class="ident">string</div><div class="operator">{</div><div class="literal">&#34;count&#34;</div><div class="operator">}</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">count</div><div class="operator">.</div><div class="ident">AddRow</div><div class="operator">(</div><div class="literal">&#34;1&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>expected query performed by tested function</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">expectedQuery0</div> <div class="operator">:=</div> <div class="literal">&#34;SELECT COUNT\\(\\*\\) FROM migration_info;&#34;</div><div class="operator"></div>
+	<div class="ident">expectedQuery1</div> <div class="operator">:=</div> <div class="literal">&#34;SELECT version FROM migration_info;&#34;</div><div class="operator"></div>
+	<div class="ident">expectedDelete</div> <div class="operator">:=</div> <div class="literal">&#34;DELETE FROM event_targets&#34;</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>queries to retrieve DB version should succeed</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectQuery</div><div class="operator">(</div><div class="ident">expectedQuery0</div><div class="operator">)</div><div class="operator">.</div><div class="ident">WillReturnRows</div><div class="operator">(</div><div class="ident">count</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectQuery</div><div class="operator">(</div><div class="ident">expectedQuery1</div><div class="operator">)</div><div class="operator">.</div><div class="ident">WillReturnRows</div><div class="operator">(</div><div class="ident">rows</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectBegin</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>delete from table will fail</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectExec</div><div class="operator">(</div><div class="ident">expectedDelete</div><div class="operator">)</div><div class="operator">.</div><div class="ident">WillReturnError</div><div class="operator">(</div><div class="ident">mockedError</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>so we expect roll back instead of transaction commit</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectRollback</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectClose</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="ident">utils</div><div class="operator">.</div><div class="ident">Set</div><div class="operator">(</div><div class="ident">main</div><div class="operator">.</div><div class="ident">All</div><div class="operator">(</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>migration should end with error</p>
+</td>
+	<td class="code"><pre><code>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>migrate to version 2</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Error</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">Migrate</div><div class="operator">(</div><div class="ident">connection</div><div class="operator">,</div> <div class="literal">2</div><div class="operator">)</div><div class="operator">,</div> <div class="ident">mockedError</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>check if all expectations were met</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">checkAllExpectations</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">mock</div><div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>Test0004MigrationStepUp test checks migration #4, step up part.</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">Test0004MigrationStepUp</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
 </code></pre></td>
       </tr>
       
@@ -551,7 +1381,111 @@ https://redhatinsights.github.io/ccx-notification-writer/packages/migration_test
 	<td class="code"><pre><code>	<div class="ident">checkAllExpectations</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">mock</div><div class="operator">)</div><div class="operator"></div>
 <div class="operator">}</div><div class="operator"></div>
 
-<div class="keyword">func</div> <div class="ident">Test0004MigrationStepDown</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>Test the 4th migration in case the table update fails.</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">Test0004MigrationStepUpOnMigrationFailure</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>error to be thrown</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">mockedError</div> <div class="operator">:=</div> <div class="ident">errors</div><div class="operator">.</div><div class="ident">New</div><div class="operator">(</div><div class="literal">&#34;mocked error&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>prepare new mocked connection to database</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">connection</div><div class="operator">,</div> <div class="ident">mock</div> <div class="operator">:=</div> <div class="ident">mustCreateMockConnection</div><div class="operator">(</div><div class="ident">t</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>prepare mocked result for SQL query</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">rows</div> <div class="operator">:=</div> <div class="ident">sqlmock</div><div class="operator">.</div><div class="ident">NewRows</div><div class="operator">(</div><div class="operator">[</div><div class="operator">]</div><div class="ident">string</div><div class="operator">{</div><div class="literal">&#34;version&#34;</div><div class="operator">}</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">rows</div><div class="operator">.</div><div class="ident">AddRow</div><div class="operator">(</div><div class="literal">&#34;3&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="ident">count</div> <div class="operator">:=</div> <div class="ident">sqlmock</div><div class="operator">.</div><div class="ident">NewRows</div><div class="operator">(</div><div class="operator">[</div><div class="operator">]</div><div class="ident">string</div><div class="operator">{</div><div class="literal">&#34;count&#34;</div><div class="operator">}</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">count</div><div class="operator">.</div><div class="ident">AddRow</div><div class="operator">(</div><div class="literal">&#34;1&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>expected query performed by tested function</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">expectedQuery0</div> <div class="operator">:=</div> <div class="literal">&#34;SELECT COUNT\\(\\*\\) FROM migration_info;&#34;</div><div class="operator"></div>
+	<div class="ident">expectedQuery1</div> <div class="operator">:=</div> <div class="literal">&#34;SELECT version FROM migration_info;&#34;</div><div class="operator"></div>
+	<div class="ident">expectedUpdate1</div> <div class="operator">:=</div> <div class="literal">&#34;UPDATE reported SET event_type_id = 1 WHERE event_type_id IS NULL&#34;</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>queries to retrieve DB version should succeed</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectQuery</div><div class="operator">(</div><div class="ident">expectedQuery0</div><div class="operator">)</div><div class="operator">.</div><div class="ident">WillReturnRows</div><div class="operator">(</div><div class="ident">count</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectQuery</div><div class="operator">(</div><div class="ident">expectedQuery1</div><div class="operator">)</div><div class="operator">.</div><div class="ident">WillReturnRows</div><div class="operator">(</div><div class="ident">rows</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectBegin</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>table update will fail</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectExec</div><div class="operator">(</div><div class="ident">expectedUpdate1</div><div class="operator">)</div><div class="operator">.</div><div class="ident">WillReturnError</div><div class="operator">(</div><div class="ident">mockedError</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>so we expect roll back instead of transaction commit</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectRollback</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectClose</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="ident">utils</div><div class="operator">.</div><div class="ident">Set</div><div class="operator">(</div><div class="ident">main</div><div class="operator">.</div><div class="ident">All</div><div class="operator">(</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>migration should end with error</p>
+</td>
+	<td class="code"><pre><code>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>migrate to version 4</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Error</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">Migrate</div><div class="operator">(</div><div class="ident">connection</div><div class="operator">,</div> <div class="literal">4</div><div class="operator">)</div><div class="operator">,</div> <div class="ident">mockedError</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>check if all expectations were met</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">checkAllExpectations</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">mock</div><div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>Test0004MigrationStepDown test checks migration #4, step down part.</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">Test0004MigrationStepDown</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
 </code></pre></td>
       </tr>
       
@@ -598,7 +1532,1127 @@ https://redhatinsights.github.io/ccx-notification-writer/packages/migration_test
 	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectClose</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
 
 	<div class="ident">utils</div><div class="operator">.</div><div class="ident">Set</div><div class="operator">(</div><div class="ident">main</div><div class="operator">.</div><div class="ident">All</div><div class="operator">(</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
-	<div class="ident">assert</div><div class="operator">.</div><div class="ident">NoError</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">Migrate</div><div class="operator">(</div><div class="ident">connection</div><div class="operator">,</div> <div class="literal">3</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>migrate to version 3</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">assert</div><div class="operator">.</div><div class="ident">NoError</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">Migrate</div><div class="operator">(</div><div class="ident">connection</div><div class="operator">,</div> <div class="literal">3</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>check if all expectations were met</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">checkAllExpectations</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">mock</div><div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>Test the 4th migration in case the table update fails.</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">Test0004MigrationStepDownOnMigrationFailure</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>error to be thrown</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">mockedError</div> <div class="operator">:=</div> <div class="ident">errors</div><div class="operator">.</div><div class="ident">New</div><div class="operator">(</div><div class="literal">&#34;mocked error&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>prepare new mocked connection to database</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">connection</div><div class="operator">,</div> <div class="ident">mock</div> <div class="operator">:=</div> <div class="ident">mustCreateMockConnection</div><div class="operator">(</div><div class="ident">t</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>prepare mocked result for SQL query</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">rows</div> <div class="operator">:=</div> <div class="ident">sqlmock</div><div class="operator">.</div><div class="ident">NewRows</div><div class="operator">(</div><div class="operator">[</div><div class="operator">]</div><div class="ident">string</div><div class="operator">{</div><div class="literal">&#34;version&#34;</div><div class="operator">}</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">rows</div><div class="operator">.</div><div class="ident">AddRow</div><div class="operator">(</div><div class="literal">&#34;4&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="ident">count</div> <div class="operator">:=</div> <div class="ident">sqlmock</div><div class="operator">.</div><div class="ident">NewRows</div><div class="operator">(</div><div class="operator">[</div><div class="operator">]</div><div class="ident">string</div><div class="operator">{</div><div class="literal">&#34;count&#34;</div><div class="operator">}</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">count</div><div class="operator">.</div><div class="ident">AddRow</div><div class="operator">(</div><div class="literal">&#34;1&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>expected query performed by tested function</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">expectedQuery0</div> <div class="operator">:=</div> <div class="literal">&#34;SELECT COUNT\\(\\*\\) FROM migration_info;&#34;</div><div class="operator"></div>
+	<div class="ident">expectedQuery1</div> <div class="operator">:=</div> <div class="literal">&#34;SELECT version FROM migration_info;&#34;</div><div class="operator"></div>
+	<div class="ident">expectedAlter</div> <div class="operator">:=</div> <div class="literal">&#34;ALTER TABLE reported ALTER COLUMN event_type_id DROP NOT NULL&#34;</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>queries to retrieve DB version should succeed</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectQuery</div><div class="operator">(</div><div class="ident">expectedQuery0</div><div class="operator">)</div><div class="operator">.</div><div class="ident">WillReturnRows</div><div class="operator">(</div><div class="ident">count</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectQuery</div><div class="operator">(</div><div class="ident">expectedQuery1</div><div class="operator">)</div><div class="operator">.</div><div class="ident">WillReturnRows</div><div class="operator">(</div><div class="ident">rows</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectBegin</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>alter table will fail</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectExec</div><div class="operator">(</div><div class="ident">expectedAlter</div><div class="operator">)</div><div class="operator">.</div><div class="ident">WillReturnError</div><div class="operator">(</div><div class="ident">mockedError</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>so we expect roll back instead of transaction commit</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectRollback</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectClose</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="ident">utils</div><div class="operator">.</div><div class="ident">Set</div><div class="operator">(</div><div class="ident">main</div><div class="operator">.</div><div class="ident">All</div><div class="operator">(</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>migration should end with error</p>
+</td>
+	<td class="code"><pre><code>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>migrate to version 3</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Error</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">Migrate</div><div class="operator">(</div><div class="ident">connection</div><div class="operator">,</div> <div class="literal">3</div><div class="operator">)</div><div class="operator">,</div> <div class="ident">mockedError</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>check if all expectations were met</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">checkAllExpectations</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">mock</div><div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>Test0005MigrationStepUp test checks migration #5, step up part.</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">Test0005MigrationStepUp</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>prepare new mocked connection to database</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">connection</div><div class="operator">,</div> <div class="ident">mock</div> <div class="operator">:=</div> <div class="ident">mustCreateMockConnection</div><div class="operator">(</div><div class="ident">t</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>prepare mocked result for SQL query</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">rows</div> <div class="operator">:=</div> <div class="ident">sqlmock</div><div class="operator">.</div><div class="ident">NewRows</div><div class="operator">(</div><div class="operator">[</div><div class="operator">]</div><div class="ident">string</div><div class="operator">{</div><div class="literal">&#34;version&#34;</div><div class="operator">}</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">rows</div><div class="operator">.</div><div class="ident">AddRow</div><div class="operator">(</div><div class="literal">&#34;4&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="ident">count</div> <div class="operator">:=</div> <div class="ident">sqlmock</div><div class="operator">.</div><div class="ident">NewRows</div><div class="operator">(</div><div class="operator">[</div><div class="operator">]</div><div class="ident">string</div><div class="operator">{</div><div class="literal">&#34;count&#34;</div><div class="operator">}</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">count</div><div class="operator">.</div><div class="ident">AddRow</div><div class="operator">(</div><div class="literal">&#34;1&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="ident">resultCreate</div> <div class="operator">:=</div> <div class="ident">sqlmock</div><div class="operator">.</div><div class="ident">NewResult</div><div class="operator">(</div><div class="literal">0</div><div class="operator">,</div> <div class="literal">1</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">resultUpdate</div> <div class="operator">:=</div> <div class="ident">sqlmock</div><div class="operator">.</div><div class="ident">NewResult</div><div class="operator">(</div><div class="literal">1</div><div class="operator">,</div> <div class="literal">1</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>expected query performed by tested function</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">expectedQuery0</div> <div class="operator">:=</div> <div class="literal">&#34;SELECT COUNT\\(\\*\\) FROM migration_info;&#34;</div><div class="operator"></div>
+	<div class="ident">expectedQuery1</div> <div class="operator">:=</div> <div class="literal">&#34;SELECT version FROM migration_info;&#34;</div><div class="operator"></div>
+	<div class="ident">expectedCreate</div> <div class="operator">:=</div> <div class="literal">&#34;CREATE TABLE IF NOT EXISTS read_errors .*&#34;</div><div class="operator"></div>
+	<div class="ident">expectedUpdate</div> <div class="operator">:=</div> <div class="literal">&#34;UPDATE migration_info SET version=\\$1;&#34;</div><div class="operator"></div>
+
+	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectQuery</div><div class="operator">(</div><div class="ident">expectedQuery0</div><div class="operator">)</div><div class="operator">.</div><div class="ident">WillReturnRows</div><div class="operator">(</div><div class="ident">count</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectQuery</div><div class="operator">(</div><div class="ident">expectedQuery1</div><div class="operator">)</div><div class="operator">.</div><div class="ident">WillReturnRows</div><div class="operator">(</div><div class="ident">rows</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectBegin</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectExec</div><div class="operator">(</div><div class="ident">expectedCreate</div><div class="operator">)</div><div class="operator">.</div><div class="ident">WillReturnResult</div><div class="operator">(</div><div class="ident">resultCreate</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectExec</div><div class="operator">(</div><div class="ident">expectedUpdate</div><div class="operator">)</div><div class="operator">.</div><div class="ident">WillReturnResult</div><div class="operator">(</div><div class="ident">resultUpdate</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectCommit</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectClose</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="ident">utils</div><div class="operator">.</div><div class="ident">Set</div><div class="operator">(</div><div class="ident">main</div><div class="operator">.</div><div class="ident">All</div><div class="operator">(</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>migrate to version 5</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">assert</div><div class="operator">.</div><div class="ident">NoError</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">Migrate</div><div class="operator">(</div><div class="ident">connection</div><div class="operator">,</div> <div class="literal">5</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>check if all expectations were met</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">checkAllExpectations</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">mock</div><div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>Test0005MigrationStepUpOnMigrationFailure test checks migration #5 in case
+the migration fails.</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">Test0005MigrationStepUpOnMigrationFailure</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>error to be thrown</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">mockedError</div> <div class="operator">:=</div> <div class="ident">errors</div><div class="operator">.</div><div class="ident">New</div><div class="operator">(</div><div class="literal">&#34;mocked error&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>prepare new mocked connection to database</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">connection</div><div class="operator">,</div> <div class="ident">mock</div> <div class="operator">:=</div> <div class="ident">mustCreateMockConnection</div><div class="operator">(</div><div class="ident">t</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>prepare mocked result for SQL query
+initial database version</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">rows</div> <div class="operator">:=</div> <div class="ident">sqlmock</div><div class="operator">.</div><div class="ident">NewRows</div><div class="operator">(</div><div class="operator">[</div><div class="operator">]</div><div class="ident">string</div><div class="operator">{</div><div class="literal">&#34;version&#34;</div><div class="operator">}</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">rows</div><div class="operator">.</div><div class="ident">AddRow</div><div class="operator">(</div><div class="literal">&#34;4&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="ident">count</div> <div class="operator">:=</div> <div class="ident">sqlmock</div><div class="operator">.</div><div class="ident">NewRows</div><div class="operator">(</div><div class="operator">[</div><div class="operator">]</div><div class="ident">string</div><div class="operator">{</div><div class="literal">&#34;count&#34;</div><div class="operator">}</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">count</div><div class="operator">.</div><div class="ident">AddRow</div><div class="operator">(</div><div class="literal">&#34;1&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>expected query performed by tested function</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">expectedQuery0</div> <div class="operator">:=</div> <div class="literal">&#34;SELECT COUNT\\(\\*\\) FROM migration_info;&#34;</div><div class="operator"></div>
+	<div class="ident">expectedQuery1</div> <div class="operator">:=</div> <div class="literal">&#34;SELECT version FROM migration_info;&#34;</div><div class="operator"></div>
+	<div class="ident">expectedCreate</div> <div class="operator">:=</div> <div class="literal">&#34;CREATE TABLE IF NOT EXISTS read_errors .*&#34;</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>queries to retrieve DB version should succeed</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectQuery</div><div class="operator">(</div><div class="ident">expectedQuery0</div><div class="operator">)</div><div class="operator">.</div><div class="ident">WillReturnRows</div><div class="operator">(</div><div class="ident">count</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectQuery</div><div class="operator">(</div><div class="ident">expectedQuery1</div><div class="operator">)</div><div class="operator">.</div><div class="ident">WillReturnRows</div><div class="operator">(</div><div class="ident">rows</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectBegin</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>table create will fail</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectExec</div><div class="operator">(</div><div class="ident">expectedCreate</div><div class="operator">)</div><div class="operator">.</div><div class="ident">WillReturnError</div><div class="operator">(</div><div class="ident">mockedError</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>so we expect roll back instead of transaction commit</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectRollback</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectClose</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="ident">utils</div><div class="operator">.</div><div class="ident">Set</div><div class="operator">(</div><div class="ident">main</div><div class="operator">.</div><div class="ident">All</div><div class="operator">(</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>migrate to version 5</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Error</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">Migrate</div><div class="operator">(</div><div class="ident">connection</div><div class="operator">,</div> <div class="literal">5</div><div class="operator">)</div><div class="operator">,</div> <div class="ident">mockedError</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>check if all expectations were met</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">checkAllExpectations</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">mock</div><div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>Test0005MigrationStepDown test checks migration #5, step down part.</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">Test0005MigrationStepDown</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>prepare new mocked connection to database</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">connection</div><div class="operator">,</div> <div class="ident">mock</div> <div class="operator">:=</div> <div class="ident">mustCreateMockConnection</div><div class="operator">(</div><div class="ident">t</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>prepare mocked result for SQL query</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">rows</div> <div class="operator">:=</div> <div class="ident">sqlmock</div><div class="operator">.</div><div class="ident">NewRows</div><div class="operator">(</div><div class="operator">[</div><div class="operator">]</div><div class="ident">string</div><div class="operator">{</div><div class="literal">&#34;version&#34;</div><div class="operator">}</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">rows</div><div class="operator">.</div><div class="ident">AddRow</div><div class="operator">(</div><div class="literal">&#34;5&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="ident">count</div> <div class="operator">:=</div> <div class="ident">sqlmock</div><div class="operator">.</div><div class="ident">NewRows</div><div class="operator">(</div><div class="operator">[</div><div class="operator">]</div><div class="ident">string</div><div class="operator">{</div><div class="literal">&#34;count&#34;</div><div class="operator">}</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">count</div><div class="operator">.</div><div class="ident">AddRow</div><div class="operator">(</div><div class="literal">&#34;1&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="ident">resultDrop</div> <div class="operator">:=</div> <div class="ident">sqlmock</div><div class="operator">.</div><div class="ident">NewResult</div><div class="operator">(</div><div class="literal">0</div><div class="operator">,</div> <div class="literal">1</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">resultUpdate</div> <div class="operator">:=</div> <div class="ident">sqlmock</div><div class="operator">.</div><div class="ident">NewResult</div><div class="operator">(</div><div class="literal">1</div><div class="operator">,</div> <div class="literal">1</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>expected query performed by tested function</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">expectedQuery0</div> <div class="operator">:=</div> <div class="literal">&#34;SELECT COUNT\\(\\*\\) FROM migration_info;&#34;</div><div class="operator"></div>
+	<div class="ident">expectedQuery1</div> <div class="operator">:=</div> <div class="literal">&#34;SELECT version FROM migration_info;&#34;</div><div class="operator"></div>
+	<div class="ident">expectedDrop</div> <div class="operator">:=</div> <div class="literal">&#34;DROP TABLE read_errors&#34;</div><div class="operator"></div>
+	<div class="ident">expectedUpdate</div> <div class="operator">:=</div> <div class="literal">&#34;UPDATE migration_info SET version=\\$1;&#34;</div><div class="operator"></div>
+
+	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectQuery</div><div class="operator">(</div><div class="ident">expectedQuery0</div><div class="operator">)</div><div class="operator">.</div><div class="ident">WillReturnRows</div><div class="operator">(</div><div class="ident">count</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectQuery</div><div class="operator">(</div><div class="ident">expectedQuery1</div><div class="operator">)</div><div class="operator">.</div><div class="ident">WillReturnRows</div><div class="operator">(</div><div class="ident">rows</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectBegin</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectExec</div><div class="operator">(</div><div class="ident">expectedDrop</div><div class="operator">)</div><div class="operator">.</div><div class="ident">WillReturnResult</div><div class="operator">(</div><div class="ident">resultDrop</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectExec</div><div class="operator">(</div><div class="ident">expectedUpdate</div><div class="operator">)</div><div class="operator">.</div><div class="ident">WillReturnResult</div><div class="operator">(</div><div class="ident">resultUpdate</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectCommit</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectClose</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="ident">utils</div><div class="operator">.</div><div class="ident">Set</div><div class="operator">(</div><div class="ident">main</div><div class="operator">.</div><div class="ident">All</div><div class="operator">(</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>migrate to version 4</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">assert</div><div class="operator">.</div><div class="ident">NoError</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">Migrate</div><div class="operator">(</div><div class="ident">connection</div><div class="operator">,</div> <div class="literal">4</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>check if all expectations were met</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">checkAllExpectations</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">mock</div><div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>Test0005MigrationStepDownOnMigrationFailure test checks migration #5 in case
+the migration fails.</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">Test0005MigrationStepDownOnMigrationFailure</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>error to be thrown</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">mockedError</div> <div class="operator">:=</div> <div class="ident">errors</div><div class="operator">.</div><div class="ident">New</div><div class="operator">(</div><div class="literal">&#34;mocked error&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>prepare new mocked connection to database</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">connection</div><div class="operator">,</div> <div class="ident">mock</div> <div class="operator">:=</div> <div class="ident">mustCreateMockConnection</div><div class="operator">(</div><div class="ident">t</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>prepare mocked result for SQL query</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">rows</div> <div class="operator">:=</div> <div class="ident">sqlmock</div><div class="operator">.</div><div class="ident">NewRows</div><div class="operator">(</div><div class="operator">[</div><div class="operator">]</div><div class="ident">string</div><div class="operator">{</div><div class="literal">&#34;version&#34;</div><div class="operator">}</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">rows</div><div class="operator">.</div><div class="ident">AddRow</div><div class="operator">(</div><div class="literal">&#34;5&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="ident">count</div> <div class="operator">:=</div> <div class="ident">sqlmock</div><div class="operator">.</div><div class="ident">NewRows</div><div class="operator">(</div><div class="operator">[</div><div class="operator">]</div><div class="ident">string</div><div class="operator">{</div><div class="literal">&#34;count&#34;</div><div class="operator">}</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">count</div><div class="operator">.</div><div class="ident">AddRow</div><div class="operator">(</div><div class="literal">&#34;1&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>expected query performed by tested function</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">expectedQuery0</div> <div class="operator">:=</div> <div class="literal">&#34;SELECT COUNT\\(\\*\\) FROM migration_info;&#34;</div><div class="operator"></div>
+	<div class="ident">expectedQuery1</div> <div class="operator">:=</div> <div class="literal">&#34;SELECT version FROM migration_info;&#34;</div><div class="operator"></div>
+	<div class="ident">expectedDrop</div> <div class="operator">:=</div> <div class="literal">&#34;DROP TABLE read_errors&#34;</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>queries to retrieve DB version should succeed</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectQuery</div><div class="operator">(</div><div class="ident">expectedQuery0</div><div class="operator">)</div><div class="operator">.</div><div class="ident">WillReturnRows</div><div class="operator">(</div><div class="ident">count</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectQuery</div><div class="operator">(</div><div class="ident">expectedQuery1</div><div class="operator">)</div><div class="operator">.</div><div class="ident">WillReturnRows</div><div class="operator">(</div><div class="ident">rows</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectBegin</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>drop table will fail</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectExec</div><div class="operator">(</div><div class="ident">expectedDrop</div><div class="operator">)</div><div class="operator">.</div><div class="ident">WillReturnError</div><div class="operator">(</div><div class="ident">mockedError</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>so we expect roll back instead of transaction commit</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectRollback</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectClose</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="ident">utils</div><div class="operator">.</div><div class="ident">Set</div><div class="operator">(</div><div class="ident">main</div><div class="operator">.</div><div class="ident">All</div><div class="operator">(</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>migration should end with error</p>
+</td>
+	<td class="code"><pre><code>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>migrate to version 4</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Error</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">Migrate</div><div class="operator">(</div><div class="ident">connection</div><div class="operator">,</div> <div class="literal">4</div><div class="operator">)</div><div class="operator">,</div> <div class="ident">mockedError</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>check if all expectations were met</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">checkAllExpectations</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">mock</div><div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>Test0006MigrationStepUp test checks migration #6, step up part.</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">Test0006MigrationStepUp</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>prepare new mocked connection to database</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">connection</div><div class="operator">,</div> <div class="ident">mock</div> <div class="operator">:=</div> <div class="ident">mustCreateMockConnection</div><div class="operator">(</div><div class="ident">t</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>prepare mocked result for SQL query</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">rows</div> <div class="operator">:=</div> <div class="ident">sqlmock</div><div class="operator">.</div><div class="ident">NewRows</div><div class="operator">(</div><div class="operator">[</div><div class="operator">]</div><div class="ident">string</div><div class="operator">{</div><div class="literal">&#34;version&#34;</div><div class="operator">}</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">rows</div><div class="operator">.</div><div class="ident">AddRow</div><div class="operator">(</div><div class="literal">&#34;5&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="ident">count</div> <div class="operator">:=</div> <div class="ident">sqlmock</div><div class="operator">.</div><div class="ident">NewRows</div><div class="operator">(</div><div class="operator">[</div><div class="operator">]</div><div class="ident">string</div><div class="operator">{</div><div class="literal">&#34;count&#34;</div><div class="operator">}</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">count</div><div class="operator">.</div><div class="ident">AddRow</div><div class="operator">(</div><div class="literal">&#34;1&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="ident">resultAlter</div> <div class="operator">:=</div> <div class="ident">sqlmock</div><div class="operator">.</div><div class="ident">NewResult</div><div class="operator">(</div><div class="literal">0</div><div class="operator">,</div> <div class="literal">1</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">resultUpdate</div> <div class="operator">:=</div> <div class="ident">sqlmock</div><div class="operator">.</div><div class="ident">NewResult</div><div class="operator">(</div><div class="literal">1</div><div class="operator">,</div> <div class="literal">1</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>expected query performed by tested function</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">expectedQuery0</div> <div class="operator">:=</div> <div class="literal">&#34;SELECT COUNT\\(\\*\\) FROM migration_info;&#34;</div><div class="operator"></div>
+	<div class="ident">expectedQuery1</div> <div class="operator">:=</div> <div class="literal">&#34;SELECT version FROM migration_info;&#34;</div><div class="operator"></div>
+	<div class="ident">expectedAlter</div> <div class="operator">:=</div> <div class="literal">`
+		    ALTER TABLE read_errors
+		    DROP CONSTRAINT IF EXISTS read_errors_org_id_fkey,
+		    DROP CONSTRAINT IF EXISTS read_errors_org_id_cluster_updated_at_fkey,
+		    ADD CONSTRAINT  read_errors_org_id_cluster_updated_at_fkey
+		       FOREIGN KEY \(org_id, cluster, updated_at\)
+		       REFERENCES  new_reports\(org_id, cluster, updated_at\)
+		       ON DELETE CASCADE;
+		`</div><div class="operator"></div>
+	<div class="ident">expectedUpdate</div> <div class="operator">:=</div> <div class="literal">&#34;UPDATE migration_info SET version=\\$1;&#34;</div><div class="operator"></div>
+
+	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectQuery</div><div class="operator">(</div><div class="ident">expectedQuery0</div><div class="operator">)</div><div class="operator">.</div><div class="ident">WillReturnRows</div><div class="operator">(</div><div class="ident">count</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectQuery</div><div class="operator">(</div><div class="ident">expectedQuery1</div><div class="operator">)</div><div class="operator">.</div><div class="ident">WillReturnRows</div><div class="operator">(</div><div class="ident">rows</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectBegin</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectExec</div><div class="operator">(</div><div class="ident">expectedAlter</div><div class="operator">)</div><div class="operator">.</div><div class="ident">WillReturnResult</div><div class="operator">(</div><div class="ident">resultAlter</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectExec</div><div class="operator">(</div><div class="ident">expectedUpdate</div><div class="operator">)</div><div class="operator">.</div><div class="ident">WillReturnResult</div><div class="operator">(</div><div class="ident">resultUpdate</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectCommit</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectClose</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="ident">utils</div><div class="operator">.</div><div class="ident">Set</div><div class="operator">(</div><div class="ident">main</div><div class="operator">.</div><div class="ident">All</div><div class="operator">(</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>migrate to version 6</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">assert</div><div class="operator">.</div><div class="ident">NoError</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">Migrate</div><div class="operator">(</div><div class="ident">connection</div><div class="operator">,</div> <div class="literal">6</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>check if all expectations were met</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">checkAllExpectations</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">mock</div><div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>Test0006MigrationStepUpOnMigrationFailure test checks migration #6 in case
+the migration fails.</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">Test0006MigrationStepUpOnMigrationFailure</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>error to be thrown</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">mockedError</div> <div class="operator">:=</div> <div class="ident">errors</div><div class="operator">.</div><div class="ident">New</div><div class="operator">(</div><div class="literal">&#34;mocked error&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>prepare new mocked connection to database</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">connection</div><div class="operator">,</div> <div class="ident">mock</div> <div class="operator">:=</div> <div class="ident">mustCreateMockConnection</div><div class="operator">(</div><div class="ident">t</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>prepare mocked result for SQL query</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">rows</div> <div class="operator">:=</div> <div class="ident">sqlmock</div><div class="operator">.</div><div class="ident">NewRows</div><div class="operator">(</div><div class="operator">[</div><div class="operator">]</div><div class="ident">string</div><div class="operator">{</div><div class="literal">&#34;version&#34;</div><div class="operator">}</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">rows</div><div class="operator">.</div><div class="ident">AddRow</div><div class="operator">(</div><div class="literal">&#34;5&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="ident">count</div> <div class="operator">:=</div> <div class="ident">sqlmock</div><div class="operator">.</div><div class="ident">NewRows</div><div class="operator">(</div><div class="operator">[</div><div class="operator">]</div><div class="ident">string</div><div class="operator">{</div><div class="literal">&#34;count&#34;</div><div class="operator">}</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">count</div><div class="operator">.</div><div class="ident">AddRow</div><div class="operator">(</div><div class="literal">&#34;1&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>expected query performed by tested function</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">expectedQuery0</div> <div class="operator">:=</div> <div class="literal">&#34;SELECT COUNT\\(\\*\\) FROM migration_info;&#34;</div><div class="operator"></div>
+	<div class="ident">expectedQuery1</div> <div class="operator">:=</div> <div class="literal">&#34;SELECT version FROM migration_info;&#34;</div><div class="operator"></div>
+	<div class="ident">expectedAlter</div> <div class="operator">:=</div> <div class="literal">`
+		    ALTER TABLE read_errors
+		    DROP CONSTRAINT IF EXISTS read_errors_org_id_fkey,
+		    DROP CONSTRAINT IF EXISTS read_errors_org_id_cluster_updated_at_fkey,
+		    ADD CONSTRAINT  read_errors_org_id_cluster_updated_at_fkey
+		       FOREIGN KEY \(org_id, cluster, updated_at\)
+		       REFERENCES  new_reports\(org_id, cluster, updated_at\)
+		       ON DELETE CASCADE;
+		`</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>queries to retrieve DB version should succeed</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectQuery</div><div class="operator">(</div><div class="ident">expectedQuery0</div><div class="operator">)</div><div class="operator">.</div><div class="ident">WillReturnRows</div><div class="operator">(</div><div class="ident">count</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectQuery</div><div class="operator">(</div><div class="ident">expectedQuery1</div><div class="operator">)</div><div class="operator">.</div><div class="ident">WillReturnRows</div><div class="operator">(</div><div class="ident">rows</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectBegin</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>alter table will fail</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectExec</div><div class="operator">(</div><div class="ident">expectedAlter</div><div class="operator">)</div><div class="operator">.</div><div class="ident">WillReturnError</div><div class="operator">(</div><div class="ident">mockedError</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>so we expect roll back instead of transaction commit</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectRollback</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectClose</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="ident">utils</div><div class="operator">.</div><div class="ident">Set</div><div class="operator">(</div><div class="ident">main</div><div class="operator">.</div><div class="ident">All</div><div class="operator">(</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>migrate to version 6</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Error</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">Migrate</div><div class="operator">(</div><div class="ident">connection</div><div class="operator">,</div> <div class="literal">6</div><div class="operator">)</div><div class="operator">,</div> <div class="ident">mockedError</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>check if all expectations were met</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">checkAllExpectations</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">mock</div><div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>Test0006MigrationStepDown test checks migration #6, step down part.</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">Test0006MigrationStepDown</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>prepare new mocked connection to database</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">connection</div><div class="operator">,</div> <div class="ident">mock</div> <div class="operator">:=</div> <div class="ident">mustCreateMockConnection</div><div class="operator">(</div><div class="ident">t</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>prepare mocked result for SQL query</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">rows</div> <div class="operator">:=</div> <div class="ident">sqlmock</div><div class="operator">.</div><div class="ident">NewRows</div><div class="operator">(</div><div class="operator">[</div><div class="operator">]</div><div class="ident">string</div><div class="operator">{</div><div class="literal">&#34;version&#34;</div><div class="operator">}</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">rows</div><div class="operator">.</div><div class="ident">AddRow</div><div class="operator">(</div><div class="literal">&#34;6&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="ident">count</div> <div class="operator">:=</div> <div class="ident">sqlmock</div><div class="operator">.</div><div class="ident">NewRows</div><div class="operator">(</div><div class="operator">[</div><div class="operator">]</div><div class="ident">string</div><div class="operator">{</div><div class="literal">&#34;count&#34;</div><div class="operator">}</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">count</div><div class="operator">.</div><div class="ident">AddRow</div><div class="operator">(</div><div class="literal">&#34;1&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="ident">resultAlter</div> <div class="operator">:=</div> <div class="ident">sqlmock</div><div class="operator">.</div><div class="ident">NewResult</div><div class="operator">(</div><div class="literal">0</div><div class="operator">,</div> <div class="literal">1</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">resultUpdate</div> <div class="operator">:=</div> <div class="ident">sqlmock</div><div class="operator">.</div><div class="ident">NewResult</div><div class="operator">(</div><div class="literal">1</div><div class="operator">,</div> <div class="literal">1</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>expected query performed by tested function</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">expectedQuery0</div> <div class="operator">:=</div> <div class="literal">&#34;SELECT COUNT\\(\\*\\) FROM migration_info;&#34;</div><div class="operator"></div>
+	<div class="ident">expectedQuery1</div> <div class="operator">:=</div> <div class="literal">&#34;SELECT version FROM migration_info;&#34;</div><div class="operator"></div>
+	<div class="ident">expectedAlter</div> <div class="operator">:=</div> <div class="literal">`
+		    ALTER TABLE read_errors
+		    DROP CONSTRAINT read_errors_org_id_cluster_updated_at_fkey,
+		    ADD CONSTRAINT  read_errors_org_id_cluster_updated_at_fkey
+		       FOREIGN KEY \(org_id, cluster, updated_at\)
+		       REFERENCES  new_reports\(org_id, cluster, updated_at\);
+		`</div><div class="operator"></div>
+	<div class="ident">expectedUpdate</div> <div class="operator">:=</div> <div class="literal">&#34;UPDATE migration_info SET version=\\$1;&#34;</div><div class="operator"></div>
+
+	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectQuery</div><div class="operator">(</div><div class="ident">expectedQuery0</div><div class="operator">)</div><div class="operator">.</div><div class="ident">WillReturnRows</div><div class="operator">(</div><div class="ident">count</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectQuery</div><div class="operator">(</div><div class="ident">expectedQuery1</div><div class="operator">)</div><div class="operator">.</div><div class="ident">WillReturnRows</div><div class="operator">(</div><div class="ident">rows</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectBegin</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectExec</div><div class="operator">(</div><div class="ident">expectedAlter</div><div class="operator">)</div><div class="operator">.</div><div class="ident">WillReturnResult</div><div class="operator">(</div><div class="ident">resultAlter</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectExec</div><div class="operator">(</div><div class="ident">expectedUpdate</div><div class="operator">)</div><div class="operator">.</div><div class="ident">WillReturnResult</div><div class="operator">(</div><div class="ident">resultUpdate</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectCommit</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectClose</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="ident">utils</div><div class="operator">.</div><div class="ident">Set</div><div class="operator">(</div><div class="ident">main</div><div class="operator">.</div><div class="ident">All</div><div class="operator">(</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>migrate to version 5</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">assert</div><div class="operator">.</div><div class="ident">NoError</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">Migrate</div><div class="operator">(</div><div class="ident">connection</div><div class="operator">,</div> <div class="literal">5</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>check if all expectations were met</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">checkAllExpectations</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">mock</div><div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>Test0006MigrationStepDownOnMigrationFailure test checks migration #6 in case
+the migration fails.</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">Test0006MigrationStepDownOnMigrationFailure</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>error to be thrown</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">mockedError</div> <div class="operator">:=</div> <div class="ident">errors</div><div class="operator">.</div><div class="ident">New</div><div class="operator">(</div><div class="literal">&#34;mocked error&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>prepare new mocked connection to database</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">connection</div><div class="operator">,</div> <div class="ident">mock</div> <div class="operator">:=</div> <div class="ident">mustCreateMockConnection</div><div class="operator">(</div><div class="ident">t</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>prepare mocked result for SQL query</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">rows</div> <div class="operator">:=</div> <div class="ident">sqlmock</div><div class="operator">.</div><div class="ident">NewRows</div><div class="operator">(</div><div class="operator">[</div><div class="operator">]</div><div class="ident">string</div><div class="operator">{</div><div class="literal">&#34;version&#34;</div><div class="operator">}</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">rows</div><div class="operator">.</div><div class="ident">AddRow</div><div class="operator">(</div><div class="literal">&#34;6&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="ident">count</div> <div class="operator">:=</div> <div class="ident">sqlmock</div><div class="operator">.</div><div class="ident">NewRows</div><div class="operator">(</div><div class="operator">[</div><div class="operator">]</div><div class="ident">string</div><div class="operator">{</div><div class="literal">&#34;count&#34;</div><div class="operator">}</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">count</div><div class="operator">.</div><div class="ident">AddRow</div><div class="operator">(</div><div class="literal">&#34;1&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>expected query performed by tested function</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">expectedQuery0</div> <div class="operator">:=</div> <div class="literal">&#34;SELECT COUNT\\(\\*\\) FROM migration_info;&#34;</div><div class="operator"></div>
+	<div class="ident">expectedQuery1</div> <div class="operator">:=</div> <div class="literal">&#34;SELECT version FROM migration_info;&#34;</div><div class="operator"></div>
+	<div class="ident">expectedAlter</div> <div class="operator">:=</div> <div class="literal">`
+		    ALTER TABLE read_errors
+		    DROP CONSTRAINT read_errors_org_id_cluster_updated_at_fkey,
+		    ADD CONSTRAINT  read_errors_org_id_cluster_updated_at_fkey
+		       FOREIGN KEY \(org_id, cluster, updated_at\)
+		       REFERENCES  new_reports\(org_id, cluster, updated_at\);
+		`</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>queries to retrieve DB version should succeed</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectQuery</div><div class="operator">(</div><div class="ident">expectedQuery0</div><div class="operator">)</div><div class="operator">.</div><div class="ident">WillReturnRows</div><div class="operator">(</div><div class="ident">count</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectQuery</div><div class="operator">(</div><div class="ident">expectedQuery1</div><div class="operator">)</div><div class="operator">.</div><div class="ident">WillReturnRows</div><div class="operator">(</div><div class="ident">rows</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectBegin</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>alter table will fail</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectExec</div><div class="operator">(</div><div class="ident">expectedAlter</div><div class="operator">)</div><div class="operator">.</div><div class="ident">WillReturnError</div><div class="operator">(</div><div class="ident">mockedError</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>so we expect roll back instead of transaction commit</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectRollback</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectClose</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="ident">utils</div><div class="operator">.</div><div class="ident">Set</div><div class="operator">(</div><div class="ident">main</div><div class="operator">.</div><div class="ident">All</div><div class="operator">(</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>migrate to version 5</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Error</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">Migrate</div><div class="operator">(</div><div class="ident">connection</div><div class="operator">,</div> <div class="literal">5</div><div class="operator">)</div><div class="operator">,</div> <div class="ident">mockedError</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>check if all expectations were met</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">checkAllExpectations</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">mock</div><div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>Test0007MigrationStepUp test checks migration #7, step up part.</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">Test0007MigrationStepUp</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>prepare new mocked connection to database</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">connection</div><div class="operator">,</div> <div class="ident">mock</div> <div class="operator">:=</div> <div class="ident">mustCreateMockConnection</div><div class="operator">(</div><div class="ident">t</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>prepare mocked result for SQL query</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">rows</div> <div class="operator">:=</div> <div class="ident">sqlmock</div><div class="operator">.</div><div class="ident">NewRows</div><div class="operator">(</div><div class="operator">[</div><div class="operator">]</div><div class="ident">string</div><div class="operator">{</div><div class="literal">&#34;version&#34;</div><div class="operator">}</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">rows</div><div class="operator">.</div><div class="ident">AddRow</div><div class="operator">(</div><div class="literal">&#34;6&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="ident">count</div> <div class="operator">:=</div> <div class="ident">sqlmock</div><div class="operator">.</div><div class="ident">NewRows</div><div class="operator">(</div><div class="operator">[</div><div class="operator">]</div><div class="ident">string</div><div class="operator">{</div><div class="literal">&#34;count&#34;</div><div class="operator">}</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">count</div><div class="operator">.</div><div class="ident">AddRow</div><div class="operator">(</div><div class="literal">&#34;1&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="ident">resultStatement</div> <div class="operator">:=</div> <div class="ident">sqlmock</div><div class="operator">.</div><div class="ident">NewResult</div><div class="operator">(</div><div class="literal">0</div><div class="operator">,</div> <div class="literal">1</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">resultUpdate</div> <div class="operator">:=</div> <div class="ident">sqlmock</div><div class="operator">.</div><div class="ident">NewResult</div><div class="operator">(</div><div class="literal">1</div><div class="operator">,</div> <div class="literal">1</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>expected query performed by tested function</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">expectedQuery0</div> <div class="operator">:=</div> <div class="literal">&#34;SELECT COUNT\\(\\*\\) FROM migration_info;&#34;</div><div class="operator"></div>
+	<div class="ident">expectedQuery1</div> <div class="operator">:=</div> <div class="literal">&#34;SELECT version FROM migration_info;&#34;</div><div class="operator"></div>
+	<div class="ident">expectedStatements</div> <div class="operator">:=</div> <div class="operator">[</div><div class="operator">]</div><div class="ident">string</div><div class="operator">{</div>
+		<div class="literal">&#34;COMMENT ON TABLE event_targets IS &#39;specification of all event targets currently supported&#39;;&#34;</div><div class="operator">,</div>
+		<div class="literal">&#34;COMMENT ON TABLE migration_info IS &#39;information about the latest DB schema and migration status&#39;;&#34;</div><div class="operator">,</div>
+		<div class="literal">&#34;COMMENT ON TABLE new_reports IS &#39;new reports consumed from Kafka topic and stored to database in shrunk format&#39;;&#34;</div><div class="operator">,</div>
+		<div class="literal">&#34;COMMENT ON TABLE notification_types IS &#39;list of all notification types used by Notification service&#39;;&#34;</div><div class="operator">,</div>
+		<div class="literal">&#34;COMMENT ON TABLE read_errors IS &#39;errors that are detected during new reports collection&#39;;&#34;</div><div class="operator">,</div>
+		<div class="literal">&#34;COMMENT ON TABLE reported IS &#39;notifications reported to user or skipped due to some conditions&#39;;&#34;</div><div class="operator">,</div>
+		<div class="literal">&#34;COMMENT ON TABLE states IS &#39;states for each row stored in reported table&#39;;&#34;</div><div class="operator">,</div>
+	<div class="operator">}</div><div class="operator"></div>
+	<div class="ident">expectedUpdate</div> <div class="operator">:=</div> <div class="literal">&#34;UPDATE migration_info SET version=\\$1;&#34;</div><div class="operator"></div>
+
+	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectQuery</div><div class="operator">(</div><div class="ident">expectedQuery0</div><div class="operator">)</div><div class="operator">.</div><div class="ident">WillReturnRows</div><div class="operator">(</div><div class="ident">count</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectQuery</div><div class="operator">(</div><div class="ident">expectedQuery1</div><div class="operator">)</div><div class="operator">.</div><div class="ident">WillReturnRows</div><div class="operator">(</div><div class="ident">rows</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectBegin</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+	<div class="keyword">for</div> <div class="ident">_</div><div class="operator">,</div> <div class="ident">expectedStatement</div> <div class="operator">:=</div> <div class="keyword">range</div> <div class="ident">expectedStatements</div> <div class="operator">{</div>
+		<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectExec</div><div class="operator">(</div><div class="ident">expectedStatement</div><div class="operator">)</div><div class="operator">.</div><div class="ident">WillReturnResult</div><div class="operator">(</div><div class="ident">resultStatement</div><div class="operator">)</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectExec</div><div class="operator">(</div><div class="ident">expectedUpdate</div><div class="operator">)</div><div class="operator">.</div><div class="ident">WillReturnResult</div><div class="operator">(</div><div class="ident">resultUpdate</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectCommit</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectClose</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="ident">utils</div><div class="operator">.</div><div class="ident">Set</div><div class="operator">(</div><div class="ident">main</div><div class="operator">.</div><div class="ident">All</div><div class="operator">(</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>migrate to version 7</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">assert</div><div class="operator">.</div><div class="ident">NoError</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">Migrate</div><div class="operator">(</div><div class="ident">connection</div><div class="operator">,</div> <div class="literal">7</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>check if all expectations were met</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">checkAllExpectations</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">mock</div><div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>Test0007MigrationStepUpOnMigrationFailure test checks migration #7 in case
+the migration fails.</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">Test0007MigrationStepUpOnMigrationFailure</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>error to be thrown</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">mockedError</div> <div class="operator">:=</div> <div class="ident">errors</div><div class="operator">.</div><div class="ident">New</div><div class="operator">(</div><div class="literal">&#34;mocked error&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>prepare new mocked connection to database</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">connection</div><div class="operator">,</div> <div class="ident">mock</div> <div class="operator">:=</div> <div class="ident">mustCreateMockConnection</div><div class="operator">(</div><div class="ident">t</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>prepare mocked result for SQL query</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">rows</div> <div class="operator">:=</div> <div class="ident">sqlmock</div><div class="operator">.</div><div class="ident">NewRows</div><div class="operator">(</div><div class="operator">[</div><div class="operator">]</div><div class="ident">string</div><div class="operator">{</div><div class="literal">&#34;version&#34;</div><div class="operator">}</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">rows</div><div class="operator">.</div><div class="ident">AddRow</div><div class="operator">(</div><div class="literal">&#34;6&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="ident">count</div> <div class="operator">:=</div> <div class="ident">sqlmock</div><div class="operator">.</div><div class="ident">NewRows</div><div class="operator">(</div><div class="operator">[</div><div class="operator">]</div><div class="ident">string</div><div class="operator">{</div><div class="literal">&#34;count&#34;</div><div class="operator">}</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">count</div><div class="operator">.</div><div class="ident">AddRow</div><div class="operator">(</div><div class="literal">&#34;1&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>expected query performed by tested function</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">expectedQuery0</div> <div class="operator">:=</div> <div class="literal">&#34;SELECT COUNT\\(\\*\\) FROM migration_info;&#34;</div><div class="operator"></div>
+	<div class="ident">expectedQuery1</div> <div class="operator">:=</div> <div class="literal">&#34;SELECT version FROM migration_info;&#34;</div><div class="operator"></div>
+	<div class="ident">expectedStatement</div> <div class="operator">:=</div> <div class="literal">&#34;COMMENT ON TABLE event_targets IS &#39;specification of all event targets currently supported&#39;;&#34;</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>queries to retrieve DB version should succeed</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectQuery</div><div class="operator">(</div><div class="ident">expectedQuery0</div><div class="operator">)</div><div class="operator">.</div><div class="ident">WillReturnRows</div><div class="operator">(</div><div class="ident">count</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectQuery</div><div class="operator">(</div><div class="ident">expectedQuery1</div><div class="operator">)</div><div class="operator">.</div><div class="ident">WillReturnRows</div><div class="operator">(</div><div class="ident">rows</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectBegin</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>statement to change comment will fail</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectExec</div><div class="operator">(</div><div class="ident">expectedStatement</div><div class="operator">)</div><div class="operator">.</div><div class="ident">WillReturnError</div><div class="operator">(</div><div class="ident">mockedError</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>so we expect roll back instead of transaction commit</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectRollback</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectClose</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="ident">utils</div><div class="operator">.</div><div class="ident">Set</div><div class="operator">(</div><div class="ident">main</div><div class="operator">.</div><div class="ident">All</div><div class="operator">(</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>migrate to version 7</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Error</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">Migrate</div><div class="operator">(</div><div class="ident">connection</div><div class="operator">,</div> <div class="literal">7</div><div class="operator">)</div><div class="operator">,</div> <div class="ident">mockedError</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>check if all expectations were met</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">checkAllExpectations</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">mock</div><div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>Test0007MigrationStepDown test checks migration #7, step down part.</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">Test0007MigrationStepDown</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>prepare new mocked connection to database</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">connection</div><div class="operator">,</div> <div class="ident">mock</div> <div class="operator">:=</div> <div class="ident">mustCreateMockConnection</div><div class="operator">(</div><div class="ident">t</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>prepare mocked result for SQL query</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">rows</div> <div class="operator">:=</div> <div class="ident">sqlmock</div><div class="operator">.</div><div class="ident">NewRows</div><div class="operator">(</div><div class="operator">[</div><div class="operator">]</div><div class="ident">string</div><div class="operator">{</div><div class="literal">&#34;version&#34;</div><div class="operator">}</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">rows</div><div class="operator">.</div><div class="ident">AddRow</div><div class="operator">(</div><div class="literal">&#34;7&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="ident">count</div> <div class="operator">:=</div> <div class="ident">sqlmock</div><div class="operator">.</div><div class="ident">NewRows</div><div class="operator">(</div><div class="operator">[</div><div class="operator">]</div><div class="ident">string</div><div class="operator">{</div><div class="literal">&#34;count&#34;</div><div class="operator">}</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">count</div><div class="operator">.</div><div class="ident">AddRow</div><div class="operator">(</div><div class="literal">&#34;1&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="ident">resultStatement</div> <div class="operator">:=</div> <div class="ident">sqlmock</div><div class="operator">.</div><div class="ident">NewResult</div><div class="operator">(</div><div class="literal">0</div><div class="operator">,</div> <div class="literal">1</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">resultUpdate</div> <div class="operator">:=</div> <div class="ident">sqlmock</div><div class="operator">.</div><div class="ident">NewResult</div><div class="operator">(</div><div class="literal">1</div><div class="operator">,</div> <div class="literal">1</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>expected query performed by tested function</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">expectedQuery0</div> <div class="operator">:=</div> <div class="literal">&#34;SELECT COUNT\\(\\*\\) FROM migration_info;&#34;</div><div class="operator"></div>
+	<div class="ident">expectedQuery1</div> <div class="operator">:=</div> <div class="literal">&#34;SELECT version FROM migration_info;&#34;</div><div class="operator"></div>
+	<div class="ident">expectedUpdate</div> <div class="operator">:=</div> <div class="literal">&#34;UPDATE migration_info SET version=\\$1;&#34;</div><div class="operator"></div>
+	<div class="ident">expectedStatements</div> <div class="operator">:=</div> <div class="operator">[</div><div class="operator">]</div><div class="ident">string</div><div class="operator">{</div>
+		<div class="literal">&#34;COMMENT ON TABLE event_targets IS null;&#34;</div><div class="operator">,</div>
+		<div class="literal">&#34;COMMENT ON TABLE migration_info IS null;&#34;</div><div class="operator">,</div>
+		<div class="literal">&#34;COMMENT ON TABLE new_reports IS null;&#34;</div><div class="operator">,</div>
+		<div class="literal">&#34;COMMENT ON TABLE notification_types IS null;&#34;</div><div class="operator">,</div>
+		<div class="literal">&#34;COMMENT ON TABLE read_errors IS null;&#34;</div><div class="operator">,</div>
+		<div class="literal">&#34;COMMENT ON TABLE reported IS null;&#34;</div><div class="operator">,</div>
+		<div class="literal">&#34;COMMENT ON TABLE states IS null;&#34;</div><div class="operator">,</div>
+	<div class="operator">}</div><div class="operator"></div>
+	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectQuery</div><div class="operator">(</div><div class="ident">expectedQuery0</div><div class="operator">)</div><div class="operator">.</div><div class="ident">WillReturnRows</div><div class="operator">(</div><div class="ident">count</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectQuery</div><div class="operator">(</div><div class="ident">expectedQuery1</div><div class="operator">)</div><div class="operator">.</div><div class="ident">WillReturnRows</div><div class="operator">(</div><div class="ident">rows</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectBegin</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+	<div class="keyword">for</div> <div class="ident">_</div><div class="operator">,</div> <div class="ident">expectedStatement</div> <div class="operator">:=</div> <div class="keyword">range</div> <div class="ident">expectedStatements</div> <div class="operator">{</div>
+		<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectExec</div><div class="operator">(</div><div class="ident">expectedStatement</div><div class="operator">)</div><div class="operator">.</div><div class="ident">WillReturnResult</div><div class="operator">(</div><div class="ident">resultStatement</div><div class="operator">)</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectExec</div><div class="operator">(</div><div class="ident">expectedUpdate</div><div class="operator">)</div><div class="operator">.</div><div class="ident">WillReturnResult</div><div class="operator">(</div><div class="ident">resultUpdate</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectCommit</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectClose</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="ident">utils</div><div class="operator">.</div><div class="ident">Set</div><div class="operator">(</div><div class="ident">main</div><div class="operator">.</div><div class="ident">All</div><div class="operator">(</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>migrate to version 6</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">assert</div><div class="operator">.</div><div class="ident">NoError</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">Migrate</div><div class="operator">(</div><div class="ident">connection</div><div class="operator">,</div> <div class="literal">6</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>check if all expectations were met</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">checkAllExpectations</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">mock</div><div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>Test0007MigrationStepDownOnMigrationFailure test checks migration #7 in case
+the migration fails.</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">Test0007MigrationStepDownOnMigrationFailure</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>error to be thrown</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">mockedError</div> <div class="operator">:=</div> <div class="ident">errors</div><div class="operator">.</div><div class="ident">New</div><div class="operator">(</div><div class="literal">&#34;mocked error&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>prepare new mocked connection to database</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">connection</div><div class="operator">,</div> <div class="ident">mock</div> <div class="operator">:=</div> <div class="ident">mustCreateMockConnection</div><div class="operator">(</div><div class="ident">t</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>prepare mocked result for SQL query</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">rows</div> <div class="operator">:=</div> <div class="ident">sqlmock</div><div class="operator">.</div><div class="ident">NewRows</div><div class="operator">(</div><div class="operator">[</div><div class="operator">]</div><div class="ident">string</div><div class="operator">{</div><div class="literal">&#34;version&#34;</div><div class="operator">}</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">rows</div><div class="operator">.</div><div class="ident">AddRow</div><div class="operator">(</div><div class="literal">&#34;7&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="ident">count</div> <div class="operator">:=</div> <div class="ident">sqlmock</div><div class="operator">.</div><div class="ident">NewRows</div><div class="operator">(</div><div class="operator">[</div><div class="operator">]</div><div class="ident">string</div><div class="operator">{</div><div class="literal">&#34;count&#34;</div><div class="operator">}</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">count</div><div class="operator">.</div><div class="ident">AddRow</div><div class="operator">(</div><div class="literal">&#34;1&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>expected query performed by tested function</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">expectedQuery0</div> <div class="operator">:=</div> <div class="literal">&#34;SELECT COUNT\\(\\*\\) FROM migration_info;&#34;</div><div class="operator"></div>
+	<div class="ident">expectedQuery1</div> <div class="operator">:=</div> <div class="literal">&#34;SELECT version FROM migration_info;&#34;</div><div class="operator"></div>
+	<div class="ident">expectedStatement</div> <div class="operator">:=</div> <div class="literal">&#34;COMMENT ON TABLE event_targets IS null;&#34;</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>queries to retrieve DB version should succeed</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectQuery</div><div class="operator">(</div><div class="ident">expectedQuery0</div><div class="operator">)</div><div class="operator">.</div><div class="ident">WillReturnRows</div><div class="operator">(</div><div class="ident">count</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectQuery</div><div class="operator">(</div><div class="ident">expectedQuery1</div><div class="operator">)</div><div class="operator">.</div><div class="ident">WillReturnRows</div><div class="operator">(</div><div class="ident">rows</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectBegin</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>statement to change comment will fail</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectExec</div><div class="operator">(</div><div class="ident">expectedStatement</div><div class="operator">)</div><div class="operator">.</div><div class="ident">WillReturnError</div><div class="operator">(</div><div class="ident">mockedError</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>so we expect roll back instead of transaction commit</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectRollback</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectClose</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="ident">utils</div><div class="operator">.</div><div class="ident">Set</div><div class="operator">(</div><div class="ident">main</div><div class="operator">.</div><div class="ident">All</div><div class="operator">(</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>migrate to version 6</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Error</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">Migrate</div><div class="operator">(</div><div class="ident">connection</div><div class="operator">,</div> <div class="literal">6</div><div class="operator">)</div><div class="operator">,</div> <div class="ident">mockedError</div><div class="operator">)</div><div class="operator"></div>
 
 </code></pre></td>
       </tr>

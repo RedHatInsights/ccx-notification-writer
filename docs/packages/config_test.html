@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <!--
- Copyright 2022 Red Hat, Inc
+ Copyright 2023 Red Hat, Inc
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
 
-      http://www.apache.org/licenses/LICENSE-2.0
+     http://www.apache.org/licenses/LICENSE-2.0
 
  Unless required by applicable law or agreed to in writing, software
  distributed under the License is distributed on an "AS IS" BASIS,
@@ -284,7 +284,7 @@ config file when no environment variable is provided</p>
 	<div class="ident">config</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">LoadConfiguration</div><div class="operator">(</div><div class="ident">envVar</div><div class="operator">,</div> <div class="literal">&#34;&#34;</div><div class="operator">)</div><div class="operator"></div>
 	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Nil</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">,</div> <div class="literal">&#34;Failed loading configuration file from env var!&#34;</div><div class="operator">)</div><div class="operator"></div>
 
-	<div class="ident">brokerCfg</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">GetBrokerConfiguration</div><div class="operator">(</div><div class="ident">config</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">brokerCfg</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">GetBrokerConfiguration</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">config</div><div class="operator">)</div><div class="operator"></div>
 
 	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="literal">&#34;localhost:29092&#34;</div><div class="operator">,</div> <div class="ident">brokerCfg</div><div class="operator">.</div><div class="ident">Address</div><div class="operator">)</div><div class="operator"></div>
 	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="literal">&#34;ccx_test_notifications&#34;</div><div class="operator">,</div> <div class="ident">brokerCfg</div><div class="operator">.</div><div class="ident">Topic</div><div class="operator">)</div><div class="operator"></div>
@@ -302,7 +302,7 @@ config file when no environment variable is provided</p>
 	<div class="ident">config</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">LoadConfiguration</div><div class="operator">(</div><div class="ident">envVar</div><div class="operator">,</div> <div class="literal">&#34;&#34;</div><div class="operator">)</div><div class="operator"></div>
 	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Nil</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">,</div> <div class="literal">&#34;Failed loading configuration file from env var!&#34;</div><div class="operator">)</div><div class="operator"></div>
 
-	<div class="ident">storageCfg</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">GetStorageConfiguration</div><div class="operator">(</div><div class="ident">config</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">storageCfg</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">GetStorageConfiguration</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">config</div><div class="operator">)</div><div class="operator"></div>
 
 	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="literal">&#34;sqlite3&#34;</div><div class="operator">,</div> <div class="ident">storageCfg</div><div class="operator">.</div><div class="ident">Driver</div><div class="operator">)</div><div class="operator"></div>
 	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="literal">&#34;user&#34;</div><div class="operator">,</div> <div class="ident">storageCfg</div><div class="operator">.</div><div class="ident">PGUsername</div><div class="operator">)</div><div class="operator"></div>
@@ -326,7 +326,7 @@ config file when no environment variable is provided</p>
 	<div class="ident">config</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">LoadConfiguration</div><div class="operator">(</div><div class="ident">envVar</div><div class="operator">,</div> <div class="literal">&#34;&#34;</div><div class="operator">)</div><div class="operator"></div>
 	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Nil</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">,</div> <div class="literal">&#34;Failed loading configuration file from env var!&#34;</div><div class="operator">)</div><div class="operator"></div>
 
-	<div class="ident">loggingCfg</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">GetLoggingConfiguration</div><div class="operator">(</div><div class="ident">config</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">loggingCfg</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">GetLoggingConfiguration</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">config</div><div class="operator">)</div><div class="operator"></div>
 
 	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">true</div><div class="operator">,</div> <div class="ident">loggingCfg</div><div class="operator">.</div><div class="ident">Debug</div><div class="operator">)</div><div class="operator"></div>
 	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="literal">&#34;&#34;</div><div class="operator">,</div> <div class="ident">loggingCfg</div><div class="operator">.</div><div class="ident">LogLevel</div><div class="operator">)</div><div class="operator"></div>
@@ -344,7 +344,7 @@ config file when no environment variable is provided</p>
 	<div class="ident">config</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">LoadConfiguration</div><div class="operator">(</div><div class="ident">envVar</div><div class="operator">,</div> <div class="literal">&#34;&#34;</div><div class="operator">)</div><div class="operator"></div>
 	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Nil</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">,</div> <div class="literal">&#34;Failed loading configuration file from env var!&#34;</div><div class="operator">)</div><div class="operator"></div>
 
-	<div class="ident">metricsCfg</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">GetMetricsConfiguration</div><div class="operator">(</div><div class="ident">config</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">metricsCfg</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">GetMetricsConfiguration</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">config</div><div class="operator">)</div><div class="operator"></div>
 
 	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="literal">&#34;notification_writer&#34;</div><div class="operator">,</div> <div class="ident">metricsCfg</div><div class="operator">.</div><div class="ident">Namespace</div><div class="operator">)</div><div class="operator"></div>
 	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="literal">&#34;:8080&#34;</div><div class="operator">,</div> <div class="ident">metricsCfg</div><div class="operator">.</div><div class="ident">Address</div><div class="operator">)</div><div class="operator"></div>
@@ -391,7 +391,7 @@ this case.</p>
       <tr class="section">
 	<td class="doc"><p>check if database configuration has been loaded properly</p>
 </td>
-	<td class="code"><pre><code>	<div class="ident">dbCfg</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">GetStorageConfiguration</div><div class="operator">(</div><div class="ident">config</div><div class="operator">)</div><div class="operator"></div>
+	<td class="code"><pre><code>	<div class="ident">dbCfg</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">GetStorageConfiguration</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">config</div><div class="operator">)</div><div class="operator"></div>
 	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">testDB</div><div class="operator">,</div> <div class="ident">dbCfg</div><div class="operator">.</div><div class="ident">PGDBName</div><div class="operator">)</div><div class="operator"></div>
 <div class="operator">}</div><div class="operator"></div>
 
@@ -436,7 +436,7 @@ tested properly when no broker config exists</p>
       <tr class="section">
 	<td class="doc"><p>retrieve broker configuration that was just loaded</p>
 </td>
-	<td class="code"><pre><code>	<div class="ident">brokerCfg</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">GetBrokerConfiguration</div><div class="operator">(</div><div class="ident">config</div><div class="operator">)</div><div class="operator"></div>
+	<td class="code"><pre><code>	<div class="ident">brokerCfg</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">GetBrokerConfiguration</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">config</div><div class="operator">)</div><div class="operator"></div>
 
 </code></pre></td>
       </tr>
@@ -468,7 +468,7 @@ loaded via Clowder</p>
 	<td class="doc"><p>just one empty broker configuration</p>
 </td>
 	<td class="code"><pre><code>	<div class="keyword">var</div> <div class="ident">brokersConfig</div> <div class="operator">[</div><div class="operator">]</div><div class="ident">clowder</div><div class="operator">.</div><div class="ident">BrokerConfig</div> <div class="operator">=</div> <div class="operator">[</div><div class="operator">]</div><div class="ident">clowder</div><div class="operator">.</div><div class="ident">BrokerConfig</div><div class="operator">{</div>
-		<div class="ident">clowder</div><div class="operator">.</div><div class="ident">BrokerConfig</div><div class="operator">{</div><div class="operator">}</div><div class="operator">,</div>
+		<div class="operator">{</div><div class="operator">}</div><div class="operator">,</div>
 	<div class="operator">}</div><div class="operator"></div>
 
 </code></pre></td>
@@ -502,7 +502,7 @@ loaded via Clowder</p>
       <tr class="section">
 	<td class="doc"><p>retrieve broker configuration that was just loaded</p>
 </td>
-	<td class="code"><pre><code>	<div class="ident">brokerCfg</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">GetBrokerConfiguration</div><div class="operator">(</div><div class="ident">config</div><div class="operator">)</div><div class="operator"></div>
+	<td class="code"><pre><code>	<div class="ident">brokerCfg</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">GetBrokerConfiguration</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">config</div><div class="operator">)</div><div class="operator"></div>
 
 </code></pre></td>
       </tr>
@@ -533,7 +533,7 @@ loaded via Clowder</p>
 	<td class="doc"><p>just one non-empty broker configuration</p>
 </td>
 	<td class="code"><pre><code>	<div class="keyword">var</div> <div class="ident">brokersConfig</div> <div class="operator">[</div><div class="operator">]</div><div class="ident">clowder</div><div class="operator">.</div><div class="ident">BrokerConfig</div> <div class="operator">=</div> <div class="operator">[</div><div class="operator">]</div><div class="ident">clowder</div><div class="operator">.</div><div class="ident">BrokerConfig</div><div class="operator">{</div>
-		<div class="ident">clowder</div><div class="operator">.</div><div class="ident">BrokerConfig</div><div class="operator">{</div>
+		<div class="operator">{</div>
 			<div class="ident">Hostname</div><div class="operator">:</div> <div class="literal">&#34;test&#34;</div><div class="operator">,</div>
 			<div class="ident">Port</div><div class="operator">:</div>     <div class="ident">nil</div><div class="operator">}</div><div class="operator">,</div> <div class="comment">// port is not set</div>
 	<div class="operator">}</div><div class="operator"></div>
@@ -569,7 +569,7 @@ loaded via Clowder</p>
       <tr class="section">
 	<td class="doc"><p>retrieve broker configuration that was just loaded</p>
 </td>
-	<td class="code"><pre><code>	<div class="ident">brokerCfg</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">GetBrokerConfiguration</div><div class="operator">(</div><div class="ident">config</div><div class="operator">)</div><div class="operator"></div>
+	<td class="code"><pre><code>	<div class="ident">brokerCfg</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">GetBrokerConfiguration</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">config</div><div class="operator">)</div><div class="operator"></div>
 
 </code></pre></td>
       </tr>
@@ -603,7 +603,7 @@ no port should be set</p>
 	<td class="doc"><p>just one non-empty broker configuration</p>
 </td>
 	<td class="code"><pre><code>	<div class="keyword">var</div> <div class="ident">brokersConfig</div> <div class="operator">[</div><div class="operator">]</div><div class="ident">clowder</div><div class="operator">.</div><div class="ident">BrokerConfig</div> <div class="operator">=</div> <div class="operator">[</div><div class="operator">]</div><div class="ident">clowder</div><div class="operator">.</div><div class="ident">BrokerConfig</div><div class="operator">{</div>
-		<div class="ident">clowder</div><div class="operator">.</div><div class="ident">BrokerConfig</div><div class="operator">{</div>
+		<div class="operator">{</div>
 			<div class="ident">Hostname</div><div class="operator">:</div> <div class="literal">&#34;test&#34;</div><div class="operator">,</div>
 			<div class="ident">Port</div><div class="operator">:</div>     <div class="operator">&amp;</div><div class="ident">port</div><div class="operator">}</div><div class="operator">,</div> <div class="comment">// port is set</div>
 	<div class="operator">}</div><div class="operator"></div>
@@ -639,7 +639,7 @@ no port should be set</p>
       <tr class="section">
 	<td class="doc"><p>retrieve broker configuration that was just loaded</p>
 </td>
-	<td class="code"><pre><code>	<div class="ident">brokerCfg</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">GetBrokerConfiguration</div><div class="operator">(</div><div class="ident">config</div><div class="operator">)</div><div class="operator"></div>
+	<td class="code"><pre><code>	<div class="ident">brokerCfg</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">GetBrokerConfiguration</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">config</div><div class="operator">)</div><div class="operator"></div>
 
 </code></pre></td>
       </tr>
@@ -668,7 +668,7 @@ is correct but missing SASL configuration</p>
 	<div class="keyword">var</div> <div class="ident">authType</div> <div class="ident">clowder</div><div class="operator">.</div><div class="ident">BrokerConfigAuthtype</div> <div class="operator">=</div> <div class="literal">&#34;&#34;</div><div class="operator"></div>
 
 	<div class="keyword">var</div> <div class="ident">brokersConfig</div> <div class="operator">[</div><div class="operator">]</div><div class="ident">clowder</div><div class="operator">.</div><div class="ident">BrokerConfig</div> <div class="operator">=</div> <div class="operator">[</div><div class="operator">]</div><div class="ident">clowder</div><div class="operator">.</div><div class="ident">BrokerConfig</div><div class="operator">{</div>
-		<div class="ident">clowder</div><div class="operator">.</div><div class="ident">BrokerConfig</div><div class="operator">{</div>
+		<div class="operator">{</div>
 			<div class="ident">Hostname</div><div class="operator">:</div> <div class="literal">&#34;test&#34;</div><div class="operator">,</div>
 			<div class="ident">Port</div><div class="operator">:</div>     <div class="operator">&amp;</div><div class="ident">port</div><div class="operator">,</div>
 			<div class="ident">Authtype</div><div class="operator">:</div> <div class="operator">&amp;</div><div class="ident">authType</div><div class="operator">,</div>
@@ -707,7 +707,7 @@ is correct but missing SASL configuration</p>
       <tr class="section">
 	<td class="doc"><p>retrieve broker configuration that was just loaded</p>
 </td>
-	<td class="code"><pre><code>	<div class="ident">brokerCfg</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">GetBrokerConfiguration</div><div class="operator">(</div><div class="ident">config</div><div class="operator">)</div><div class="operator"></div>
+	<td class="code"><pre><code>	<div class="ident">brokerCfg</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">GetBrokerConfiguration</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">config</div><div class="operator">)</div><div class="operator"></div>
 
 </code></pre></td>
       </tr>
@@ -752,7 +752,7 @@ is correct</p>
 	<div class="keyword">var</div> <div class="ident">securityProtocol</div> <div class="operator">=</div> <div class="literal">&#34;security_protocol&#34;</div><div class="operator"></div>
 
 	<div class="keyword">var</div> <div class="ident">brokersConfig</div> <div class="operator">[</div><div class="operator">]</div><div class="ident">clowder</div><div class="operator">.</div><div class="ident">BrokerConfig</div> <div class="operator">=</div> <div class="operator">[</div><div class="operator">]</div><div class="ident">clowder</div><div class="operator">.</div><div class="ident">BrokerConfig</div><div class="operator">{</div>
-		<div class="ident">clowder</div><div class="operator">.</div><div class="ident">BrokerConfig</div><div class="operator">{</div>
+		<div class="operator">{</div>
 			<div class="ident">Hostname</div><div class="operator">:</div> <div class="literal">&#34;test&#34;</div><div class="operator">,</div>
 			<div class="ident">Port</div><div class="operator">:</div>     <div class="operator">&amp;</div><div class="ident">port</div><div class="operator">,</div>
 			<div class="ident">Authtype</div><div class="operator">:</div> <div class="operator">&amp;</div><div class="ident">authType</div><div class="operator">,</div>
@@ -802,7 +802,7 @@ is correct</p>
       <tr class="section">
 	<td class="doc"><p>retrieve broker configuration that was just loaded</p>
 </td>
-	<td class="code"><pre><code>	<div class="ident">brokerCfg</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">GetBrokerConfiguration</div><div class="operator">(</div><div class="ident">config</div><div class="operator">)</div><div class="operator"></div>
+	<td class="code"><pre><code>	<div class="ident">brokerCfg</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">GetBrokerConfiguration</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">config</div><div class="operator">)</div><div class="operator"></div>
 
 </code></pre></td>
       </tr>
@@ -871,7 +871,7 @@ LoadedConfig.Kafka.Topics if found, and used as-is if not.</p>
 	<div class="ident">config</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">LoadConfiguration</div><div class="operator">(</div><div class="literal">&#34;CCX_NOTIFICATION_WRITER_CONFIG_FILE&#34;</div><div class="operator">,</div> <div class="literal">&#34;tests/config2&#34;</div><div class="operator">)</div><div class="operator"></div>
 	<div class="ident">assert</div><div class="operator">.</div><div class="ident">NoError</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">,</div> <div class="literal">&#34;Failed loading configuration file&#34;</div><div class="operator">)</div><div class="operator"></div>
 
-	<div class="ident">brokerCfg</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">GetBrokerConfiguration</div><div class="operator">(</div><div class="ident">config</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">brokerCfg</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">GetBrokerConfiguration</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">config</div><div class="operator">)</div><div class="operator"></div>
 	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">fmt</div><div class="operator">.</div><div class="ident">Sprintf</div><div class="operator">(</div><div class="literal">&#34;%s:%d&#34;</div><div class="operator">,</div> <div class="ident">hostname</div><div class="operator">,</div> <div class="ident">port</div><div class="operator">)</div><div class="operator">,</div> <div class="ident">brokerCfg</div><div class="operator">.</div><div class="ident">Address</div><div class="operator">)</div><div class="operator"></div>
 	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">newTopicName</div><div class="operator">,</div> <div class="ident">brokerCfg</div><div class="operator">.</div><div class="ident">Topic</div><div class="operator">)</div><div class="operator"></div>
 
@@ -886,9 +886,189 @@ LoadedConfig.Kafka.Topics if found, and used as-is if not.</p>
 	<div class="ident">config</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">LoadConfiguration</div><div class="operator">(</div><div class="literal">&#34;CCX_NOTIFICATION_WRITER_CONFIG_FILE&#34;</div><div class="operator">,</div> <div class="literal">&#34;tests/config1&#34;</div><div class="operator">)</div><div class="operator"></div>
 	<div class="ident">assert</div><div class="operator">.</div><div class="ident">NoError</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">,</div> <div class="literal">&#34;Failed loading configuration file&#34;</div><div class="operator">)</div><div class="operator"></div>
 
-	<div class="ident">brokerCfg</div> <div class="operator">=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">GetBrokerConfiguration</div><div class="operator">(</div><div class="ident">config</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">brokerCfg</div> <div class="operator">=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">GetBrokerConfiguration</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">config</div><div class="operator">)</div><div class="operator"></div>
 	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">fmt</div><div class="operator">.</div><div class="ident">Sprintf</div><div class="operator">(</div><div class="literal">&#34;%s:%d&#34;</div><div class="operator">,</div> <div class="ident">hostname</div><div class="operator">,</div> <div class="ident">port</div><div class="operator">)</div><div class="operator">,</div> <div class="ident">brokerCfg</div><div class="operator">.</div><div class="ident">Address</div><div class="operator">)</div><div class="operator"></div>
 	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">topicName</div><div class="operator">,</div> <div class="ident">brokerCfg</div><div class="operator">.</div><div class="ident">Topic</div><div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>TestGetStorageConfigurationIsImmutable checks if function
+GetStorageConfiguration is not mutable</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">TestGetStorageConfigurationIsImmutable</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+	<div class="ident">envVar</div> <div class="operator">:=</div> <div class="literal">&#34;CCX_NOTIFICATION_WRITER_CONFIG_FILE&#34;</div><div class="operator"></div>
+	<div class="ident">mustSetEnv</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">envVar</div><div class="operator">,</div> <div class="literal">&#34;tests/config2&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>load configuration with check if loading was ok</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">config</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">LoadConfiguration</div><div class="operator">(</div><div class="ident">envVar</div><div class="operator">,</div> <div class="literal">&#34;&#34;</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Nil</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">,</div> <div class="literal">&#34;Failed loading configuration file from env var!&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>clone the configuration</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">origConfig</div> <div class="operator">:=</div> <div class="ident">config</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>call the tested function</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">main</div><div class="operator">.</div><div class="ident">GetStorageConfiguration</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">config</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>and compare original configuration with possibly mutated one</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">config</div><div class="operator">,</div> <div class="ident">origConfig</div><div class="operator">,</div> <div class="literal">&#34;GetStorageConfiguration must not be mutable&#34;</div><div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>TestGetLoggingConfigurationIsImmutable checks if function
+GetLoggingConfiguration is not mutable</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">TestGetLoggingConfigurationIsImmutable</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+	<div class="ident">envVar</div> <div class="operator">:=</div> <div class="literal">&#34;CCX_NOTIFICATION_WRITER_CONFIG_FILE&#34;</div><div class="operator"></div>
+	<div class="ident">mustSetEnv</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">envVar</div><div class="operator">,</div> <div class="literal">&#34;tests/config2&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>load configuration with check if loading was ok</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">config</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">LoadConfiguration</div><div class="operator">(</div><div class="ident">envVar</div><div class="operator">,</div> <div class="literal">&#34;&#34;</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Nil</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">,</div> <div class="literal">&#34;Failed loading configuration file from env var!&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>clone the configuration</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">origConfig</div> <div class="operator">:=</div> <div class="ident">config</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>call the tested function</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">main</div><div class="operator">.</div><div class="ident">GetLoggingConfiguration</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">config</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>and compare original configuration with possibly mutated one</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">config</div><div class="operator">,</div> <div class="ident">origConfig</div><div class="operator">,</div> <div class="literal">&#34;GetLoggingConfiguration must not be mutable&#34;</div><div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>TestGetBrokerConfigurationIsImmutable checks if function
+GetBrokerConfiguration is not mutable</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">TestGetBrokerConfigurationIsImmutable</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+	<div class="ident">envVar</div> <div class="operator">:=</div> <div class="literal">&#34;CCX_NOTIFICATION_WRITER_CONFIG_FILE&#34;</div><div class="operator"></div>
+	<div class="ident">mustSetEnv</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">envVar</div><div class="operator">,</div> <div class="literal">&#34;tests/config2&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>load configuration with check if loading was ok</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">config</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">LoadConfiguration</div><div class="operator">(</div><div class="ident">envVar</div><div class="operator">,</div> <div class="literal">&#34;&#34;</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Nil</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">,</div> <div class="literal">&#34;Failed loading configuration file from env var!&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>clone the configuration</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">origConfig</div> <div class="operator">:=</div> <div class="ident">config</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>call the tested function</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">main</div><div class="operator">.</div><div class="ident">GetBrokerConfiguration</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">config</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>and compare original configuration with possibly mutated one</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">config</div><div class="operator">,</div> <div class="ident">origConfig</div><div class="operator">,</div> <div class="literal">&#34;GetBrokerConfiguration must not be mutable&#34;</div><div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>TestGetMetricsConfigurationIsImmutable checks if function
+GetMetricsConfiguration is not mutable</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">TestGetMetricsConfigurationIsImmutable</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+	<div class="ident">envVar</div> <div class="operator">:=</div> <div class="literal">&#34;CCX_NOTIFICATION_WRITER_CONFIG_FILE&#34;</div><div class="operator"></div>
+	<div class="ident">mustSetEnv</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">envVar</div><div class="operator">,</div> <div class="literal">&#34;tests/config2&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>load configuration with check if loading was ok</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">config</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">LoadConfiguration</div><div class="operator">(</div><div class="ident">envVar</div><div class="operator">,</div> <div class="literal">&#34;&#34;</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Nil</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">,</div> <div class="literal">&#34;Failed loading configuration file from env var!&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>clone the configuration</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">origConfig</div> <div class="operator">:=</div> <div class="ident">config</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>call the tested function</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">main</div><div class="operator">.</div><div class="ident">GetMetricsConfiguration</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">config</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>and compare original configuration with possibly mutated one</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">config</div><div class="operator">,</div> <div class="ident">origConfig</div><div class="operator">,</div> <div class="literal">&#34;GetMetricsConfiguration must not be mutable&#34;</div><div class="operator">)</div><div class="operator"></div>
 <div class="operator">}</div><div class="operator"></div>
 
 </code></pre></td>

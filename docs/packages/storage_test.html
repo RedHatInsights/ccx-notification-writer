@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <!--
- Copyright 2022 Red Hat, Inc
+ Copyright 2023 Red Hat, Inc
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
 
-      http://www.apache.org/licenses/LICENSE-2.0
+     http://www.apache.org/licenses/LICENSE-2.0
 
  Unless required by applicable law or agreed to in writing, software
  distributed under the License is distributed on an "AS IS" BASIS,
@@ -118,7 +118,7 @@
       <tr class="section">
 	<td class="doc"></td>
 	<td class="code"><pre><code><div class="comment">/*
-Copyright © 2021 Red Hat, Inc.
+Copyright © 2021, 2022, 2023 Red Hat, Inc.
 
 Licensed under the Apache License, Version 2.0 (the &#34;License&#34;);
 you may not use this file except in compliance with the License.
@@ -158,6 +158,16 @@ https://redhatinsights.github.io/ccx-notification-writer/packages/storage_test.h
 
 	<div class="ident">main</div> <div class="literal">&#34;github.com/RedHatInsights/ccx-notification-writer&#34;</div><div class="operator"></div>
 <div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>wrongDatabaseDriver is any integer value different from DBDriverSQLite3 and
+DBDriverPostgres
+(for selected DB operations)</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">const</div> <div class="ident">wrongDatabaseDriver</div> <div class="operator">=</div> <div class="literal">10</div><div class="operator"></div>
 
 </code></pre></td>
       </tr>
@@ -1250,7 +1260,61 @@ Storage.WriteReportForCluster.</p>
 </td>
 	<td class="code"><pre><code>	<div class="ident">err</div> <div class="operator">:=</div> <div class="ident">storage</div><div class="operator">.</div><div class="ident">WriteReportForCluster</div><div class="operator">(</div><div class="literal">1</div><div class="operator">,</div> <div class="literal">2</div><div class="operator">,</div> <div class="literal">&#34;foo&#34;</div><div class="operator">,</div> <div class="literal">&#34;&#34;</div><div class="operator">,</div> <div class="ident">time</div><div class="operator">.</div><div class="ident">Now</div><div class="operator">(</div><div class="operator">)</div><div class="operator">,</div> <div class="literal">42</div><div class="operator">)</div><div class="operator"></div>
 	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">==</div> <div class="ident">nil</div> <div class="operator">{</div>
-		<div class="ident">t</div><div class="operator">.</div><div class="ident">Errorf</div><div class="operator">(</div><div class="literal">&#34;error was not expected while writing report for cluster: %s&#34;</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">)</div><div class="operator"></div>
+		<div class="ident">t</div><div class="operator">.</div><div class="ident">Errorf</div><div class="operator">(</div><div class="literal">&#34;error was expected while writing report for cluster: %s&#34;</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">)</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>connection to mocked DB needs to be closed properly</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">checkConnectionClose</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">connection</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>check if all expectations were met</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">checkAllExpectations</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">mock</div><div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>TestWriteReportForClusterWrongDriver function checks the method
+Storage.WriteReportForCluster.</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">TestWriteReportForClusterWrongDriver</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>prepare new mocked connection to database</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">connection</div><div class="operator">,</div> <div class="ident">mock</div> <div class="operator">:=</div> <div class="ident">mustCreateMockConnection</div><div class="operator">(</div><div class="ident">t</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectClose</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>prepare connection to mocked database</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">storage</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">NewFromConnection</div><div class="operator">(</div><div class="ident">connection</div><div class="operator">,</div> <div class="ident">wrongDatabaseDriver</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>call the tested method</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">err</div> <div class="operator">:=</div> <div class="ident">storage</div><div class="operator">.</div><div class="ident">WriteReportForCluster</div><div class="operator">(</div><div class="literal">1</div><div class="operator">,</div> <div class="literal">2</div><div class="operator">,</div> <div class="literal">&#34;foo&#34;</div><div class="operator">,</div> <div class="literal">&#34;&#34;</div><div class="operator">,</div> <div class="ident">time</div><div class="operator">.</div><div class="ident">Now</div><div class="operator">(</div><div class="operator">)</div><div class="operator">,</div> <div class="literal">42</div><div class="operator">)</div><div class="operator"></div>
+	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">==</div> <div class="ident">nil</div> <div class="operator">{</div>
+		<div class="ident">t</div><div class="operator">.</div><div class="ident">Errorf</div><div class="operator">(</div><div class="literal">&#34;error was expected while writing report for cluster&#34;</div><div class="operator">)</div><div class="operator"></div>
 	<div class="operator">}</div><div class="operator"></div>
 
 </code></pre></td>
@@ -1911,7 +1975,7 @@ deleteFromTableStatement.</p>
 	<td class="doc"><p>TestNewStorage checks whether constructor for new storage returns error for improper storage configuration</p>
 </td>
 	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">TestNewStorageError</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
-	<div class="ident">_</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">NewStorage</div><div class="operator">(</div><div class="ident">main</div><div class="operator">.</div><div class="ident">StorageConfiguration</div><div class="operator">{</div>
+	<div class="ident">_</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">NewStorage</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">main</div><div class="operator">.</div><div class="ident">StorageConfiguration</div><div class="operator">{</div>
 		<div class="ident">Driver</div><div class="operator">:</div> <div class="literal">&#34;non existing driver&#34;</div><div class="operator">,</div>
 	<div class="operator">}</div><div class="operator">)</div><div class="operator"></div>
 	<div class="ident">assert</div><div class="operator">.</div><div class="ident">EqualError</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">,</div> <div class="literal">&#34;driver non existing driver is not supported&#34;</div><div class="operator">)</div><div class="operator"></div>
@@ -1924,7 +1988,7 @@ deleteFromTableStatement.</p>
 	<td class="doc"><p>TestNewStoragePostgreSQL function tests creating new storage with logs</p>
 </td>
 	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">TestNewStoragePostgreSQL</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
-	<div class="ident">_</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">NewStorage</div><div class="operator">(</div><div class="ident">main</div><div class="operator">.</div><div class="ident">StorageConfiguration</div><div class="operator">{</div>
+	<div class="ident">_</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">NewStorage</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">main</div><div class="operator">.</div><div class="ident">StorageConfiguration</div><div class="operator">{</div>
 		<div class="ident">Driver</div><div class="operator">:</div>        <div class="literal">&#34;postgres&#34;</div><div class="operator">,</div>
 		<div class="ident">PGUsername</div><div class="operator">:</div>    <div class="literal">&#34;user&#34;</div><div class="operator">,</div>
 		<div class="ident">PGPassword</div><div class="operator">:</div>    <div class="literal">&#34;password&#34;</div><div class="operator">,</div>
@@ -1951,7 +2015,7 @@ deleteFromTableStatement.</p>
 	<td class="doc"><p>TestNewStorageSQLite3 function tests creating new storage with logs</p>
 </td>
 	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">TestNewStorageSQLite3</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
-	<div class="ident">_</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">NewStorage</div><div class="operator">(</div><div class="ident">main</div><div class="operator">.</div><div class="ident">StorageConfiguration</div><div class="operator">{</div>
+	<div class="ident">_</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">NewStorage</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">main</div><div class="operator">.</div><div class="ident">StorageConfiguration</div><div class="operator">{</div>
 		<div class="ident">Driver</div><div class="operator">:</div>        <div class="literal">&#34;sqlite3&#34;</div><div class="operator">,</div>
 		<div class="ident">LogSQLQueries</div><div class="operator">:</div> <div class="ident">true</div><div class="operator">,</div>
 	<div class="operator">}</div><div class="operator">)</div><div class="operator"></div>
@@ -1972,7 +2036,7 @@ deleteFromTableStatement.</p>
 	<td class="doc"><p>TestClose function tests database close operation.</p>
 </td>
 	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">TestClose</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
-	<div class="ident">storage</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">NewStorage</div><div class="operator">(</div><div class="ident">main</div><div class="operator">.</div><div class="ident">StorageConfiguration</div><div class="operator">{</div>
+	<div class="ident">storage</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">NewStorage</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">main</div><div class="operator">.</div><div class="ident">StorageConfiguration</div><div class="operator">{</div>
 		<div class="ident">Driver</div><div class="operator">:</div>        <div class="literal">&#34;sqlite3&#34;</div><div class="operator">,</div>
 		<div class="ident">LogSQLQueries</div><div class="operator">:</div> <div class="ident">true</div><div class="operator">,</div>
 	<div class="operator">}</div><div class="operator">)</div><div class="operator"></div>
@@ -1983,7 +2047,7 @@ deleteFromTableStatement.</p>
       <tr class="section">
 	<td class="doc"><p>we just happen to make connection without trying to actually connect</p>
 </td>
-	<td class="code"><pre><code>	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Nil</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">)</div><div class="operator"></div>
+	<td class="code"><pre><code>	<div class="ident">assert</div><div class="operator">.</div><div class="ident">NoError</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">)</div><div class="operator"></div>
 
 </code></pre></td>
       </tr>
@@ -1999,7 +2063,487 @@ deleteFromTableStatement.</p>
       <tr class="section">
 	<td class="doc"><p>it should not fail</p>
 </td>
-	<td class="code"><pre><code>	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Nil</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">)</div><div class="operator"></div>
+	<td class="code"><pre><code>	<div class="ident">assert</div><div class="operator">.</div><div class="ident">NoError</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>TestConnection function checks the method Storage.Connection.</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">TestConnection</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+	<div class="ident">storage</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">NewStorage</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">main</div><div class="operator">.</div><div class="ident">StorageConfiguration</div><div class="operator">{</div>
+		<div class="ident">Driver</div><div class="operator">:</div>        <div class="literal">&#34;sqlite3&#34;</div><div class="operator">,</div>
+		<div class="ident">LogSQLQueries</div><div class="operator">:</div> <div class="ident">false</div><div class="operator">,</div>
+	<div class="operator">}</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>we just happen to make connection without trying to actually connect</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">assert</div><div class="operator">.</div><div class="ident">NoError</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>try to retrieve connection</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">returned</div> <div class="operator">:=</div> <div class="ident">storage</div><div class="operator">.</div><div class="ident">Connection</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">NotNil</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">returned</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>try to close the storage</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">err</div> <div class="operator">=</div> <div class="ident">storage</div><div class="operator">.</div><div class="ident">Close</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>it should not fail</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">assert</div><div class="operator">.</div><div class="ident">NoError</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>TestDatabaseInitMigrationMigrationTableExistAlready function checks the
+method Storage.DatabaseInitMigration when migration table already exist.</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">TestDatabaseInitMigrationTableExistAlready</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>prepare new mocked connection to database</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">connection</div><div class="operator">,</div> <div class="ident">mock</div> <div class="operator">:=</div> <div class="ident">mustCreateMockConnection</div><div class="operator">(</div><div class="ident">t</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>expected database version</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">expectedVersion</div> <div class="operator">:=</div> <div class="literal">42</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>prepare mocked result for SQL query</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">rowsCount</div> <div class="operator">:=</div> <div class="ident">sqlmock</div><div class="operator">.</div><div class="ident">NewRows</div><div class="operator">(</div><div class="operator">[</div><div class="operator">]</div><div class="ident">string</div><div class="operator">{</div><div class="literal">&#34;count&#34;</div><div class="operator">}</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">rowsCount</div><div class="operator">.</div><div class="ident">AddRow</div><div class="operator">(</div><div class="literal">1</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>prepare mocked result for SQL query</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">rowsVersion</div> <div class="operator">:=</div> <div class="ident">sqlmock</div><div class="operator">.</div><div class="ident">NewRows</div><div class="operator">(</div><div class="operator">[</div><div class="operator">]</div><div class="ident">string</div><div class="operator">{</div><div class="literal">&#34;version&#34;</div><div class="operator">}</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">rowsVersion</div><div class="operator">.</div><div class="ident">AddRow</div><div class="operator">(</div><div class="ident">expectedVersion</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>expected SQL statements to be called</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectBegin</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>first expected SQL statement</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectQuery</div><div class="operator">(</div><div class="literal">&#34;SELECT count\\(\\*\\) FROM migration_info;&#34;</div><div class="operator">)</div><div class="operator">.</div><div class="ident">WillReturnRows</div><div class="operator">(</div><div class="ident">rowsCount</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>second expected SQL statement</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectQuery</div><div class="operator">(</div><div class="literal">&#34;SELECT version FROM migration_info LIMIT 1;&#34;</div><div class="operator">)</div><div class="operator">.</div><div class="ident">WillReturnRows</div><div class="operator">(</div><div class="ident">rowsVersion</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>transaction should be commited</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectCommit</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>prepare connection to mocked database</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">storage</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">NewFromConnection</div><div class="operator">(</div><div class="ident">connection</div><div class="operator">,</div> <div class="literal">1</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>call the tested method</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">err</div> <div class="operator">:=</div> <div class="ident">storage</div><div class="operator">.</div><div class="ident">DatabaseInitMigration</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">NoError</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">,</div> <div class="literal">&#34;error was not expected during migration init&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>check if all expectations were met</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">checkAllExpectations</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">mock</div><div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>TestDatabaseInitMigrationMigrationTableDoesNotExist function checks the
+method Storage.DatabaseInitMigration when migration table does not exist or
+is empty.</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">TestDatabaseInitMigrationTableDoesNotExist</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>error to be thrown</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">noSuchTable</div> <div class="operator">:=</div> <div class="ident">errors</div><div class="operator">.</div><div class="ident">New</div><div class="operator">(</div><div class="literal">&#34;no such table: migration_info&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>prepare new mocked connection to database</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">connection</div><div class="operator">,</div> <div class="ident">mock</div> <div class="operator">:=</div> <div class="ident">mustCreateMockConnection</div><div class="operator">(</div><div class="ident">t</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>expected SQL statements to be called</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectBegin</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>first expected SQL statement - it should mimic empty table</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectQuery</div><div class="operator">(</div><div class="literal">&#34;SELECT count\\(\\*\\) FROM migration_info;&#34;</div><div class="operator">)</div><div class="operator">.</div><div class="ident">WillReturnError</div><div class="operator">(</div><div class="ident">noSuchTable</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectExec</div><div class="operator">(</div><div class="literal">&#34;DROP TABLE IF EXISTS migration_info&#34;</div><div class="operator">)</div><div class="operator">.</div><div class="ident">WillReturnResult</div><div class="operator">(</div><div class="ident">sqlmock</div><div class="operator">.</div><div class="ident">NewResult</div><div class="operator">(</div><div class="literal">1</div><div class="operator">,</div> <div class="literal">1</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectExec</div><div class="operator">(</div><div class="literal">&#34;CREATE TABLE IF NOT EXISTS migration_info \\( version integer not null \\);&#34;</div><div class="operator">)</div><div class="operator">.</div><div class="ident">WillReturnResult</div><div class="operator">(</div><div class="ident">sqlmock</div><div class="operator">.</div><div class="ident">NewResult</div><div class="operator">(</div><div class="literal">1</div><div class="operator">,</div> <div class="literal">1</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectExec</div><div class="operator">(</div><div class="literal">&#34;INSERT INTO migration_info \\(version\\) VALUES \\(0\\);&#34;</div><div class="operator">)</div><div class="operator">.</div><div class="ident">WillReturnResult</div><div class="operator">(</div><div class="ident">sqlmock</div><div class="operator">.</div><div class="ident">NewResult</div><div class="operator">(</div><div class="literal">1</div><div class="operator">,</div> <div class="literal">1</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>transaction should be commited</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectCommit</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>prepare connection to mocked database</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">storage</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">NewFromConnection</div><div class="operator">(</div><div class="ident">connection</div><div class="operator">,</div> <div class="literal">1</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>call the tested method</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">err</div> <div class="operator">:=</div> <div class="ident">storage</div><div class="operator">.</div><div class="ident">DatabaseInitMigration</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">NoError</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">,</div> <div class="literal">&#34;error was not expected during migration init&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>check if all expectations were met</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">checkAllExpectations</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">mock</div><div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>TestDatabaseInitMigrationDropTableFailure function checks the method
+Storage.DatabaseInitMigration when DROP migration table operation fails.</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">TestDatabaseInitMigrationDropTableFailure</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>error to be thrown</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">noSuchTable</div> <div class="operator">:=</div> <div class="ident">errors</div><div class="operator">.</div><div class="ident">New</div><div class="operator">(</div><div class="literal">&#34;no such table: migration_info&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>drop table error</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">dropTableError</div> <div class="operator">:=</div> <div class="ident">errors</div><div class="operator">.</div><div class="ident">New</div><div class="operator">(</div><div class="literal">&#34;DROP table error&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>prepare new mocked connection to database</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">connection</div><div class="operator">,</div> <div class="ident">mock</div> <div class="operator">:=</div> <div class="ident">mustCreateMockConnection</div><div class="operator">(</div><div class="ident">t</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>expected SQL statements to be called</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectBegin</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>first expected SQL statement - it should mimic empty table</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectQuery</div><div class="operator">(</div><div class="literal">&#34;SELECT count\\(\\*\\) FROM migration_info;&#34;</div><div class="operator">)</div><div class="operator">.</div><div class="ident">WillReturnError</div><div class="operator">(</div><div class="ident">noSuchTable</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectExec</div><div class="operator">(</div><div class="literal">&#34;DROP TABLE IF EXISTS migration_info&#34;</div><div class="operator">)</div><div class="operator">.</div><div class="ident">WillReturnError</div><div class="operator">(</div><div class="ident">dropTableError</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>transaction should be rollback-ed</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectRollback</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>prepare connection to mocked database</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">storage</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">NewFromConnection</div><div class="operator">(</div><div class="ident">connection</div><div class="operator">,</div> <div class="literal">1</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>call the tested method</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">err</div> <div class="operator">:=</div> <div class="ident">storage</div><div class="operator">.</div><div class="ident">DatabaseInitMigration</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Error</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">,</div> <div class="literal">&#34;error WAS expected during migration init&#34;</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">,</div> <div class="ident">dropTableError</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>check if all expectations were met</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">checkAllExpectations</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">mock</div><div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>TestDatabaseInitMigrationCreateTableFailure function checks the
+method Storage.DatabaseInitMigration when migration table can not be created.</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">TestDatabaseInitMigrationCreateTableFailure</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>error to be thrown</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">noSuchTable</div> <div class="operator">:=</div> <div class="ident">errors</div><div class="operator">.</div><div class="ident">New</div><div class="operator">(</div><div class="literal">&#34;no such table: migration_info&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>create table error</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">createTableError</div> <div class="operator">:=</div> <div class="ident">errors</div><div class="operator">.</div><div class="ident">New</div><div class="operator">(</div><div class="literal">&#34;CREATE table error&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>prepare new mocked connection to database</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">connection</div><div class="operator">,</div> <div class="ident">mock</div> <div class="operator">:=</div> <div class="ident">mustCreateMockConnection</div><div class="operator">(</div><div class="ident">t</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>expected SQL statements to be called</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectBegin</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>first expected SQL statement - it should mimic empty table</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectQuery</div><div class="operator">(</div><div class="literal">&#34;SELECT count\\(\\*\\) FROM migration_info;&#34;</div><div class="operator">)</div><div class="operator">.</div><div class="ident">WillReturnError</div><div class="operator">(</div><div class="ident">noSuchTable</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectExec</div><div class="operator">(</div><div class="literal">&#34;DROP TABLE IF EXISTS migration_info&#34;</div><div class="operator">)</div><div class="operator">.</div><div class="ident">WillReturnResult</div><div class="operator">(</div><div class="ident">sqlmock</div><div class="operator">.</div><div class="ident">NewResult</div><div class="operator">(</div><div class="literal">1</div><div class="operator">,</div> <div class="literal">1</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectExec</div><div class="operator">(</div><div class="literal">&#34;CREATE TABLE IF NOT EXISTS migration_info \\( version integer not null \\);&#34;</div><div class="operator">)</div><div class="operator">.</div><div class="ident">WillReturnError</div><div class="operator">(</div><div class="ident">createTableError</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>transaction should be rollback-ed</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectRollback</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>prepare connection to mocked database</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">storage</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">NewFromConnection</div><div class="operator">(</div><div class="ident">connection</div><div class="operator">,</div> <div class="literal">1</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>call the tested method</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">err</div> <div class="operator">:=</div> <div class="ident">storage</div><div class="operator">.</div><div class="ident">DatabaseInitMigration</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Error</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">,</div> <div class="literal">&#34;error WAS expected during migration init&#34;</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">,</div> <div class="ident">createTableError</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>check if all expectations were met</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">checkAllExpectations</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">mock</div><div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>TestDatabaseInitMigrationInsertFailure function checks the method
+Storage.DatabaseInitMigration when inserting new info into migration table
+fails.</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">TestDatabaseInitMigrationInsertFailure</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>error to be thrown</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">noSuchTable</div> <div class="operator">:=</div> <div class="ident">errors</div><div class="operator">.</div><div class="ident">New</div><div class="operator">(</div><div class="literal">&#34;no such table: migration_info&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>insert into table error</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">insertIntoTableError</div> <div class="operator">:=</div> <div class="ident">errors</div><div class="operator">.</div><div class="ident">New</div><div class="operator">(</div><div class="literal">&#34;INSERT INTO table error&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>prepare new mocked connection to database</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">connection</div><div class="operator">,</div> <div class="ident">mock</div> <div class="operator">:=</div> <div class="ident">mustCreateMockConnection</div><div class="operator">(</div><div class="ident">t</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>expected SQL statements to be called</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectBegin</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>first expected SQL statement - it should mimic empty table</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectQuery</div><div class="operator">(</div><div class="literal">&#34;SELECT count\\(\\*\\) FROM migration_info;&#34;</div><div class="operator">)</div><div class="operator">.</div><div class="ident">WillReturnError</div><div class="operator">(</div><div class="ident">noSuchTable</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectExec</div><div class="operator">(</div><div class="literal">&#34;DROP TABLE IF EXISTS migration_info&#34;</div><div class="operator">)</div><div class="operator">.</div><div class="ident">WillReturnResult</div><div class="operator">(</div><div class="ident">sqlmock</div><div class="operator">.</div><div class="ident">NewResult</div><div class="operator">(</div><div class="literal">1</div><div class="operator">,</div> <div class="literal">1</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectExec</div><div class="operator">(</div><div class="literal">&#34;CREATE TABLE IF NOT EXISTS migration_info \\( version integer not null \\);&#34;</div><div class="operator">)</div><div class="operator">.</div><div class="ident">WillReturnResult</div><div class="operator">(</div><div class="ident">sqlmock</div><div class="operator">.</div><div class="ident">NewResult</div><div class="operator">(</div><div class="literal">1</div><div class="operator">,</div> <div class="literal">1</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectExec</div><div class="operator">(</div><div class="literal">&#34;INSERT INTO migration_info \\(version\\) VALUES \\(0\\);&#34;</div><div class="operator">)</div><div class="operator">.</div><div class="ident">WillReturnError</div><div class="operator">(</div><div class="ident">insertIntoTableError</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>transaction should be rollback-ed</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectRollback</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>prepare connection to mocked database</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">storage</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">NewFromConnection</div><div class="operator">(</div><div class="ident">connection</div><div class="operator">,</div> <div class="literal">1</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>call the tested method</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">err</div> <div class="operator">:=</div> <div class="ident">storage</div><div class="operator">.</div><div class="ident">DatabaseInitMigration</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Error</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">,</div> <div class="literal">&#34;error WAS expected during migration init&#34;</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">,</div> <div class="ident">insertIntoTableError</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>check if all expectations were met</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">checkAllExpectations</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">mock</div><div class="operator">)</div><div class="operator"></div>
 <div class="operator">}</div><div class="operator"></div>
 
 </code></pre></td>

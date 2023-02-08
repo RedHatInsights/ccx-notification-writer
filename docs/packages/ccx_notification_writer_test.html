@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <!--
- Copyright 2022 Red Hat, Inc
+ Copyright 2023 Red Hat, Inc
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
 
-      http://www.apache.org/licenses/LICENSE-2.0
+     http://www.apache.org/licenses/LICENSE-2.0
 
  Unless required by applicable law or agreed to in writing, software
  distributed under the License is distributed on an "AS IS" BASIS,
@@ -118,7 +118,7 @@
       <tr class="section">
 	<td class="doc"></td>
 	<td class="code"><pre><code><div class="comment">/*
-Copyright © 2021 - 2022 Red Hat, Inc.
+Copyright © 2021, 2022, 2023 Red Hat, Inc.
 
 Licensed under the Apache License, Version 2.0 (the &#34;License&#34;);
 you may not use this file except in compliance with the License.
@@ -249,7 +249,7 @@ https://redhatinsights.github.io/ccx-notification-writer/packages/ccx<em>notific
 </td>
 	<td class="code"><pre><code>	<div class="ident">output</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">capture</div><div class="operator">.</div><div class="ident">ErrorOutput</div><div class="operator">(</div><div class="keyword">func</div><div class="operator">(</div><div class="operator">)</div> <div class="operator">{</div>
 		<div class="ident">log</div><div class="operator">.</div><div class="ident">Logger</div> <div class="operator">=</div> <div class="ident">log</div><div class="operator">.</div><div class="ident">Output</div><div class="operator">(</div><div class="ident">zerolog</div><div class="operator">.</div><div class="ident">New</div><div class="operator">(</div><div class="ident">os</div><div class="operator">.</div><div class="ident">Stderr</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
-		<div class="ident">main</div><div class="operator">.</div><div class="ident">ShowConfiguration</div><div class="operator">(</div><div class="ident">configuration</div><div class="operator">)</div><div class="operator"></div>
+		<div class="ident">main</div><div class="operator">.</div><div class="ident">ShowConfiguration</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">configuration</div><div class="operator">)</div><div class="operator"></div>
 	<div class="operator">}</div><div class="operator">)</div><div class="operator"></div>
 
 </code></pre></td>
@@ -293,7 +293,7 @@ via doSelectedOperation function</p>
 	<td class="doc"><p>try to call the tested function and capture its output</p>
 </td>
 	<td class="code"><pre><code>	<div class="ident">output</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">capture</div><div class="operator">.</div><div class="ident">StandardOutput</div><div class="operator">(</div><div class="keyword">func</div><div class="operator">(</div><div class="operator">)</div> <div class="operator">{</div>
-		<div class="ident">code</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">DoSelectedOperation</div><div class="operator">(</div><div class="ident">configuration</div><div class="operator">,</div> <div class="ident">cliFlags</div><div class="operator">)</div><div class="operator"></div>
+		<div class="ident">code</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">DoSelectedOperation</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">configuration</div><div class="operator">,</div> <div class="ident">cliFlags</div><div class="operator">)</div><div class="operator"></div>
 		<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">code</div><div class="operator">,</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">ExitStatusOK</div><div class="operator">)</div><div class="operator"></div>
 		<div class="ident">assert</div><div class="operator">.</div><div class="ident">Nil</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">)</div><div class="operator"></div>
 	<div class="operator">}</div><div class="operator">)</div><div class="operator"></div>
@@ -337,7 +337,7 @@ via doSelectedOperation function</p>
 	<td class="doc"><p>try to call the tested function and capture its output</p>
 </td>
 	<td class="code"><pre><code>	<div class="ident">output</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">capture</div><div class="operator">.</div><div class="ident">StandardOutput</div><div class="operator">(</div><div class="keyword">func</div><div class="operator">(</div><div class="operator">)</div> <div class="operator">{</div>
-		<div class="ident">code</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">DoSelectedOperation</div><div class="operator">(</div><div class="ident">configuration</div><div class="operator">,</div> <div class="ident">cliFlags</div><div class="operator">)</div><div class="operator"></div>
+		<div class="ident">code</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">DoSelectedOperation</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">configuration</div><div class="operator">,</div> <div class="ident">cliFlags</div><div class="operator">)</div><div class="operator"></div>
 		<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">code</div><div class="operator">,</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">ExitStatusOK</div><div class="operator">)</div><div class="operator"></div>
 		<div class="ident">assert</div><div class="operator">.</div><div class="ident">Nil</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">)</div><div class="operator"></div>
 	<div class="operator">}</div><div class="operator">)</div><div class="operator"></div>
@@ -391,7 +391,7 @@ showConfiguration called via doSelectedOperation function</p>
 </td>
 	<td class="code"><pre><code>	<div class="ident">output</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">capture</div><div class="operator">.</div><div class="ident">ErrorOutput</div><div class="operator">(</div><div class="keyword">func</div><div class="operator">(</div><div class="operator">)</div> <div class="operator">{</div>
 		<div class="ident">log</div><div class="operator">.</div><div class="ident">Logger</div> <div class="operator">=</div> <div class="ident">log</div><div class="operator">.</div><div class="ident">Output</div><div class="operator">(</div><div class="ident">zerolog</div><div class="operator">.</div><div class="ident">New</div><div class="operator">(</div><div class="ident">os</div><div class="operator">.</div><div class="ident">Stderr</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
-		<div class="ident">code</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">DoSelectedOperation</div><div class="operator">(</div><div class="ident">configuration</div><div class="operator">,</div> <div class="ident">cliFlags</div><div class="operator">)</div><div class="operator"></div>
+		<div class="ident">code</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">DoSelectedOperation</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">configuration</div><div class="operator">,</div> <div class="ident">cliFlags</div><div class="operator">)</div><div class="operator"></div>
 		<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">code</div><div class="operator">,</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">ExitStatusOK</div><div class="operator">)</div><div class="operator"></div>
 		<div class="ident">assert</div><div class="operator">.</div><div class="ident">NoError</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">)</div><div class="operator"></div>
 	<div class="operator">}</div><div class="operator">)</div><div class="operator"></div>
@@ -407,6 +407,83 @@ showConfiguration called via doSelectedOperation function</p>
 	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Contains</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">output</div><div class="operator">,</div> <div class="literal">&#34;broker_address&#34;</div><div class="operator">)</div><div class="operator"></div>
 	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Contains</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">output</div><div class="operator">,</div> <div class="literal">&#34;broker_topic&#34;</div><div class="operator">)</div><div class="operator"></div>
 	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Contains</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">output</div><div class="operator">,</div> <div class="literal">&#34;metrics_namespace&#34;</div><div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>TestConvertLogLevel tests the convertLogLevel function.</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">TestConvertLogLevel</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+	<div class="keyword">type</div> <div class="ident">TestData</div> <div class="keyword">struct</div> <div class="operator">{</div>
+		<div class="ident">Input</div>  <div class="ident">string</div><div class="operator"></div>
+		<div class="ident">Output</div> <div class="ident">zerolog</div><div class="operator">.</div><div class="ident">Level</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+
+	<div class="ident">testData</div> <div class="operator">:=</div> <div class="operator">[</div><div class="operator">]</div><div class="ident">TestData</div><div class="operator">{</div>
+		<div class="operator">{</div>
+			<div class="ident">Input</div><div class="operator">:</div>  <div class="literal">&#34;&#34;</div><div class="operator">,</div>
+			<div class="ident">Output</div><div class="operator">:</div> <div class="ident">zerolog</div><div class="operator">.</div><div class="ident">DebugLevel</div><div class="operator">,</div>
+		<div class="operator">}</div><div class="operator">,</div>
+		<div class="operator">{</div>
+			<div class="ident">Input</div><div class="operator">:</div>  <div class="literal">&#34;debug&#34;</div><div class="operator">,</div>
+			<div class="ident">Output</div><div class="operator">:</div> <div class="ident">zerolog</div><div class="operator">.</div><div class="ident">DebugLevel</div><div class="operator">,</div>
+		<div class="operator">}</div><div class="operator">,</div>
+		<div class="operator">{</div>
+			<div class="ident">Input</div><div class="operator">:</div>  <div class="literal">&#34; debug&#34;</div><div class="operator">,</div>
+			<div class="ident">Output</div><div class="operator">:</div> <div class="ident">zerolog</div><div class="operator">.</div><div class="ident">DebugLevel</div><div class="operator">,</div>
+		<div class="operator">}</div><div class="operator">,</div>
+		<div class="operator">{</div>
+			<div class="ident">Input</div><div class="operator">:</div>  <div class="literal">&#34; debug &#34;</div><div class="operator">,</div>
+			<div class="ident">Output</div><div class="operator">:</div> <div class="ident">zerolog</div><div class="operator">.</div><div class="ident">DebugLevel</div><div class="operator">,</div>
+		<div class="operator">}</div><div class="operator">,</div>
+		<div class="operator">{</div>
+			<div class="ident">Input</div><div class="operator">:</div>  <div class="literal">&#34;info&#34;</div><div class="operator">,</div>
+			<div class="ident">Output</div><div class="operator">:</div> <div class="ident">zerolog</div><div class="operator">.</div><div class="ident">InfoLevel</div><div class="operator">,</div>
+		<div class="operator">}</div><div class="operator">,</div>
+		<div class="operator">{</div>
+			<div class="ident">Input</div><div class="operator">:</div>  <div class="literal">&#34;warn&#34;</div><div class="operator">,</div>
+			<div class="ident">Output</div><div class="operator">:</div> <div class="ident">zerolog</div><div class="operator">.</div><div class="ident">WarnLevel</div><div class="operator">,</div>
+		<div class="operator">}</div><div class="operator">,</div>
+		<div class="operator">{</div>
+			<div class="ident">Input</div><div class="operator">:</div>  <div class="literal">&#34;warning&#34;</div><div class="operator">,</div>
+			<div class="ident">Output</div><div class="operator">:</div> <div class="ident">zerolog</div><div class="operator">.</div><div class="ident">WarnLevel</div><div class="operator">,</div>
+		<div class="operator">}</div><div class="operator">,</div>
+		<div class="operator">{</div>
+			<div class="ident">Input</div><div class="operator">:</div>  <div class="literal">&#34;error&#34;</div><div class="operator">,</div>
+			<div class="ident">Output</div><div class="operator">:</div> <div class="ident">zerolog</div><div class="operator">.</div><div class="ident">ErrorLevel</div><div class="operator">,</div>
+		<div class="operator">}</div><div class="operator">,</div>
+		<div class="operator">{</div>
+			<div class="ident">Input</div><div class="operator">:</div>  <div class="literal">&#34;fatal&#34;</div><div class="operator">,</div>
+			<div class="ident">Output</div><div class="operator">:</div> <div class="ident">zerolog</div><div class="operator">.</div><div class="ident">FatalLevel</div><div class="operator">,</div>
+		<div class="operator">}</div><div class="operator">,</div>
+		<div class="operator">{</div>
+			<div class="ident">Input</div><div class="operator">:</div>  <div class="literal">&#34; fatal&#34;</div><div class="operator">,</div>
+			<div class="ident">Output</div><div class="operator">:</div> <div class="ident">zerolog</div><div class="operator">.</div><div class="ident">FatalLevel</div><div class="operator">,</div>
+		<div class="operator">}</div><div class="operator">,</div>
+		<div class="operator">{</div>
+			<div class="ident">Input</div><div class="operator">:</div>  <div class="literal">&#34;fatal &#34;</div><div class="operator">,</div>
+			<div class="ident">Output</div><div class="operator">:</div> <div class="ident">zerolog</div><div class="operator">.</div><div class="ident">FatalLevel</div><div class="operator">,</div>
+		<div class="operator">}</div><div class="operator">,</div>
+	<div class="operator">}</div><div class="operator"></div>
+
+	<div class="keyword">for</div> <div class="ident">_</div><div class="operator">,</div> <div class="ident">td</div> <div class="operator">:=</div> <div class="keyword">range</div> <div class="ident">testData</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>perform conversion</p>
+</td>
+	<td class="code"><pre><code>		<div class="ident">output</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">ConvertLogLevel</div><div class="operator">(</div><div class="ident">td</div><div class="operator">.</div><div class="ident">Input</div><div class="operator">)</div><div class="operator"></div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>check if converted value is eqaual to expected one</p>
+</td>
+	<td class="code"><pre><code>		<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">output</div><div class="operator">,</div> <div class="ident">td</div><div class="operator">.</div><div class="ident">Output</div><div class="operator">)</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
 <div class="operator">}</div><div class="operator"></div>
 
 </code></pre></td>
