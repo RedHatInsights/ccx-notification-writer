@@ -1,5 +1,5 @@
 /*
-Copyright © 2021, 2022 Red Hat, Inc.
+Copyright © 2021, 2022, 2023 Red Hat, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -37,6 +37,10 @@ package main
 //
 // [broker]
 // address = "kafka:29092"
+// security_protocol = "PLAINTEXT"
+// sasl_mechanism = "not-used"
+// sasl_username = "not-used"
+// sasl_password = "not-used"
 // topic = "ccx.ocp.results"
 // group = "aggregator"
 // enabled = true
@@ -241,6 +245,7 @@ func GetMetricsConfiguration(configuration *ConfigStruct) MetricsConfiguration {
 
 // updateConfigFromClowder updates the current config with the values defined in clowder
 func updateConfigFromClowder(configuration *ConfigStruct) {
+	// check if Clowder is enabled. If not, simply skip the logic.
 	if !clowder.IsClowderEnabled() || clowder.LoadedConfig == nil {
 		fmt.Println("Clowder is disabled")
 		return
