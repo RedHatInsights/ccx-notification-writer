@@ -1,5 +1,5 @@
 /*
-Copyright © 2021 Red Hat, Inc.
+Copyright © 2021, 2022, 2023 Red Hat, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@ limitations under the License.
 package main
 
 // This file contains interface for any consumer that is able to process
-// messages. It also contains implementation of Kafka consumer.
+// messages. It also contains implementation of Apache Kafka consumer.
 
 // Generated documentation is available at:
 // https://pkg.go.dev/github.com/RedHatInsights/ccx-notification-writer/
@@ -38,6 +38,7 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+// Common constants used in the following code
 const (
 	// key for topic name used in structured log messages
 	topicKey = "topic"
@@ -64,7 +65,7 @@ const (
 	durationKey = "duration"
 )
 
-// Attribute names in incoming messages
+// Attribute names that are used in incoming messages stored as JSONs
 const (
 	systemAttribute           = "system"
 	fingerprintsAttribute     = "fingerprints"
@@ -76,13 +77,16 @@ const (
 )
 
 // CurrentSchemaVersion represents the currently supported data schema version
+//
+// TODO: make this value configurable
 const CurrentSchemaVersion = SchemaVersion(2)
 
 // Report represents report send in a message consumed from any broker
 type Report map[string]*json.RawMessage
 
 // IncomingMessage data structure is representation of message consumed from
-// any broker
+// any broker. Some values might be missing in incorrectly formatted message so
+// pointers are used to be able to distinguish true values from nils.
 type IncomingMessage struct {
 	Organization  *OrgID         `json:"OrgID"`
 	AccountNumber *AccountNumber `json:"AccountNumber"`
@@ -130,14 +134,18 @@ func NewConsumer(brokerConfiguration *BrokerConfiguration, storage Storage) (*Ka
 	return NewWithSaramaConfig(brokerConfiguration, DefaultSaramaConfig, storage)
 }
 
-// NewWithSaramaConfig constructs new implementation of Consumer interface with custom sarama config
+// NewWithSaramaConfig constructs new implementation of Consumer interface with
+// custom Sarama configuration.
 func NewWithSaramaConfig(
 	brokerConfiguration *BrokerConfiguration,
 	saramaConfig *sarama.Config,
 	storage Storage,
 ) (*KafkaConsumer, error) {
 	var err error
+	// check if custom Sarama configuration is provided
 	if saramaConfig == nil {
+		// read configuration provided via configuration file and/or
+		// environment variables
 		saramaConfig, err = saramaConfigFromBrokerConfig(brokerConfiguration)
 		if err != nil {
 			log.Error().Err(err).Msg("unable to create sarama configuration from current broker configuration")
@@ -150,6 +158,7 @@ func NewWithSaramaConfig(
 		return nil, err
 	}
 
+	// construct Apache Kafka consumer
 	consumer := &KafkaConsumer{
 		Configuration:                        *brokerConfiguration,
 		ConsumerGroup:                        consumerGroup,
@@ -162,7 +171,8 @@ func NewWithSaramaConfig(
 	return consumer, nil
 }
 
-// Serve starts listening for messages and processing them. It blocks current thread.
+// Serve method starts listening for messages and processing them. It blocks
+// current thread.
 func (consumer *KafkaConsumer) Serve() {
 	ctx, cancel := context.WithCancel(context.Background())
 	consumer.Cancel = cancel
@@ -171,7 +181,7 @@ func (consumer *KafkaConsumer) Serve() {
 		for {
 			// `Consume` should be called inside an infinite loop, when a
 			// server-side rebalance happens, the consumer session will need to be
-			// recreated to get the new claims
+			// recreated to get the new claims.
 			if err := consumer.ConsumerGroup.Consume(ctx, []string{consumer.Configuration.Topic}, consumer); err != nil {
 				log.Fatal().Err(err).Msg("Unable to recreate Kafka session")
 			}
@@ -184,6 +194,7 @@ func (consumer *KafkaConsumer) Serve() {
 
 			log.Info().Msg("Created new kafka session")
 
+			// consumer is prepared to accept messages
 			consumer.Ready = make(chan bool)
 		}
 	}()
@@ -193,7 +204,8 @@ func (consumer *KafkaConsumer) Serve() {
 	<-consumer.Ready
 	log.Info().Msg("Finished waiting for consumer to become ready")
 
-	// Actual processing is done in goroutine created by sarama (see ConsumeClaim below)
+	// Actual processing is done in goroutine created by Sarama
+	// (see ConsumeClaim below)
 	log.Info().Msg("Started serving consumer")
 	<-ctx.Done()
 	log.Info().Msg("Context cancelled, exiting")
@@ -221,6 +233,7 @@ func (consumer *KafkaConsumer) ConsumeClaim(session sarama.ConsumerGroupSession,
 		Int64(offsetKey, claim.InitialOffset()).
 		Msg("Starting messages loop")
 
+	// try to retrieve offset of latest message consumed
 	latestMessageOffset, err := consumer.Storage.GetLatestKafkaOffset()
 	if err != nil {
 		log.Error().Msg("Unable to get latest offset")
@@ -230,13 +243,16 @@ func (consumer *KafkaConsumer) ConsumeClaim(session sarama.ConsumerGroupSession,
 		Int64("Offset in DB", int64(latestMessageOffset)).
 		Msg("Latest offset read from database")
 
+	// start consuming messages
 	for message := range claim.Messages() {
+		// skip over old (already consumed messages)
 		if KafkaOffset(message.Offset) <= latestMessageOffset {
 			log.Warn().
 				Int64(offsetKey, message.Offset).
 				Msg("This offset was already processed by aggregator")
 		}
 
+		// handle new message
 		consumer.HandleMessage(message)
 
 		session.MarkMessage(message, "")
@@ -257,6 +273,7 @@ func (consumer *KafkaConsumer) Close() error {
 		consumer.Cancel()
 	}
 
+	// close consumer group(s)
 	if consumer.ConsumerGroup != nil {
 		if err := consumer.ConsumerGroup.Close(); err != nil {
 			log.Error().
@@ -269,18 +286,19 @@ func (consumer *KafkaConsumer) Close() error {
 }
 
 // GetNumberOfSuccessfullyConsumedMessages returns number of consumed messages
-// since creating KafkaConsumer obj
+// since creating KafkaConsumer object
 func (consumer *KafkaConsumer) GetNumberOfSuccessfullyConsumedMessages() uint64 {
 	return consumer.numberOfSuccessfullyConsumedMessages
 }
 
 // GetNumberOfErrorsConsumingMessages returns number of errors during consuming messages
-// since creating KafkaConsumer obj
+// since creating KafkaConsumer object
 func (consumer *KafkaConsumer) GetNumberOfErrorsConsumingMessages() uint64 {
 	return consumer.numberOfErrorsConsumingMessages
 }
 
-// HandleMessage handles the message and does all logging, metrics, etc
+// HandleMessage method handles the message and does all checking, logging,
+// metrics update, etc
 func (consumer *KafkaConsumer) HandleMessage(msg *sarama.ConsumerMessage) {
 	if msg == nil {
 		log.Error().Msg("nil message")
@@ -294,8 +312,10 @@ func (consumer *KafkaConsumer) HandleMessage(msg *sarama.ConsumerMessage) {
 		Time("message_timestamp", msg.Timestamp).
 		Msg("Started processing message")
 
+	// update metric
 	ConsumedMessages.Inc()
 
+	// try to process the message
 	startTime := time.Now()
 	requestID, err := consumer.ProcessMessage(msg)
 	timeAfterProcessingMessage := time.Now()
@@ -310,6 +330,7 @@ func (consumer *KafkaConsumer) HandleMessage(msg *sarama.ConsumerMessage) {
 
 	// Something went wrong while processing the message.
 	if err != nil {
+		// update metric
 		ConsumingErrors.Inc()
 
 		log.Error().
@@ -328,7 +349,8 @@ func (consumer *KafkaConsumer) HandleMessage(msg *sarama.ConsumerMessage) {
 		Msg("Message consumed")
 }
 
-// checkMessageVersion - verifies incoming data's version is the expected one
+// checkMessageVersion function verifies incoming data's version is the
+// expected one
 func checkMessageVersion(consumer *KafkaConsumer, message *IncomingMessage, msg *sarama.ConsumerMessage) {
 	if message.Version != CurrentSchemaVersion {
 		const warning = "Received data with unexpected version."
@@ -358,7 +380,7 @@ func tryToDeleteAttribute(message *Report, attributeName string) {
 	// attribute, not to check message schema
 }
 
-// ProcessMessage processes an incoming message
+// ProcessMessage method processes an incoming message
 func (consumer *KafkaConsumer) ProcessMessage(msg *sarama.ConsumerMessage) (RequestID, error) {
 	tStart := time.Now()
 
@@ -492,7 +514,7 @@ func logShrunkMessage(reportAsBytes, shrunkAsBytes []byte) {
 		Msg("Message shrunk")
 }
 
-// checkReportStructure tests if the report has correct structure
+// checkReportStructure function checks if the report has correct structure
 func checkReportStructure(r Report) error {
 	// the structure is not well defined yet, so all we should do is to check if all keys are there
 	expectedKeys := []string{
@@ -516,7 +538,8 @@ func checkReportStructure(r Report) error {
 	return nil
 }
 
-// parseMessage tries to parse incoming message and read all required attributes from it
+// parseMessage function tries to parse incoming message and read all required
+// attributes from it
 func parseMessage(messageValue []byte) (IncomingMessage, error) {
 	var deserialized IncomingMessage
 
@@ -554,6 +577,8 @@ func parseMessage(messageValue []byte) (IncomingMessage, error) {
 	return deserialized, nil
 }
 
+// saramaConfigFromBrokerConfig function reads broker configuration and
+// construct configuration compatible with Sarama library
 func saramaConfigFromBrokerConfig(brokerConfiguration *BrokerConfiguration) (*sarama.Config, error) {
 	saramaConfig := sarama.NewConfig()
 	saramaConfig.Version = sarama.V0_10_2_0
