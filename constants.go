@@ -1,5 +1,5 @@
 /*
-Copyright © 2021 Red Hat, Inc.
+Copyright © 2021, 2022, 2023 Red Hat, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -24,8 +24,8 @@ package main
 
 // Common constants shared among multiple files.
 const (
-	// DBDriverSQLite3 shows that db driver is sqlite
+	// DBDriverSQLite3 shows that db driver is Sqlite
 	DBDriverSQLite3 DBDriver = iota
-	// DBDriverPostgres shows that db driver is postgres
+	// DBDriverPostgres shows that db driver is PostgreSQL
 	DBDriverPostgres
 )
