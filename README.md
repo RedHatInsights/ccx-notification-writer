@@ -194,7 +194,7 @@ the following metrics are exposed:
 * `notification_writer_check_last_checked_timestamp`
     - The total number of messages with last checked timestamp
 * `notification_writer_check_schema_version`
-    - The total number of messages with successfull schema check
+    - The total number of messages with successful schema check
 * `notification_writer_consumed_messages`
     - The total number of messages consumed from Kafka
 * `notification_writer_consuming_errors`
