@@ -286,7 +286,7 @@ func updateConfigFromClowder(configuration *ConfigStruct) {
 			fmt.Println(noBrokerConfig)
 		}
 
-		useCLowderTopics(&configuration.Broker)
+		useClowderTopics(&configuration.Broker)
 	}
 
 	if clowder.LoadedConfig.Database != nil {
@@ -301,7 +301,7 @@ func updateConfigFromClowder(configuration *ConfigStruct) {
 	}
 }
 
-func useCLowderTopics(configuration *BrokerConfiguration) {
+func useClowderTopics(configuration *BrokerConfiguration) {
 	// Get the correct topic name from clowder mapping if available
 	if clowderTopic, ok := clowder.KafkaTopics[configuration.Topic]; ok {
 		configuration.Topic = clowderTopic.Name
