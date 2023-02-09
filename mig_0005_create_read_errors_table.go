@@ -14,6 +14,8 @@
 
 package main
 
+// Definition of up and down steps for migration #0005
+
 // Generated documentation is available at:
 // https://pkg.go.dev/github.com/RedHatInsights/ccx-notification-writer/
 //
@@ -31,6 +33,7 @@ import (
 // This table contains all event receivers, for example Notification Backend
 // and ServiceLog
 var mig0005CreateReadErrorsTable = mig.Migration{
+	// up step: migrate database to version #0005
 	StepUp: func(tx *sql.Tx, _ types.DBDriver) error {
 		log.Debug().Msg("Executing mig0005CreateReadErrorsTable stepUp function")
 		query := `
@@ -51,6 +54,7 @@ var mig0005CreateReadErrorsTable = mig.Migration{
 		}
 		return err
 	},
+	// up down: migrate database to version #0004
 	StepDown: func(tx *sql.Tx, _ types.DBDriver) error {
 		log.Debug().Msg("Executing mig0005CreateReadErrorsTable stepDown function")
 		query := "DROP TABLE read_errors"
