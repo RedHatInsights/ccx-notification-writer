@@ -1,5 +1,5 @@
 /*
-Copyright © 2021 Red Hat, Inc.
+Copyright © 2021, 2022, 2023 Red Hat, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -35,13 +35,8 @@ import (
 	main "github.com/RedHatInsights/ccx-notification-writer"
 )
 
-// Variables used by unit tests
-var (
-	ExpectedOrgID         = main.OrgID(1)
-	ExpectedAccountNumber = main.AccountNumber(1234)
-	ExpectedClusterName   = main.ClusterName("84f7eedc-0dd8-49cd-9d4d-f6646df3a5bc")
-	LastCheckedAt         = time.Unix(25, 0).UTC()
-
+// Constants used by unit tests
+const (
 	ConsumerReport = `{
 		"fingerprints": [],
 		"info": [],
@@ -51,9 +46,18 @@ var (
 	}`
 )
 
+// Variables used by unit tests
+var (
+	ExpectedOrgID         = main.OrgID(1)
+	ExpectedAccountNumber = main.AccountNumber(1234)
+	ExpectedClusterName   = main.ClusterName("84f7eedc-0dd8-49cd-9d4d-f6646df3a5bc")
+	LastCheckedAt         = time.Unix(25, 0).UTC()
+)
+
 // TestNewConsumerBadBroker function checks the consumer creation by
 // using a non accessible Kafka broker.
 func TestNewConsumerBadBroker(t *testing.T) {
+	// expected error message
 	const expectedErr = "kafka: client has run out of available brokers to talk to"
 
 	// invalid broker configuration
@@ -86,6 +90,7 @@ func TestNewConsumerBadBroker(t *testing.T) {
 // non accessible Kafka broker. This test assumes there is no local Kafka
 // instance currently running
 func TestNewConsumerLocalBroker(t *testing.T) {
+	// expected error message
 	const expectedErr = "kafka: client has run out of available brokers to talk to"
 
 	// valid broker configuration for local Kafka instance
@@ -118,6 +123,7 @@ func TestNewConsumerLocalBroker(t *testing.T) {
 // non accessible Kafka broker. This test assumes there is no local Kafka
 // instance currently running. Consumer group is enabled and setup for this test.
 func TestNewConsumerSaramaConfig(t *testing.T) {
+	// expected error message
 	const expectedErr = "kafka: client has run out of available brokers to talk to"
 
 	// valid broker configuration for local Kafka instance
@@ -150,6 +156,7 @@ func TestNewConsumerSaramaConfig(t *testing.T) {
 // non accessible Kafka broker. This test assumes there is no local Kafka
 // instance currently running. TSL is enabled in broker configuration.
 func TestNewConsumerTLSEnabled(t *testing.T) {
+	// expected error message
 	const expectedErr = "kafka: client has run out of available brokers to talk to"
 
 	// valid broker configuration for local Kafka instance
@@ -183,6 +190,7 @@ func TestNewConsumerTLSEnabled(t *testing.T) {
 // non accessible Kafka broker. This test assumes there is no local Kafka
 // instance currently running. SASL is enabled in broker configuration.
 func TestNewConsumerSASLEnabled(t *testing.T) {
+	// expected error message
 	const expectedErr = "kafka: client has run out of available brokers to talk to"
 
 	// valid broker configuration for local Kafka instance
@@ -219,6 +227,7 @@ func TestNewConsumerSASLEnabled(t *testing.T) {
 // non accessible Kafka broker. This test assumes there is no local Kafka
 // instance currently running. Valid cert. path is provided by tests.
 func TestNewConsumerCertPath(t *testing.T) {
+	// expected error message
 	const expectedErr = "kafka: client has run out of available brokers to talk to"
 
 	// valid broker configuration for local Kafka instance
@@ -252,6 +261,7 @@ func TestNewConsumerCertPath(t *testing.T) {
 // non accessible Kafka broker. This test assumes there is no local Kafka
 // instance currently running. Invalid cert. path is provided by tests.
 func TestNewConsumerInvalidCertPath(t *testing.T) {
+	// expected error message
 	const expectedErr = "open /foo/bar/baz: no such file or directory"
 
 	// valid broker configuration for local Kafka instance
