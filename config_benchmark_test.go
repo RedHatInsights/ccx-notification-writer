@@ -1,5 +1,5 @@
 /*
-Copyright © 2022 Red Hat, Inc.
+Copyright © 2022, 2023 Red Hat, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -27,6 +27,8 @@ import (
 	main "github.com/RedHatInsights/ccx-notification-writer"
 )
 
+// mustLoadBenchmarkConfiguration helper function loads configuration to be
+// used by benchmarks.
 func mustLoadBenchmarkConfiguration(b *testing.B) main.ConfigStruct {
 	configuration, err := loadConfiguration()
 	if err != nil {
@@ -41,6 +43,7 @@ func BenchmarkGetMetricsConfiguration(b *testing.B) {
 	initLogging()
 	configuration := mustLoadBenchmarkConfiguration(b)
 
+	// run the benchmarked code specified amount of times
 	for i := 0; i < b.N; i++ {
 		// call benchmarked function
 		m := main.GetMetricsConfiguration(&configuration)
@@ -63,6 +66,7 @@ func BenchmarkGetBrokerConfiguration(b *testing.B) {
 	initLogging()
 	configuration := mustLoadBenchmarkConfiguration(b)
 
+	// run the benchmarked code specified amount of times
 	for i := 0; i < b.N; i++ {
 		// call benchmarked function
 		m := main.GetBrokerConfiguration(&configuration)
@@ -82,6 +86,7 @@ func BenchmarkGetLoggingConfiguration(b *testing.B) {
 	initLogging()
 	configuration := mustLoadBenchmarkConfiguration(b)
 
+	// run the benchmarked code specified amount of times
 	for i := 0; i < b.N; i++ {
 		// call benchmarked function
 		m := main.GetLoggingConfiguration(&configuration)
@@ -104,6 +109,7 @@ func BenchmarkGetStorageConfiguration(b *testing.B) {
 	initLogging()
 	configuration := mustLoadBenchmarkConfiguration(b)
 
+	// run the benchmarked code specified amount of times
 	for i := 0; i < b.N; i++ {
 		// call benchmarked function
 		m := main.GetStorageConfiguration(&configuration)
