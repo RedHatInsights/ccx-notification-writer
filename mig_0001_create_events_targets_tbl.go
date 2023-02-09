@@ -1,4 +1,4 @@
-// Copyright 2020, 2021, 2022 Red Hat, Inc
+// Copyright 2020, 2021, 2022, 2023 Red Hat, Inc
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,6 +13,8 @@
 // limitations under the License.
 
 package main
+
+// Definition of up and down steps for migration #0001
 
 // Generated documentation is available at:
 // https://pkg.go.dev/github.com/RedHatInsights/ccx-notification-writer/
@@ -31,6 +33,7 @@ import (
 // This table contains all event receivers, for example Notification Backend
 // and ServiceLog
 var mig0001CreateEventTargetsTbl = mig.Migration{
+	// up step: migrate database to version #0001
 	StepUp: func(tx *sql.Tx, _ types.DBDriver) error {
 		log.Debug().Msg("Executing mig0001CreateEventTargetsTbl stepUp function")
 		query := `
@@ -46,6 +49,7 @@ var mig0001CreateEventTargetsTbl = mig.Migration{
 		}
 		return err
 	},
+	// up down: migrate database to version #0000
 	StepDown: func(tx *sql.Tx, _ types.DBDriver) error {
 		log.Debug().Msg("Executing mig0001CreateEventTargetsTbl stepDown function")
 		query := "DROP TABLE event_targets"

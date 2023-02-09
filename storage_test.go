@@ -36,7 +36,7 @@ import (
 )
 
 // wrongDatabaseDriver is any integer value different from DBDriverSQLite3 and
-// DBDriverPostgres
+// DBDriverPostgres (see types.go)
 // (for selected DB operations)
 const wrongDatabaseDriver = 10
 
@@ -46,7 +46,7 @@ func mustCreateMockConnection(t *testing.T) (*sql.DB, sqlmock.Sqlmock) {
 	// try to initialize new mock connection
 	connection, mock, err := sqlmock.New()
 
-	// check the status
+	// check the status of initialize operation
 	if err != nil {
 		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
 	}
@@ -91,6 +91,8 @@ func TestGetLatestKafkaOffset(t *testing.T) {
 	// expected query performed by tested function
 	expectedQuery := "SELECT COALESCE\\(MAX\\(kafka_offset\\), 0\\) FROM new_reports;"
 	mock.ExpectQuery(expectedQuery).WillReturnRows(rows)
+
+	// result set needs to be closed
 	mock.ExpectClose()
 
 	// prepare connection to mocked database
@@ -130,6 +132,8 @@ func TestGetLatestKafkaOffsetOnError(t *testing.T) {
 	// expected query performed by tested function
 	expectedQuery := "SELECT COALESCE\\(MAX\\(kafka_offset\\), 0\\) FROM new_reports;"
 	mock.ExpectQuery(expectedQuery).WillReturnError(mockedError)
+
+	// result set needs to be closed
 	mock.ExpectClose()
 
 	// prepare connection to mocked database
@@ -166,8 +170,9 @@ func TestPrintNewReportsForCleanup(t *testing.T) {
 
 	// expected query performed by tested function
 	expectedQuery := "SELECT org_id, account_number, cluster, updated_at, kafka_offset FROM new_reports WHERE updated_at < NOW\\(\\) - \\$1::INTERVAL ORDER BY updated_at"
-
 	mock.ExpectQuery(expectedQuery).WillReturnRows(rows)
+
+	// result set needs to be closed
 	mock.ExpectClose()
 
 	// prepare connection to mocked database
@@ -199,8 +204,9 @@ func TestPrintNewReportsForCleanupOnScanError(t *testing.T) {
 
 	// expected query performed by tested function
 	expectedQuery := "SELECT org_id, account_number, cluster, updated_at, kafka_offset FROM new_reports WHERE updated_at < NOW\\(\\) - \\$1::INTERVAL ORDER BY updated_at"
-
 	mock.ExpectQuery(expectedQuery).WillReturnRows(rows)
+
+	// result set needs to be closed
 	mock.ExpectClose()
 
 	// prepare connection to mocked database
@@ -230,8 +236,9 @@ func TestPrintNewReportsForCleanupOnError(t *testing.T) {
 
 	// expected query performed by tested function
 	expectedQuery := "SELECT org_id, account_number, cluster, updated_at, kafka_offset FROM new_reports WHERE updated_at < NOW\\(\\) - \\$1::INTERVAL ORDER BY updated_at"
-
 	mock.ExpectQuery(expectedQuery).WillReturnError(mockedError)
+
+	// result set needs to be closed
 	mock.ExpectClose()
 
 	// prepare connection to mocked database
@@ -263,8 +270,9 @@ func TestPrintOldReportsForCleanup(t *testing.T) {
 
 	// expected query performed by tested function
 	expectedQuery := "SELECT org_id, account_number, cluster, updated_at, 0 FROM reported WHERE updated_at < NOW\\(\\) - \\$1::INTERVAL ORDER BY updated_at"
-
 	mock.ExpectQuery(expectedQuery).WillReturnRows(rows)
+
+	// result set needs to be closed
 	mock.ExpectClose()
 
 	// prepare connection to mocked database
@@ -296,8 +304,9 @@ func TestPrintOldReportsForCleanupOnScanError(t *testing.T) {
 
 	// expected query performed by tested function
 	expectedQuery := "SELECT org_id, account_number, cluster, updated_at, 0 FROM reported WHERE updated_at < NOW\\(\\) - \\$1::INTERVAL ORDER BY updated_at"
-
 	mock.ExpectQuery(expectedQuery).WillReturnRows(rows)
+
+	// result set needs to be closed
 	mock.ExpectClose()
 
 	// prepare connection to mocked database
@@ -327,8 +336,9 @@ func TestPrintOldReportsForCleanupOnError(t *testing.T) {
 
 	// expected query performed by tested function
 	expectedQuery := "SELECT org_id, account_number, cluster, updated_at, 0 FROM reported WHERE updated_at < NOW\\(\\) - \\$1::INTERVAL ORDER BY updated_at"
-
 	mock.ExpectQuery(expectedQuery).WillReturnError(mockedError)
+
+	// result set needs to be closed
 	mock.ExpectClose()
 
 	// prepare connection to mocked database
@@ -354,8 +364,9 @@ func TestCleanupNewReports(t *testing.T) {
 
 	// expected query performed by tested function
 	expectedStatement := "DELETE FROM new_reports WHERE updated_at < NOW\\(\\) - \\$1::INTERVAL"
-
 	mock.ExpectExec(expectedStatement).WillReturnResult(sqlmock.NewResult(1, 1))
+
+	// result set needs to be closed
 	mock.ExpectClose()
 
 	// prepare connection to mocked database
@@ -390,8 +401,9 @@ func TestCleanupNewReportsOnError(t *testing.T) {
 
 	// expected query performed by tested function
 	expectedStatement := "DELETE FROM new_reports WHERE updated_at < NOW\\(\\) - \\$1::INTERVAL"
-
 	mock.ExpectExec(expectedStatement).WillReturnError(mockedError)
+
+	// result set needs to be closed
 	mock.ExpectClose()
 
 	// prepare connection to mocked database
@@ -417,8 +429,9 @@ func TestCleanupOldReports(t *testing.T) {
 
 	// expected query performed by tested function
 	expectedStatement := "DELETE FROM reported WHERE updated_at < NOW\\(\\) - \\$1::INTERVAL"
-
 	mock.ExpectExec(expectedStatement).WillReturnResult(sqlmock.NewResult(1, 1))
+
+	// result set needs to be closed
 	mock.ExpectClose()
 
 	// prepare connection to mocked database
@@ -453,8 +466,9 @@ func TestCleanupOldReportsOnError(t *testing.T) {
 
 	// expected query performed by tested function
 	expectedStatement := "DELETE FROM reported WHERE updated_at < NOW\\(\\) - \\$1::INTERVAL"
-
 	mock.ExpectExec(expectedStatement).WillReturnError(mockedError)
+
+	// result set needs to be closed
 	mock.ExpectClose()
 
 	// prepare connection to mocked database
@@ -517,6 +531,8 @@ func TestWriteReportForClusterOnError(t *testing.T) {
 
 	mock.ExpectBegin()
 	mock.ExpectExec(expectedStatement).WillReturnError(mockedError)
+
+	// rollback in case of error is expected
 	mock.ExpectRollback()
 	mock.ExpectClose()
 

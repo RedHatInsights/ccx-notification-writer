@@ -1,5 +1,5 @@
 /*
-Copyright © 2022 Red Hat, Inc.
+Copyright © 2022, 2023 Red Hat, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -53,9 +53,14 @@ import (
 
 // Configuration-related constants
 const (
+	// environment variable with name of configuration file (without extension)
 	configFileEnvName = "CCX_NOTIFICATION_WRITER_CONFIG_FILE"
-	configFileName    = "tests/benchmark"
-	reportDirectory   = "tests/reports/"
+
+	// name of configuration file (without extension)
+	configFileName = "tests/benchmark"
+
+	// directory containing reports used by benchmarks
+	reportDirectory = "tests/reports/"
 )
 
 // JSON files containing reports
@@ -73,9 +78,11 @@ const (
 const (
 	noOpStatement = ``
 
+	// SQL statement to drop tables used by benchmarks
 	dropTableReportedV1 = `DROP TABLE IF EXISTS reported_benchmark_1;`
 	dropTableReportedV2 = `DROP TABLE IF EXISTS reported_benchmark_2;`
 
+	// reported table without fk_event_type constraint
 	createTableReportedV1 = `
                 CREATE TABLE IF NOT EXISTS reported_benchmark_1 (
                     org_id            integer not null,
@@ -97,6 +104,7 @@ const (
                         references states(id)
                 );`
 
+	// reported table with fk_event_type constraint
 	createTableReportedV2 = `
                 CREATE TABLE IF NOT EXISTS reported_benchmark_2 (
                     org_id            integer not null,

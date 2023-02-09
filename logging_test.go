@@ -1,5 +1,5 @@
 /*
-Copyright © 2021 Red Hat, Inc.
+Copyright © 2021, 2022, 2023 Red Hat, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -37,6 +37,7 @@ import (
 	main "github.com/RedHatInsights/ccx-notification-writer"
 )
 
+// Constants used by various tests
 const (
 	testOrganizationID = 6502
 	testClusterName    = "thisIsClusterName"
@@ -45,10 +46,14 @@ const (
 	testEventMessage   = "this is event message"
 )
 
+// init function is called before tests
 func init() {
+	// set default logging level regardles of config made in code
 	zerolog.SetGlobalLevel(zerolog.InfoLevel)
 }
 
+// checkCapture function perform checks if standard output has been captured by
+// unit test
 func checkCapture(t *testing.T, err error) {
 	if err != nil {
 		t.Fatal("Unable to capture standard output", err)
@@ -65,7 +70,7 @@ func constructTestConsumer() *main.KafkaConsumer {
 		Enabled: true,
 	}
 
-	// mocked consumer
+	// construct mocked consumer
 	return &main.KafkaConsumer{
 		Configuration: brokerConfiguration,
 		ConsumerGroup: nil,
@@ -78,7 +83,7 @@ func constructParsedMessage() main.IncomingMessage {
 	var orgID main.OrgID = main.OrgID(testOrganizationID)
 	var clusterName main.ClusterName = main.ClusterName(testClusterName)
 
-	// mocked parsed message
+	// construct mocked parsed message
 	return main.IncomingMessage{
 		Organization: &orgID,
 		ClusterName:  &clusterName,
@@ -99,6 +104,8 @@ func TestLogDuration(t *testing.T) {
 
 	// check the captured text
 	checkCapture(t, err)
+
+	// expected text(s) writen onto error output
 	assert.Contains(t, output, "test message") // key
 	assert.Contains(t, output, "9999")         // offset
 	assert.Contains(t, output, "1000000")      // duration
@@ -119,6 +126,8 @@ func TestLogMessageInfo(t *testing.T) {
 
 	// check the captured text
 	checkCapture(t, err)
+
+	// expected text(s) writen onto error output
 	assert.Contains(t, output, "organization")
 	assert.Contains(t, output, testClusterName)
 	assert.Contains(t, output, testTopicName)
@@ -141,6 +150,8 @@ func TestLogMessageError(t *testing.T) {
 
 	// check the captured text
 	checkCapture(t, err)
+
+	// expected text(s) writen onto error output
 	assert.Contains(t, output, "organization")
 	assert.Contains(t, output, testClusterName)
 	assert.Contains(t, output, testTopicName)
@@ -150,7 +161,8 @@ func TestLogMessageError(t *testing.T) {
 	assert.Contains(t, output, "99") // version
 }
 
-// TestLogUnparsedMessageError check the logUnparsedMessageError function from the main module
+// TestLogUnparsedMessageError check the logUnparsedMessageError function from
+// the main module
 func TestLogUnparsedMessageError(t *testing.T) {
 	consumer := constructTestConsumer()
 	originalMessage := sarama.ConsumerMessage{}
@@ -163,12 +175,15 @@ func TestLogUnparsedMessageError(t *testing.T) {
 
 	// check the captured text
 	checkCapture(t, err)
+
+	// expected text(s) writen onto error output
 	assert.Contains(t, output, testTopicName)
 	assert.Contains(t, output, testError)
 	assert.Contains(t, output, testEventMessage)
 }
 
-// TestLogMessageWarning check the logMessageWarning function from the main module
+// TestLogMessageWarning check the logMessageWarning function from the main
+// module
 func TestLogMessageWarning(t *testing.T) {
 	consumer := constructTestConsumer()
 	originalMessage := sarama.ConsumerMessage{}
@@ -182,6 +197,8 @@ func TestLogMessageWarning(t *testing.T) {
 
 	// check the captured text
 	checkCapture(t, err)
+
+	// expected text(s) writen onto error output
 	assert.Contains(t, output, "organization")
 	assert.Contains(t, output, testClusterName)
 	assert.Contains(t, output, testTopicName)

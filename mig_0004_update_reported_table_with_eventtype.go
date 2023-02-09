@@ -1,4 +1,4 @@
-// Copyright 2020, 2021, 2022 Red Hat, Inc
+// Copyright 2020, 2021, 2022, 2023 Red Hat, Inc
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,6 +13,8 @@
 // limitations under the License.
 
 package main
+
+// Definition of up and down steps for migration #0004
 
 // Generated documentation is available at:
 // https://pkg.go.dev/github.com/RedHatInsights/ccx-notification-writer/
@@ -32,6 +34,7 @@ import (
 // table, updating all records are updated to contain the value '1' in the
 // event_type_id column if it is currently null.
 var mig0004UpdateEventTypeIDInReportedTable = mig.Migration{
+	// up step: migrate database to version #0004
 	StepUp: func(tx *sql.Tx, _ types.DBDriver) error {
 		log.Debug().Msg("Executing mig0004UpdateEventTypeIDInReportedTable stepUp function")
 		query := "UPDATE reported SET event_type_id = 1 WHERE event_type_id IS NULL"
@@ -50,6 +53,7 @@ var mig0004UpdateEventTypeIDInReportedTable = mig.Migration{
 		}
 		return err
 	},
+	// up down: migrate database to version #0003
 	StepDown: func(tx *sql.Tx, _ types.DBDriver) error {
 		log.Debug().Msg("Executing mig0004UpdateEventTypeIDInReportedTable stepDown function")
 		query := "ALTER TABLE reported ALTER COLUMN event_type_id DROP NOT NULL"

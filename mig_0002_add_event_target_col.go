@@ -1,4 +1,4 @@
-// Copyright 2020, 2021, 2022 Red Hat, Inc
+// Copyright 2020, 2021, 2022, 2023 Red Hat, Inc
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,6 +13,8 @@
 // limitations under the License.
 
 package main
+
+// Definition of up and down steps for migration #0002
 
 // Generated documentation is available at:
 // https://pkg.go.dev/github.com/RedHatInsights/ccx-notification-writer/
@@ -32,6 +34,7 @@ import (
 // New column containing foreign keys to `event_targets(id)` is added to the
 // table.
 var mig0002AddEventTargetCol = mig.Migration{
+	// up step: migrate database to version #0002
 	StepUp: func(tx *sql.Tx, _ types.DBDriver) error {
 		log.Debug().Msg("Executing mig0002AddEventTargetCol stepUp function")
 		query := `
@@ -45,6 +48,7 @@ var mig0002AddEventTargetCol = mig.Migration{
 		}
 		return err
 	},
+	// up down: migrate database to version #0001
 	StepDown: func(tx *sql.Tx, driver types.DBDriver) error {
 		log.Debug().Msg("Executing mig0002AddEventTargetCol stepDown function")
 		query := "ALTER TABLE reported DROP COLUMN event_type_id"

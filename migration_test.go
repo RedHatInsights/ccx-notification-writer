@@ -14,6 +14,9 @@
 
 package main_test
 
+// Tests if all migrations can be performed and giving the correct sequence of
+// SQL statements.
+
 // Generated documentation is available at:
 // https://pkg.go.dev/github.com/RedHatInsights/ccx-notification-writer/
 //
@@ -47,6 +50,7 @@ func TestMigrationErrorDuringQueryingMigrationInfo1(t *testing.T) {
 	mock.ExpectQuery(expectedQuery0).WillReturnError(mockedError)
 	mock.ExpectClose()
 
+	// prepare list of all migrations
 	utils.Set(main.All())
 
 	// migration should end with error
@@ -82,6 +86,7 @@ func TestMigrationErrorDuringQueryingMigrationInfo2(t *testing.T) {
 	mock.ExpectQuery(expectedQuery1).WillReturnError(mockedError)
 	mock.ExpectClose()
 
+	// prepare list of all migrations
 	utils.Set(main.All())
 
 	// migration should end with error
@@ -123,6 +128,7 @@ func Test0001MigrationStepUp(t *testing.T) {
 	mock.ExpectCommit()
 	mock.ExpectClose()
 
+	// prepare list of all migrations
 	utils.Set(main.All())
 
 	// migrate to version 1
@@ -166,6 +172,7 @@ func Test0001MigrationStepUpOnMigrationFailure(t *testing.T) {
 	mock.ExpectRollback()
 	mock.ExpectClose()
 
+	// prepare list of all migrations
 	utils.Set(main.All())
 
 	// migrate to version 1
@@ -204,6 +211,7 @@ func Test0001MigrationStepDown(t *testing.T) {
 	mock.ExpectCommit()
 	mock.ExpectClose()
 
+	// prepare list of all migrations
 	utils.Set(main.All())
 
 	// migrate to version 0
@@ -246,6 +254,7 @@ func Test0001MigrationStepDownOnMigrationFailure(t *testing.T) {
 	mock.ExpectRollback()
 	mock.ExpectClose()
 
+	// prepare list of all migrations
 	utils.Set(main.All())
 
 	// migration should end with error
@@ -289,6 +298,7 @@ func Test0002MigrationStepUp(t *testing.T) {
 	mock.ExpectCommit()
 	mock.ExpectClose()
 
+	// prepare list of all migrations
 	utils.Set(main.All())
 
 	// migrate to version 2
@@ -333,6 +343,7 @@ func Test0002MigrationStepUpOnMigrationFailure(t *testing.T) {
 	mock.ExpectRollback()
 	mock.ExpectClose()
 
+	// prepare list of all migrations
 	utils.Set(main.All())
 
 	// migration should end with error
@@ -373,6 +384,7 @@ func Test0002MigrationStepDown(t *testing.T) {
 	mock.ExpectCommit()
 	mock.ExpectClose()
 
+	// prepare list of all migrations
 	utils.Set(main.All())
 
 	// migrate to version 1
@@ -415,6 +427,7 @@ func Test0002MigrationStepDownOnMigrationFailure(t *testing.T) {
 	mock.ExpectRollback()
 	mock.ExpectClose()
 
+	// prepare list of all migrations
 	utils.Set(main.All())
 
 	// migration should end with error
@@ -461,6 +474,7 @@ func Test0003MigrationStepUp(t *testing.T) {
 	mock.ExpectCommit()
 	mock.ExpectClose()
 
+	// prepare list of all migrations
 	utils.Set(main.All())
 
 	// migrate to version 3
@@ -512,6 +526,7 @@ func Test0003MigrationStepUpOnMigrationFailure(t *testing.T) {
 
 	// migration should end with error
 
+	// prepare list of all migrations
 	utils.Set(main.All())
 
 	// migrate to version 3
@@ -550,6 +565,7 @@ func Test0003MigrationStepDown(t *testing.T) {
 	mock.ExpectCommit()
 	mock.ExpectClose()
 
+	// prepare list of all migrations
 	utils.Set(main.All())
 
 	// migrate to version 2
@@ -592,6 +608,7 @@ func Test0003MigrationStepDownOnMigrationFailure(t *testing.T) {
 	mock.ExpectRollback()
 	mock.ExpectClose()
 
+	// prepare list of all migrations
 	utils.Set(main.All())
 
 	// migration should end with error
@@ -635,6 +652,7 @@ func Test0004MigrationStepUp(t *testing.T) {
 	mock.ExpectCommit()
 	mock.ExpectClose()
 
+	// prepare list of all migrations
 	utils.Set(main.All())
 	assert.NoError(t, main.Migrate(connection, 4))
 
@@ -674,6 +692,7 @@ func Test0004MigrationStepUpOnMigrationFailure(t *testing.T) {
 	mock.ExpectRollback()
 	mock.ExpectClose()
 
+	// prepare list of all migrations
 	utils.Set(main.All())
 
 	// migration should end with error
@@ -717,6 +736,7 @@ func Test0004MigrationStepDown(t *testing.T) {
 	mock.ExpectCommit()
 	mock.ExpectClose()
 
+	// prepare list of all migrations
 	utils.Set(main.All())
 
 	// migrate to version 3
@@ -758,6 +778,7 @@ func Test0004MigrationStepDownOnMigrationFailure(t *testing.T) {
 	mock.ExpectRollback()
 	mock.ExpectClose()
 
+	// prepare list of all migrations
 	utils.Set(main.All())
 
 	// migration should end with error
@@ -798,6 +819,7 @@ func Test0005MigrationStepUp(t *testing.T) {
 	mock.ExpectCommit()
 	mock.ExpectClose()
 
+	// prepare list of all migrations
 	utils.Set(main.All())
 
 	// migrate to version 5
@@ -841,6 +863,7 @@ func Test0005MigrationStepUpOnMigrationFailure(t *testing.T) {
 	mock.ExpectRollback()
 	mock.ExpectClose()
 
+	// prepare list of all migrations
 	utils.Set(main.All())
 
 	// migrate to version 5
@@ -879,6 +902,7 @@ func Test0005MigrationStepDown(t *testing.T) {
 	mock.ExpectCommit()
 	mock.ExpectClose()
 
+	// prepare list of all migrations
 	utils.Set(main.All())
 
 	// migrate to version 4
@@ -921,6 +945,7 @@ func Test0005MigrationStepDownOnMigrationFailure(t *testing.T) {
 	mock.ExpectRollback()
 	mock.ExpectClose()
 
+	// prepare list of all migrations
 	utils.Set(main.All())
 
 	// migration should end with error
@@ -969,6 +994,7 @@ func Test0006MigrationStepUp(t *testing.T) {
 	mock.ExpectCommit()
 	mock.ExpectClose()
 
+	// prepare list of all migrations
 	utils.Set(main.All())
 
 	// migrate to version 6
@@ -1019,6 +1045,7 @@ func Test0006MigrationStepUpOnMigrationFailure(t *testing.T) {
 	mock.ExpectRollback()
 	mock.ExpectClose()
 
+	// prepare list of all migrations
 	utils.Set(main.All())
 
 	// migrate to version 6
@@ -1063,6 +1090,7 @@ func Test0006MigrationStepDown(t *testing.T) {
 	mock.ExpectCommit()
 	mock.ExpectClose()
 
+	// prepare list of all migrations
 	utils.Set(main.All())
 
 	// migrate to version 5
@@ -1111,6 +1139,7 @@ func Test0006MigrationStepDownOnMigrationFailure(t *testing.T) {
 	mock.ExpectRollback()
 	mock.ExpectClose()
 
+	// prepare list of all migrations
 	utils.Set(main.All())
 
 	// migrate to version 5
@@ -1159,6 +1188,7 @@ func Test0007MigrationStepUp(t *testing.T) {
 	mock.ExpectCommit()
 	mock.ExpectClose()
 
+	// prepare list of all migrations
 	utils.Set(main.All())
 
 	// migrate to version 7
@@ -1201,6 +1231,7 @@ func Test0007MigrationStepUpOnMigrationFailure(t *testing.T) {
 	mock.ExpectRollback()
 	mock.ExpectClose()
 
+	// prepare list of all migrations
 	utils.Set(main.All())
 
 	// migrate to version 7
@@ -1248,6 +1279,7 @@ func Test0007MigrationStepDown(t *testing.T) {
 	mock.ExpectCommit()
 	mock.ExpectClose()
 
+	// prepare list of all migrations
 	utils.Set(main.All())
 
 	// migrate to version 6
@@ -1290,6 +1322,7 @@ func Test0007MigrationStepDownOnMigrationFailure(t *testing.T) {
 	mock.ExpectRollback()
 	mock.ExpectClose()
 
+	// prepare list of all migrations
 	utils.Set(main.All())
 
 	// migrate to version 6

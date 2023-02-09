@@ -1,5 +1,5 @@
 /*
-Copyright © 2021, 2022 Red Hat, Inc.
+Copyright © 2021, 2022, 2023 Red Hat, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -37,6 +37,10 @@ package main
 //
 // [broker]
 // address = "kafka:29092"
+// security_protocol = "PLAINTEXT"
+// sasl_mechanism = "not-used"
+// sasl_username = "not-used"
+// sasl_password = "not-used"
 // topic = "ccx.ocp.results"
 // group = "aggregator"
 // enabled = true
@@ -55,8 +59,31 @@ package main
 // debug = true
 // log_level = ""
 //
+// [metrics]
+// namespace = "notification_writer"
+// address = ":8080"
+//
 // Environment variables that can be used to override configuration file settings:
-// TBD
+// CCX_NOTIFICATION_WRITER__BROKER__ADDRESS
+// CCX_NOTIFICATION_WRITER__BROKER__SECURITY_PROTOCOL
+// CCX_NOTIFICATION_WRITER__BROKER__SASL_MECHANISM
+// CCX_NOTIFICATION_WRITER__BROKER__SASL_USERNAME
+// CCX_NOTIFICATION_WRITER__BROKER__SASL_PASSWORD
+// CCX_NOTIFICATION_WRITER__BROKER__TOPIC
+// CCX_NOTIFICATION_WRITER__BROKER__GROUP
+// CCX_NOTIFICATION_WRITER__BROKER__ENABLED
+// CCX_NOTIFICATION_WRITER__STORAGE__DB_DRIVER
+// CCX_NOTIFICATION_WRITER__STORAGE__PG_USERNAME
+// CCX_NOTIFICATION_WRITER__STORAGE__PG_PASSWORD
+// CCX_NOTIFICATION_WRITER__STORAGE__PG_HOST
+// CCX_NOTIFICATION_WRITER__STORAGE__PG_PORT
+// CCX_NOTIFICATION_WRITER__STORAGE__PG_DB_NAME
+// CCX_NOTIFICATION_WRITER__STORAGE__PG_PARAMS
+// CCX_NOTIFICATION_WRITER__STORAGE__LOG_SQL_QUERIES
+// CCX_NOTIFICATION_WRITER__LOGGING__DEBUG
+// CCX_NOTIFICATION_WRITER__LOGGING__LOG_LEVEL
+// CCX_NOTIFICATION_WRITER__METRICS__NAMESPACE
+// CCX_NOTIFICATION_WRITER__METRICS__ADDRESS
 
 import (
 	"bytes"
@@ -241,6 +268,7 @@ func GetMetricsConfiguration(configuration *ConfigStruct) MetricsConfiguration {
 
 // updateConfigFromClowder updates the current config with the values defined in clowder
 func updateConfigFromClowder(configuration *ConfigStruct) {
+	// check if Clowder is enabled. If not, simply skip the logic.
 	if !clowder.IsClowderEnabled() || clowder.LoadedConfig == nil {
 		fmt.Println("Clowder is disabled")
 		return
@@ -281,7 +309,7 @@ func updateConfigFromClowder(configuration *ConfigStruct) {
 			fmt.Println(noBrokerConfig)
 		}
 
-		useCLowderTopics(&configuration.Broker)
+		useClowderTopics(&configuration.Broker)
 	}
 
 	if clowder.LoadedConfig.Database != nil {
@@ -296,7 +324,7 @@ func updateConfigFromClowder(configuration *ConfigStruct) {
 	}
 }
 
-func useCLowderTopics(configuration *BrokerConfiguration) {
+func useClowderTopics(configuration *BrokerConfiguration) {
 	// Get the correct topic name from clowder mapping if available
 	if clowderTopic, ok := clowder.KafkaTopics[configuration.Topic]; ok {
 		configuration.Topic = clowderTopic.Name

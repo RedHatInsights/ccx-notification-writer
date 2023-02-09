@@ -34,7 +34,9 @@ import (
 	main "github.com/RedHatInsights/ccx-notification-writer"
 )
 
+// init function is called before tests
 func init() {
+	// set default logging level regardles of config made in code
 	zerolog.SetGlobalLevel(zerolog.InfoLevel)
 }
 
@@ -48,6 +50,7 @@ func TestShowVersion(t *testing.T) {
 	// check the captured text
 	checkCapture(t, err)
 
+	// expected content printed by tested function
 	assert.Contains(t, output, "CCX Notification Writer version")
 }
 
@@ -61,6 +64,7 @@ func TestShowAuthors(t *testing.T) {
 	// check the captured text
 	checkCapture(t, err)
 
+	// expected content printed by tested function
 	assert.Contains(t, output, "Pavel Tisnovsky")
 	assert.Contains(t, output, "Red Hat Inc.")
 }
@@ -86,6 +90,7 @@ func TestShowConfiguration(t *testing.T) {
 	// check the captured text
 	checkCapture(t, err)
 
+	// expected content printed by tested function
 	assert.Contains(t, output, "broker_address")
 	assert.Contains(t, output, "broker_topic")
 	assert.Contains(t, output, "metrics_namespace")
@@ -112,6 +117,7 @@ func TestDoSelectedOperationShowVersion(t *testing.T) {
 	// check the captured text
 	checkCapture(t, err)
 
+	// expected content printed by tested function
 	assert.Contains(t, output, "CCX Notification Writer version")
 }
 
@@ -136,6 +142,7 @@ func TestDoSelectedOperationShowAuthors(t *testing.T) {
 	// check the captured text
 	checkCapture(t, err)
 
+	// expected content printed by tested function
 	assert.Contains(t, output, "Pavel Tisnovsky")
 	assert.Contains(t, output, "Red Hat Inc.")
 }
@@ -170,6 +177,7 @@ func TestDoSelectedOperationShowConfiguration(t *testing.T) {
 	// check the captured text
 	checkCapture(t, err)
 
+	// expected content printed by tested function
 	assert.Contains(t, output, "broker_address")
 	assert.Contains(t, output, "broker_topic")
 	assert.Contains(t, output, "metrics_namespace")

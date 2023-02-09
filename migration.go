@@ -14,6 +14,8 @@
 
 package main
 
+// List of all database migrations that can be performed.
+
 // Generated documentation is available at:
 // https://pkg.go.dev/github.com/RedHatInsights/ccx-notification-writer/
 //
