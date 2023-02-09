@@ -1,5 +1,5 @@
 /*
-Copyright © 2021, 2022 Red Hat, Inc.
+Copyright © 2021, 2022, 2023 Red Hat, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -35,7 +35,9 @@ import (
 	main "github.com/RedHatInsights/ccx-notification-writer"
 )
 
+// init function is called before tests
 func init() {
+	// set default logging level regardles of config made in code
 	zerolog.SetGlobalLevel(zerolog.WarnLevel)
 }
 
@@ -70,6 +72,8 @@ func TestLoadDefaultConfiguration(t *testing.T) {
 func TestLoadConfigurationFromEnvVariable(t *testing.T) {
 	os.Clearenv()
 
+	// set environment variable that points to config file
+	// (without extension)
 	mustSetEnv(t, "CCX_NOTIFICATION_WRITER_CONFIG_FILE", "tests/config2")
 	mustLoadConfiguration("CCX_NOTIFICATION_WRITER_CONFIG_FILE")
 }
@@ -81,26 +85,33 @@ func TestLoadConfigurationNonEnvVarUnknownConfigFile(t *testing.T) {
 	assert.Nil(t, err)
 }
 
-// TestLoadConfigurationBadConfigFile tests loading an unexisting config file when no environment variable is provided
+// TestLoadConfigurationBadConfigFile tests loading an unexisting config file
+// when no environment variable is provided
 func TestLoadConfigurationBadConfigFile(t *testing.T) {
 	_, err := main.LoadConfiguration("", "tests/config3")
 	assert.Contains(t, err.Error(), `fatal error config file: While parsing config:`)
 }
 
-// TestLoadingConfigurationEnvVariableBadValueNoDefaultConfig tests loading a non-existent configuration file set in environment
+// TestLoadingConfigurationEnvVariableBadValueNoDefaultConfig tests loading a
+// non-existent configuration file set in environment
 func TestLoadingConfigurationEnvVariableBadValueNoDefaultConfig(t *testing.T) {
 	os.Clearenv()
 
+	// set environment variable that points to config file
+	// (without extension)
 	mustSetEnv(t, "CCX_NOTIFICATION_WRITER_CONFIG_FILE", "non existing file")
 
 	_, err := main.LoadConfiguration("CCX_NOTIFICATION_WRITER_CONFIG_FILE", "")
 	assert.Contains(t, err.Error(), `fatal error config file: Config File "non existing file" Not Found in`)
 }
 
-// TestLoadingConfigurationEnvVariableBadValueNoDefaultConfig tests that if env var is provided, it must point to a valid config file
+// TestLoadingConfigurationEnvVariableBadValueNoDefaultConfig tests that if env
+// var is provided, it must point to a valid config file
 func TestLoadingConfigurationEnvVariableBadValueDefaultConfigFailure(t *testing.T) {
 	os.Clearenv()
 
+	// set environment variable that points to config file
+	// (without extension)
 	mustSetEnv(t, "CCX_NOTIFICATION_WRITER_CONFIG_FILE", "non existing file")
 
 	_, err := main.LoadConfiguration("CCX_NOTIFICATION_WRITER_CONFIG_FILE", "tests/config1")
@@ -111,6 +122,8 @@ func TestLoadingConfigurationEnvVariableBadValueDefaultConfigFailure(t *testing.
 func TestLoadBrokerConfiguration(t *testing.T) {
 	envVar := "CCX_NOTIFICATION_WRITER_CONFIG_FILE"
 
+	// set environment variable that points to config file
+	// (without extension)
 	mustSetEnv(t, envVar, "tests/config2")
 	config, err := main.LoadConfiguration(envVar, "")
 	assert.Nil(t, err, "Failed loading configuration file from env var!")
@@ -121,9 +134,13 @@ func TestLoadBrokerConfiguration(t *testing.T) {
 	assert.Equal(t, "ccx_test_notifications", brokerCfg.Topic)
 }
 
-// TestLoadStorageConfiguration tests loading the storage configuration sub-tree
+// TestLoadStorageConfiguration tests loading the storage configuration
+// sub-tree
 func TestLoadStorageConfiguration(t *testing.T) {
 	envVar := "CCX_NOTIFICATION_WRITER_CONFIG_FILE"
+
+	// set environment variable that points to config file
+	// (without extension)
 	mustSetEnv(t, envVar, "tests/config2")
 	config, err := main.LoadConfiguration(envVar, "")
 	assert.Nil(t, err, "Failed loading configuration file from env var!")
@@ -143,6 +160,9 @@ func TestLoadStorageConfiguration(t *testing.T) {
 // TestLoadLoggingConfiguration tests loading the logging configuration sub-tree
 func TestLoadLoggingConfiguration(t *testing.T) {
 	envVar := "CCX_NOTIFICATION_WRITER_CONFIG_FILE"
+
+	// set environment variable that points to config file
+	// (without extension)
 	mustSetEnv(t, envVar, "tests/config2")
 	config, err := main.LoadConfiguration(envVar, "")
 	assert.Nil(t, err, "Failed loading configuration file from env var!")
@@ -156,6 +176,9 @@ func TestLoadLoggingConfiguration(t *testing.T) {
 // TestLoadMetricsConfiguration tests loading the metrics configuration sub-tree
 func TestLoadMetricsConfiguration(t *testing.T) {
 	envVar := "CCX_NOTIFICATION_WRITER_CONFIG_FILE"
+
+	// set environment variable that points to config file
+	// (without extension)
 	mustSetEnv(t, envVar, "tests/config2")
 	config, err := main.LoadConfiguration(envVar, "")
 	assert.Nil(t, err, "Failed loading configuration file from env var!")
@@ -179,7 +202,12 @@ func TestLoadConfigurationFromEnvVariableClowderEnabled(t *testing.T) {
 			Name: testDB,
 		},
 	}
+
+	// set environment variable that points to config file
+	// (without extension)
 	mustSetEnv(t, "CCX_NOTIFICATION_WRITER_CONFIG_FILE", "tests/config2")
+
+	// set environment variable that points to Clowder configuration file
 	mustSetEnv(t, "ACG_CONFIG", "tests/clowder_config.json")
 
 	// load configuration using Clowder config
@@ -204,7 +232,12 @@ func TestLoadConfigurationNoKafkaBroker(t *testing.T) {
 		},
 		Kafka: &clowder.KafkaConfig{}, // no brokers in configuration
 	}
+
+	// set environment variable that points to config file
+	// (without extension)
 	mustSetEnv(t, "CCX_NOTIFICATION_WRITER_CONFIG_FILE", "tests/config2")
+
+	// set environment variable that points to Clowder configuration file
 	mustSetEnv(t, "ACG_CONFIG", "tests/clowder_config.json")
 
 	// load configuration using Clowder config
@@ -240,7 +273,12 @@ func TestLoadConfigurationKafkaBrokerEmptyConfig(t *testing.T) {
 		Kafka: &clowder.KafkaConfig{
 			Brokers: brokersConfig},
 	}
+
+	// set environment variable that points to config file
+	// (without extension)
 	mustSetEnv(t, "CCX_NOTIFICATION_WRITER_CONFIG_FILE", "tests/config2")
+
+	// set environment variable that points to Clowder configuration file
 	mustSetEnv(t, "ACG_CONFIG", "tests/clowder_config.json")
 
 	// load configuration using Clowder config
@@ -277,7 +315,12 @@ func TestLoadConfigurationKafkaBrokerNoPort(t *testing.T) {
 		Kafka: &clowder.KafkaConfig{
 			Brokers: brokersConfig},
 	}
+
+	// set environment variable that points to config file
+	// (without extension)
 	mustSetEnv(t, "CCX_NOTIFICATION_WRITER_CONFIG_FILE", "tests/config2")
+
+	// set environment variable that points to Clowder configuration file
 	mustSetEnv(t, "ACG_CONFIG", "tests/clowder_config.json")
 
 	// load configuration using Clowder config
@@ -317,7 +360,12 @@ func TestLoadConfigurationKafkaBrokerPort(t *testing.T) {
 		Kafka: &clowder.KafkaConfig{
 			Brokers: brokersConfig},
 	}
+
+	// set environment variable that points to config file
+	// (without extension)
 	mustSetEnv(t, "CCX_NOTIFICATION_WRITER_CONFIG_FILE", "tests/config2")
+
+	// set environment variable that points to Clowder configuration file
 	mustSetEnv(t, "ACG_CONFIG", "tests/clowder_config.json")
 
 	// load configuration using Clowder config
@@ -360,7 +408,12 @@ func TestLoadConfigurationKafkaBrokerAuthConfigMissingSASL(t *testing.T) {
 			Brokers: brokersConfig,
 		},
 	}
+
+	// set environment variable that points to config file
+	// (without extension)
 	mustSetEnv(t, "CCX_NOTIFICATION_WRITER_CONFIG_FILE", "tests/config2")
+
+	// set environment variable that points to Clowder configuration file
 	mustSetEnv(t, "ACG_CONFIG", "tests/clowder_config.json")
 
 	// load configuration using Clowder config
@@ -420,7 +473,12 @@ func TestLoadConfigurationKafkaBrokerAuthConfig(t *testing.T) {
 			Brokers: brokersConfig,
 		},
 	}
+
+	// set environment variable that points to config file
+	// (without extension)
 	mustSetEnv(t, "CCX_NOTIFICATION_WRITER_CONFIG_FILE", "tests/config2")
+
+	// set environment variable that points to Clowder configuration file
 	mustSetEnv(t, "ACG_CONFIG", "tests/clowder_config.json")
 
 	// load configuration using Clowder config
@@ -472,6 +530,7 @@ func TestLoadConfigurationKafkaTopicUpdatedFromClowder(t *testing.T) {
 		RequestedName: topicName,
 	}
 
+	// set environment variable that points to Clowder configuration file
 	mustSetEnv(t, "ACG_CONFIG", "tests/clowder_config.json")
 
 	config, err := main.LoadConfiguration("CCX_NOTIFICATION_WRITER_CONFIG_FILE", "tests/config2")
@@ -496,6 +555,9 @@ func TestLoadConfigurationKafkaTopicUpdatedFromClowder(t *testing.T) {
 // GetStorageConfiguration is not mutable
 func TestGetStorageConfigurationIsImmutable(t *testing.T) {
 	envVar := "CCX_NOTIFICATION_WRITER_CONFIG_FILE"
+
+	// set environment variable that points to config file
+	// (without extension)
 	mustSetEnv(t, envVar, "tests/config2")
 
 	// load configuration with check if loading was ok
@@ -516,6 +578,9 @@ func TestGetStorageConfigurationIsImmutable(t *testing.T) {
 // GetLoggingConfiguration is not mutable
 func TestGetLoggingConfigurationIsImmutable(t *testing.T) {
 	envVar := "CCX_NOTIFICATION_WRITER_CONFIG_FILE"
+
+	// set environment variable that points to config file
+	// (without extension)
 	mustSetEnv(t, envVar, "tests/config2")
 
 	// load configuration with check if loading was ok
@@ -536,6 +601,9 @@ func TestGetLoggingConfigurationIsImmutable(t *testing.T) {
 // GetBrokerConfiguration is not mutable
 func TestGetBrokerConfigurationIsImmutable(t *testing.T) {
 	envVar := "CCX_NOTIFICATION_WRITER_CONFIG_FILE"
+
+	// set environment variable that points to config file
+	// (without extension)
 	mustSetEnv(t, envVar, "tests/config2")
 
 	// load configuration with check if loading was ok
@@ -556,6 +624,9 @@ func TestGetBrokerConfigurationIsImmutable(t *testing.T) {
 // GetMetricsConfiguration is not mutable
 func TestGetMetricsConfigurationIsImmutable(t *testing.T) {
 	envVar := "CCX_NOTIFICATION_WRITER_CONFIG_FILE"
+
+	// set environment variable that points to config file
+	// (without extension)
 	mustSetEnv(t, envVar, "tests/config2")
 
 	// load configuration with check if loading was ok
