@@ -14,6 +14,8 @@
 
 package main
 
+// Definition of up and down steps for migration #0007
+
 // Generated documentation is available at:
 // https://pkg.go.dev/github.com/RedHatInsights/ccx-notification-writer/
 //
@@ -30,6 +32,7 @@ import (
 // mig0007TablesDescription updates description for all tables in CCX
 // Notification database schema.
 var mig0007TablesDescription = mig.Migration{
+	// up step: migrate database to version #0007
 	StepUp: func(tx *sql.Tx, _ types.DBDriver) error {
 		log.Debug().Msg("Executing mig0007TablesDescription stepUp function")
 		// explicit statements to set up table descriptions
@@ -57,6 +60,7 @@ var mig0007TablesDescription = mig.Migration{
 		// everything's fine
 		return nil
 	},
+	// up down: migrate database to version #0006
 	StepDown: func(tx *sql.Tx, _ types.DBDriver) error {
 		log.Debug().Msg("Executing mig0007TablesDescription stepDown function")
 		// explicit statements to clean table descriptions
