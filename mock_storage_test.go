@@ -1,5 +1,5 @@
 /*
-Copyright © 2021 Red Hat, Inc.
+Copyright © 2021, 2022, 2023 Red Hat, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -65,6 +65,8 @@ func NewMockStorage() MockStorage {
 // Close is a mocked reimplementation of the real Close method.
 func (storage *MockStorage) Close() error {
 	storage.closeCalled++
+
+	// return no error
 	return nil
 }
 
@@ -72,6 +74,8 @@ func (storage *MockStorage) Close() error {
 // WriteReportForCluster method.
 func (storage *MockStorage) WriteReportForCluster(orgID main.OrgID, accountNumber main.AccountNumber, clusterName main.ClusterName, report main.ClusterReport, collectedAtTime time.Time, kafkaOffset main.KafkaOffset) error {
 	storage.writeReportCalled++
+
+	// return no error
 	return nil
 }
 
@@ -79,6 +83,8 @@ func (storage *MockStorage) WriteReportForCluster(orgID main.OrgID, accountNumbe
 // DatabaseInitialization method.
 func (storage *MockStorage) DatabaseInitialization() error {
 	storage.databaseInitializationCalled++
+
+	// return no error
 	return nil
 }
 
@@ -86,6 +92,8 @@ func (storage *MockStorage) DatabaseInitialization() error {
 // DatabaseInitMigration method.
 func (storage *MockStorage) DatabaseInitMigration() error {
 	storage.databaseInitMigrationCalled++
+
+	// return no error
 	return nil
 }
 
@@ -93,6 +101,8 @@ func (storage *MockStorage) DatabaseInitMigration() error {
 // method.
 func (storage *MockStorage) DatabaseCleanup() error {
 	storage.databaseCleanupCalled++
+
+	// return no error
 	return nil
 }
 
@@ -100,6 +110,8 @@ func (storage *MockStorage) DatabaseCleanup() error {
 // DatabaseDropTables method.
 func (storage *MockStorage) DatabaseDropTables() error {
 	storage.databaseDropTablesCalled++
+
+	// return no error
 	return nil
 }
 
@@ -107,6 +119,8 @@ func (storage *MockStorage) DatabaseDropTables() error {
 // DatabaseDropIndexes method.
 func (storage *MockStorage) DatabaseDropIndexes() error {
 	storage.databaseDropIndexesCalled++
+
+	// return no error
 	return nil
 }
 
@@ -114,6 +128,8 @@ func (storage *MockStorage) DatabaseDropIndexes() error {
 // GetLatestKafkaOffset method.
 func (storage *MockStorage) GetLatestKafkaOffset() (main.KafkaOffset, error) {
 	storage.getLatestKafkaOffsetCalled++
+
+	// return some offset + no error
 	return 1, nil
 }
 
@@ -121,6 +137,8 @@ func (storage *MockStorage) GetLatestKafkaOffset() (main.KafkaOffset, error) {
 // PrintNewReportsForCleanup method.
 func (storage *MockStorage) PrintNewReportsForCleanup(maxAge string) error {
 	storage.printNewReportsForCleanupCalled++
+
+	// return no error
 	return nil
 }
 
@@ -128,6 +146,8 @@ func (storage *MockStorage) PrintNewReportsForCleanup(maxAge string) error {
 // method.
 func (storage *MockStorage) CleanupNewReports(maxAge string) (int, error) {
 	storage.cleanupNewReportsCalled++
+
+	// return number of cleaned records + no error
 	return 1, nil
 }
 
@@ -135,6 +155,8 @@ func (storage *MockStorage) CleanupNewReports(maxAge string) (int, error) {
 // PrintOldReportsForCleanup method.
 func (storage *MockStorage) PrintOldReportsForCleanup(maxAge string) error {
 	storage.printOldReportsForCleanupCalled++
+
+	// return no error
 	return nil
 }
 
@@ -142,5 +164,7 @@ func (storage *MockStorage) PrintOldReportsForCleanup(maxAge string) error {
 // method.
 func (storage *MockStorage) CleanupOldReports(maxAge string) (int, error) {
 	storage.cleanupOldReportsCalled++
+
+	// return number of cleaned records + no error
 	return 1, nil
 }
