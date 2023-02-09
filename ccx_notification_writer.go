@@ -61,7 +61,7 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-// Messages
+// Messages to be displayed on terminal or written into logs
 const (
 	versionMessage                                          = "CCX Notification Writer version 1.0"
 	authorsMessage                                          = "Pavel Tisnovsky, Red Hat Inc."
@@ -84,8 +84,13 @@ const (
 
 // Configuration-related constants
 const (
+	// environment variable that might contain name of configuration file
+	// (it does not have to exist - in this case defaultConfigFileName
+	// value is used instead)
 	configFileEnvVariableName = "CCX_NOTIFICATION_WRITER_CONFIG_FILE"
-	defaultConfigFileName     = "config"
+
+	// default configuration file name without implicit extension (.toml)
+	defaultConfigFileName = "config"
 )
 
 // Exit codes
@@ -104,30 +109,32 @@ const (
 	ExitStatusMigrationError
 )
 
-// showVersion function displays version information.
+// showVersion function displays version information to standard output.
 func showVersion() {
 	fmt.Println(versionMessage)
 }
 
-// showAuthors function displays information about authors.
+// showAuthors function displays information about authors to standard output.
 func showAuthors() {
 	fmt.Println(authorsMessage)
 }
 
 // showConfiguration function displays actual configuration.
 func showConfiguration(configuration *ConfigStruct) {
+	// retrieve and then display broker configuration
 	brokerConfig := GetBrokerConfiguration(configuration)
 	log.Info().
 		Str(brokerAddress, brokerConfig.Address).
 		Str("Security protocol", brokerConfig.SecurityProtocol).
 		Str("Cert path", brokerConfig.CertPath).
 		Str("Sasl mechanism", brokerConfig.SaslMechanism).
-		Str("Sasl username", brokerConfig.SaslUsername).
+		Str("Sasl username", brokerConfig.SaslUsername). // SASL password is omitted on purpose
 		Str("Topic", brokerConfig.Topic).
 		Str("Group", brokerConfig.Group).
 		Bool("Enabled", brokerConfig.Enabled).
 		Msg("Broker configuration")
 
+	// retrieve and then display storage configuration
 	storageConfig := GetStorageConfiguration(configuration)
 	log.Info().
 		Str("Driver", storageConfig.Driver).
@@ -138,12 +145,14 @@ func showConfiguration(configuration *ConfigStruct) {
 		Bool("LogSQLQueries", storageConfig.LogSQLQueries).
 		Msg("Storage configuration")
 
+	// retrieve and then display logging configuration
 	loggingConfig := GetLoggingConfiguration(configuration)
 	log.Info().
 		Str("Level", loggingConfig.LogLevel).
 		Bool("Pretty colored debug logging", loggingConfig.Debug).
 		Msg("Logging configuration")
 
+	// retrieve and then display metrics configuration
 	metricsConfig := GetMetricsConfiguration(configuration)
 	log.Info().
 		Str("Namespace", metricsConfig.Namespace).
@@ -151,14 +160,18 @@ func showConfiguration(configuration *ConfigStruct) {
 		Msg("Metrics configuration")
 }
 
-// tryToConnectToKafka function just tries connection to Kafka broker
+// tryToConnectToKafka function just tries to establish connection to Kafka
+// broker
 func tryToConnectToKafka(configuration *ConfigStruct) (int, error) {
 	log.Info().Msg("Checking connection to Kafka")
 
 	// prepare broker configuration
 	brokerConfiguration := GetBrokerConfiguration(configuration)
 
-	log.Info().Str("broker address", brokerConfiguration.Address).Msg(brokerAddress)
+	// display basic info about broker that will be used
+	log.Info().
+		Str("broker address", brokerConfiguration.Address).
+		Msg(brokerAddress)
 
 	// create new broker instance (w/o any checks)
 	broker := sarama.NewBroker(brokerConfiguration.Address)
@@ -181,6 +194,7 @@ func tryToConnectToKafka(configuration *ConfigStruct) (int, error) {
 		return ExitStatusConsumerError, err
 	}
 
+	// connection was established
 	log.Info().Msg(brokerConnectionSuccessMessage)
 
 	// everything seems to be ok
@@ -188,7 +202,8 @@ func tryToConnectToKafka(configuration *ConfigStruct) (int, error) {
 }
 
 // performDatabaseInitialization function performs database initialization -
-// creates all tables in database.
+// creates all tables and indexes in database, also insert constant record into
+// database.
 func performDatabaseInitialization(configuration *ConfigStruct) (int, error) {
 	// prepare the storage
 	storageConfiguration := GetStorageConfiguration(configuration)
@@ -198,6 +213,7 @@ func performDatabaseInitialization(configuration *ConfigStruct) (int, error) {
 		return ExitStatusStorageError, err
 	}
 
+	// try to perform database initialization
 	err = storage.DatabaseInitialization()
 	if err != nil {
 		log.Err(err).Msg("Database initialization operation failed")
@@ -207,7 +223,7 @@ func performDatabaseInitialization(configuration *ConfigStruct) (int, error) {
 	return ExitStatusOK, nil
 }
 
-// performDatabaseInitMigration function initialize migration table
+// performDatabaseInitMigration function initialize migration table.
 func performDatabaseInitMigration(configuration *ConfigStruct) (int, error) {
 	// prepare the storage
 	storageConfiguration := GetStorageConfiguration(configuration)
@@ -217,6 +233,7 @@ func performDatabaseInitMigration(configuration *ConfigStruct) (int, error) {
 		return ExitStatusStorageError, err
 	}
 
+	// try to initialize database migration
 	err = storage.DatabaseInitMigration()
 	if err != nil {
 		log.Err(err).Msg("Database migration initialization operation failed")
@@ -237,6 +254,7 @@ func performDatabaseCleanup(configuration *ConfigStruct) (int, error) {
 		return ExitStatusStorageError, err
 	}
 
+	// try to cleanup the whole database
 	err = storage.DatabaseCleanup()
 	if err != nil {
 		log.Err(err).Msg(databaseCleanupOperationFailedMessage)
@@ -256,6 +274,7 @@ func performDatabaseDropTables(configuration *ConfigStruct) (int, error) {
 		return ExitStatusStorageError, err
 	}
 
+	// try to drop all tables from database
 	err = storage.DatabaseDropTables()
 	if err != nil {
 		log.Err(err).Msg(databaseDropTablesOperationFailedMessage)
@@ -265,8 +284,10 @@ func performDatabaseDropTables(configuration *ConfigStruct) (int, error) {
 	return ExitStatusOK, nil
 }
 
-// printNewReportsForCleanup function print all reports for `new_reports` table
-// that are older than specified max age.
+// printNewReportsForCleanup function print all reports stored in `new_reports`
+// table that are older than specified maximum age.
+//
+// See also: performNewReportsCleanup
 func printNewReportsForCleanup(configuration *ConfigStruct, cliFlags CliFlags) (int, error) {
 	// prepare the storage
 	storageConfiguration := GetStorageConfiguration(configuration)
@@ -287,6 +308,8 @@ func printNewReportsForCleanup(configuration *ConfigStruct, cliFlags CliFlags) (
 
 // performNewReportsCleanup function deletes all reports from `new_reports`
 // table that are older than specified max age.
+//
+// See also: printNewReportsForCleanup
 func performNewReportsCleanup(configuration *ConfigStruct, cliFlags CliFlags) (int, error) {
 	// prepare the storage
 	storageConfiguration := GetStorageConfiguration(configuration)
@@ -306,8 +329,10 @@ func performNewReportsCleanup(configuration *ConfigStruct, cliFlags CliFlags) (i
 	return ExitStatusOK, nil
 }
 
-// printOldReportsForCleanup function print all reports for `reported` table
-// that are older than specified max age.
+// printOldReportsForCleanup function print all reports stored in `reported`
+// table that are older than specified max age.
+//
+// See also: performOldReportsCleanup
 func printOldReportsForCleanup(configuration *ConfigStruct, cliFlags CliFlags) (int, error) {
 	// prepare the storage
 	storageConfiguration := GetStorageConfiguration(configuration)
@@ -328,6 +353,8 @@ func printOldReportsForCleanup(configuration *ConfigStruct, cliFlags CliFlags) (
 
 // performOldReportsCleanup function deletes all reports from `reported` table
 // that are older than specified max age.
+//
+// See also: printOldReportsForCleanup
 func performOldReportsCleanup(configuration *ConfigStruct, cliFlags CliFlags) (int, error) {
 	// prepare the storage
 	storageConfiguration := GetStorageConfiguration(configuration)
@@ -347,7 +374,8 @@ func performOldReportsCleanup(configuration *ConfigStruct, cliFlags CliFlags) (i
 	return ExitStatusOK, nil
 }
 
-// startService function tries to start the notification writer service.
+// startService function tries to start the notification writer service,
+// connect to storage and initialize connection to message broker.
 func startService(configuration *ConfigStruct) (int, error) {
 	// show configuration at startup
 	showConfiguration(configuration)
@@ -402,7 +430,7 @@ func startConsumer(brokerConfiguration *BrokerConfiguration, storage Storage) er
 	return nil
 }
 
-// startHTTP server starts server with exposed metrics
+// startHTTP server starts HTTP or HTTPS server with exposed metrics.
 func startHTTPServer(address string) error {
 	// setup handlers
 	http.Handle("/metrics", promhttp.Handler())
@@ -463,6 +491,10 @@ func doSelectedOperation(configuration *ConfigStruct, cliFlags CliFlags) (int, e
 	// this can not happen: return ExitStatusOK, nil
 }
 
+// convertLogLevel function converts log level specified in configuration file
+// into proper zerolog constant.
+//
+// TODO: refactor utils/logger appropriately
 func convertLogLevel(level string) zerolog.Level {
 	level = strings.ToLower(strings.TrimSpace(level))
 	switch level {
@@ -485,7 +517,7 @@ func convertLogLevel(level string) zerolog.Level {
 func main() {
 	var cliFlags CliFlags
 
-	// define and parse all command line options
+	// define and then parse all command line options
 	flag.BoolVar(&cliFlags.PerformDatabaseInitialization, "db-init", false, "perform database initialization")
 	flag.BoolVar(&cliFlags.PerformDatabaseCleanup, "db-cleanup", false, "perform database cleanup")
 	flag.BoolVar(&cliFlags.PerformDatabaseDropTables, "db-drop-tables", false, "drop all tables from database")
@@ -503,12 +535,13 @@ func main() {
 	flag.StringVar(&cliFlags.PerformMigrations, "migrate", "", "set database version")
 	flag.Parse()
 
-	// configuration has exactly the same structure as *.toml file
+	// service configuration has exactly the same structure as *.toml file
 	configuration, err := LoadConfiguration(configFileEnvVariableName, defaultConfigFileName)
 	if err != nil {
 		log.Err(err).Msg("Load configuration")
 	}
 
+	// initialize colorized log
 	if configuration.Logging.Debug {
 		log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
 	}
@@ -541,7 +574,7 @@ func main() {
 }
 
 // PrintMigrationInfo function prints information about current DB migration
-// version without making any modifications.
+// version without making any modifications in database.
 func PrintMigrationInfo(configuration *ConfigStruct) (int, error) {
 	storageConfiguration := GetStorageConfiguration(configuration)
 	storage, err := NewStorage(&storageConfiguration)
@@ -590,6 +623,7 @@ func PerformMigrations(configuration *ConfigStruct, migParam string) (exitStatus
 		desiredVersion = utils.Version(vers)
 	}
 
+	// perform database migration
 	err = Migrate(storage.Connection(), desiredVersion)
 	if err != nil {
 		log.Error().Err(err).Msg("migration failure")
@@ -597,5 +631,6 @@ func PerformMigrations(configuration *ConfigStruct, migParam string) (exitStatus
 		return
 	}
 
+	exitStatus = ExitStatusOK
 	return
 }
