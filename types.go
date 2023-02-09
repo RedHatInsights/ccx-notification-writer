@@ -1,5 +1,5 @@
 /*
-Copyright © 2021 Red Hat, Inc.
+Copyright © 2021, 2022, 2023 Red Hat, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -67,6 +67,8 @@ type ClusterReport string
 // SchemaVersion is just a constant integer for now, max value 255. If we one
 // day need more versions or combination of versions, it would be better
 // consider upgrading to semantic versioning.
+//
+// TODO: provide expected schema version in configuration file
 type SchemaVersion uint8
 
 // DBDriver type for db driver enum.
