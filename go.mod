@@ -3,7 +3,7 @@ module github.com/RedHatInsights/ccx-notification-writer
 go 1.14
 
 require (
-	github.com/BurntSushi/toml v0.3.1
+	github.com/BurntSushi/toml v1.2.1
 	github.com/DATA-DOG/go-sqlmock v1.4.1
 	github.com/RedHatInsights/insights-operator-utils v1.24.0
 	github.com/RedHatInsights/insights-results-types v1.3.12
