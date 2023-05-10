@@ -10,7 +10,7 @@ require (
 	github.com/Shopify/sarama v1.35.0
 	github.com/google/uuid v1.3.0
 	github.com/jcmturner/rpc/v2 v2.0.3 // indirect
-	github.com/lib/pq v1.10.0
+	github.com/lib/pq v1.10.9
 	github.com/mattn/go-sqlite3 v2.0.3+incompatible
 	github.com/microcosm-cc/bluemonday v1.0.21 // indirect
 	github.com/pierrec/lz4 v2.6.0+incompatible // indirect
