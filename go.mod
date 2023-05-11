@@ -7,7 +7,7 @@ require (
 	github.com/DATA-DOG/go-sqlmock v1.5.0
 	github.com/RedHatInsights/insights-operator-utils v1.24.0
 	github.com/RedHatInsights/insights-results-types v1.3.12
-	github.com/Shopify/sarama v1.35.0
+	github.com/Shopify/sarama v1.38.1
 	github.com/google/uuid v1.3.0
 	github.com/jcmturner/rpc/v2 v2.0.3 // indirect
 	github.com/lib/pq v1.10.9
