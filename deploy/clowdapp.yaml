@@ -153,7 +153,7 @@ objects:
     database:
       # the DB name should match to app-interface DB name without specifying environment
       name: ccx-notification-db
-      version: 12
+      version: 15
     kafkaTopics:
       - topicName: ${INCOMING_TOPIC}
         partitions: 1
