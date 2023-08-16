@@ -81,7 +81,7 @@ objects:
               - name: CCX_NOTIFICATION_WRITER__STORAGE__DB_DRIVER
                 value: postgres
               - name: CCX_NOTIFICATION_WRITER__STORAGE__PG_PARAMS
-                value: sslmode=disable
+                value: ${PG_PARAMS}
               - name: CCX_NOTIFICATION_WRITER__STORAGE__LOG_SQL_QUERIES
                 value: 'true'
               - name: CCX_NOTIFICATION_WRITER__LOGGING__DEBUG
@@ -138,7 +138,7 @@ objects:
             - name: CCX_NOTIFICATION_WRITER__STORAGE__DB_DRIVER
               value: postgres
             - name: CCX_NOTIFICATION_WRITER__STORAGE__PG_PARAMS
-              value: sslmode=disable
+              value: ${PG_PARAMS}
             - name: CCX_NOTIFICATION_WRITER__STORAGE__LOG_SQL_QUERIES
               value: 'true'
             - name: CCX_NOTIFICATION_WRITER__LOGGING__DEBUG
@@ -250,3 +250,5 @@ parameters:
   value: ccx_notification_writer
 - name: DB_MIGRATION_VERSION
   value: latest
+- name: PG_PARAMS
+  value: sslmode=require
