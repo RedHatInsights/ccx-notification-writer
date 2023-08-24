@@ -65,7 +65,7 @@ objects:
                 key: db.name
                 name: ${DATABASE_SERVICE_NAME}
           - name: CCX_NOTIFICATION_WRITER__STORAGE__PG_PARAMS
-            value: sslmode=disable
+            value: ${PG_PARAMS}
           - name: CCX_NOTIFICATION_WRITER__STORAGE__LOG_SQL_QUERIES
             value: 'true'
           - name: CCX_NOTIFICATION_WRITER__LOGGING__DEBUG
@@ -119,3 +119,5 @@ parameters:
 - description: Maximum age for new reports cleanup
   name: NEW_REPORTS_MAX_AGE
   value: '8 days'
+- name: PG_PARAMS
+  value: sslmode=require
