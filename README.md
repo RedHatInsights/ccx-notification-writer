@@ -31,6 +31,7 @@ CCX Notification Writer service
     * [Check PostgreSQL status](#check-postgresql-status)
     * [Start PostgreSQL database](#start-postgresql-database)
     * [Login into the database](#login-into-the-database)
+* [Definition of Done for new features and fixes](#definition-of-done-for-new-features-and-fixes)
 * [Testing](#testing)
 * [BDD tests](#bdd-tests)
 * [Benchmarks](#benchmarks)
@@ -288,6 +289,12 @@ List of tables:
  public | read_errors        | table | postgres
 (7 rows)
 ```
+
+
+## Definition of Done for new features and fixes
+
+Please look at [DoD.md](DoD.md) document for definition of done for new features and fixes.
+
 
 ## Testing
 
