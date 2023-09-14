@@ -45,6 +45,7 @@ package main
 // https://redhatinsights.github.io/ccx-notification-writer/packages/ccx_notification_writer.html
 
 import (
+	"database/sql"
 	"flag"
 	"fmt"
 	"net/http"
@@ -484,6 +485,8 @@ func doSelectedOperation(configuration *ConfigStruct, cliFlags CliFlags) (int, e
 		return PrintMigrationInfo(configuration)
 	case cliFlags.PerformMigrations != "":
 		return PerformMigrations(configuration, cliFlags.PerformMigrations)
+	case cliFlags.UpdateMigrationInfo != "":
+		return UpdateMigrationInfo(configuration, cliFlags.UpdateMigrationInfo)
 	default:
 		exitCode, err := startService(configuration)
 		return exitCode, err
@@ -533,6 +536,7 @@ func main() {
 	flag.BoolVar(&cliFlags.MigrationInfo, "migration-info", false, "prints migration info")
 	flag.StringVar(&cliFlags.MaxAge, "max-age", "", "max age for displaying/cleaning old records")
 	flag.StringVar(&cliFlags.PerformMigrations, "migrate", "", "set database version")
+	flag.StringVar(&cliFlags.UpdateMigrationInfo, "migration-info-update", "", "set migration info data")
 	flag.Parse()
 
 	// service configuration has exactly the same structure as *.toml file
@@ -633,4 +637,39 @@ func PerformMigrations(configuration *ConfigStruct, migParam string) (exitStatus
 
 	exitStatus = ExitStatusOK
 	return
+}
+
+// UpdateMigrationInfo migrates the database to the version
+// specified in params
+func UpdateMigrationInfo(configuration *ConfigStruct, migParam string) (exitStatus int, err error) {
+	utils.Set(All())
+	// get db handle
+	storageConfiguration := GetStorageConfiguration(configuration)
+	storage, err := NewStorage(&storageConfiguration)
+	if err != nil {
+		log.Error().Err(err).Msg(StorageHandleErr)
+		exitStatus = ExitStatusMigrationError
+		return
+	}
+
+	tx, err := storage.connection.Begin()
+	if err != nil {
+		return -1, err
+	}
+
+	updateMigrationInfo := fmt.Sprintf(`
+UPDATE migration_info SET version=%s
+	`, migParam)
+
+	err = func(tx *sql.Tx) error {
+		_, err := tx.Exec(updateMigrationInfo)
+		if err != nil {
+			return err
+		}
+
+		return nil
+	}(tx)
+
+	finishTransaction(tx, err)
+	return 0, err
 }
