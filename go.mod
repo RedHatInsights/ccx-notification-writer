@@ -15,7 +15,7 @@ require (
 	github.com/mattn/go-sqlite3 v2.0.3+incompatible
 	github.com/microcosm-cc/bluemonday v1.0.21 // indirect
 	github.com/pierrec/lz4 v2.6.0+incompatible // indirect
-	github.com/prometheus/client_golang v1.15.1
+	github.com/prometheus/client_golang v1.16.0
 	github.com/redhatinsights/app-common-go v1.6.3
 	github.com/rs/zerolog v1.29.1
 	github.com/spf13/viper v1.15.0
