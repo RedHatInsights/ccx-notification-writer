@@ -8,7 +8,7 @@ require (
 	github.com/RedHatInsights/insights-operator-utils v1.24.11
 	github.com/RedHatInsights/insights-results-types v1.3.23
 	github.com/Shopify/sarama v1.38.1
-	github.com/google/uuid v1.3.0
+	github.com/google/uuid v1.3.1
 	github.com/jcmturner/gokrb5/v8 v8.4.3 // indirect
 	github.com/jcmturner/rpc/v2 v2.0.3 // indirect
 	github.com/lib/pq v1.10.9
