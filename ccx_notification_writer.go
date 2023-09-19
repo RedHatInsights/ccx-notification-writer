@@ -71,10 +71,12 @@ const (
 	brokerConnectionSuccessMessage                          = "Broker connection OK"
 	databaseCleanupOperationFailedMessage                   = "Database cleanup operation failed"
 	databaseDropTablesOperationFailedMessage                = "Database drop tables operation failed"
-	databasePrintNewReportsForCleanupOperationFailedMessage = "Print records from `new_reports` table prepared for cleanup failed"
-	databasePrintOldReportsForCleanupOperationFailedMessage = "Print records from `reported` table prepared for cleanup failed"
+	databasePrintNewReportsForCleanupOperationFailedMessage = "Print records to cleanup from `new_reports` failed"
+	databasePrintOldReportsForCleanupOperationFailedMessage = "Print records to cleanup from `reported` table failed"
+	databasePrintReadErrorsForCleanupOperationFailedMessage = "Print records to cleanup from `read_errors` table failed"
 	databaseCleanupNewReportsOperationFailedMessage         = "Cleanup records from `new_reports` table failed"
 	databaseCleanupOldReportsOperationFailedMessage         = "Cleanup records from `reported` table failed"
+	databaseCleanupReadErrorsOperationFailedMessage         = "Cleanup records from `read_errors` table failed"
 	rowsInsertedMessage                                     = "Rows inserted"
 	rowsDeletedMessage                                      = "Rows deleted"
 	rowsAffectedMessage                                     = "Rows affected"
@@ -374,6 +376,49 @@ func performOldReportsCleanup(configuration *ConfigStruct, cliFlags CliFlags) (i
 	return ExitStatusOK, nil
 }
 
+// printOldReportsForCleanup function print all reports stored in `reported`
+// table that are older than specified max age.
+//
+// See also: performOldReportsCleanup
+func printReadErrorsForCleanup(configuration *ConfigStruct, cliFlags CliFlags) (int, error) {
+	// prepare the storage
+	storageConfiguration := GetStorageConfiguration(configuration)
+	storage, err := NewStorage(&storageConfiguration)
+	if err != nil {
+		log.Error().Err(err).Msg(operationFailedMessage)
+		return ExitStatusStorageError, err
+	}
+
+	err = storage.PrintReadErrorsForCleanup(cliFlags.MaxAge)
+	if err != nil {
+		log.Error().Err(err).Msg(databasePrintReadErrorsForCleanupOperationFailedMessage)
+		return ExitStatusStorageError, err
+	}
+
+	return ExitStatusOK, nil
+}
+
+// performOldReportsCleanup function deletes all reports from `read_errors` table
+// that are older than specified max age.
+func performReadErrorsCleanup(configuration *ConfigStruct, cliFlags CliFlags) (int, error) {
+	// prepare the storage
+	storageConfiguration := GetStorageConfiguration(configuration)
+	storage, err := NewStorage(&storageConfiguration)
+	if err != nil {
+		log.Error().Err(err).Msg(operationFailedMessage)
+		return ExitStatusStorageError, err
+	}
+
+	affected, err := storage.CleanupReadErrors(cliFlags.MaxAge)
+	if err != nil {
+		log.Error().Err(err).Msg(databaseCleanupReadErrorsOperationFailedMessage)
+		return ExitStatusStorageError, err
+	}
+	log.Info().Int(rowsDeletedMessage, affected).Msg("Cleanup `read_errors` finished")
+
+	return ExitStatusOK, nil
+}
+
 // startService function tries to start the notification writer service,
 // connect to storage and initialize connection to message broker.
 func startService(configuration *ConfigStruct) (int, error) {
@@ -480,6 +525,10 @@ func doSelectedOperation(configuration *ConfigStruct, cliFlags CliFlags) (int, e
 		return printOldReportsForCleanup(configuration, cliFlags)
 	case cliFlags.PerformOldReportsCleanup:
 		return performOldReportsCleanup(configuration, cliFlags)
+	case cliFlags.PrintReadErrorsForCleanup:
+		return printReadErrorsForCleanup(configuration, cliFlags)
+	case cliFlags.PerformReadErrorsCleanup:
+		return performReadErrorsCleanup(configuration, cliFlags)
 	case cliFlags.MigrationInfo:
 		return PrintMigrationInfo(configuration)
 	case cliFlags.PerformMigrations != "":
@@ -530,6 +579,8 @@ func main() {
 	flag.BoolVar(&cliFlags.PerformNewReportsCleanup, "new-reports-cleanup", false, "perform new reports clean up")
 	flag.BoolVar(&cliFlags.PrintOldReportsForCleanup, "print-old-reports-for-cleanup", false, "print old reports to be cleaned up")
 	flag.BoolVar(&cliFlags.PerformOldReportsCleanup, "old-reports-cleanup", false, "perform old reports clean up")
+	flag.BoolVar(&cliFlags.PrintReadErrorsForCleanup, "print-read-errors-for-cleanup", false, "print records from read_errors table to be cleaned up")
+	flag.BoolVar(&cliFlags.PerformReadErrorsCleanup, "read-errors-cleanup", false, "perform clean up of read_errors table")
 	flag.BoolVar(&cliFlags.MigrationInfo, "migration-info", false, "prints migration info")
 	flag.StringVar(&cliFlags.MaxAge, "max-age", "", "max age for displaying/cleaning old records")
 	flag.StringVar(&cliFlags.PerformMigrations, "migrate", "", "set database version")

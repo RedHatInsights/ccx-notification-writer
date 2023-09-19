@@ -38,6 +38,8 @@ type CliFlags struct {
 	PerformNewReportsCleanup      bool
 	PrintOldReportsForCleanup     bool
 	PerformOldReportsCleanup      bool
+	PrintReadErrorsForCleanup     bool
+	PerformReadErrorsCleanup      bool
 	MigrationInfo                 bool
 	MaxAge                        string
 	PerformMigrations             string
