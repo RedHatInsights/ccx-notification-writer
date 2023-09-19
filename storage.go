@@ -50,7 +50,7 @@ import (
 const (
 	// this statement drops the migration_info table
 	dropTableMigrationInfo = `
-		DROP TABLE IF EXISTS migration_info	
+		DROP TABLE IF EXISTS migration_info
 `
 	// This table contains information about DB schema version and about
 	// migration status.
@@ -69,7 +69,7 @@ const (
                     value       varchar not null,
                     frequency   varchar not null,
                     comment     varchar,
-                
+
                     PRIMARY KEY (id)
                 );
 `
@@ -83,7 +83,7 @@ const (
                     id          integer not null,
                     value       varchar not null,
                     comment     varchar,
-                
+
                     PRIMARY KEY (id)
                 );
 `
@@ -101,7 +101,7 @@ const (
                     updated_at        timestamp not null,
                     notified_at       timestamp not null,
 		    error_log         varchar,
-                
+
                     PRIMARY KEY (org_id, cluster, notified_at),
                     CONSTRAINT fk_notification_type
                         foreign key(notification_type)
@@ -122,7 +122,7 @@ const (
                     report            varchar not null,
                     updated_at        timestamp not null,
                     kafka_offset      bigint not null default 0,
-                
+
                     PRIMARY KEY (org_id, cluster, updated_at)
                 );
 `
@@ -194,14 +194,12 @@ const (
 		 WHERE updated_at < NOW() - $1::INTERVAL
 		 ORDER BY updated_at
 `
-
 	// Delete older records from new_reports table
 	deleteOldRecordsFromNewReportsTable = `
                 DELETE
 		  FROM new_reports
 		 WHERE updated_at < NOW() - $1::INTERVAL
 `
-
 	// Display older records from reported table
 	displayOldRecordsFromReportedTable = `
                 SELECT org_id, account_number, cluster, updated_at, 0
@@ -209,13 +207,28 @@ const (
 		 WHERE updated_at < NOW() - $1::INTERVAL
 		 ORDER BY updated_at
 `
-
 	// Delete older records from reported table
 	deleteOldRecordsFromReportedTable = `
                 DELETE
 		  FROM reported
 		 WHERE updated_at < NOW() - $1::INTERVAL
 `
+
+	// Display older records from reported table
+	displayOldRecordsFromReadErrorsTable = `
+                SELECT org_id, 0, cluster, updated_at, 0
+		  FROM read_errors
+		 WHERE updated_at < NOW() - $1::INTERVAL
+		 ORDER BY updated_at
+`
+
+	// Delete older records from new_reports table
+	deleteOldRecordsFromReadErrorsTable = `
+                DELETE
+		  FROM read_errors
+		 WHERE updated_at < NOW() - $1::INTERVAL
+`
+
 	// Value to be stored in migration_info table
 	insertMigrationVersion = `
                 INSERT INTO migration_info (version)
@@ -297,6 +310,8 @@ type Storage interface {
 	CleanupNewReports(maxAge string) (int, error)
 	PrintOldReportsForCleanup(maxAge string) error
 	CleanupOldReports(maxAge string) (int, error)
+	PrintReadErrorsForCleanup(maxAge string) error
+	CleanupReadErrors(maxAge string) (int, error)
 }
 
 // DBStorage is an implementation of Storage interface that use selected SQL like database
@@ -746,6 +761,12 @@ func (storage DBStorage) PrintOldReportsForCleanup(maxAge string) error {
 	return storage.PrintNewReports(maxAge, displayOldRecordsFromReportedTable, "reported")
 }
 
+// PrintReadErrorsForCleanup method prints all recorsd from `read_errors` table
+// older than specified relative time
+func (storage DBStorage) PrintReadErrorsForCleanup(maxAge string) error {
+	return storage.PrintNewReports(maxAge, displayOldRecordsFromReadErrorsTable, "read_errors")
+}
+
 // Cleanup method deletes all reports older than specified
 // relative time
 func (storage DBStorage) Cleanup(maxAge, statement string) (int, error) {
@@ -778,6 +799,12 @@ func (storage DBStorage) CleanupNewReports(maxAge string) (int, error) {
 // than specified relative time
 func (storage DBStorage) CleanupOldReports(maxAge string) (int, error) {
 	return storage.Cleanup(maxAge, deleteOldRecordsFromReportedTable)
+}
+
+// CleanupReadErrors method deletes all reports from `read_errors` table older
+// than specified relative time
+func (storage DBStorage) CleanupReadErrors(maxAge string) (int, error) {
+	return storage.Cleanup(maxAge, deleteOldRecordsFromReadErrorsTable)
 }
 
 // Connection returns the storage connection
