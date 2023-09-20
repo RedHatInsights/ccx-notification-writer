@@ -40,6 +40,8 @@ type MockStorage struct {
 	cleanupNewReportsCalled         int
 	printOldReportsForCleanupCalled int
 	cleanupOldReportsCalled         int
+	printReadErrorsForCleanupCalled int
+	cleanupReadReportsCalled        int
 	closeCalled                     int
 	writeReportCalled               int
 }
@@ -57,6 +59,8 @@ func NewMockStorage() MockStorage {
 		cleanupNewReportsCalled:         0,
 		printOldReportsForCleanupCalled: 0,
 		cleanupOldReportsCalled:         0,
+		printReadErrorsForCleanupCalled: 0,
+		cleanupReadReportsCalled:        0,
 		closeCalled:                     0,
 		writeReportCalled:               0,
 	}
@@ -163,6 +167,24 @@ func (storage *MockStorage) PrintOldReportsForCleanup(maxAge string) error {
 // CleanupOldReports is a mocked reimplementation of the real CleanupOldReports
 // method.
 func (storage *MockStorage) CleanupOldReports(maxAge string) (int, error) {
+	storage.cleanupOldReportsCalled++
+
+	// return number of cleaned records + no error
+	return 1, nil
+}
+
+// PrintReadErrorsForCleanup is a mocked reimplementation of the real
+// PrintReadErrorsForCleanup method.
+func (storage *MockStorage) PrintReadErrorsForCleanup(maxAge string) error {
+	storage.printReadErrorsForCleanupCalled++
+
+	// return no error
+	return nil
+}
+
+// CleanupReadErrors is a mocked reimplementation of the real CleanupReadErrors
+// method.
+func (storage *MockStorage) CleanupReadErrors(maxAge string) (int, error) {
 	storage.cleanupOldReportsCalled++
 
 	// return number of cleaned records + no error
