@@ -376,10 +376,10 @@ func performOldReportsCleanup(configuration *ConfigStruct, cliFlags CliFlags) (i
 	return ExitStatusOK, nil
 }
 
-// printOldReportsForCleanup function print all reports stored in `reported`
+// printReadErrorsForCleanup function print all reports stored in `read_errors`
 // table that are older than specified max age.
 //
-// See also: performOldReportsCleanup
+// See also: performReadErrorsForCleanup
 func printReadErrorsForCleanup(configuration *ConfigStruct, cliFlags CliFlags) (int, error) {
 	// prepare the storage
 	storageConfiguration := GetStorageConfiguration(configuration)
@@ -398,7 +398,7 @@ func printReadErrorsForCleanup(configuration *ConfigStruct, cliFlags CliFlags) (
 	return ExitStatusOK, nil
 }
 
-// performOldReportsCleanup function deletes all reports from `read_errors` table
+// performReadErrorsCleanup function deletes all reports from `read_errors` table
 // that are older than specified max age.
 func performReadErrorsCleanup(configuration *ConfigStruct, cliFlags CliFlags) (int, error) {
 	// prepare the storage
