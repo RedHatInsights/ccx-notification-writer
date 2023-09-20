@@ -76,8 +76,8 @@ objects:
             - /bin/sh
             - '-c'
             - >-
-              ./ccx-notification-writer --old-reports-cleanup --max-age '${OLD_REPORTS_MAX_AGE}';
-              ./ccx-notification-writer --new-reports-cleanup --max-age '${NEW_REPORTS_MAX_AGE}';
+              ./ccx-notification-writer --old-reports-cleanup --max-age '${OLD_REPORTS_MAX_AGE}' &&
+              ./ccx-notification-writer --new-reports-cleanup --max-age '${NEW_REPORTS_MAX_AGE}' &&
               ./ccx-notification-writer --read-errors-cleanup --max-age '${NEW_REPORTS_MAX_AGE}'
 
 
