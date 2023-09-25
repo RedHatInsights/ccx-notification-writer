@@ -23,7 +23,7 @@ objects:
         restartPolicy: Never
         concurrencyPolicy: Forbid
         # In PROD 1 cronjob takes around 45 min. Deadline set to 60 mins.
-        activeDeadlineSeconds: 36000
+        activeDeadlineSeconds: 3600
         suspend: ${{SUSPEND_JOB}}
         podSpec:
           image: ${IMAGE}:${IMAGE_TAG}
