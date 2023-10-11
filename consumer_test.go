@@ -56,7 +56,7 @@ var (
 
 // TestNewConsumerBadBroker function checks the consumer creation by
 // using a non accessible Kafka broker.
-func TestNewConsumerBadBroker(t *testing.T) {
+func TestNewConsumerBadBrokerNonAccessibleBroker(t *testing.T) {
 	// expected error message
 	const expectedErr = "kafka: client has run out of available brokers to talk to"
 
@@ -68,7 +68,7 @@ func TestNewConsumerBadBroker(t *testing.T) {
 		Enabled: true,
 	}
 
-	// dummy storage not really useable as the driver is not specified
+	// dummy storage not really usable as the driver is not specified
 	dummyStorage := main.NewFromConnection(nil, 1)
 
 	// try to construct new consumer
@@ -89,7 +89,7 @@ func TestNewConsumerBadBroker(t *testing.T) {
 // TestNewConsumerLocalBroker function checks the consumer creation by using a
 // non accessible Kafka broker. This test assumes there is no local Kafka
 // instance currently running
-func TestNewConsumerLocalBroker(t *testing.T) {
+func TestNewConsumerLocalBrokerNonAccessibleBroker(t *testing.T) {
 	// expected error message
 	const expectedErr = "kafka: client has run out of available brokers to talk to"
 
@@ -101,7 +101,7 @@ func TestNewConsumerLocalBroker(t *testing.T) {
 		Enabled: true,
 	}
 
-	// dummy storage not really useable as the driver is not specified
+	// dummy storage not really usable as the driver is not specified
 	dummyStorage := main.NewFromConnection(nil, 1)
 
 	// try to construct new consumer
@@ -122,7 +122,7 @@ func TestNewConsumerLocalBroker(t *testing.T) {
 // TestNewConsumerConsumerGroup function checks the consumer creation by using a
 // non accessible Kafka broker. This test assumes there is no local Kafka
 // instance currently running. Consumer group is enabled and setup for this test.
-func TestNewConsumerSaramaConfig(t *testing.T) {
+func TestNewConsumerSaramaConfigNonAccessibleBroker(t *testing.T) {
 	// expected error message
 	const expectedErr = "kafka: client has run out of available brokers to talk to"
 
@@ -134,7 +134,7 @@ func TestNewConsumerSaramaConfig(t *testing.T) {
 		Enabled: true,
 	}
 
-	// dummy storage not really useable as the driver is not specified
+	// dummy storage not really usable as the driver is not specified
 	dummyStorage := main.NewFromConnection(nil, 1)
 
 	// try to construct new consumer
@@ -155,7 +155,7 @@ func TestNewConsumerSaramaConfig(t *testing.T) {
 // TestNewConsumerTLSEnabled function checks the consumer creation by using a
 // non accessible Kafka broker. This test assumes there is no local Kafka
 // instance currently running. TSL is enabled in broker configuration.
-func TestNewConsumerTLSEnabled(t *testing.T) {
+func TestNewConsumerTLSEnabledNonAccessibleBroker(t *testing.T) {
 	// expected error message
 	const expectedErr = "kafka: client has run out of available brokers to talk to"
 
@@ -168,7 +168,7 @@ func TestNewConsumerTLSEnabled(t *testing.T) {
 		SecurityProtocol: "SSL",
 	}
 
-	// dummy storage not really useable as the driver is not specified
+	// dummy storage not really usable as the driver is not specified
 	dummyStorage := main.NewFromConnection(nil, 1)
 
 	// try to construct new consumer
@@ -189,7 +189,7 @@ func TestNewConsumerTLSEnabled(t *testing.T) {
 // TestNewConsumerSASLEnabled function checks the consumer creation by using a
 // non accessible Kafka broker. This test assumes there is no local Kafka
 // instance currently running. SASL is enabled in broker configuration.
-func TestNewConsumerSASLEnabled(t *testing.T) {
+func TestNewConsumerSASLEnabledNonAccessibleBroker(t *testing.T) {
 	// expected error message
 	const expectedErr = "kafka: client has run out of available brokers to talk to"
 
@@ -205,7 +205,7 @@ func TestNewConsumerSASLEnabled(t *testing.T) {
 		SaslMechanism:    "",
 	}
 
-	// dummy storage not really useable as the driver is not specified
+	// dummy storage not really usable as the driver is not specified
 	dummyStorage := main.NewFromConnection(nil, 1)
 
 	// try to construct new consumer
@@ -226,7 +226,7 @@ func TestNewConsumerSASLEnabled(t *testing.T) {
 // TestNewConsumerCertPath function checks the consumer creation by using a
 // non accessible Kafka broker. This test assumes there is no local Kafka
 // instance currently running. Valid cert. path is provided by tests.
-func TestNewConsumerCertPath(t *testing.T) {
+func TestNewConsumerCertPathNonAccessibleBroker(t *testing.T) {
 	// expected error message
 	const expectedErr = "kafka: client has run out of available brokers to talk to"
 
@@ -239,7 +239,7 @@ func TestNewConsumerCertPath(t *testing.T) {
 		CertPath: "testdata/cert.pem",
 	}
 
-	// dummy storage not really useable as the driver is not specified
+	// dummy storage not really usable as the driver is not specified
 	dummyStorage := main.NewFromConnection(nil, 1)
 
 	// try to construct new consumer
@@ -260,7 +260,7 @@ func TestNewConsumerCertPath(t *testing.T) {
 // TestNewConsumerInvalidCertPath function checks the consumer creation by using a
 // non accessible Kafka broker. This test assumes there is no local Kafka
 // instance currently running. Invalid cert. path is provided by tests.
-func TestNewConsumerInvalidCertPath(t *testing.T) {
+func TestNewConsumerInvalidCertPathNonAccessibleBroker(t *testing.T) {
 	// expected error message
 	const expectedErr = "open /foo/bar/baz: no such file or directory"
 
