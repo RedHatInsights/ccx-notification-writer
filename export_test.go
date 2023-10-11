@@ -46,8 +46,9 @@ var (
 	DoSelectedOperation = doSelectedOperation
 
 	// functions from consumer.go source file
-	ParseMessage  = parseMessage
-	ShrinkMessage = shrinkMessage
+	ParseMessage                 = parseMessage
+	ShrinkMessage                = shrinkMessage
+	SaramaConfigFromBrokerConfig = saramaConfigFromBrokerConfig
 
 	// functions from storage.go source file
 	DropTableStatement       = dropTableStatement

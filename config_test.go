@@ -272,10 +272,8 @@ func TestLoadConfigurationKafkaBrokerEmptyConfig(t *testing.T) {
 		},
 		Kafka: &clowder.KafkaConfig{
 			Brokers: brokersConfig,
-			Topics: []clowder.TopicConfig{},
+			Topics:  []clowder.TopicConfig{},
 		},
-
-
 	}
 
 	// set environment variable that points to config file

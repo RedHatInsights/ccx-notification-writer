@@ -223,6 +223,114 @@ func TestNewConsumerSASLEnabledNonAccessibleBroker(t *testing.T) {
 	)
 }
 
+// TestSaramaConfigFromBrokerWithSASLEnabled function checks that the Sarama config returned
+// for a broker configuration with SASL enabled contains the expected fields
+func TestSaramaConfigFromBrokerWithSASLEnabledNoSASLMechanism(t *testing.T) {
+	// valid broker configuration for local Kafka instance
+	var brokerConfiguration = main.BrokerConfiguration{
+		Address:          "localhost:9092",
+		Topic:            "platform.notifications.ingress",
+		Group:            "",
+		Enabled:          true,
+		SecurityProtocol: "SASL_",
+		SaslUsername:     "sasl_user",
+		SaslPassword:     "sasl_password",
+		SaslMechanism:    "",
+	}
+
+	saramaConfig, err := main.SaramaConfigFromBrokerConfig(&brokerConfiguration)
+	assert.Nil(t, err)
+	assert.True(t, saramaConfig.Net.SASL.Enable)
+	assert.Equal(t, saramaConfig.Net.SASL.User, brokerConfiguration.SaslUsername)
+	assert.Equal(t, saramaConfig.Net.SASL.Password, brokerConfiguration.SaslPassword)
+	assert.Nil(t, saramaConfig.Net.SASL.SCRAMClientGeneratorFunc, "SCRAM client generator function should not be created with given config")
+}
+
+// TestSaramaConfigFromBrokerWithSASLEnabled function checks that the Sarama config returned
+// for a broker configuration with SASL enabled using SCRAM authentication mechanism
+// contains expected fields
+func TestSaramaConfigFromBrokerWithSASLEnabledSCRAMAuth(t *testing.T) {
+	// valid broker configuration for local Kafka instance
+	var brokerConfiguration = main.BrokerConfiguration{
+		Address:          "localhost:9092",
+		Topic:            "platform.notifications.ingress",
+		Group:            "",
+		Enabled:          true,
+		SecurityProtocol: "SASL_",
+		SaslUsername:     "sasl_user",
+		SaslPassword:     "sasl_password",
+		SaslMechanism:    sarama.SASLTypeSCRAMSHA512,
+	}
+
+	saramaConfig, err := main.SaramaConfigFromBrokerConfig(&brokerConfiguration)
+	assert.Nil(t, err)
+	assert.True(t, saramaConfig.Net.SASL.Enable)
+	assert.Equal(t, saramaConfig.Net.SASL.User, brokerConfiguration.SaslUsername)
+	assert.Equal(t, saramaConfig.Net.SASL.Password, brokerConfiguration.SaslPassword)
+	assert.NotNil(t, saramaConfig.Net.SASL.SCRAMClientGeneratorFunc, "SCRAM client generator function should have been created with given config")
+}
+
+// TestSaramaConfigFromBrokerWithSASLEnabled function checks that the Sarama config returned
+// for a broker configuration with SASL enabled using unhandled authentication mechanism
+// contains expected fields
+func TestSaramaConfigFromBrokerWithSASLEnabledUnexpectedAuthMechanism(t *testing.T) {
+	// valid broker configuration for local Kafka instance
+	var brokerConfiguration = main.BrokerConfiguration{
+		Address:          "localhost:9092",
+		Topic:            "platform.notifications.ingress",
+		Group:            "",
+		Enabled:          true,
+		SecurityProtocol: "SASL_",
+		SaslUsername:     "sasl_user",
+		SaslPassword:     "sasl_password",
+		SaslMechanism:    sarama.SASLTypeSCRAMSHA256,
+	}
+
+	saramaConfig, err := main.SaramaConfigFromBrokerConfig(&brokerConfiguration)
+	assert.Nil(t, err)
+	assert.True(t, saramaConfig.Net.SASL.Enable)
+	assert.Equal(t, saramaConfig.Net.SASL.User, brokerConfiguration.SaslUsername)
+	assert.Equal(t, saramaConfig.Net.SASL.Password, brokerConfiguration.SaslPassword)
+	assert.Nil(t, saramaConfig.Net.SASL.SCRAMClientGeneratorFunc, "SCRAM client generator function should not be created with given config")
+}
+
+// TestNewConsumerSASLEnabled function checks the consumer creation by using a
+// non accessible Kafka broker. This test assumes there is no local Kafka
+// instance currently running. SASL is enabled in broker configuration.
+func TestNewConsumerSASLEnabled(t *testing.T) {
+	// expected error message
+	const expectedErr = "kafka: client has run out of available brokers to talk to"
+
+	// valid broker configuration for local Kafka instance
+	var brokerConfiguration = main.BrokerConfiguration{
+		Address:          "localhost:9092",
+		Topic:            "platform.notifications.ingress",
+		Group:            "",
+		Enabled:          true,
+		SecurityProtocol: "SASL_",
+		SaslUsername:     "sasl_user",
+		SaslPassword:     "sasl_password",
+		SaslMechanism:    "",
+	}
+
+	// dummy storage not really usable as the driver is not specified
+	dummyStorage := main.NewFromConnection(nil, 1)
+
+	// try to construct new consumer
+	mockConsumer, err := main.NewConsumer(&brokerConfiguration, dummyStorage)
+
+	// check that error is really reported
+	assert.Contains(t, err.Error(), expectedErr)
+
+	// test the return value
+	assert.Equal(
+		t,
+		(*main.KafkaConsumer)(nil),
+		mockConsumer,
+		"consumer.New should return nil instead of Consumer implementation",
+	)
+}
+
 // TestNewConsumerCertPath function checks the consumer creation by using a
 // non accessible Kafka broker. This test assumes there is no local Kafka
 // instance currently running. Valid cert. path is provided by tests.
@@ -266,12 +374,12 @@ func TestNewConsumerInvalidCertPathNonAccessibleBroker(t *testing.T) {
 
 	// valid broker configuration for local Kafka instance
 	var brokerConfiguration = main.BrokerConfiguration{
-		Address:  "localhost:9092",
-		Topic:    "platform.notifications.ingress",
-		Group:    "",
-		Enabled:  true,
+		Address:          "localhost:9092",
+		Topic:            "platform.notifications.ingress",
+		Group:            "",
+		Enabled:          true,
 		SecurityProtocol: "SSL",
-		CertPath: "/foo/bar/baz",
+		CertPath:         "/foo/bar/baz",
 	}
 
 	// dummy storage not really usable as the driver is not specified
