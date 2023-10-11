@@ -591,10 +591,10 @@ func saramaConfigFromBrokerConfig(brokerConfiguration *BrokerConfiguration) (*sa
 		saramaConfig.Net.WriteTimeout = brokerConfiguration.Timeout
 	}
 	*/
-	if strings.Contains(brokerConfiguration.SecurityProtocol, "SSL") {
+	if strings.Contains(brokerConfiguration.SecurityProtocol, SSLProtocol) {
 		saramaConfig.Net.TLS.Enable = true
 	}
-	if strings.EqualFold(brokerConfiguration.SecurityProtocol, "SSL") && brokerConfiguration.CertPath != "" {
+	if strings.EqualFold(brokerConfiguration.SecurityProtocol, SSLProtocol) && brokerConfiguration.CertPath != "" {
 		tlsConfig, err := tlsutils.NewTLSConfig(brokerConfiguration.CertPath)
 		if err != nil {
 			log.Error().Msgf("Unable to load TLS config for %s cert", brokerConfiguration.CertPath)
