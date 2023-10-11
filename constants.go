@@ -28,4 +28,6 @@ const (
 	DBDriverSQLite3 DBDriver = iota
 	// DBDriverPostgres shows that db driver is PostgreSQL
 	DBDriverPostgres
+	// SSLProtocol SSL protocol string representation
+	SSLProtocol = "SSL"
 )
