@@ -27,6 +27,7 @@ package main
 
 import (
 	"context"
+	"crypto/sha512"
 	"encoding/json"
 	"errors"
 	"strings"
@@ -593,20 +594,27 @@ func saramaConfigFromBrokerConfig(brokerConfiguration *BrokerConfiguration) (*sa
 	if strings.Contains(brokerConfiguration.SecurityProtocol, "SSL") {
 		saramaConfig.Net.TLS.Enable = true
 	}
-	if brokerConfiguration.CertPath != "" {
+	if strings.EqualFold(brokerConfiguration.SecurityProtocol, "SSL") && brokerConfiguration.CertPath != "" {
 		tlsConfig, err := tlsutils.NewTLSConfig(brokerConfiguration.CertPath)
 		if err != nil {
 			log.Error().Msgf("Unable to load TLS config for %s cert", brokerConfiguration.CertPath)
 			return nil, err
 		}
 		saramaConfig.Net.TLS.Config = tlsConfig
-	}
-	if strings.HasPrefix(brokerConfiguration.SecurityProtocol, "SASL_") {
+	} else if strings.HasPrefix(brokerConfiguration.SecurityProtocol, "SASL_") {
 		log.Info().Msg("Configuring SASL authentication")
 		saramaConfig.Net.SASL.Enable = true
 		saramaConfig.Net.SASL.User = brokerConfiguration.SaslUsername
 		saramaConfig.Net.SASL.Password = brokerConfiguration.SaslPassword
 		saramaConfig.Net.SASL.Mechanism = sarama.SASLMechanism(brokerConfiguration.SaslMechanism)
+
+		if strings.EqualFold(brokerConfiguration.SaslMechanism, sarama.SASLTypeSCRAMSHA512) {
+			log.Info().Msg("Configuring SCRAM-SHA512")
+			saramaConfig.Net.SASL.Handshake = true
+			saramaConfig.Net.SASL.SCRAMClientGeneratorFunc = func() sarama.SCRAMClient {
+				return &SCRAMClient{HashGeneratorFcn: sha512.New}
+			}
+		}
 	}
 	return saramaConfig, nil
 }

@@ -270,10 +270,11 @@ func TestNewConsumerInvalidCertPath(t *testing.T) {
 		Topic:    "platform.notifications.ingress",
 		Group:    "",
 		Enabled:  true,
+		SecurityProtocol: "SSL",
 		CertPath: "/foo/bar/baz",
 	}
 
-	// dummy storage not really useable as the driver is not specified
+	// dummy storage not really usable as the driver is not specified
 	dummyStorage := main.NewFromConnection(nil, 1)
 
 	// try to construct new consumer

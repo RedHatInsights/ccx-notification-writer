@@ -261,7 +261,7 @@ func TestLoadConfigurationKafkaBrokerEmptyConfig(t *testing.T) {
 	os.Clearenv()
 
 	// just one empty broker configuration
-	var brokersConfig []clowder.BrokerConfig = []clowder.BrokerConfig{
+	var brokersConfig = []clowder.BrokerConfig{
 		{},
 	}
 
@@ -271,7 +271,11 @@ func TestLoadConfigurationKafkaBrokerEmptyConfig(t *testing.T) {
 			Name: testDB,
 		},
 		Kafka: &clowder.KafkaConfig{
-			Brokers: brokersConfig},
+			Brokers: brokersConfig,
+			Topics: []clowder.TopicConfig{},
+		},
+
+
 	}
 
 	// set environment variable that points to config file
