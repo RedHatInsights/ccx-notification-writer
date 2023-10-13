@@ -9,10 +9,12 @@ require (
 	github.com/RedHatInsights/insights-results-types v1.3.23
 	github.com/Shopify/sarama v1.38.1
 	github.com/google/uuid v1.3.1
+	github.com/jcmturner/gokrb5/v8 v8.4.3 // indirect
 	github.com/lib/pq v1.10.9
 	github.com/mattn/go-sqlite3 v2.0.3+incompatible
 	github.com/pierrec/lz4 v2.6.0+incompatible // indirect
 	github.com/prometheus/client_golang v1.17.0
+	github.com/prometheus/procfs v0.11.1 // indirect
 	github.com/redhatinsights/app-common-go v1.6.3
 	github.com/rs/zerolog v1.31.0
 	github.com/spf13/afero v1.9.5 // indirect
@@ -20,5 +22,6 @@ require (
 	github.com/stretchr/testify v1.8.4
 	github.com/tisnik/go-capture v1.0.1
 	github.com/xdg/scram v1.0.5
+	golang.org/x/net v0.17.0 // indirect
 	google.golang.org/grpc v1.58.3
 )
