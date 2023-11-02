@@ -62,7 +62,7 @@ func mustSetEnv(t *testing.T, key, val string) {
 
 // TestLoadDefaultConfiguration test loads a configuration file for testing
 // with check that load was correct
-func TestLoadDefaultConfiguration(t *testing.T) {
+func TestLoadDefaultConfiguration(_ *testing.T) {
 	os.Clearenv()
 	mustLoadConfiguration("nonExistingEnvVar")
 }
@@ -391,7 +391,7 @@ func TestLoadConfigurationKafkaBrokerAuthConfigMissingSASL(t *testing.T) {
 	os.Clearenv()
 
 	var port = 1234
-	var authType clowder.BrokerConfigAuthtype = ""
+	var authType clowder.BrokerConfigAuthtype
 
 	var brokersConfig []clowder.BrokerConfig = []clowder.BrokerConfig{
 		{
@@ -445,7 +445,7 @@ func TestLoadConfigurationKafkaBrokerAuthConfig(t *testing.T) {
 	os.Clearenv()
 
 	var port = 1234
-	var authType clowder.BrokerConfigAuthtype = ""
+	var authType clowder.BrokerConfigAuthtype
 
 	var username = "username"
 	var password = "password"
@@ -507,7 +507,6 @@ func TestLoadConfigurationKafkaBrokerAuthConfig(t *testing.T) {
 // if the Clowder config is enabled, the Kafka topics are replaced by the ones defined in
 // LoadedConfig.Kafka.Topics if found, and used as-is if not.
 func TestLoadConfigurationKafkaTopicUpdatedFromClowder(t *testing.T) {
-
 	os.Clearenv()
 	hostname := "kafka"
 	port := 9092

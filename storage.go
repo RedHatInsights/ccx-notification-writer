@@ -523,7 +523,6 @@ func tablesRelatedOperation(storage DBStorage, cmd func(string) string) error {
 	}
 
 	err = func(tx *sql.Tx) error {
-
 		// perform some operation to all tables
 		for _, tableName := range tableNames {
 			// it is not possible to use parameter for table name or a key
@@ -621,7 +620,7 @@ func (storage DBStorage) DatabaseInitMigration() error {
 		if version >= 0 && err == nil {
 			// version_info table already created
 			log.Info().Msgf("database current version: %v", version)
-			return err
+			return nil
 		}
 		// erase old migration table
 		log.Info().Str(StatementMessage, dropTableMigrationInfo).Msg(SQLStatementMessage)
@@ -662,7 +661,6 @@ func (storage DBStorage) DatabaseInitialization() error {
 	}
 
 	err = func(tx *sql.Tx) error {
-
 		// check if database is already initialized
 		var count int
 		err := storage.connection.QueryRow(isStateTableExist).Scan(&count)

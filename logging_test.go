@@ -109,7 +109,6 @@ func TestLogDuration(t *testing.T) {
 	assert.Contains(t, output, "test message") // key
 	assert.Contains(t, output, "9999")         // offset
 	assert.Contains(t, output, "1000000")      // duration
-
 }
 
 // TestLogMessageInfo check the logMessageInfo function from the main module

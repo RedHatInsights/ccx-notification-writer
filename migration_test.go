@@ -306,7 +306,6 @@ func Test0002MigrationStepUp(t *testing.T) {
 
 	// check if all expectations were met
 	checkAllExpectations(t, mock)
-
 }
 
 // Test0002MigrationStepUpOnMigrationFailure test checks migration #2 in case

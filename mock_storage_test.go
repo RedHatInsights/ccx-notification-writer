@@ -76,7 +76,7 @@ func (storage *MockStorage) Close() error {
 
 // WriteReportForCluster is a mocked reimplementation of the real
 // WriteReportForCluster method.
-func (storage *MockStorage) WriteReportForCluster(orgID main.OrgID, accountNumber main.AccountNumber, clusterName main.ClusterName, report main.ClusterReport, collectedAtTime time.Time, kafkaOffset main.KafkaOffset) error {
+func (storage *MockStorage) WriteReportForCluster(_ main.OrgID, _ main.AccountNumber, _ main.ClusterName, _ main.ClusterReport, _ time.Time, _ main.KafkaOffset) error {
 	storage.writeReportCalled++
 
 	// return no error
@@ -139,7 +139,7 @@ func (storage *MockStorage) GetLatestKafkaOffset() (main.KafkaOffset, error) {
 
 // PrintNewReportsForCleanup is a mocked reimplementation of the real
 // PrintNewReportsForCleanup method.
-func (storage *MockStorage) PrintNewReportsForCleanup(maxAge string) error {
+func (storage *MockStorage) PrintNewReportsForCleanup(_ string) error {
 	storage.printNewReportsForCleanupCalled++
 
 	// return no error
@@ -148,7 +148,7 @@ func (storage *MockStorage) PrintNewReportsForCleanup(maxAge string) error {
 
 // CleanupNewReports is a mocked reimplementation of the real CleanupNewReports
 // method.
-func (storage *MockStorage) CleanupNewReports(maxAge string) (int, error) {
+func (storage *MockStorage) CleanupNewReports(_ string) (int, error) {
 	storage.cleanupNewReportsCalled++
 
 	// return number of cleaned records + no error
@@ -157,7 +157,7 @@ func (storage *MockStorage) CleanupNewReports(maxAge string) (int, error) {
 
 // PrintOldReportsForCleanup is a mocked reimplementation of the real
 // PrintOldReportsForCleanup method.
-func (storage *MockStorage) PrintOldReportsForCleanup(maxAge string) error {
+func (storage *MockStorage) PrintOldReportsForCleanup(_ string) error {
 	storage.printOldReportsForCleanupCalled++
 
 	// return no error
@@ -166,7 +166,7 @@ func (storage *MockStorage) PrintOldReportsForCleanup(maxAge string) error {
 
 // CleanupOldReports is a mocked reimplementation of the real CleanupOldReports
 // method.
-func (storage *MockStorage) CleanupOldReports(maxAge string) (int, error) {
+func (storage *MockStorage) CleanupOldReports(_ string) (int, error) {
 	storage.cleanupOldReportsCalled++
 
 	// return number of cleaned records + no error
@@ -175,7 +175,7 @@ func (storage *MockStorage) CleanupOldReports(maxAge string) (int, error) {
 
 // PrintReadErrorsForCleanup is a mocked reimplementation of the real
 // PrintReadErrorsForCleanup method.
-func (storage *MockStorage) PrintReadErrorsForCleanup(maxAge string) error {
+func (storage *MockStorage) PrintReadErrorsForCleanup(_ string) error {
 	storage.printReadErrorsForCleanupCalled++
 
 	// return no error
@@ -184,7 +184,7 @@ func (storage *MockStorage) PrintReadErrorsForCleanup(maxAge string) error {
 
 // CleanupReadErrors is a mocked reimplementation of the real CleanupReadErrors
 // method.
-func (storage *MockStorage) CleanupReadErrors(maxAge string) (int, error) {
+func (storage *MockStorage) CleanupReadErrors(_ string) (int, error) {
 	storage.cleanupOldReportsCalled++
 
 	// return number of cleaned records + no error
