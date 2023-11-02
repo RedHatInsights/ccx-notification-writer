@@ -94,7 +94,7 @@ const (
                     updated_at        timestamp not null,
                     notified_at       timestamp not null,
 		    error_log         varchar,
-                
+
                     PRIMARY KEY (org_id, cluster, notified_at),
                     CONSTRAINT fk_notification_type
                         foreign key(notification_type)
@@ -117,7 +117,7 @@ const (
                     notified_at       timestamp not null,
 		    error_log         varchar,
 		    event_type_id     integer,
-                
+
                     PRIMARY KEY (org_id, cluster, notified_at),
                     CONSTRAINT fk_notification_type
                         foreign key(notification_type)
@@ -595,7 +595,6 @@ func benchmarkInsertReportsIntoReportedTableImpl(
 	initStatements []string,
 	indices map[string][]string,
 	report string) {
-
 	// try all indices combinations
 	for description, indexStatements := range indices {
 		// new benchmark
@@ -628,7 +627,6 @@ func benchmarkSelectOrDeleteOldReportsFromReportedTableImpl(
 	indices map[string][]string,
 	report string,
 	possibleReportsCount []int) {
-
 	// try all indices combinations
 	for description, indexStatements := range indices {
 		// benchmark with various reports count stored in table
@@ -719,7 +717,6 @@ func readPossibleReportsCount() []int {
 	}
 
 	return counts
-
 }
 
 // BenchmarkInsertReportsIntoReportedTableV1 checks the speed of inserting

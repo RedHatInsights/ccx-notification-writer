@@ -507,7 +507,6 @@ func TestLoadConfigurationKafkaBrokerAuthConfig(t *testing.T) {
 // if the Clowder config is enabled, the Kafka topics are replaced by the ones defined in
 // LoadedConfig.Kafka.Topics if found, and used as-is if not.
 func TestLoadConfigurationKafkaTopicUpdatedFromClowder(t *testing.T) {
-
 	os.Clearenv()
 	hostname := "kafka"
 	port := 9092

@@ -57,7 +57,6 @@ func BenchmarkGetMetricsConfiguration(b *testing.B) {
 		}
 		b.StartTimer()
 	}
-
 }
 
 // BenchmarkGetBrokerConfiguration measures the speed of
@@ -77,7 +76,6 @@ func BenchmarkGetBrokerConfiguration(b *testing.B) {
 		}
 		b.StartTimer()
 	}
-
 }
 
 // BenchmarkGetLoggingConfiguration measures the speed of
@@ -100,7 +98,6 @@ func BenchmarkGetLoggingConfiguration(b *testing.B) {
 		}
 		b.StartTimer()
 	}
-
 }
 
 // BenchmarkGetStorageConfiguration measures the speed of
@@ -120,5 +117,4 @@ func BenchmarkGetStorageConfiguration(b *testing.B) {
 		}
 		b.StartTimer()
 	}
-
 }
