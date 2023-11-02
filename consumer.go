@@ -507,7 +507,7 @@ func (consumer *KafkaConsumer) ProcessMessage(msg *sarama.ConsumerMessage) (Requ
 func logShrunkMessage(reportAsBytes, shrunkAsBytes []byte) {
 	orig := len(reportAsBytes)
 	shrunk := len(shrunkAsBytes)
-	percentage := int(100.0 * shrunk / orig)
+	percentage := 100.0 * shrunk / orig
 	log.Info().
 		Int("Original size", len(reportAsBytes)).
 		Int("Shrunk size", len(shrunkAsBytes)).

@@ -620,7 +620,7 @@ func (storage DBStorage) DatabaseInitMigration() error {
 		if version >= 0 && err == nil {
 			// version_info table already created
 			log.Info().Msgf("database current version: %v", version)
-			return err
+			return nil
 		}
 		// erase old migration table
 		log.Info().Str(StatementMessage, dropTableMigrationInfo).Msg(SQLStatementMessage)

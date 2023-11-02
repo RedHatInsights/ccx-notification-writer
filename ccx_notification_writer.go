@@ -443,7 +443,7 @@ func startService(configuration *ConfigStruct) (int, error) {
 	// prepare HTTP server with metrics exposed
 	err = startHTTPServer(metricsConfig.Address)
 	if err != nil {
-		log.Error().Err(err)
+		log.Error().Err(err).Send()
 		return ExitStatusHTTPServerError, err
 	}
 
@@ -454,7 +454,7 @@ func startService(configuration *ConfigStruct) (int, error) {
 	if brokerConfiguration.Enabled {
 		err := startConsumer(&brokerConfiguration, storage)
 		if err != nil {
-			log.Error().Err(err)
+			log.Error().Err(err).Send()
 			return ExitStatusConsumerError, err
 		}
 	} else {

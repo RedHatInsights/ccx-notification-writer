@@ -877,7 +877,7 @@ func TestConsumerCloseCancel(t *testing.T) {
 
 // TestHandleNilMessage function checks the method
 // KafkaConsumer.HandleMessage() for nil input.
-func TestHandleNilMessage(t *testing.T) {
+func TestHandleNilMessage(_ *testing.T) {
 	// construct mock storage
 	mockStorage := NewMockStorage()
 

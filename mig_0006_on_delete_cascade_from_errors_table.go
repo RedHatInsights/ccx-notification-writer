@@ -24,6 +24,7 @@ package main
 
 import (
 	"database/sql"
+
 	mig "github.com/RedHatInsights/insights-operator-utils/migrations"
 	types "github.com/RedHatInsights/insights-results-types"
 	"github.com/rs/zerolog/log"

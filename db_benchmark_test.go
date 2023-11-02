@@ -296,7 +296,7 @@ func initializeStorage(configuration *main.ConfigStruct) (*sql.DB, error) {
 // unfortunately there seems to be no other way how to handle per-benchmark
 // setup properly than to use global variables
 var connection *sql.DB
-var initialized bool = false
+var initialized = false
 
 // setup function performs all DB initializations needed for DB benchmarks. Can
 // be called from any benchmark. In case of any error detected, benchmarks fail
@@ -667,8 +667,10 @@ func computeLength(min, max, step int) int {
 
 // parseReportsCount tries to parse -reports-count parameter that have following format:
 // -reports-count=1,2,5
+//
+//nolint:prealloc
 func parseReportsCount(param string) []int {
-	var count []int = []int{}
+	var count = []int{}
 
 	// split the string first
 	parts := strings.Split(param, ",")
