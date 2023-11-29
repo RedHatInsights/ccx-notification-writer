@@ -154,7 +154,7 @@ func NewWithSaramaConfig(
 		}
 	}
 
-	consumerGroup, err := sarama.NewConsumerGroup([]string{brokerConfiguration.Address}, brokerConfiguration.Group, saramaConfig)
+	consumerGroup, err := sarama.NewConsumerGroup(brokerConfiguration.Addresses, brokerConfiguration.Group, saramaConfig)
 	if err != nil {
 		return nil, err
 	}

@@ -80,7 +80,7 @@ const (
 	rowsInsertedMessage                                     = "Rows inserted"
 	rowsDeletedMessage                                      = "Rows deleted"
 	rowsAffectedMessage                                     = "Rows affected"
-	brokerAddress                                           = "Broker address"
+	brokerAddresses                                         = "Broker addresses"
 	StorageHandleErr                                        = "unable to get storage handle"
 )
 
@@ -126,7 +126,7 @@ func showConfiguration(configuration *ConfigStruct) {
 	// retrieve and then display broker configuration
 	brokerConfig := GetBrokerConfiguration(configuration)
 	log.Info().
-		Str(brokerAddress, brokerConfig.Address).
+		Str(brokerAddresses, strings.Join(brokerConfig.Addresses, ",")).
 		Str("Security protocol", brokerConfig.SecurityProtocol).
 		Str("Cert path", brokerConfig.CertPath).
 		Str("Sasl mechanism", brokerConfig.SaslMechanism).
@@ -172,11 +172,11 @@ func tryToConnectToKafka(configuration *ConfigStruct) (int, error) {
 
 	// display basic info about broker that will be used
 	log.Info().
-		Str("broker address", brokerConfiguration.Address).
-		Msg(brokerAddress)
+		Str(brokerAddresses, strings.Join(brokerConfiguration.Addresses, ",")).
+		Msgf("Establishing connection to Kafka brokers from list")
 
 	// create new broker instance (w/o any checks)
-	broker := sarama.NewBroker(brokerConfiguration.Address)
+	broker := sarama.NewBroker(brokerConfiguration.Addresses[0])
 
 	// check broker connection
 	err := broker.Open(nil)

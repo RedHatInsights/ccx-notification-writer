@@ -145,7 +145,7 @@ type LoggingConfiguration struct {
 // BrokerConfiguration represents configuration for the broker
 type BrokerConfiguration struct {
 	// Address represents Kafka address
-	Address string `mapstructure:"address" toml:"address"`
+	Addresses []string `mapstructure:"addresses" toml:"addresses"`
 	// SecurityProtocol represents the security protocol used by the broker
 	SecurityProtocol string `mapstructure:"security_protocol" toml:"security_protocol"`
 	// 	CertPath is the path to a file containing the certificate to be used with the broker
@@ -279,14 +279,19 @@ func updateConfigFromClowder(configuration *ConfigStruct) {
 		fmt.Println(noKafkaConfig)
 	} else {
 		// make sure broker(s) are configured in Clowder
-		if len(clowder.LoadedConfig.Kafka.Brokers) > 0 {
-			broker := clowder.LoadedConfig.Kafka.Brokers[0]
+		clowderBrokers := len(clowder.LoadedConfig.Kafka.Brokers)
+		if clowderBrokers > 0 {
+			// replace broker config with clowder's
+			configuration.Broker.Addresses = make([]string, clowderBrokers)
 			// port can be empty in clowder, so taking it into account
-			if broker.Port != nil {
-				configuration.Broker.Address = fmt.Sprintf("%s:%d", broker.Hostname, *broker.Port)
-			} else {
-				configuration.Broker.Address = broker.Hostname
+			for i, broker := range clowder.LoadedConfig.Kafka.Brokers {
+				if broker.Port != nil {
+					configuration.Broker.Addresses[i] = fmt.Sprintf("%s:%d", broker.Hostname, *broker.Port)
+				} else {
+					configuration.Broker.Addresses[i] = broker.Hostname
+				}
 			}
+			broker := clowder.LoadedConfig.Kafka.Brokers[0]
 
 			// SSL config
 			if broker.Authtype != nil {
