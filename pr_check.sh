@@ -4,7 +4,12 @@
 # Options that must be configured by app owner
 # --------------------------------------------
 APP_NAME="ccx-data-pipeline"  # name of app-sre "application" folder this component lives in
-COMPONENT_NAME="ccx-notification-writer"  # name of app-sre "resourceTemplate" in deploy.yaml for this component
+# NOTE: ccx-notification-writer contains deployment for multiple services
+#       for pull requests we need latest git PR version of these components to be
+#       deployed to ephemeral env and overriding resource template --set-template-ref.
+#       Using multiple components name in COMPONENT_NAME forces bonfire to use the
+#       git version of clowdapp.yaml(or any other) file from the pull request.
+COMPONENT_NAME="ccx-notification-writer ccx-notification-db-cleaner"  # name of app-sre "resourceTemplate" in deploy.yaml for this component
 IMAGE="quay.io/cloudservices/ccx-notification-writer"
 COMPONENTS="ccx-notification-writer ccx-notification-service ccx-notification-db-cleaner"  # space-separated list of components to laod
 COMPONENTS_W_RESOURCES="ccx-notification-writer"  # component to keep
@@ -28,6 +33,8 @@ function deploy_ephemeral() {
 }
 
 function run_smoke_tests() {
+   # Workaround: cji_smoke_test.sh requires only one component name. Fallback to only one component name.
+    export COMPONENT_NAME="ccx-notification-writer"  # name of app-sre "resourceTemplate" in deploy.yaml for this component
     source $CICD_ROOT/cji_smoke_test.sh
     source $CICD_ROOT/post_test_results.sh  # publish results in Ibutsu
 }
