@@ -64,10 +64,10 @@ func checkCapture(t *testing.T, err error) {
 func constructTestConsumer() *main.KafkaConsumer {
 	// mocked broker configuration
 	var brokerConfiguration = main.BrokerConfiguration{
-		Address: "address",
-		Topic:   testTopicName,
-		Group:   "group",
-		Enabled: true,
+		Addresses: []string{"address"},
+		Topic:     testTopicName,
+		Group:     "group",
+		Enabled:   true,
 	}
 
 	// construct mocked consumer

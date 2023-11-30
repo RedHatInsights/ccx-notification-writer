@@ -74,8 +74,8 @@ func TestShowConfiguration(t *testing.T) {
 	// fill in configuration structure
 	configuration := main.ConfigStruct{}
 	configuration.Broker = main.BrokerConfiguration{
-		Address: "broker_address",
-		Topic:   "broker_topic",
+		Addresses: []string{"broker_address"},
+		Topic:     "broker_topic",
 	}
 	configuration.Metrics = main.MetricsConfiguration{
 		Namespace: "metrics_namespace",
@@ -90,6 +90,7 @@ func TestShowConfiguration(t *testing.T) {
 	// check the captured text
 	checkCapture(t, err)
 
+	print(output)
 	// expected content printed by tested function
 	assert.Contains(t, output, "broker_address")
 	assert.Contains(t, output, "broker_topic")
@@ -153,8 +154,8 @@ func TestDoSelectedOperationShowConfiguration(t *testing.T) {
 	// fill in configuration structure
 	configuration := main.ConfigStruct{}
 	configuration.Broker = main.BrokerConfiguration{
-		Address: "broker_address",
-		Topic:   "broker_topic",
+		Addresses: []string{"broker_address"},
+		Topic:     "broker_topic",
 	}
 	configuration.Metrics = main.MetricsConfiguration{
 		Namespace: "metrics_namespace",

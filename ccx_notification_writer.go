@@ -173,7 +173,7 @@ func tryToConnectToKafka(configuration *ConfigStruct) (int, error) {
 	// display basic info about broker that will be used
 	log.Info().
 		Str(brokerAddresses, strings.Join(brokerConfiguration.Addresses, ",")).
-		Msgf("Establishing connection to Kafka brokers from list")
+		Msgf("Establishing connection to first Kafka broker from list")
 
 	// create new broker instance (w/o any checks)
 	broker := sarama.NewBroker(brokerConfiguration.Addresses[0])
