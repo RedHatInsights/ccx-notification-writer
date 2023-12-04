@@ -5,7 +5,7 @@ go 1.14
 require (
 	github.com/BurntSushi/toml v1.3.2
 	github.com/DATA-DOG/go-sqlmock v1.5.0
-	github.com/RedHatInsights/insights-operator-utils v1.24.11
+	github.com/RedHatInsights/insights-operator-utils v1.24.12
 	github.com/RedHatInsights/insights-results-types v1.3.23
 	github.com/Shopify/sarama v1.38.1
 	github.com/google/uuid v1.4.0
@@ -19,5 +19,4 @@ require (
 	github.com/stretchr/testify v1.8.4
 	github.com/tisnik/go-capture v1.0.1
 	github.com/xdg/scram v1.0.5
-	golang.org/x/net v0.17.0 // indirect
 )
