@@ -8,10 +8,11 @@ require (
 	github.com/RedHatInsights/insights-operator-utils v1.24.12
 	github.com/RedHatInsights/insights-results-types v1.3.23
 	github.com/Shopify/sarama v1.38.1
-	github.com/getsentry/sentry-go v0.25.0 // indirect
 	github.com/google/uuid v1.4.0
 	github.com/lib/pq v1.10.9
+	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mattn/go-sqlite3 v2.0.3+incompatible
+	github.com/pelletier/go-toml/v2 v2.1.0 // indirect
 	github.com/pierrec/lz4 v2.6.0+incompatible // indirect
 	github.com/prometheus/client_golang v1.17.0
 	github.com/redhatinsights/app-common-go v1.6.3
@@ -20,4 +21,5 @@ require (
 	github.com/stretchr/testify v1.8.4
 	github.com/tisnik/go-capture v1.0.1
 	github.com/xdg/scram v1.0.5
+	golang.org/x/net v0.19.0 // indirect
 )
