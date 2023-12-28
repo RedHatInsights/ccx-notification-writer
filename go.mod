@@ -12,7 +12,7 @@ require (
 	github.com/lib/pq v1.10.9
 	github.com/mattn/go-sqlite3 v2.0.3+incompatible
 	github.com/pierrec/lz4 v2.6.0+incompatible // indirect
-	github.com/prometheus/client_golang v1.17.0
+	github.com/prometheus/client_golang v1.18.0
 	github.com/redhatinsights/app-common-go v1.6.3
 	github.com/rs/zerolog v1.31.0
 	github.com/spf13/viper v1.16.0
