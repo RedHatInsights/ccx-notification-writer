@@ -52,6 +52,8 @@ import (
 	"strconv"
 	"strings"
 
+	kafkautils "github.com/RedHatInsights/insights-operator-utils/kafka"
+
 	utils "github.com/RedHatInsights/insights-operator-utils/migrations"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 
@@ -80,7 +82,7 @@ const (
 	rowsInsertedMessage                                     = "Rows inserted"
 	rowsDeletedMessage                                      = "Rows deleted"
 	rowsAffectedMessage                                     = "Rows affected"
-	brokerAddress                                           = "Broker address"
+	brokerAddresses                                         = "Broker addresses"
 	StorageHandleErr                                        = "unable to get storage handle"
 )
 
@@ -126,7 +128,7 @@ func showConfiguration(configuration *ConfigStruct) {
 	// retrieve and then display broker configuration
 	brokerConfig := GetBrokerConfiguration(configuration)
 	log.Info().
-		Str(brokerAddress, brokerConfig.Address).
+		Str(brokerAddresses, strings.Join(brokerConfig.Addresses, ",")).
 		Str("Security protocol", brokerConfig.SecurityProtocol).
 		Str("Cert path", brokerConfig.CertPath).
 		Str("Sasl mechanism", brokerConfig.SaslMechanism).
@@ -172,11 +174,11 @@ func tryToConnectToKafka(configuration *ConfigStruct) (int, error) {
 
 	// display basic info about broker that will be used
 	log.Info().
-		Str("broker address", brokerConfiguration.Address).
-		Msg(brokerAddress)
+		Str(brokerAddresses, strings.Join(brokerConfiguration.Addresses, ",")).
+		Msgf("Establishing connection to first Kafka broker from list")
 
 	// create new broker instance (w/o any checks)
-	broker := sarama.NewBroker(brokerConfiguration.Address)
+	broker := sarama.NewBroker(brokerConfiguration.Addresses[0])
 
 	// check broker connection
 	err := broker.Open(nil)
@@ -465,7 +467,7 @@ func startService(configuration *ConfigStruct) (int, error) {
 }
 
 // startConsumer function starts the Kafka consumer.
-func startConsumer(brokerConfiguration *BrokerConfiguration, storage Storage) error {
+func startConsumer(brokerConfiguration *kafkautils.BrokerConfiguration, storage Storage) error {
 	consumer, err := NewConsumer(brokerConfiguration, storage)
 	if err != nil {
 		log.Error().Err(err).Msg("Construct broker failed")

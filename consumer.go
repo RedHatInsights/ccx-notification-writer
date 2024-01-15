@@ -33,6 +33,8 @@ import (
 	"strings"
 	"time"
 
+	kafkautils "github.com/RedHatInsights/insights-operator-utils/kafka"
+
 	tlsutils "github.com/RedHatInsights/insights-operator-utils/tls"
 	"github.com/Shopify/sarama"
 	"github.com/google/uuid"
@@ -116,7 +118,7 @@ type IncomingMessage struct {
 //	    panic(err)
 //	}
 type KafkaConsumer struct {
-	Configuration                        BrokerConfiguration
+	Configuration                        kafkautils.BrokerConfiguration
 	ConsumerGroup                        sarama.ConsumerGroup
 	Storage                              Storage
 	numberOfSuccessfullyConsumedMessages uint64
@@ -131,14 +133,14 @@ type KafkaConsumer struct {
 var DefaultSaramaConfig *sarama.Config
 
 // NewConsumer constructs new implementation of Consumer interface
-func NewConsumer(brokerConfiguration *BrokerConfiguration, storage Storage) (*KafkaConsumer, error) {
+func NewConsumer(brokerConfiguration *kafkautils.BrokerConfiguration, storage Storage) (*KafkaConsumer, error) {
 	return NewWithSaramaConfig(brokerConfiguration, DefaultSaramaConfig, storage)
 }
 
 // NewWithSaramaConfig constructs new implementation of Consumer interface with
 // custom Sarama configuration.
 func NewWithSaramaConfig(
-	brokerConfiguration *BrokerConfiguration,
+	brokerConfiguration *kafkautils.BrokerConfiguration,
 	saramaConfig *sarama.Config,
 	storage Storage,
 ) (*KafkaConsumer, error) {
@@ -154,7 +156,7 @@ func NewWithSaramaConfig(
 		}
 	}
 
-	consumerGroup, err := sarama.NewConsumerGroup([]string{brokerConfiguration.Address}, brokerConfiguration.Group, saramaConfig)
+	consumerGroup, err := sarama.NewConsumerGroup(brokerConfiguration.Addresses, brokerConfiguration.Group, saramaConfig)
 	if err != nil {
 		return nil, err
 	}
@@ -580,7 +582,7 @@ func parseMessage(messageValue []byte) (IncomingMessage, error) {
 
 // saramaConfigFromBrokerConfig function reads broker configuration and
 // construct configuration compatible with Sarama library
-func saramaConfigFromBrokerConfig(brokerConfiguration *BrokerConfiguration) (*sarama.Config, error) {
+func saramaConfigFromBrokerConfig(brokerConfiguration *kafkautils.BrokerConfiguration) (*sarama.Config, error) {
 	saramaConfig := sarama.NewConfig()
 	saramaConfig.Version = sarama.V0_10_2_0
 
@@ -612,7 +614,7 @@ func saramaConfigFromBrokerConfig(brokerConfiguration *BrokerConfiguration) (*sa
 			log.Info().Msg("Configuring SCRAM-SHA512")
 			saramaConfig.Net.SASL.Handshake = true
 			saramaConfig.Net.SASL.SCRAMClientGeneratorFunc = func() sarama.SCRAMClient {
-				return &SCRAMClient{HashGeneratorFcn: sha512.New}
+				return &kafkautils.SCRAMClient{HashGeneratorFcn: sha512.New}
 			}
 		}
 	}

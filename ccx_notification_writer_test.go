@@ -26,6 +26,8 @@ import (
 	"os"
 	"testing"
 
+	kafkautils "github.com/RedHatInsights/insights-operator-utils/kafka"
+
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"github.com/stretchr/testify/assert"
@@ -73,9 +75,9 @@ func TestShowAuthors(t *testing.T) {
 func TestShowConfiguration(t *testing.T) {
 	// fill in configuration structure
 	configuration := main.ConfigStruct{}
-	configuration.Broker = main.BrokerConfiguration{
-		Address: "broker_address",
-		Topic:   "broker_topic",
+	configuration.Broker = kafkautils.BrokerConfiguration{
+		Addresses: []string{"broker_address"},
+		Topic:     "broker_topic",
 	}
 	configuration.Metrics = main.MetricsConfiguration{
 		Namespace: "metrics_namespace",
@@ -90,6 +92,7 @@ func TestShowConfiguration(t *testing.T) {
 	// check the captured text
 	checkCapture(t, err)
 
+	print(output)
 	// expected content printed by tested function
 	assert.Contains(t, output, "broker_address")
 	assert.Contains(t, output, "broker_topic")
@@ -152,9 +155,9 @@ func TestDoSelectedOperationShowAuthors(t *testing.T) {
 func TestDoSelectedOperationShowConfiguration(t *testing.T) {
 	// fill in configuration structure
 	configuration := main.ConfigStruct{}
-	configuration.Broker = main.BrokerConfiguration{
-		Address: "broker_address",
-		Topic:   "broker_topic",
+	configuration.Broker = kafkautils.BrokerConfiguration{
+		Addresses: []string{"broker_address"},
+		Topic:     "broker_topic",
 	}
 	configuration.Metrics = main.MetricsConfiguration{
 		Namespace: "metrics_namespace",

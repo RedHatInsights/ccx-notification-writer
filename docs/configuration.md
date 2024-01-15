@@ -12,7 +12,7 @@ Also each key in config can be overwritten by corresponding env var. For example
 
 ```toml
 [broker]
-address = "localhost:9092"
+addresses = ["localhost:9092", "localhost:9093"]
 security_protocol = "PLAINTEXT"
 sasl_mechanism = "not-used"
 sasl_username = "not-used"
@@ -57,7 +57,7 @@ outside of main config file(like passwords).
 List of all environment variables that can be used to override configuration settings stored in config file:
 
 ```
-CCX_NOTIFICATION_WRITER__BROKER__ADDRESS
+CCX_NOTIFICATION_WRITER__BROKER__ADDRESSES
 CCX_NOTIFICATION_WRITER__BROKER__SECURITY_PROTOCOL
 CCX_NOTIFICATION_WRITER__BROKER__SASL_MECHANISM
 CCX_NOTIFICATION_WRITER__BROKER__SASL_USERNAME

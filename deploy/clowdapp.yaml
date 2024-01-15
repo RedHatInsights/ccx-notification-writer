@@ -70,8 +70,8 @@ objects:
                   ./ccx-notification-writer --db-init;
                   ./ccx-notification-writer --migrate ${DB_MIGRATION_VERSION};
               env:
-              - name: CCX_NOTIFICATION_WRITER__BROKER__ADDRESS
-                value: ${KAFKA_BOOTSTRAP_HOST}:${KAFKA_BOOTSTRAP_PORT}
+              - name: CCX_NOTIFICATION_WRITER__BROKER__ADDRESSES
+                value: "[${KAFKA_BOOTSTRAP_HOST}:${KAFKA_BOOTSTRAP_PORT}]"
               - name: CCX_NOTIFICATION_WRITER__BROKER__TOPIC
                 value: ${INCOMING_TOPIC}
               - name: CCX_NOTIFICATION_WRITER__BROKER__GROUP
