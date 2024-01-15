@@ -29,6 +29,8 @@ import (
 	"testing"
 	"time"
 
+	kafkautils "github.com/RedHatInsights/insights-operator-utils/kafka"
+
 	"github.com/Shopify/sarama"
 	"github.com/stretchr/testify/assert"
 
@@ -55,17 +57,17 @@ var (
 )
 
 // TestNewConsumerBadBroker function checks the consumer creation by
-// using a non accessible Kafka broker.
+// using a non-accessible Kafka broker.
 func TestNewConsumerBadBrokerNonAccessibleBroker(t *testing.T) {
 	// expected error message
-	const expectedErr = "kafka: client has run out of available brokers to talk to"
+	const expectedErr = "kafka: invalid configuration (You must provide at least one broker address)"
 
 	// invalid broker configuration
-	var brokerConfiguration = main.BrokerConfiguration{
-		Address: "",
-		Topic:   "whatever",
-		Group:   "whatever",
-		Enabled: true,
+	var brokerConfiguration = kafkautils.BrokerConfiguration{
+		Addresses: []string{},
+		Topic:     "whatever",
+		Group:     "whatever",
+		Enabled:   true,
 	}
 
 	// dummy storage not really usable as the driver is not specified
@@ -87,18 +89,18 @@ func TestNewConsumerBadBrokerNonAccessibleBroker(t *testing.T) {
 }
 
 // TestNewConsumerLocalBroker function checks the consumer creation by using a
-// non accessible Kafka broker. This test assumes there is no local Kafka
+// non-accesible Kafka broker. This test assumes there is no local Kafka
 // instance currently running
 func TestNewConsumerLocalBrokerNonAccessibleBroker(t *testing.T) {
 	// expected error message
 	const expectedErr = "kafka: client has run out of available brokers to talk to"
 
 	// valid broker configuration for local Kafka instance
-	var brokerConfiguration = main.BrokerConfiguration{
-		Address: "localhost:9092",
-		Topic:   "platform.notifications.ingress",
-		Group:   "",
-		Enabled: true,
+	var brokerConfiguration = kafkautils.BrokerConfiguration{
+		Addresses: []string{"localhost:9092"},
+		Topic:     "platform.notifications.ingress",
+		Group:     "",
+		Enabled:   true,
 	}
 
 	// dummy storage not really usable as the driver is not specified
@@ -120,18 +122,18 @@ func TestNewConsumerLocalBrokerNonAccessibleBroker(t *testing.T) {
 }
 
 // TestNewConsumerConsumerGroup function checks the consumer creation by using a
-// non accessible Kafka broker. This test assumes there is no local Kafka
+// non-accesible Kafka broker. This test assumes there is no local Kafka
 // instance currently running. Consumer group is enabled and setup for this test.
 func TestNewConsumerSaramaConfigNonAccessibleBroker(t *testing.T) {
 	// expected error message
 	const expectedErr = "kafka: client has run out of available brokers to talk to"
 
 	// valid broker configuration for local Kafka instance
-	var brokerConfiguration = main.BrokerConfiguration{
-		Address: "localhost:9092",
-		Topic:   "platform.notifications.ingress",
-		Group:   "test-group",
-		Enabled: true,
+	var brokerConfiguration = kafkautils.BrokerConfiguration{
+		Addresses: []string{"localhost:9092"},
+		Topic:     "platform.notifications.ingress",
+		Group:     "test-group",
+		Enabled:   true,
 	}
 
 	// dummy storage not really usable as the driver is not specified
@@ -153,15 +155,15 @@ func TestNewConsumerSaramaConfigNonAccessibleBroker(t *testing.T) {
 }
 
 // TestNewConsumerTLSEnabled function checks the consumer creation by using a
-// non accessible Kafka broker. This test assumes there is no local Kafka
+// non-accesible Kafka broker. This test assumes there is no local Kafka
 // instance currently running. TSL is enabled in broker configuration.
 func TestNewConsumerTLSEnabledNonAccessibleBroker(t *testing.T) {
 	// expected error message
 	const expectedErr = "kafka: client has run out of available brokers to talk to"
 
 	// valid broker configuration for local Kafka instance
-	var brokerConfiguration = main.BrokerConfiguration{
-		Address:          "localhost:9092",
+	var brokerConfiguration = kafkautils.BrokerConfiguration{
+		Addresses:        []string{"localhost:9092"},
 		Topic:            "platform.notifications.ingress",
 		Group:            "",
 		Enabled:          true,
@@ -187,15 +189,15 @@ func TestNewConsumerTLSEnabledNonAccessibleBroker(t *testing.T) {
 }
 
 // TestNewConsumerSASLEnabled function checks the consumer creation by using a
-// non accessible Kafka broker. This test assumes there is no local Kafka
+// non-accesible Kafka broker. This test assumes there is no local Kafka
 // instance currently running. SASL is enabled in broker configuration.
 func TestNewConsumerSASLEnabledNonAccessibleBroker(t *testing.T) {
 	// expected error message
 	const expectedErr = "kafka: client has run out of available brokers to talk to"
 
 	// valid broker configuration for local Kafka instance
-	var brokerConfiguration = main.BrokerConfiguration{
-		Address:          "localhost:9092",
+	var brokerConfiguration = kafkautils.BrokerConfiguration{
+		Addresses:        []string{"localhost:9092"},
 		Topic:            "platform.notifications.ingress",
 		Group:            "",
 		Enabled:          true,
@@ -227,8 +229,8 @@ func TestNewConsumerSASLEnabledNonAccessibleBroker(t *testing.T) {
 // for a broker configuration with SASL enabled contains the expected fields
 func TestSaramaConfigFromBrokerWithSASLEnabledNoSASLMechanism(t *testing.T) {
 	// valid broker configuration for local Kafka instance
-	var brokerConfiguration = main.BrokerConfiguration{
-		Address:          "localhost:9092",
+	var brokerConfiguration = kafkautils.BrokerConfiguration{
+		Addresses:        []string{"localhost:9092"},
 		Topic:            "platform.notifications.ingress",
 		Group:            "",
 		Enabled:          true,
@@ -251,8 +253,8 @@ func TestSaramaConfigFromBrokerWithSASLEnabledNoSASLMechanism(t *testing.T) {
 // contains expected fields
 func TestSaramaConfigFromBrokerWithSASLEnabledSCRAMAuth(t *testing.T) {
 	// valid broker configuration for local Kafka instance
-	var brokerConfiguration = main.BrokerConfiguration{
-		Address:          "localhost:9092",
+	var brokerConfiguration = kafkautils.BrokerConfiguration{
+		Addresses:        []string{"localhost:9092"},
 		Topic:            "platform.notifications.ingress",
 		Group:            "",
 		Enabled:          true,
@@ -275,8 +277,8 @@ func TestSaramaConfigFromBrokerWithSASLEnabledSCRAMAuth(t *testing.T) {
 // contains expected fields
 func TestSaramaConfigFromBrokerWithSASLEnabledUnexpectedAuthMechanism(t *testing.T) {
 	// valid broker configuration for local Kafka instance
-	var brokerConfiguration = main.BrokerConfiguration{
-		Address:          "localhost:9092",
+	var brokerConfiguration = kafkautils.BrokerConfiguration{
+		Addresses:        []string{"localhost:9092"},
 		Topic:            "platform.notifications.ingress",
 		Group:            "",
 		Enabled:          true,
@@ -295,15 +297,15 @@ func TestSaramaConfigFromBrokerWithSASLEnabledUnexpectedAuthMechanism(t *testing
 }
 
 // TestNewConsumerSASLEnabled function checks the consumer creation by using a
-// non accessible Kafka broker. This test assumes there is no local Kafka
+// non-accesible Kafka broker. This test assumes there is no local Kafka
 // instance currently running. SASL is enabled in broker configuration.
 func TestNewConsumerSASLEnabled(t *testing.T) {
 	// expected error message
 	const expectedErr = "kafka: client has run out of available brokers to talk to"
 
 	// valid broker configuration for local Kafka instance
-	var brokerConfiguration = main.BrokerConfiguration{
-		Address:          "localhost:9092",
+	var brokerConfiguration = kafkautils.BrokerConfiguration{
+		Addresses:        []string{"localhost:9092"},
 		Topic:            "platform.notifications.ingress",
 		Group:            "",
 		Enabled:          true,
@@ -332,19 +334,19 @@ func TestNewConsumerSASLEnabled(t *testing.T) {
 }
 
 // TestNewConsumerCertPath function checks the consumer creation by using a
-// non accessible Kafka broker. This test assumes there is no local Kafka
+// non-accesible Kafka broker. This test assumes there is no local Kafka
 // instance currently running. Valid cert. path is provided by tests.
 func TestNewConsumerCertPathNonAccessibleBroker(t *testing.T) {
 	// expected error message
 	const expectedErr = "kafka: client has run out of available brokers to talk to"
 
 	// valid broker configuration for local Kafka instance
-	var brokerConfiguration = main.BrokerConfiguration{
-		Address:  "localhost:9092",
-		Topic:    "platform.notifications.ingress",
-		Group:    "",
-		Enabled:  true,
-		CertPath: "testdata/cert.pem",
+	var brokerConfiguration = kafkautils.BrokerConfiguration{
+		Addresses: []string{"localhost:9092"},
+		Topic:     "platform.notifications.ingress",
+		Group:     "",
+		Enabled:   true,
+		CertPath:  "testdata/cert.pem",
 	}
 
 	// dummy storage not really usable as the driver is not specified
@@ -366,15 +368,15 @@ func TestNewConsumerCertPathNonAccessibleBroker(t *testing.T) {
 }
 
 // TestNewConsumerInvalidCertPath function checks the consumer creation by using a
-// non accessible Kafka broker. This test assumes there is no local Kafka
+// non-accesible Kafka broker. This test assumes there is no local Kafka
 // instance currently running. Invalid cert. path is provided by tests.
 func TestNewConsumerInvalidCertPathNonAccessibleBroker(t *testing.T) {
 	// expected error message
 	const expectedErr = "open /foo/bar/baz: no such file or directory"
 
 	// valid broker configuration for local Kafka instance
-	var brokerConfiguration = main.BrokerConfiguration{
-		Address:          "localhost:9092",
+	var brokerConfiguration = kafkautils.BrokerConfiguration{
+		Addresses:        []string{"localhost:9092"},
 		Topic:            "platform.notifications.ingress",
 		Group:            "",
 		Enabled:          true,
@@ -646,10 +648,10 @@ func TestParseMessageNullReport(t *testing.T) {
 // NewDummyConsumer function constructs new instance of (not running)
 // KafkaConsumer.
 func NewDummyConsumer(s main.Storage) *main.KafkaConsumer {
-	brokerCfg := main.BrokerConfiguration{
-		Address: "localhost:1234",
-		Topic:   "topic",
-		Group:   "group",
+	brokerCfg := kafkautils.BrokerConfiguration{
+		Addresses: []string{"localhost:1234"},
+		Topic:     "topic",
+		Group:     "group",
 	}
 	return &main.KafkaConsumer{
 		Configuration: brokerCfg,

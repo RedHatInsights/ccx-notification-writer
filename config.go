@@ -95,7 +95,10 @@ import (
 
 	"path/filepath"
 
+	clowderutils "github.com/RedHatInsights/insights-operator-utils/clowder"
+	kafkautils "github.com/RedHatInsights/insights-operator-utils/kafka"
 	clowder "github.com/redhatinsights/app-common-go/pkg/api/v1"
+
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/viper"
 )
@@ -107,17 +110,16 @@ const (
 	noKafkaConfig                   = "no Kafka configuration available in Clowder, using default one"
 	noBrokerConfig                  = "warning: no broker configurations found in clowder config"
 	noSaslConfig                    = "warning: SASL configuration is missing"
-	noTopicMapping                  = "warning: no kafka mapping found for topic %s"
 	noStorage                       = "warning: no storage section in Clowder config"
 )
 
 // ConfigStruct is a structure holding the whole notification service
 // configuration
 type ConfigStruct struct {
-	Broker  BrokerConfiguration  `mapstructure:"broker"  toml:"broker"`
-	Storage StorageConfiguration `mapstructure:"storage" toml:"storage"`
-	Logging LoggingConfiguration `mapstructure:"logging" toml:"logging"`
-	Metrics MetricsConfiguration `mapstructure:"metrics" toml:"metrics"`
+	Broker  kafkautils.BrokerConfiguration `mapstructure:"broker"  toml:"broker"`
+	Storage StorageConfiguration           `mapstructure:"storage" toml:"storage"`
+	Logging LoggingConfiguration           `mapstructure:"logging" toml:"logging"`
+	Metrics MetricsConfiguration           `mapstructure:"metrics" toml:"metrics"`
 }
 
 // MetricsConfiguration holds metrics related configuration
@@ -140,28 +142,6 @@ type LoggingConfiguration struct {
 	//
 	// logging level won't be changed if value is not one of listed above
 	LogLevel string `mapstructure:"log_level" toml:"log_level"`
-}
-
-// BrokerConfiguration represents configuration for the broker
-type BrokerConfiguration struct {
-	// Address represents Kafka address
-	Address string `mapstructure:"address" toml:"address"`
-	// SecurityProtocol represents the security protocol used by the broker
-	SecurityProtocol string `mapstructure:"security_protocol" toml:"security_protocol"`
-	// 	CertPath is the path to a file containing the certificate to be used with the broker
-	CertPath string `mapstructure:"cert_path" toml:"cert_path"`
-	// SaslMechanism is the SASL mechanism used for authentication
-	SaslMechanism string `mapstructure:"sasl_mechanism" toml:"sasl_mechanism"`
-	// SaslUsername is the username used in case of PLAIN mechanism
-	SaslUsername string `mapstructure:"sasl_username" toml:"sasl_username"`
-	// SaslPassword is the password used in case of PLAIN mechanism
-	SaslPassword string `mapstructure:"sasl_password" toml:"sasl_password"`
-	// Topic is name of Kafka topic
-	Topic string `mapstructure:"topic" toml:"topic"`
-	// Group is name of Kafka group
-	Group string `mapstructure:"group" toml:"group"`
-	// Enabled is set to true if Kafka consumer is to be enabled
-	Enabled bool `mapstructure:"enabled" toml:"enabled"`
 }
 
 // StorageConfiguration represents configuration of data storage
@@ -257,7 +237,7 @@ func GetLoggingConfiguration(configuration *ConfigStruct) LoggingConfiguration {
 }
 
 // GetBrokerConfiguration returns broker configuration
-func GetBrokerConfiguration(configuration *ConfigStruct) BrokerConfiguration {
+func GetBrokerConfiguration(configuration *ConfigStruct) kafkautils.BrokerConfiguration {
 	return configuration.Broker
 }
 
@@ -278,37 +258,8 @@ func updateConfigFromClowder(configuration *ConfigStruct) {
 	if clowder.LoadedConfig.Kafka == nil {
 		fmt.Println(noKafkaConfig)
 	} else {
-		// make sure broker(s) are configured in Clowder
-		if len(clowder.LoadedConfig.Kafka.Brokers) > 0 {
-			broker := clowder.LoadedConfig.Kafka.Brokers[0]
-			// port can be empty in clowder, so taking it into account
-			if broker.Port != nil {
-				configuration.Broker.Address = fmt.Sprintf("%s:%d", broker.Hostname, *broker.Port)
-			} else {
-				configuration.Broker.Address = broker.Hostname
-			}
-
-			// SSL config
-			if broker.Authtype != nil {
-				fmt.Println("kafka is configured to use authentication")
-				if broker.Sasl != nil {
-					configuration.Broker.SaslUsername = *broker.Sasl.Username
-					configuration.Broker.SaslPassword = *broker.Sasl.Password
-					configuration.Broker.SaslMechanism = *broker.Sasl.SaslMechanism
-					configuration.Broker.SecurityProtocol = *broker.Sasl.SecurityProtocol
-
-					if caPath, err := clowder.LoadedConfig.KafkaCa(broker); err == nil {
-						configuration.Broker.CertPath = caPath
-					}
-				} else {
-					fmt.Println(noSaslConfig)
-				}
-			}
-		} else {
-			fmt.Println(noBrokerConfig)
-		}
-
-		useClowderTopics(&configuration.Broker)
+		clowderutils.UseBrokerConfig(&configuration.Broker, clowder.LoadedConfig)
+		clowderutils.UseClowderTopics(&configuration.Broker, clowder.KafkaTopics)
 	}
 
 	if clowder.LoadedConfig.Database != nil {
@@ -320,14 +271,5 @@ func updateConfigFromClowder(configuration *ConfigStruct) {
 		configuration.Storage.PGPassword = clowder.LoadedConfig.Database.Password
 	} else {
 		fmt.Println(noStorage)
-	}
-}
-
-func useClowderTopics(configuration *BrokerConfiguration) {
-	// Get the correct topic name from clowder mapping if available
-	if clowderTopic, ok := clowder.KafkaTopics[configuration.Topic]; ok {
-		configuration.Topic = clowderTopic.Name
-	} else {
-		fmt.Printf(noTopicMapping, configuration.Topic)
 	}
 }

@@ -130,12 +130,12 @@ func TestLoadBrokerConfiguration(t *testing.T) {
 
 	brokerCfg := main.GetBrokerConfiguration(&config)
 
-	assert.Equal(t, "localhost:29092", brokerCfg.Address)
+	assert.Equal(t, []string{"localhost:29092"}, brokerCfg.Addresses)
 	assert.Equal(t, "ccx_test_notifications", brokerCfg.Topic)
 }
 
 // TestLoadStorageConfiguration tests loading the storage configuration
-// sub-tree
+// subtree
 func TestLoadStorageConfiguration(t *testing.T) {
 	envVar := "CCX_NOTIFICATION_WRITER_CONFIG_FILE"
 
@@ -248,7 +248,7 @@ func TestLoadConfigurationNoKafkaBroker(t *testing.T) {
 	brokerCfg := main.GetBrokerConfiguration(&config)
 
 	// check broker configuration
-	assert.Equal(t, "localhost:29092", brokerCfg.Address)
+	assert.Equal(t, []string{"localhost:29092"}, brokerCfg.Addresses)
 	assert.Equal(t, "ccx_test_notifications", brokerCfg.Topic)
 	assert.Equal(t, "test-consumer-group", brokerCfg.Group)
 	assert.True(t, brokerCfg.Enabled)
@@ -290,8 +290,10 @@ func TestLoadConfigurationKafkaBrokerEmptyConfig(t *testing.T) {
 	// retrieve broker configuration that was just loaded
 	brokerCfg := main.GetBrokerConfiguration(&config)
 
+	print(clowder.KafkaServers)
+	print(clowder.LoadedConfig.Kafka)
 	// check broker configuration
-	assert.Equal(t, "", brokerCfg.Address)
+	assert.Equal(t, []string{""}, brokerCfg.Addresses)
 	assert.Equal(t, "ccx_test_notifications", brokerCfg.Topic)
 	assert.Equal(t, "test-consumer-group", brokerCfg.Group)
 	assert.True(t, brokerCfg.Enabled)
@@ -303,7 +305,7 @@ func TestLoadConfigurationKafkaBrokerNoPort(t *testing.T) {
 	os.Clearenv()
 
 	// just one non-empty broker configuration
-	var brokersConfig []clowder.BrokerConfig = []clowder.BrokerConfig{
+	var brokersConfig = []clowder.BrokerConfig{
 		{
 			Hostname: "test",
 			Port:     nil}, // port is not set
@@ -334,7 +336,7 @@ func TestLoadConfigurationKafkaBrokerNoPort(t *testing.T) {
 
 	// check broker configuration
 	// no port should be set
-	assert.Equal(t, "test", brokerCfg.Address)
+	assert.Equal(t, []string{"test"}, brokerCfg.Addresses)
 	assert.Equal(t, "ccx_test_notifications", brokerCfg.Topic)
 	assert.Equal(t, "test-consumer-group", brokerCfg.Group)
 	assert.True(t, brokerCfg.Enabled)
@@ -378,7 +380,7 @@ func TestLoadConfigurationKafkaBrokerPort(t *testing.T) {
 	brokerCfg := main.GetBrokerConfiguration(&config)
 
 	// check broker configuration
-	assert.Equal(t, "test:1234", brokerCfg.Address)
+	assert.Equal(t, []string{"test:1234"}, brokerCfg.Addresses)
 	assert.Equal(t, "ccx_test_notifications", brokerCfg.Topic)
 	assert.Equal(t, "test-consumer-group", brokerCfg.Group)
 	assert.True(t, brokerCfg.Enabled)
@@ -426,7 +428,7 @@ func TestLoadConfigurationKafkaBrokerAuthConfigMissingSASL(t *testing.T) {
 	brokerCfg := main.GetBrokerConfiguration(&config)
 
 	// check broker configuration
-	assert.Equal(t, "test:1234", brokerCfg.Address)
+	assert.Equal(t, []string{"test:1234"}, brokerCfg.Addresses)
 	assert.Equal(t, "ccx_test_notifications", brokerCfg.Topic)
 	assert.Equal(t, "test-consumer-group", brokerCfg.Group)
 	assert.True(t, brokerCfg.Enabled)
@@ -454,15 +456,15 @@ func TestLoadConfigurationKafkaBrokerAuthConfig(t *testing.T) {
 
 	var brokersConfig []clowder.BrokerConfig = []clowder.BrokerConfig{
 		{
-			Hostname: "test",
-			Port:     &port,
-			Authtype: &authType,
+			Hostname:         "test",
+			Port:             &port,
+			Authtype:         &authType,
+			SecurityProtocol: &securityProtocol,
 			// proper SASL configuration
 			Sasl: &clowder.KafkaSASLConfig{
-				Username:         &username,
-				Password:         &password,
-				SaslMechanism:    &saslMechanism,
-				SecurityProtocol: &securityProtocol},
+				Username:      &username,
+				Password:      &password,
+				SaslMechanism: &saslMechanism},
 		},
 	}
 
@@ -491,7 +493,7 @@ func TestLoadConfigurationKafkaBrokerAuthConfig(t *testing.T) {
 	brokerCfg := main.GetBrokerConfiguration(&config)
 
 	// check broker configuration
-	assert.Equal(t, "test:1234", brokerCfg.Address)
+	assert.Equal(t, []string{"test:1234"}, brokerCfg.Addresses)
 	assert.Equal(t, "ccx_test_notifications", brokerCfg.Topic)
 	assert.Equal(t, "test-consumer-group", brokerCfg.Group)
 	assert.True(t, brokerCfg.Enabled)
@@ -538,7 +540,7 @@ func TestLoadConfigurationKafkaTopicUpdatedFromClowder(t *testing.T) {
 	assert.NoError(t, err, "Failed loading configuration file")
 
 	brokerCfg := main.GetBrokerConfiguration(&config)
-	assert.Equal(t, fmt.Sprintf("%s:%d", hostname, port), brokerCfg.Address)
+	assert.Equal(t, []string{fmt.Sprintf("%s:%d", hostname, port)}, brokerCfg.Addresses)
 	assert.Equal(t, newTopicName, brokerCfg.Topic)
 
 	// config with different broker configuration, broker's hostname taken from clowder, but no topic to map to
@@ -548,7 +550,7 @@ func TestLoadConfigurationKafkaTopicUpdatedFromClowder(t *testing.T) {
 	assert.NoError(t, err, "Failed loading configuration file")
 
 	brokerCfg = main.GetBrokerConfiguration(&config)
-	assert.Equal(t, fmt.Sprintf("%s:%d", hostname, port), brokerCfg.Address)
+	assert.Equal(t, []string{fmt.Sprintf("%s:%d", hostname, port)}, brokerCfg.Addresses)
 	assert.Equal(t, topicName, brokerCfg.Topic)
 }
 
