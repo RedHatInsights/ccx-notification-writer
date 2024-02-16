@@ -12,7 +12,7 @@ Also each key in config can be overwritten by corresponding env var. For example
 
 ```toml
 [broker]
-addresses = ["localhost:9092", "localhost:9093"]
+addresses = "localhost:9092,localhost:9093"
 security_protocol = "PLAINTEXT"
 sasl_mechanism = "not-used"
 sasl_username = "not-used"

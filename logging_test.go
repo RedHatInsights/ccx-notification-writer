@@ -28,8 +28,6 @@ import (
 	"testing"
 	"time"
 
-	kafkautils "github.com/RedHatInsights/insights-operator-utils/kafka"
-
 	"github.com/Shopify/sarama"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
@@ -65,8 +63,8 @@ func checkCapture(t *testing.T, err error) {
 // Construct consumer used only for tests.
 func constructTestConsumer() *main.KafkaConsumer {
 	// mocked broker configuration
-	var brokerConfiguration = kafkautils.BrokerConfiguration{
-		Addresses: []string{"address"},
+	var brokerConfiguration = main.BrokerConfiguration{
+		Addresses: "address",
 		Topic:     testTopicName,
 		Group:     "group",
 		Enabled:   true,

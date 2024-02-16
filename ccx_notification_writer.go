@@ -52,8 +52,6 @@ import (
 	"strconv"
 	"strings"
 
-	kafkautils "github.com/RedHatInsights/insights-operator-utils/kafka"
-
 	utils "github.com/RedHatInsights/insights-operator-utils/migrations"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 
@@ -68,6 +66,7 @@ const (
 	versionMessage                                          = "CCX Notification Writer version 1.0"
 	authorsMessage                                          = "Pavel Tisnovsky, Red Hat Inc."
 	connectionToBrokerMessage                               = "Connection to broker"
+	allBrokerConnectionAttemptsMessage                      = "Couldn't connect to any of the provided brokers"
 	operationFailedMessage                                  = "Operation failed"
 	notConnectedToBrokerMessage                             = "Not connected to broker"
 	brokerConnectionSuccessMessage                          = "Broker connection OK"
@@ -128,7 +127,7 @@ func showConfiguration(configuration *ConfigStruct) {
 	// retrieve and then display broker configuration
 	brokerConfig := GetBrokerConfiguration(configuration)
 	log.Info().
-		Str(brokerAddresses, strings.Join(brokerConfig.Addresses, ",")).
+		Str(brokerAddresses, brokerConfig.Addresses).
 		Str("Security protocol", brokerConfig.SecurityProtocol).
 		Str("Cert path", brokerConfig.CertPath).
 		Str("Sasl mechanism", brokerConfig.SaslMechanism).
@@ -174,35 +173,39 @@ func tryToConnectToKafka(configuration *ConfigStruct) (int, error) {
 
 	// display basic info about broker that will be used
 	log.Info().
-		Str(brokerAddresses, strings.Join(brokerConfiguration.Addresses, ",")).
-		Msgf("Establishing connection to first Kafka broker from list")
+		Str(brokerAddresses, brokerConfiguration.Addresses)
 
-	// create new broker instance (w/o any checks)
-	broker := sarama.NewBroker(brokerConfiguration.Addresses[0])
+	var err error
+	for _, addr := range strings.Split(brokerConfiguration.Addresses, ",") {
+		// create new broker instance (w/o any checks)
+		broker := sarama.NewBroker(addr)
 
-	// check broker connection
-	err := broker.Open(nil)
-	if err != nil {
-		log.Error().Err(err).Msg(connectionToBrokerMessage)
-		return ExitStatusKafkaError, err
+		// check broker connection
+		err = broker.Open(nil)
+		if err != nil {
+			log.Error().Err(err).Msg(connectionToBrokerMessage)
+			continue
+		}
+
+		// check if connection remain
+		connected, err := broker.Connected()
+		if err != nil {
+			log.Error().Err(err).Msg(connectionToBrokerMessage)
+			continue
+		}
+		if !connected {
+			log.Error().Err(err).Msg(notConnectedToBrokerMessage)
+			continue
+		}
+
+		// connection was established
+		log.Info().Msg(brokerConnectionSuccessMessage)
+
+		// everything seems to be ok
+		return ExitStatusOK, nil
 	}
-
-	// check if connection remain
-	connected, err := broker.Connected()
-	if err != nil {
-		log.Error().Err(err).Msg(connectionToBrokerMessage)
-		return ExitStatusKafkaError, err
-	}
-	if !connected {
-		log.Error().Err(err).Msg(notConnectedToBrokerMessage)
-		return ExitStatusConsumerError, err
-	}
-
-	// connection was established
-	log.Info().Msg(brokerConnectionSuccessMessage)
-
-	// everything seems to be ok
-	return ExitStatusOK, nil
+	log.Error().Msg(allBrokerConnectionAttemptsMessage)
+	return ExitStatusKafkaError, err
 }
 
 // performDatabaseInitialization function performs database initialization -
@@ -467,7 +470,7 @@ func startService(configuration *ConfigStruct) (int, error) {
 }
 
 // startConsumer function starts the Kafka consumer.
-func startConsumer(brokerConfiguration *kafkautils.BrokerConfiguration, storage Storage) error {
+func startConsumer(brokerConfiguration *BrokerConfiguration, storage Storage) error {
 	consumer, err := NewConsumer(brokerConfiguration, storage)
 	if err != nil {
 		log.Error().Err(err).Msg("Construct broker failed")
