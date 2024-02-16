@@ -22,7 +22,6 @@ package main_test
 // https://redhatinsights.github.io/ccx-notification-writer/packages/config_benchmark_test.html
 
 import (
-	"strings"
 	"testing"
 
 	main "github.com/RedHatInsights/ccx-notification-writer"
@@ -72,8 +71,8 @@ func BenchmarkGetBrokerConfiguration(b *testing.B) {
 		m := main.GetBrokerConfiguration(&configuration)
 
 		b.StopTimer()
-		if m.Addresses[0] != "kafka:29092" {
-			b.Fatal("Wrong configuration: addresses = '" + strings.Join(m.Addresses, ",") + "'")
+		if m.Addresses != "kafka:29092" {
+			b.Fatal("Wrong configuration: addresses = '" + m.Addresses + "'")
 		}
 		b.StartTimer()
 	}

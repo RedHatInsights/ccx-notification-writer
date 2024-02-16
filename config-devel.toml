@@ -1,5 +1,5 @@
 [broker]
-addresses = ["kafka:29092"]
+addresses = "kafka:29092"
 topic = "ccx.ocp.results"
 group = "test-consumer-group"
 enabled = true
