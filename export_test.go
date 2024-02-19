@@ -45,6 +45,9 @@ var (
 	ShowConfiguration   = showConfiguration
 	DoSelectedOperation = doSelectedOperation
 
+	ConnectionToBrokerMessage          = connectionToBrokerMessage
+	AllBrokerConnectionAttemptsMessage = allBrokerConnectionAttemptsMessage
+
 	// functions from consumer.go source file
 	ParseMessage                 = parseMessage
 	ShrinkMessage                = shrinkMessage

@@ -241,7 +241,36 @@ func TestConvertLogLevel(t *testing.T) {
 	for _, td := range testData {
 		// perform conversion
 		output := main.ConvertLogLevel(td.Input)
-		// check if converted value is eqaual to expected one
+		// check if converted value is equal to expected one
 		assert.Equal(t, output, td.Output)
 	}
+}
+
+// TestDoSelectedOperationCheckConnectionToKafka checks the function
+// CheckConnectionToKafka called via doSelectedOperation function
+func TestDoSelectedOperationCheckConnectionToKafka(t *testing.T) {
+	// fill in configuration structure
+	configuration := main.ConfigStruct{}
+	configuration.Broker = main.BrokerConfiguration{
+		Addresses: "broker_address:9092, broker_address:9093",
+		Topic:     "broker_topic",
+	}
+	cliFlags := main.CliFlags{
+		CheckConnectionToKafka: true,
+	}
+
+	// try to call the tested function and capture its output
+	output, err := capture.ErrorOutput(func() {
+		log.Logger = log.Output(zerolog.New(os.Stderr))
+		code, err := main.DoSelectedOperation(&configuration, cliFlags)
+		assert.Equal(t, code, main.ExitStatusKafkaError)
+		assert.NoError(t, err)
+	})
+
+	// check the captured text
+	checkCapture(t, err)
+
+	// expected content printed by tested function
+	assert.Contains(t, output, main.ConnectionToBrokerMessage)
+	assert.Contains(t, output, main.AllBrokerConnectionAttemptsMessage)
 }
