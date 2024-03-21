@@ -5,7 +5,7 @@ go 1.18
 require (
 	github.com/BurntSushi/toml v1.3.2
 	github.com/DATA-DOG/go-sqlmock v1.5.2
-	github.com/RedHatInsights/insights-operator-utils v1.25.4
+	github.com/RedHatInsights/insights-operator-utils v1.24.13
 	github.com/RedHatInsights/insights-results-types v1.3.23
 	github.com/Shopify/sarama v1.38.1
 	github.com/google/uuid v1.6.0
@@ -13,7 +13,7 @@ require (
 	github.com/mattn/go-sqlite3 v2.0.3+incompatible
 	github.com/prometheus/client_golang v1.18.0
 	github.com/redhatinsights/app-common-go v1.6.7
-	github.com/rs/zerolog v1.32.0
+	github.com/rs/zerolog v1.31.0
 	github.com/spf13/viper v1.16.0
 	github.com/stretchr/testify v1.8.4
 	github.com/tisnik/go-capture v1.0.1
