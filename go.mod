@@ -1,6 +1,6 @@
 module github.com/RedHatInsights/ccx-notification-writer
 
-go 1.14
+go 1.20
 
 require (
 	github.com/BurntSushi/toml v0.3.1
