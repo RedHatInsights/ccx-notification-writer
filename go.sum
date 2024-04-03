@@ -2,8 +2,8 @@ github.com/BurntSushi/toml v1.3.2 h1:o7IhLm0Msx3BaB+n3Ag7L8EVlByGnpq14C4YWiu/gL8
 github.com/BurntSushi/toml v1.3.2/go.mod h1:CxXYINrC8qIiEnFrOxCa7Jy5BFHlXnUU2pbicEuybxQ=
 github.com/DATA-DOG/go-sqlmock v1.5.2 h1:OcvFkGmslmlZibjAjaHm3L//6LiuBgolP7OputlJIzU=
 github.com/DATA-DOG/go-sqlmock v1.5.2/go.mod h1:88MAG/4G7SMwSE3CeA0ZKzrT5CiOU3OJ+JlNzwDqpNU=
-github.com/RedHatInsights/insights-operator-utils v1.24.13 h1:zAOHXaFfTp/aDQ0mxd61JfxBSNL+bCfrrO0fKdyUp50=
-github.com/RedHatInsights/insights-operator-utils v1.24.13/go.mod h1:vHQLHaQhOsdMAJKZ6AYsa01UO7w/mfyJqqW3Iy8ofHU=
+github.com/RedHatInsights/insights-operator-utils v1.25.4 h1:H5iXuvsxFkjmGmAefkv6b+FxQWq9b0me7FPa7Fx8M1Y=
+github.com/RedHatInsights/insights-operator-utils v1.25.4/go.mod h1:GGa8HtCNKyfugkNkpVojp+mO24N27npbgi85QkpPteA=
 github.com/RedHatInsights/insights-results-types v1.3.23 h1:F0QlBqZup7KKEzxe84/Wmp9kunuoHbQf9Ir3kLpUBAk=
 github.com/RedHatInsights/insights-results-types v1.3.23/go.mod h1:6VVdMTGU/BAS2cW0KrHAUiDyocpyKqpPpEyp6AJ1tk8=
 github.com/Shopify/sarama v1.38.1 h1:lqqPUPQZ7zPqYlWpTh+LQ9bhYNu2xJL6k1SJN4WVe2A=
