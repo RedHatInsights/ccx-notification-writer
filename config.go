@@ -92,6 +92,7 @@ import (
 	"strings"
 
 	"github.com/BurntSushi/toml"
+	"github.com/RedHatInsights/insights-operator-utils/logger"
 
 	"path/filepath"
 
@@ -115,32 +116,17 @@ const (
 // ConfigStruct is a structure holding the whole notification service
 // configuration
 type ConfigStruct struct {
-	Broker  BrokerConfiguration  `mapstructure:"broker"  toml:"broker"`
-	Storage StorageConfiguration `mapstructure:"storage" toml:"storage"`
-	Logging LoggingConfiguration `mapstructure:"logging" toml:"logging"`
-	Metrics MetricsConfiguration `mapstructure:"metrics" toml:"metrics"`
+	Broker         BrokerConfiguration            `mapstructure:"broker"  toml:"broker"`
+	Storage        StorageConfiguration           `mapstructure:"storage" toml:"storage"`
+	Logging        logger.LoggingConfiguration    `mapstructure:"logging" toml:"logging"`
+	CloudWatchConf logger.CloudWatchConfiguration `mapstructure:"cloudwatch" toml:"cloudwatch"`
+	Metrics        MetricsConfiguration           `mapstructure:"metrics" toml:"metrics"`
 }
 
 // MetricsConfiguration holds metrics related configuration
 type MetricsConfiguration struct {
 	Namespace string `mapstructure:"namespace" toml:"namespace"`
 	Address   string `mapstructure:"address" toml:"address"`
-}
-
-// LoggingConfiguration represents configuration for logging in general
-type LoggingConfiguration struct {
-	// Debug enables pretty colored logging
-	Debug bool `mapstructure:"debug" toml:"debug"`
-
-	// LogLevel sets logging level to show. Possible values are:
-	// "debug"
-	// "info"
-	// "warn", "warning"
-	// "error"
-	// "fatal"
-	//
-	// logging level won't be changed if value is not one of listed above
-	LogLevel string `mapstructure:"log_level" toml:"log_level"`
 }
 
 // BrokerConfiguration represents configuration for the broker
@@ -253,8 +239,13 @@ func GetStorageConfiguration(configuration *ConfigStruct) StorageConfiguration {
 }
 
 // GetLoggingConfiguration returns logging configuration
-func GetLoggingConfiguration(configuration *ConfigStruct) LoggingConfiguration {
+func GetLoggingConfiguration(configuration *ConfigStruct) logger.LoggingConfiguration {
 	return configuration.Logging
+}
+
+// GetCloudWatchConfiguration returns cloudwatch configuration
+func GetCloudWatchConfiguration(configuration *ConfigStruct) logger.CloudWatchConfiguration {
+	return configuration.CloudWatchConf
 }
 
 // GetBrokerConfiguration returns broker configuration

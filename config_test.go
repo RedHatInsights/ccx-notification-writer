@@ -172,6 +172,25 @@ func TestLoadLoggingConfiguration(t *testing.T) {
 	assert.Equal(t, "", loggingCfg.LogLevel)
 }
 
+// TestLoadCloudwatchConfiguration tests loading the Cloudwatch configuration sub-tree
+func TestLoadCloudwatchConfiguration(t *testing.T) {
+	envVar := "CCX_NOTIFICATION_WRITER_CONFIG_FILE"
+
+	// set environment variable that points to config file
+	// (without extension)
+	mustSetEnv(t, envVar, "tests/config2")
+	config, err := main.LoadConfiguration(envVar, "")
+	assert.Nil(t, err, "Failed loading configuration file from env var!")
+
+	cfg := main.GetCloudWatchConfiguration(&config)
+
+	assert.Equal(t, false, cfg.Debug)
+	assert.Equal(t, "aws_secret", cfg.AWSSecretKey)
+	assert.Equal(t, "aws_access_id", cfg.AWSAccessID)
+	assert.Equal(t, "test_stream", cfg.StreamName)
+	assert.Equal(t, "test_group", cfg.LogGroup)
+}
+
 // TestLoadMetricsConfiguration tests loading the metrics configuration sub-tree
 func TestLoadMetricsConfiguration(t *testing.T) {
 	envVar := "CCX_NOTIFICATION_WRITER_CONFIG_FILE"
