@@ -52,6 +52,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/RedHatInsights/insights-operator-utils/logger"
 	utils "github.com/RedHatInsights/insights-operator-utils/migrations"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 
@@ -100,6 +101,8 @@ const (
 const (
 	// ExitStatusOK means that the tool finished with success
 	ExitStatusOK = iota
+	// ExitStatusConfigurationError is returned in case of any configuration-related error
+	ExitStatusConfigurationError
 	// ExitStatusConsumerError is returned in case of any consumer-related error
 	ExitStatusConsumerError
 	// ExitStatusKafkaError is returned in case of any Kafka-related error
@@ -595,21 +598,20 @@ func main() {
 	configuration, err := LoadConfiguration(configFileEnvVariableName, defaultConfigFileName)
 	if err != nil {
 		log.Err(err).Msg("Load configuration")
+		os.Exit(ExitStatusConfigurationError)
 	}
 
-	// initialize colorized log
-	if configuration.Logging.Debug {
-		log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
-	}
+	err = logger.InitZerolog(
+		GetLoggingConfiguration(&configuration),
+		GetCloudWatchConfiguration(&configuration),
+		logger.SentryLoggingConfiguration{},
+		logger.KafkaZerologConfiguration{},
+	)
 
-	// set log level
-	// TODO: refactor utils/logger appropriately
-	logLevel := convertLogLevel(configuration.Logging.LogLevel)
-	zerolog.SetGlobalLevel(logLevel)
-	log.Info().
-		Str("configured", configuration.Logging.LogLevel).
-		Int("internal", int(logLevel)).
-		Msg("Log level")
+	if err != nil {
+		log.Err(err).Msg("Logging configuration error")
+		os.Exit(ExitStatusConfigurationError)
+	}
 
 	log.Debug().Msg("Started")
 
