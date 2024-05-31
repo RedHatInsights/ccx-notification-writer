@@ -6,8 +6,8 @@ github.com/RedHatInsights/cloudwatch v0.0.0-20210111105023-1df2bdfe3291 h1:f2RIq
 github.com/RedHatInsights/cloudwatch v0.0.0-20210111105023-1df2bdfe3291/go.mod h1:8l+HqU8iWM6hA9kSAHgY3ItSlpEsPr8fb2R0GBp9S0U=
 github.com/RedHatInsights/insights-operator-utils v1.24.13 h1:zAOHXaFfTp/aDQ0mxd61JfxBSNL+bCfrrO0fKdyUp50=
 github.com/RedHatInsights/insights-operator-utils v1.24.13/go.mod h1:vHQLHaQhOsdMAJKZ6AYsa01UO7w/mfyJqqW3Iy8ofHU=
-github.com/RedHatInsights/insights-results-types v1.3.23 h1:F0QlBqZup7KKEzxe84/Wmp9kunuoHbQf9Ir3kLpUBAk=
-github.com/RedHatInsights/insights-results-types v1.3.23/go.mod h1:6VVdMTGU/BAS2cW0KrHAUiDyocpyKqpPpEyp6AJ1tk8=
+github.com/RedHatInsights/insights-results-types v1.23.4 h1:BWFxaaDRaNozhXmf1W25WnGI4qsulVACLD5PoUdWUE8=
+github.com/RedHatInsights/insights-results-types v1.23.4/go.mod h1:Cz4DzWtf860oCPtdjIRa26ZbDP++rMhCSPZvgXEuSHQ=
 github.com/RedHatInsights/kafka-zerolog v1.0.0 h1:4zPrLcwnfFl07qv9/ximlm1E/rWs93TkYnHrgNiU73A=
 github.com/RedHatInsights/kafka-zerolog v1.0.0/go.mod h1:HJul5oCsCRNiRlh/ayJDGdW3PzGlid/5aaQwJBn7was=
 github.com/Shopify/sarama v1.38.1 h1:lqqPUPQZ7zPqYlWpTh+LQ9bhYNu2xJL6k1SJN4WVe2A=
