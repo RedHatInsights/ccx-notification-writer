@@ -121,12 +121,19 @@ type ConfigStruct struct {
 	Logging        logger.LoggingConfiguration    `mapstructure:"logging" toml:"logging"`
 	CloudWatchConf logger.CloudWatchConfiguration `mapstructure:"cloudwatch" toml:"cloudwatch"`
 	Metrics        MetricsConfiguration           `mapstructure:"metrics" toml:"metrics"`
+	Tracker        TrackerConfiguration           `mapstructure:"tracker" toml:"tracker"`
 }
 
 // MetricsConfiguration holds metrics related configuration
 type MetricsConfiguration struct {
 	Namespace string `mapstructure:"namespace" toml:"namespace"`
 	Address   string `mapstructure:"address" toml:"address"`
+}
+
+// TrackerConfiguration holds configuration for payload tracker
+type TrackerConfiguration struct {
+	Topic       string `mapstructure:"topic" toml:"topic"`
+	ServiceName string `mapstructure:"service_name" toml:"service_name"`
 }
 
 // BrokerConfiguration represents configuration for the broker
@@ -256,6 +263,11 @@ func GetBrokerConfiguration(configuration *ConfigStruct) BrokerConfiguration {
 // GetMetricsConfiguration returns metrics configuration
 func GetMetricsConfiguration(configuration *ConfigStruct) MetricsConfiguration {
 	return configuration.Metrics
+}
+
+// GetTrackerConfiguration returns payload tracker configuration
+func GetTrackerConfiguration(configuration *ConfigStruct) TrackerConfiguration {
+	return configuration.Tracker
 }
 
 func updateBrokerCfgFromClowder(configuration *ConfigStruct) {

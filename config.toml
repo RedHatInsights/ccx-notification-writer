@@ -37,7 +37,6 @@ debug = true
 log_level = "info"
 logging_to_cloud_watch_enabled = false
 
-
 [cloudwatch]
 aws_access_id = "a key id"
 aws_secret_key = "tshhhh it is a secret"
@@ -51,3 +50,7 @@ create_stream_if_not_exists = true
 [metrics]
 namespace = "notification_writer"
 address = ":8080"
+
+[tracker]
+topic = "platform.payload-status"
+service_name = "ccx-notification-writer"
