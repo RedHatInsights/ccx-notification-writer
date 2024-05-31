@@ -181,6 +181,11 @@ objects:
                   name: cloudwatch
                   key: aws_secret_access_key
                   optional: true
+            - name: CCX_NOTIFICATION_WRITER__TRACKER__TOPIC
+              value: ${PAYLOAD_TRACKER_TOPIC}
+            - name: CCX_NOTIFICATION_WRITER__TRACKER__SERVICE_NAME
+              value: ${PAYLOAD_TRACKER_SERVICE_NAME}
+            
 
     database:
       # the DB name should match to app-interface DB name without specifying environment
@@ -295,3 +300,7 @@ parameters:
   value: $HOSTNAME
 - name: CREATE_STREAM_IF_NOT_EXISTS
   value: "true"
+- name: PAYLOAD_TRACKER_TOPIC
+  value: "platform.payload-status"
+- name: PAYLOAD_TRACKER_SERVICE_NAME
+  value: "ccx-notification-writer"
