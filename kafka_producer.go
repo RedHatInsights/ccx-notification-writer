@@ -37,7 +37,12 @@ type Producer struct {
 	Producer      sarama.SyncProducer
 }
 
-// New constructs new implementation of Producer interface
+type PayloadTrackerProducer struct {
+	ServiceName string
+	Producer
+}
+
+// NewProducer instantiates a Kafka Producer
 func NewProducer(config *BrokerConfiguration) (*Producer, error) {
 	saramaConfig, err := saramaProducerConfigFromBrokerConfig(config)
 	if err != nil {
@@ -53,6 +58,21 @@ func NewProducer(config *BrokerConfiguration) (*Producer, error) {
 	return &Producer{
 		Configuration: config,
 		Producer:      producer,
+	}, nil
+}
+
+func NewPayloadTrackerProducer(config *ConfigStruct) (*PayloadTrackerProducer, error) {
+	kafkaConfig := config.Broker
+	kafkaConfig.Topic = config.Tracker.Topic
+
+	producer, err := NewProducer(&kafkaConfig)
+	if err != nil {
+		return nil, err
+	}
+
+	return &PayloadTrackerProducer{
+		ServiceName: config.Tracker.ServiceName,
+		Producer:    *producer,
 	}, nil
 }
 
