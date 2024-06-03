@@ -115,3 +115,36 @@ func TestProducerSendEmptyMessage(t *testing.T) {
 	assert.NoError(t, err, "Couldn't produce message with given broker configuration")
 	helpers.FailOnError(t, kafkaProducer.Close())
 }
+
+func TestPayloadTrackerProducerNew(t *testing.T) {
+	mockBroker := sarama.NewMockBroker(t, 0)
+	defer mockBroker.Close()
+
+	handlerMap := map[string]sarama.MockResponse{
+		"MetadataRequest": sarama.NewMockMetadataResponse(t).
+			SetBroker(mockBroker.Addr(), mockBroker.BrokerID()).
+			SetLeader(brokerCfg.Topic, 0, mockBroker.BrokerID()),
+		"OffsetRequest": sarama.NewMockOffsetResponse(t).
+			SetOffset(brokerCfg.Topic, 0, -1, 0).
+			SetOffset(brokerCfg.Topic, 0, -2, 0),
+		"FetchRequest": sarama.NewMockFetchResponse(t, 1),
+		"FindCoordinatorRequest": sarama.NewMockFindCoordinatorResponse(t).
+			SetCoordinator(sarama.CoordinatorGroup, "", mockBroker),
+		"OffsetFetchRequest": sarama.NewMockOffsetFetchResponse(t).
+			SetOffset("", brokerCfg.Topic, 0, 0, "", sarama.ErrNoError),
+	}
+	mockBroker.SetHandlerByMap(handlerMap)
+
+	prod, err := main.NewPayloadTrackerProducer(&main.ConfigStruct{
+		Broker: main.BrokerConfiguration{
+			Addresses: mockBroker.Addr(),
+			Topic:     brokerCfg.Topic,
+		},
+		Tracker: main.TrackerConfiguration{
+			ServiceName: "test_service",
+			Topic:       "test_tracker_topic",
+		},
+	})
+	helpers.FailOnError(t, err)
+	helpers.FailOnError(t, prod.Close())
+}
