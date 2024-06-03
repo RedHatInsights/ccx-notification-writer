@@ -105,6 +105,8 @@ const (
 	ExitStatusConfigurationError
 	// ExitStatusConsumerError is returned in case of any consumer-related error
 	ExitStatusConsumerError
+	// ExitStatusProducerError is returned in case of any producer-related error
+	ExitStatusProducerError
 	// ExitStatusKafkaError is returned in case of any Kafka-related error
 	ExitStatusKafkaError
 	// ExitStatusStorageError is returned in case of any consumer-related error
@@ -460,7 +462,7 @@ func startService(configuration *ConfigStruct) (int, error) {
 
 	// if broker is disabled, simply don't start it
 	if brokerConfiguration.Enabled {
-		err := startConsumer(&brokerConfiguration, storage)
+		err := startConsumer(configuration, storage)
 		if err != nil {
 			log.Error().Err(err).Send()
 			return ExitStatusConsumerError, err
@@ -473,13 +475,18 @@ func startService(configuration *ConfigStruct) (int, error) {
 }
 
 // startConsumer function starts the Kafka consumer.
-func startConsumer(brokerConfiguration *BrokerConfiguration, storage Storage) error {
-	consumer, err := NewConsumer(brokerConfiguration, storage)
+func startConsumer(config *ConfigStruct, storage Storage) error {
+	consumer, err := NewConsumer(&config.Broker, storage)
 	if err != nil {
 		log.Error().Err(err).Msg("Construct broker failed")
 		return err
 	}
-	consumer.Serve()
+
+	pt, err := NewPayloadTrackerProducer(config)
+	if err != nil {
+		return err
+	}
+	consumer.Tracker = pt
 	return nil
 }
 

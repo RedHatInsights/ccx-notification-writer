@@ -119,6 +119,7 @@ type KafkaConsumer struct {
 	Configuration                        BrokerConfiguration
 	ConsumerGroup                        sarama.ConsumerGroup
 	Storage                              Storage
+	Tracker                              *PayloadTrackerProducer
 	numberOfSuccessfullyConsumedMessages uint64
 	numberOfErrorsConsumingMessages      uint64
 	Ready                                chan bool
