@@ -618,3 +618,12 @@ func saramaConfigFromBrokerConfig(brokerConfiguration *BrokerConfiguration) (*sa
 	}
 	return saramaConfig, nil
 }
+
+func saramaProducerConfigFromBrokerConfig(brokerConfiguration *BrokerConfiguration) (*sarama.Config, error) {
+	saramaConfig, err := saramaConfigFromBrokerConfig(brokerConfiguration)
+	if err != nil {
+		return nil, err
+	}
+	saramaConfig.Producer.Return.Successes = true
+	return saramaConfig, nil
+}
