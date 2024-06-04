@@ -135,10 +135,8 @@ func (producer *Producer) Close() error {
 }
 
 // TrackPayload publishes the status of a payload with the given request ID to
-// the payload tracker Kafka topic. Please keep in mind that if the request ID
-// is empty, the payload will not be tracked and no error will be raised because
-// this can happen in some scenarios and it is not considered an error.
-// Instead, only a warning is logged and no error is returned.
+// the payload tracker Kafka topic. If the request ID is empty, the payload
+// will not be tracked and the event is logged as a warning.
 func (producer *PayloadTrackerProducer) TrackPayload(reqID types.RequestID, timestamp time.Time, status string) error {
 	if len(reqID) == 0 {
 		log.Warn().Msg("request ID is missing, null or empty")
@@ -161,7 +159,6 @@ func (producer *PayloadTrackerProducer) TrackPayload(reqID types.RequestID, time
 		log.Error().Err(err).Msgf(
 			"unable to produce payload tracker message (request ID: '%s', timestamp: %v, status: '%s')",
 			reqID, timestamp, status)
-
 		return err
 	}
 

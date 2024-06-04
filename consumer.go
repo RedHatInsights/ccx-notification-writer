@@ -331,6 +331,8 @@ func (consumer *KafkaConsumer) HandleMessage(msg *sarama.ConsumerMessage) {
 	timeAfterProcessingMessage := time.Now()
 	messageProcessingDuration := timeAfterProcessingMessage.Sub(startTime).Seconds()
 
+	_ = consumer.Tracker.TrackPayload(requestID, timeAfterProcessingMessage, StatusMessageProcessed)
+
 	log.Info().
 		Int64(offsetKey, msg.Offset).
 		Int32(partitionKey, msg.Partition).
@@ -347,9 +349,13 @@ func (consumer *KafkaConsumer) HandleMessage(msg *sarama.ConsumerMessage) {
 			Err(err).
 			Msg("Error processing message consumed from Kafka")
 		consumer.numberOfErrorsConsumingMessages++
+
+		_ = consumer.Tracker.TrackPayload(requestID, timeAfterProcessingMessage, StatusError)
 	} else {
 		// The message was processed successfully.
 		consumer.numberOfSuccessfullyConsumedMessages++
+		_ = consumer.Tracker.TrackPayload(requestID, timeAfterProcessingMessage, StatusSuccess)
+
 	}
 
 	totalMessageDuration := time.Since(startTime)
@@ -410,7 +416,10 @@ func (consumer *KafkaConsumer) ProcessMessage(msg *sarama.ConsumerMessage) (type
 	ParsedIncomingMessage.Inc()
 
 	logMessageInfo(consumer, msg, message, "Read")
+
 	tRead := time.Now()
+
+	_ = consumer.Tracker.TrackPayload(message.RequestID, tRead, StatusReceived)
 
 	// Step #2: check message (schema) version
 	checkMessageVersion(consumer, &message, msg)
