@@ -35,6 +35,7 @@ import (
 	"github.com/tisnik/go-capture"
 
 	main "github.com/RedHatInsights/ccx-notification-writer"
+	types "github.com/RedHatInsights/insights-results-types"
 )
 
 // Constants used by various tests
@@ -80,8 +81,8 @@ func constructTestConsumer() *main.KafkaConsumer {
 // Construct parsed message used only for tests.
 func constructParsedMessage() main.IncomingMessage {
 	// mocked message
-	var orgID main.OrgID = main.OrgID(testOrganizationID)
-	var clusterName main.ClusterName = main.ClusterName(testClusterName)
+	var orgID types.OrgID = types.OrgID(testOrganizationID)
+	var clusterName types.ClusterName = types.ClusterName(testClusterName)
 
 	// construct mocked parsed message
 	return main.IncomingMessage{

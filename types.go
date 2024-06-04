@@ -50,19 +50,6 @@ type CliFlags struct {
 // missing request ID.
 type RequestID string
 
-// KafkaOffset is a data type representing offset in Kafka topic.
-type KafkaOffset int64
-
-// OrgID data type represents organization ID.
-type OrgID uint32
-
-// AccountNumber data type represents account number for a given report.
-type AccountNumber uint32
-
-// ClusterName data type represents name of cluster in format
-// c8590f31-e97e-4b85-b506-c45ce1911a12 (ie. in UUID format).
-type ClusterName string
-
 // ClusterReport represents the whole cluster report.
 type ClusterReport string
 

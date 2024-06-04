@@ -24,7 +24,7 @@ package main_test
 import (
 	"time"
 
-	main "github.com/RedHatInsights/ccx-notification-writer"
+	types "github.com/RedHatInsights/insights-results-types"
 )
 
 // MockStorage structure represents a mocked implementation of Storage
@@ -76,7 +76,7 @@ func (storage *MockStorage) Close() error {
 
 // WriteReportForCluster is a mocked reimplementation of the real
 // WriteReportForCluster method.
-func (storage *MockStorage) WriteReportForCluster(_ main.OrgID, _ main.AccountNumber, _ main.ClusterName, _ main.ClusterReport, _ time.Time, _ main.KafkaOffset) error {
+func (storage *MockStorage) WriteReportForCluster(_ types.OrgID, _ types.AccountNumber, _ types.ClusterName, _ types.ClusterReport, _ time.Time, _ types.KafkaOffset) error {
 	storage.writeReportCalled++
 
 	// return no error
@@ -130,7 +130,7 @@ func (storage *MockStorage) DatabaseDropIndexes() error {
 
 // GetLatestKafkaOffset is a mocked reimplementation of the real
 // GetLatestKafkaOffset method.
-func (storage *MockStorage) GetLatestKafkaOffset() (main.KafkaOffset, error) {
+func (storage *MockStorage) GetLatestKafkaOffset() (types.KafkaOffset, error) {
 	storage.getLatestKafkaOffsetCalled++
 
 	// return some offset + no error
