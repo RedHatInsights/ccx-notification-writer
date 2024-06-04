@@ -22,6 +22,7 @@ package main_test
 import (
 	"encoding/json"
 	"testing"
+	"time"
 
 	main "github.com/RedHatInsights/ccx-notification-writer"
 	"github.com/RedHatInsights/insights-operator-utils/tests/helpers"
@@ -147,4 +148,34 @@ func TestPayloadTrackerProducerNew(t *testing.T) {
 	})
 	helpers.FailOnError(t, err)
 	helpers.FailOnError(t, prod.Close())
+}
+
+func TestPayloadTrackerEmptyRequestID(t *testing.T) {
+	tracker := main.PayloadTrackerProducer{
+		ServiceName: "test",
+		Producer:    main.Producer{},
+	}
+
+	err := tracker.TrackPayload("", time.Now(), "any_status")
+	assert.NoError(t, err, "No error should be returned for empty request ID")
+}
+
+func TestPayloadTrackerValidRequestID(t *testing.T) {
+	mockProducer := mocks.NewSyncProducer(t, nil)
+	mockProducer.ExpectSendMessageAndSucceed()
+
+	p := main.Producer{
+		Configuration: &brokerCfg,
+		Producer:      mockProducer,
+	}
+
+	tracker := main.PayloadTrackerProducer{
+		ServiceName: "test",
+		Producer:    p,
+	}
+
+	err := tracker.TrackPayload("anything", time.Now(), "any_status")
+	assert.NoError(t, err, "No error should be returned for empty request ID")
+
+	helpers.FailOnError(t, tracker.Close())
 }
