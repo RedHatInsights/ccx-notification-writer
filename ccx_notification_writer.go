@@ -488,6 +488,7 @@ func startConsumer(config *ConfigStruct, storage Storage) error {
 		return err
 	}
 	consumer.Tracker = pt
+	consumer.Serve()
 	return nil
 }
 
