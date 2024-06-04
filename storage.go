@@ -40,6 +40,7 @@ import (
 
 	"database/sql"
 
+	types "github.com/RedHatInsights/insights-results-types"
 	_ "github.com/lib/pq"           // PostgreSQL database driver
 	_ "github.com/mattn/go-sqlite3" // SQLite database driver
 
@@ -293,19 +294,19 @@ const (
 type Storage interface {
 	Close() error
 	WriteReportForCluster(
-		orgID OrgID,
-		accountNumber AccountNumber,
-		clusterName ClusterName,
-		report ClusterReport,
+		orgID types.OrgID,
+		accountNumber types.AccountNumber,
+		clusterName types.ClusterName,
+		report types.ClusterReport,
 		collectedAtTime time.Time,
-		kafkaOffset KafkaOffset,
+		kafkaOffset types.KafkaOffset,
 	) error
 	DatabaseInitialization() error
 	DatabaseCleanup() error
 	DatabaseDropTables() error
 	DatabaseDropIndexes() error
 	DatabaseInitMigration() error
-	GetLatestKafkaOffset() (KafkaOffset, error)
+	GetLatestKafkaOffset() (types.KafkaOffset, error)
 	PrintNewReportsForCleanup(maxAge string) error
 	CleanupNewReports(maxAge string) (int, error)
 	PrintOldReportsForCleanup(maxAge string) error
@@ -445,12 +446,12 @@ func (storage DBStorage) Close() error {
 
 // WriteReportForCluster writes result (health status) for selected cluster for given organization
 func (storage DBStorage) WriteReportForCluster(
-	orgID OrgID,
-	accountNumber AccountNumber,
-	clusterName ClusterName,
-	report ClusterReport,
+	orgID types.OrgID,
+	accountNumber types.AccountNumber,
+	clusterName types.ClusterName,
+	report types.ClusterReport,
 	lastCheckedTime time.Time,
-	kafkaOffset KafkaOffset,
+	kafkaOffset types.KafkaOffset,
 ) error {
 	if storage.dbDriverType != DBDriverSQLite3 && storage.dbDriverType != DBDriverPostgres {
 		return fmt.Errorf("writing report with DB %v is not supported", storage.dbDriverType)
@@ -478,12 +479,12 @@ func (storage DBStorage) WriteReportForCluster(
 
 func (storage DBStorage) insertReport(
 	tx *sql.Tx,
-	orgID OrgID,
-	accountNumber AccountNumber,
-	clusterName ClusterName,
-	report ClusterReport,
+	orgID types.OrgID,
+	accountNumber types.AccountNumber,
+	clusterName types.ClusterName,
+	report types.ClusterReport,
 	lastCheckedTime time.Time,
-	kafkaOffset KafkaOffset,
+	kafkaOffset types.KafkaOffset,
 ) error {
 	_, err := tx.Exec(InsertNewReportStatement, orgID, accountNumber, clusterName, report, lastCheckedTime, kafkaOffset)
 	if err != nil {
@@ -689,8 +690,8 @@ func (storage DBStorage) DatabaseInitialization() error {
 }
 
 // GetLatestKafkaOffset returns latest kafka offset from report table
-func (storage DBStorage) GetLatestKafkaOffset() (KafkaOffset, error) {
-	var offset KafkaOffset
+func (storage DBStorage) GetLatestKafkaOffset() (types.KafkaOffset, error) {
+	var offset types.KafkaOffset
 	err := storage.connection.QueryRow("SELECT COALESCE(MAX(kafka_offset), 0) FROM new_reports;").Scan(&offset)
 	return offset, err
 }

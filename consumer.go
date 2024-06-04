@@ -34,6 +34,7 @@ import (
 	"time"
 
 	tlsutils "github.com/RedHatInsights/insights-operator-utils/tls"
+	types "github.com/RedHatInsights/insights-results-types"
 	"github.com/Shopify/sarama"
 	"github.com/google/uuid"
 	"github.com/rs/zerolog/log"
@@ -80,7 +81,7 @@ const (
 // CurrentSchemaVersion represents the currently supported data schema version
 //
 // TODO: make this value configurable
-const CurrentSchemaVersion = SchemaVersion(2)
+const CurrentSchemaVersion = types.SchemaVersion(2)
 
 // Report represents report send in a message consumed from any broker
 type Report map[string]*json.RawMessage
@@ -89,14 +90,14 @@ type Report map[string]*json.RawMessage
 // any broker. Some values might be missing in incorrectly formatted message so
 // pointers are used to be able to distinguish true values from nils.
 type IncomingMessage struct {
-	Organization  *OrgID         `json:"OrgID"`
-	AccountNumber *AccountNumber `json:"AccountNumber"`
-	ClusterName   *ClusterName   `json:"ClusterName"`
-	Report        *Report        `json:"Report"`
+	Organization  *types.OrgID         `json:"OrgID"`
+	AccountNumber *types.AccountNumber `json:"AccountNumber"`
+	ClusterName   *types.ClusterName   `json:"ClusterName"`
+	Report        *Report              `json:"Report"`
 	// LastChecked is a date in format "2020-01-23T16:15:59.478901889Z"
-	LastChecked string        `json:"LastChecked"`
-	Version     SchemaVersion `json:"Version"`
-	RequestID   RequestID     `json:"RequestId"`
+	LastChecked string              `json:"LastChecked"`
+	Version     types.SchemaVersion `json:"Version"`
+	RequestID   types.RequestID     `json:"RequestId"`
 }
 
 // KafkaConsumer in an implementation of Consumer interface
@@ -247,8 +248,9 @@ func (consumer *KafkaConsumer) ConsumeClaim(session sarama.ConsumerGroupSession,
 
 	// start consuming messages
 	for message := range claim.Messages() {
+		msgOffset := types.KafkaOffset(message.Offset)
 		// skip over old (already consumed messages)
-		if KafkaOffset(message.Offset) <= latestMessageOffset {
+		if msgOffset <= latestMessageOffset {
 			log.Warn().
 				Int64(offsetKey, message.Offset).
 				Msg("This offset was already processed by aggregator")
@@ -258,8 +260,8 @@ func (consumer *KafkaConsumer) ConsumeClaim(session sarama.ConsumerGroupSession,
 		consumer.HandleMessage(message)
 
 		session.MarkMessage(message, "")
-		if KafkaOffset(message.Offset) > latestMessageOffset {
-			latestMessageOffset = KafkaOffset(message.Offset)
+		if msgOffset > latestMessageOffset {
+			latestMessageOffset = msgOffset
 			log.Info().
 				Int64(offsetKey, int64(latestMessageOffset)).
 				Msg("Updating latest message offset")
@@ -281,6 +283,12 @@ func (consumer *KafkaConsumer) Close() error {
 			log.Error().
 				Err(err).
 				Msg("Unable to close consumer group")
+		}
+	}
+
+	if consumer.Tracker != nil {
+		if err := consumer.Tracker.Close(); err != nil {
+			log.Error().Err(err).Msg("unable to close payload tracker Kafka producer")
 		}
 	}
 
@@ -383,7 +391,7 @@ func tryToDeleteAttribute(message *Report, attributeName string) {
 }
 
 // ProcessMessage method processes an incoming message
-func (consumer *KafkaConsumer) ProcessMessage(msg *sarama.ConsumerMessage) (RequestID, error) {
+func (consumer *KafkaConsumer) ProcessMessage(msg *sarama.ConsumerMessage) (types.RequestID, error) {
 	tStart := time.Now()
 
 	// Step #1: parse the incomming message
@@ -459,14 +467,14 @@ func (consumer *KafkaConsumer) ProcessMessage(msg *sarama.ConsumerMessage) (Requ
 
 	tTimeCheck := time.Now()
 
-	kafkaOffset := KafkaOffset(msg.Offset)
+	kafkaOffset := types.KafkaOffset(msg.Offset)
 
 	// Step #6: write the shrunk report into storage (database)
 	err = consumer.Storage.WriteReportForCluster(
 		*message.Organization,
 		*message.AccountNumber,
 		*message.ClusterName,
-		ClusterReport(shrunkAsBytes),
+		types.ClusterReport(shrunkAsBytes),
 		tTimeCheck,
 		kafkaOffset,
 	)

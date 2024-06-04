@@ -25,10 +25,24 @@ package main
 // https://redhatinsights.github.io/ccx-notification-service/packages/producer/kafka/kafka_producer.html
 
 import (
+	"encoding/json"
 	"strings"
+	"time"
 
+	types "github.com/RedHatInsights/insights-results-types"
 	"github.com/Shopify/sarama"
 	"github.com/rs/zerolog/log"
+)
+
+const (
+	// StatusReceived is reported when a new payload is received.
+	StatusReceived = "received"
+	// StatusMessageProcessed is reported when the message of a payload has been processed.
+	StatusMessageProcessed = "processed"
+	// StatusSuccess is reported upon a successful handling of a payload.
+	StatusSuccess = "success"
+	// StatusError is reported when the handling of a payload fails for any reason.
+	StatusError = "error"
 )
 
 // Producer is an implementation of Producer interface
@@ -40,6 +54,15 @@ type Producer struct {
 type PayloadTrackerProducer struct {
 	ServiceName string
 	Producer
+}
+
+// PayloadTrackerMessage represents content of messages
+// sent to the Payload Tracker topic in Kafka.
+type PayloadTrackerMessage struct {
+	Service   string `json:"service"`
+	RequestID string `json:"request_id"`
+	Status    string `json:"status"`
+	Date      string `json:"date"`
 }
 
 // NewProducer instantiates a Kafka Producer
@@ -105,6 +128,40 @@ func (producer *Producer) Close() error {
 	log.Info().Msg("Shutting down kafka producer")
 	if err := producer.Producer.Close(); err != nil {
 		log.Error().Err(err).Msg("unable to close Kafka producer")
+		return err
+	}
+
+	return nil
+}
+
+// TrackPayload publishes the status of a payload with the given request ID to
+// the payload tracker Kafka topic. Please keep in mind that if the request ID
+// is empty, the payload will not be tracked and no error will be raised because
+// this can happen in some scenarios and it is not considered an error.
+// Instead, only a warning is logged and no error is returned.
+func (producer *PayloadTrackerProducer) TrackPayload(reqID types.RequestID, timestamp time.Time, status string) error {
+	if len(reqID) == 0 {
+		log.Warn().Msg("request ID is missing, null or empty")
+		return nil
+	}
+
+	trackerMsg := PayloadTrackerMessage{
+		Service:   producer.ServiceName,
+		RequestID: string(reqID),
+		Status:    status,
+		Date:      timestamp.UTC().Format(time.RFC3339Nano),
+	}
+
+	jsonBytes, err := json.Marshal(trackerMsg)
+	if err != nil {
+		return err
+	}
+	_, _, err = producer.Producer.ProduceMessage(jsonBytes)
+	if err != nil {
+		log.Error().Err(err).Msgf(
+			"unable to produce payload tracker message (request ID: '%s', timestamp: %v, status: '%s')",
+			reqID, timestamp, status)
+
 		return err
 	}
 

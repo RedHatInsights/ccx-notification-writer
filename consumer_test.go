@@ -33,6 +33,7 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	main "github.com/RedHatInsights/ccx-notification-writer"
+	types "github.com/RedHatInsights/insights-results-types"
 )
 
 // Constants used by unit tests
@@ -48,9 +49,9 @@ const (
 
 // Variables used by unit tests
 var (
-	ExpectedOrgID         = main.OrgID(1)
-	ExpectedAccountNumber = main.AccountNumber(1234)
-	ExpectedClusterName   = main.ClusterName("84f7eedc-0dd8-49cd-9d4d-f6646df3a5bc")
+	ExpectedOrgID         = types.OrgID(1)
+	ExpectedAccountNumber = types.AccountNumber(1234)
+	ExpectedClusterName   = types.ClusterName("84f7eedc-0dd8-49cd-9d4d-f6646df3a5bc")
 	LastCheckedAt         = time.Unix(25, 0).UTC()
 )
 
@@ -463,7 +464,7 @@ func TestParseProperMessage(t *testing.T) {
 	assert.Nil(t, err)
 
 	// check returned values
-	assert.Equal(t, main.OrgID(1), *message.Organization)
+	assert.Equal(t, types.OrgID(1), *message.Organization)
 	assert.Equal(t, ExpectedClusterName, *message.ClusterName)
 	assert.Equal(t, ExpectedAccountNumber, *message.AccountNumber)
 }
@@ -487,7 +488,7 @@ func TestParseProperMessageWrongOrgID(t *testing.T) {
 	assert.EqualError(
 		t,
 		err,
-		"json: cannot unmarshal string into Go struct field IncomingMessage.OrgID of type main.OrgID",
+		"json: cannot unmarshal string into Go struct field IncomingMessage.OrgID of type types.OrgID",
 	)
 }
 
@@ -510,7 +511,7 @@ func TestParseProperMessageWrongAccountNumber(t *testing.T) {
 	assert.EqualError(
 		t,
 		err,
-		"json: cannot unmarshal string into Go struct field IncomingMessage.AccountNumber of type main.AccountNumber",
+		"json: cannot unmarshal string into Go struct field IncomingMessage.AccountNumber of type types.AccountNumber",
 	)
 }
 

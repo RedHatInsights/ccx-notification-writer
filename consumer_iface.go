@@ -26,6 +26,7 @@ package main
 // https://redhatinsights.github.io/ccx-notification-writer/packages/consumer_iface.html
 
 import (
+	types "github.com/RedHatInsights/insights-results-types"
 	"github.com/Shopify/sarama"
 )
 
@@ -33,5 +34,5 @@ import (
 type Consumer interface {
 	Serve()
 	Close() error
-	ProcessMessage(msg *sarama.ConsumerMessage) (RequestID, error)
+	ProcessMessage(msg *sarama.ConsumerMessage) (types.RequestID, error)
 }
