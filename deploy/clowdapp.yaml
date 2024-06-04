@@ -185,7 +185,6 @@ objects:
               value: ${PAYLOAD_TRACKER_TOPIC}
             - name: CCX_NOTIFICATION_WRITER__TRACKER__SERVICE_NAME
               value: ${PAYLOAD_TRACKER_SERVICE_NAME}
-            
 
     database:
       # the DB name should match to app-interface DB name without specifying environment
@@ -304,3 +303,4 @@ parameters:
   value: "platform.payload-status"
 - name: PAYLOAD_TRACKER_SERVICE_NAME
   value: "ccx-notification-writer"
+

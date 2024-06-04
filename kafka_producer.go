@@ -1,5 +1,5 @@
 /*
-Copyright © 2021, 2022, 2023 Red Hat, Inc.
+Copyright © 2024 Red Hat, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -45,12 +45,14 @@ const (
 	StatusError = "error"
 )
 
-// Producer is an implementation of Producer interface
+// Producer is a holder of a Sarama Producer and its configuration
 type Producer struct {
 	Configuration *BrokerConfiguration
 	Producer      sarama.SyncProducer
 }
 
+// PayloadTrackerProducer a holder of a Producer and the service name used
+// when sending tracking information
 type PayloadTrackerProducer struct {
 	ServiceName string
 	Producer
@@ -84,6 +86,7 @@ func NewProducer(config *BrokerConfiguration) (*Producer, error) {
 	}, nil
 }
 
+// NewPayloadTrackerProducer instantiates a PayloadTrackerProducer
 func NewPayloadTrackerProducer(config *ConfigStruct) (*PayloadTrackerProducer, error) {
 	kafkaConfig := config.Broker
 	kafkaConfig.Topic = config.Tracker.Topic
