@@ -484,6 +484,7 @@ func startConsumer(config *ConfigStruct, storage Storage) error {
 
 	pt, err := NewPayloadTrackerProducer(config)
 	if err != nil {
+		log.Error().Err(err).Msg("Construct payload tracker producer failed")
 		return err
 	}
 	consumer.Tracker = pt
