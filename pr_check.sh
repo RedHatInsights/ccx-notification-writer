@@ -11,14 +11,14 @@ APP_NAME="ccx-data-pipeline"  # name of app-sre "application" folder this compon
 #       git version of clowdapp.yaml(or any other) file from the pull request.
 COMPONENT_NAME="ccx-notification-writer ccx-notification-db-cleaner"  # name of app-sre "resourceTemplate" in deploy.yaml for this component
 IMAGE="quay.io/cloudservices/ccx-notification-writer"
-COMPONENTS="ccx-data-pipeline ccx-notification-writer ccx-notification-service ccx-notification-db-cleaner notifications-backend notifications-aggregator notifications-engine insights-content-service ccx-mock-ams"  # space-separated list of components to load
+COMPONENTS="ccx-data-pipeline ccx-insights-results dvo-writer ccx-smart-proxy ccx-notification-writer ccx-notification-service ccx-notification-db-cleaner notifications-backend notifications-aggregator notifications-engine insights-content-service ccx-mock-ams ccx-upgrades-sso-mock insights-content-template-renderer"  # space-separated list of components to load
 COMPONENTS_W_RESOURCES="ccx-notification-writer"  # component to keep
 CACHE_FROM_LATEST_IMAGE="true"
 DEPLOY_FRONTENDS="false"
 
 
 export IQE_PLUGINS="ccx"
-export IQE_MARKER_EXPRESSION="notifications"
+export IQE_MARKER_EXPRESSION="notifications or servicelog"
 export IQE_FILTER_EXPRESSION=""
 export IQE_REQUIREMENTS_PRIORITY=""
 export IQE_TEST_IMPORTANCE=""
