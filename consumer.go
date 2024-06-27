@@ -253,7 +253,7 @@ func (consumer *KafkaConsumer) ConsumeClaim(session sarama.ConsumerGroupSession,
 		if msgOffset <= latestMessageOffset {
 			log.Warn().
 				Int64(offsetKey, message.Offset).
-				Msg("This offset was already processed by aggregator")
+				Msg("This offset was already processed")
 		}
 
 		// handle new message
