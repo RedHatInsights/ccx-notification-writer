@@ -613,7 +613,7 @@ func main() {
 	err = logger.InitZerolog(
 		GetLoggingConfiguration(&configuration),
 		GetCloudWatchConfiguration(&configuration),
-		logger.SentryLoggingConfiguration{},
+		GetSentryConfiguration(&configuration),
 		logger.KafkaZerologConfiguration{},
 	)
 
@@ -621,9 +621,8 @@ func main() {
 		log.Err(err).Msg("Logging configuration error")
 		os.Exit(ExitStatusConfigurationError)
 	}
-
 	log.Debug().Msg("Started")
-
+	log.Error().Msg("TestError for notification writter and db cleaner")
 	// override default value read from configuration file
 	if cliFlags.MaxAge == "" {
 		cliFlags.MaxAge = "7 days"
