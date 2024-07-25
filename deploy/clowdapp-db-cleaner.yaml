@@ -37,6 +37,16 @@ objects:
           env:
           - name: CCX_NOTIFICATION_WRITER__BROKER__ENABLED
             value: 'false'
+          - name: CCX_NOTIFICATION_WRITER__LOGGING__LOGGING_TO_SENTRY_ENABLED
+            value: ${SENTRY_ENABLED}
+          - name: CCX_NOTIFICATION_WRITER__SENTRY__DSN
+            valueFrom:
+              secretKeyRef:
+                key: dsn
+                name: ccx-notification-db-cleaner-dsn
+                optional: true
+          - name: CCX_NOTIFICATION_WRITER__SENTRY__ENVIRONMENT
+            value: ${ENV_NAME}
           - name: CCX_NOTIFICATION_WRITER__STORAGE__DB_DRIVER
             value: postgres
           - name: CCX_NOTIFICATION_WRITER__STORAGE__PG_USERNAME
@@ -125,3 +135,5 @@ parameters:
   value: '8 days'
 - name: PG_PARAMS
   value: sslmode=require
+- name: SENTRY_ENABLED
+  value: "false"

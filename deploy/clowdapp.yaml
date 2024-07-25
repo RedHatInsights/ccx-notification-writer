@@ -88,6 +88,16 @@ objects:
                 value: 'true'
               - name: CCX_NOTIFICATION_WRITER__LOGGING__LEVEL
                 value: ''
+              - name: CCX_NOTIFICATION_WRITER__LOGGING__LOGGING_TO_SENTRY_ENABLED
+                value: ${SENTRY_ENABLED}
+              - name: CCX_NOTIFICATION_WRITER__SENTRY__DSN
+                valueFrom:
+                  secretKeyRef:
+                    key: dsn
+                    name: ccx-notification-writer-dsn
+                    optional: true
+              - name: CCX_NOTIFICATION_WRITER__SENTRY__ENVIRONMENT
+                value: ${ENV_NAME}
               - name: CCX_NOTIFICATION_WRITER__METRICS__NAMESPACE
                 value: ${METRICS_NAMESPACE}
               - name: CCX_NOTIFICATION_WRITER__METRICS__ADDRESS
@@ -303,4 +313,6 @@ parameters:
   value: "platform.payload-status"
 - name: PAYLOAD_TRACKER_SERVICE_NAME
   value: "ccx-notification-writer"
+- name: SENTRY_ENABLED
+  value: "false"
 

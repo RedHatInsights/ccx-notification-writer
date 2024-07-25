@@ -36,6 +36,11 @@ log_sql_queries = true
 debug = true
 log_level = "info"
 logging_to_cloud_watch_enabled = false
+logging_to_sentry_enabled = false
+
+[sentry]
+dsn = ""
+environment = "dev"
 
 [cloudwatch]
 aws_access_id = "a key id"
