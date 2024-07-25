@@ -622,7 +622,6 @@ func main() {
 		os.Exit(ExitStatusConfigurationError)
 	}
 	log.Debug().Msg("Started")
-	log.Error().Msg("TestError for notification writter and db cleaner")
 	// override default value read from configuration file
 	if cliFlags.MaxAge == "" {
 		cliFlags.MaxAge = "7 days"

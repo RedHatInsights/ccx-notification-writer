@@ -43,7 +43,7 @@ objects:
             valueFrom:
               secretKeyRef:
                 key: dsn
-                name: ccx-notification-writer-dsn
+                name: ccx-notification-db-cleaner-dsn
                 optional: true
           - name: CCX_NOTIFICATION_WRITER__SENTRY__ENVIRONMENT
             value: ${ENV_NAME}
