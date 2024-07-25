@@ -116,12 +116,13 @@ const (
 // ConfigStruct is a structure holding the whole notification service
 // configuration
 type ConfigStruct struct {
-	Broker         BrokerConfiguration            `mapstructure:"broker"  toml:"broker"`
-	Storage        StorageConfiguration           `mapstructure:"storage" toml:"storage"`
-	Logging        logger.LoggingConfiguration    `mapstructure:"logging" toml:"logging"`
-	CloudWatchConf logger.CloudWatchConfiguration `mapstructure:"cloudwatch" toml:"cloudwatch"`
-	Metrics        MetricsConfiguration           `mapstructure:"metrics" toml:"metrics"`
-	Tracker        TrackerConfiguration           `mapstructure:"tracker" toml:"tracker"`
+	Broker         BrokerConfiguration               `mapstructure:"broker"  toml:"broker"`
+	Storage        StorageConfiguration              `mapstructure:"storage" toml:"storage"`
+	Logging        logger.LoggingConfiguration       `mapstructure:"logging" toml:"logging"`
+	CloudWatchConf logger.CloudWatchConfiguration    `mapstructure:"cloudwatch" toml:"cloudwatch"`
+	Metrics        MetricsConfiguration              `mapstructure:"metrics" toml:"metrics"`
+	Tracker        TrackerConfiguration              `mapstructure:"tracker" toml:"tracker"`
+	Sentry         logger.SentryLoggingConfiguration `mapstructure:"sentry" toml:"sentry"`
 }
 
 // MetricsConfiguration holds metrics related configuration
@@ -253,6 +254,11 @@ func GetLoggingConfiguration(configuration *ConfigStruct) logger.LoggingConfigur
 // GetCloudWatchConfiguration returns cloudwatch configuration
 func GetCloudWatchConfiguration(configuration *ConfigStruct) logger.CloudWatchConfiguration {
 	return configuration.CloudWatchConf
+}
+
+// GetSentryConfiguration returns sentry configuration
+func GetSentryConfiguration(configuration *ConfigStruct) logger.SentryLoggingConfiguration {
+	return configuration.Sentry
 }
 
 // GetBrokerConfiguration returns broker configuration
