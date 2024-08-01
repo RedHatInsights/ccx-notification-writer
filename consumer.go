@@ -538,13 +538,14 @@ func checkReportStructure(r Report) error {
 	// the structure is not well defined yet, so all we should do is to check if all keys are there
 	expectedKeys := []string{
 		fingerprintsAttribute,
-		infoAttribute,
 		reportsAttribute,
 		systemAttribute,
 	}
 
 	// 'skips' key is now optional, we should not expect it anymore:
 	// https://github.com/RedHatInsights/insights-results-aggregator/issues/1206
+	// Simialrly, 'info'  key is now optional too.
+	// https://github.com/RedHatInsights/insights-results-aggregator/pull/1996
 	// expectedKeys := []string{"fingerprints", "info", "reports", "skips", "system"}
 
 	// check if the structure contains all expected keys
