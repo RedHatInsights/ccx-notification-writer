@@ -5,7 +5,7 @@ go 1.20
 require (
 	github.com/BurntSushi/toml v1.4.0
 	github.com/DATA-DOG/go-sqlmock v1.5.2
-	github.com/RedHatInsights/insights-operator-utils v1.25.4
+	github.com/RedHatInsights/insights-operator-utils v1.25.7
 	github.com/RedHatInsights/insights-results-types v1.23.4
 	github.com/Shopify/sarama v1.38.1
 	github.com/google/uuid v1.6.0
@@ -23,8 +23,8 @@ require (
 require (
 	github.com/RedHatInsights/cloudwatch v0.0.0-20210111105023-1df2bdfe3291 // indirect
 	github.com/RedHatInsights/kafka-zerolog v1.0.0 // indirect
-	github.com/archdx/zerolog-sentry v1.8.2 // indirect
-	github.com/aws/aws-sdk-go v1.50.16 // indirect
+	github.com/archdx/zerolog-sentry v1.8.4 // indirect
+	github.com/aws/aws-sdk-go v1.55.5 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/bitly/go-simplejson v0.5.0 // indirect
 	github.com/bmizerany/assert v0.0.0-20160611221934-b7ed37b82869 // indirect
@@ -62,7 +62,7 @@ require (
 	github.com/pierrec/lz4 v2.5.2+incompatible // indirect
 	github.com/pierrec/lz4/v4 v4.1.17 // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
-	github.com/prometheus/client_model v0.5.0 // indirect
+	github.com/prometheus/client_model v0.6.1 // indirect
 	github.com/prometheus/common v0.48.0 // indirect
 	github.com/prometheus/procfs v0.12.0 // indirect
 	github.com/rcrowley/go-metrics v0.0.0-20201227073835-cf1acfcdf475 // indirect
