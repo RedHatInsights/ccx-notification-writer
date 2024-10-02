@@ -47,6 +47,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"math"
 	"net/http"
 	"os"
 	"strconv"
@@ -683,6 +684,12 @@ func PerformMigrations(configuration *ConfigStruct, migParam string) (exitStatus
 			log.Error().Err(err).Msgf("Unable to parse migration version: %v", migParam)
 			exitStatus = ExitStatusMigrationError
 			err = convErr
+			return
+		}
+		if vers < 0 || vers > math.MaxUint32 {
+			log.Error().Err(err).Msgf("Unable to parse migration version: %v version out of range", migParam)
+			exitStatus = ExitStatusMigrationError
+			err = fmt.Errorf("version out of range: %v", vers)
 			return
 		}
 		desiredVersion = utils.Version(uint32(vers))
