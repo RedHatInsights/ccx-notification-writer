@@ -685,7 +685,7 @@ func PerformMigrations(configuration *ConfigStruct, migParam string) (exitStatus
 			err = convErr
 			return
 		}
-		desiredVersion = utils.Version(vers)
+		desiredVersion = utils.Version(uint32(vers))
 	}
 
 	// perform database migration
