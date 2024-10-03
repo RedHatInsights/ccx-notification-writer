@@ -95,7 +95,7 @@ parameters:
 # general params
 - description: Image name
   name: IMAGE
-  value: quay.io/cloudservices/ccx-notification-writer
+  value: quay.io/redhat-services-prod/obsint-processing-tenant/notification-writer/notification-writer
 - description: Image tag
   name: IMAGE_TAG
   required: true

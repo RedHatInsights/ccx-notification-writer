@@ -15,6 +15,12 @@ COMPONENTS="ccx-data-pipeline ccx-insights-results dvo-writer ccx-smart-proxy cc
 COMPONENTS_W_RESOURCES="ccx-notification-writer"  # component to keep
 CACHE_FROM_LATEST_IMAGE="true"
 DEPLOY_FRONTENDS="false"
+# Set the correct images for pull requests.
+# pr_check in pull requests still uses the old cloudservices images
+EXTRA_DEPLOY_ARGS="\
+  --set-parameter ccx-notification-writer/IMAGE=quay.io/cloudservices/ccx-notification-writer \
+  --set-parameter ccx-notification-db-cleaner/IMAGE=quay.io/cloudservices/ccx-notification-writer \
+"
 
 
 export IQE_PLUGINS="ccx"
