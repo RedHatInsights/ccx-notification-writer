@@ -47,6 +47,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"math"
 	"net/http"
 	"os"
 	"strconv"
@@ -685,7 +686,13 @@ func PerformMigrations(configuration *ConfigStruct, migParam string) (exitStatus
 			err = convErr
 			return
 		}
-		desiredVersion = utils.Version(vers)
+		if vers < 0 || vers > math.MaxUint32 {
+			log.Error().Err(err).Msgf("Unable to parse migration version: %v version out of range", migParam)
+			exitStatus = ExitStatusMigrationError
+			err = fmt.Errorf("version out of range: %v", vers)
+			return
+		}
+		desiredVersion = utils.Version(uint32(vers))
 	}
 
 	// perform database migration
