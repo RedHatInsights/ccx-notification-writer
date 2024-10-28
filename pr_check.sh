@@ -21,6 +21,7 @@ EXTRA_DEPLOY_ARGS="\
   --set-parameter ccx-notification-writer/IMAGE=quay.io/cloudservices/ccx-notification-writer \
   --set-parameter ccx-notification-db-cleaner/IMAGE=quay.io/cloudservices/ccx-notification-writer \
 "
+EXTRA_DEPLOY_ARGS="${EXTRA_DEPLOY_ARGS} --no-remove-resources notifications-engine"
 
 
 export IQE_PLUGINS="ccx"
