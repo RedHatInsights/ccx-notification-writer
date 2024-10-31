@@ -551,6 +551,8 @@ func doSelectedOperation(configuration *ConfigStruct, cliFlags CliFlags) (int, e
 		return PrintMigrationInfo(configuration)
 	case cliFlags.PerformMigrations != "":
 		return PerformMigrations(configuration, cliFlags.PerformMigrations)
+	case cliFlags.TruncateOldReports:
+		return performTruncateOldReports(configuration)
 	default:
 		exitCode, err := startService(configuration)
 		return exitCode, err
@@ -600,6 +602,7 @@ func main() {
 	flag.BoolVar(&cliFlags.PrintReadErrorsForCleanup, "print-read-errors-for-cleanup", false, "print records from read_errors table to be cleaned up")
 	flag.BoolVar(&cliFlags.PerformReadErrorsCleanup, "read-errors-cleanup", false, "perform clean up of read_errors table")
 	flag.BoolVar(&cliFlags.MigrationInfo, "migration-info", false, "prints migration info")
+	flag.BoolVar(&cliFlags.TruncateOldReports, "truncate-old-reports", false, "truncate the reported table")
 	flag.StringVar(&cliFlags.MaxAge, "max-age", "", "max age for displaying/cleaning old records")
 	flag.StringVar(&cliFlags.PerformMigrations, "migrate", "", "set database version")
 	flag.Parse()
@@ -705,4 +708,25 @@ func PerformMigrations(configuration *ConfigStruct, migParam string) (exitStatus
 
 	exitStatus = ExitStatusOK
 	return
+}
+
+// performTruncateOldReports function truncates the reported table.
+func performTruncateOldReports(configuration *ConfigStruct) (int, error) {
+	// prepare the storage
+	storageConfiguration := GetStorageConfiguration(configuration)
+	storage, err := NewStorage(&storageConfiguration)
+	if err != nil {
+		log.Error().Err(err).Msg(operationFailedMessage)
+		return ExitStatusStorageError, err
+	}
+
+	// try to truncate the reported table
+	err = storage.TruncateOldReports()
+	if err != nil {
+		log.Err(err).Msg(databaseDropTablesOperationFailedMessage)
+		return ExitStatusStorageError, err
+	}
+
+	log.Info().Msg("Truncated `reported` table successfully")
+	return ExitStatusOK, nil
 }
