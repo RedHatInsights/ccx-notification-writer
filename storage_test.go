@@ -1272,3 +1272,62 @@ func TestPrintReadErrorsForCleanupOnError(t *testing.T) {
 	// check if all expectations were met
 	checkAllExpectations(t, mock)
 }
+
+// TestTruncateOldReports function checks the method Storage.TruncateOldReports.
+func TestTruncateOldReports(t *testing.T) {
+	// prepare new mocked connection to database
+	connection, mock := mustCreateMockConnection(t)
+
+	// expected SQL statement for truncation
+	expectedStatement := "TRUNCATE TABLE reported;"
+	mock.ExpectExec(expectedStatement).WillReturnResult(sqlmock.NewResult(0, 0))
+
+	// result set needs to be closed
+	mock.ExpectClose()
+
+	// prepare connection to mocked database
+	storage := main.NewFromConnection(connection, 1)
+
+	// call the tested method
+	err := storage.TruncateOldReports()
+	if err != nil {
+		t.Errorf("error was not expected while truncating old reports: %s", err)
+	}
+
+	// connection to mocked DB needs to be closed properly
+	checkConnectionClose(t, connection)
+
+	// check if all expectations were met
+	checkAllExpectations(t, mock)
+}
+
+// TestTruncateOldReportsOnError function checks the method Storage.TruncateOldReports when an error occurs.
+func TestTruncateOldReportsOnError(t *testing.T) {
+	// error to be thrown
+	mockedError := errors.New("mocked error")
+
+	// prepare new mocked connection to database
+	connection, mock := mustCreateMockConnection(t)
+
+	// expected SQL statement for truncation
+	expectedStatement := "TRUNCATE TABLE reported;"
+	mock.ExpectExec(expectedStatement).WillReturnError(mockedError)
+
+	// result set needs to be closed
+	mock.ExpectClose()
+
+	// prepare connection to mocked database
+	storage := main.NewFromConnection(connection, 1)
+
+	// call the tested method
+	err := storage.TruncateOldReports()
+	if err == nil {
+		t.Errorf("error was expected while truncating old reports: %s", err)
+	}
+
+	// connection to mocked DB needs to be closed properly
+	checkConnectionClose(t, connection)
+
+	// check if all expectations were met
+	checkAllExpectations(t, mock)
+}

@@ -43,6 +43,7 @@ type CliFlags struct {
 	MigrationInfo                 bool
 	MaxAge                        string
 	PerformMigrations             string
+	TruncateOldReports            bool
 }
 
 // RequestID data type is used to store the request ID supplied in input Kafka
