@@ -810,3 +810,9 @@ func (storage DBStorage) CleanupReadErrors(maxAge string) (int, error) {
 func (storage DBStorage) Connection() *sql.DB {
 	return storage.connection
 }
+
+// TruncateOldReports method truncates the reported table.
+func (storage DBStorage) TruncateOldReports() error {
+	_, err := storage.connection.Exec("TRUNCATE TABLE reported;")
+	return err
+}
