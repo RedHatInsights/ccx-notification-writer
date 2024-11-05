@@ -346,7 +346,6 @@ func NewStorage(configuration *StorageConfiguration) (*DBStorage, error) {
 
 	log.Info().
 		Str("driver", driverName).
-		Str("datasource", dataSource).
 		Msg("Making connection to data storage")
 
 	// prepare connection
