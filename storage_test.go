@@ -1,5 +1,5 @@
 /*
-Copyright © 2021 Red Hat, Inc.
+Copyright © 2021, 2022, 2023 Red Hat, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -35,13 +35,18 @@ import (
 	main "github.com/RedHatInsights/ccx-notification-writer"
 )
 
+// wrongDatabaseDriver is any integer value different from DBDriverSQLite3 and
+// DBDriverPostgres (see types.go)
+// (for selected DB operations)
+const wrongDatabaseDriver = 10
+
 // mustCreateMockConnection function tries to create a new mock connection and
 // checks if the operation was finished without problems.
 func mustCreateMockConnection(t *testing.T) (*sql.DB, sqlmock.Sqlmock) {
 	// try to initialize new mock connection
 	connection, mock, err := sqlmock.New()
 
-	// check the status
+	// check the status of initialize operation
 	if err != nil {
 		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
 	}
@@ -86,6 +91,8 @@ func TestGetLatestKafkaOffset(t *testing.T) {
 	// expected query performed by tested function
 	expectedQuery := "SELECT COALESCE\\(MAX\\(kafka_offset\\), 0\\) FROM new_reports;"
 	mock.ExpectQuery(expectedQuery).WillReturnRows(rows)
+
+	// result set needs to be closed
 	mock.ExpectClose()
 
 	// prepare connection to mocked database
@@ -125,6 +132,8 @@ func TestGetLatestKafkaOffsetOnError(t *testing.T) {
 	// expected query performed by tested function
 	expectedQuery := "SELECT COALESCE\\(MAX\\(kafka_offset\\), 0\\) FROM new_reports;"
 	mock.ExpectQuery(expectedQuery).WillReturnError(mockedError)
+
+	// result set needs to be closed
 	mock.ExpectClose()
 
 	// prepare connection to mocked database
@@ -161,8 +170,9 @@ func TestPrintNewReportsForCleanup(t *testing.T) {
 
 	// expected query performed by tested function
 	expectedQuery := "SELECT org_id, account_number, cluster, updated_at, kafka_offset FROM new_reports WHERE updated_at < NOW\\(\\) - \\$1::INTERVAL ORDER BY updated_at"
-
 	mock.ExpectQuery(expectedQuery).WillReturnRows(rows)
+
+	// result set needs to be closed
 	mock.ExpectClose()
 
 	// prepare connection to mocked database
@@ -194,8 +204,9 @@ func TestPrintNewReportsForCleanupOnScanError(t *testing.T) {
 
 	// expected query performed by tested function
 	expectedQuery := "SELECT org_id, account_number, cluster, updated_at, kafka_offset FROM new_reports WHERE updated_at < NOW\\(\\) - \\$1::INTERVAL ORDER BY updated_at"
-
 	mock.ExpectQuery(expectedQuery).WillReturnRows(rows)
+
+	// result set needs to be closed
 	mock.ExpectClose()
 
 	// prepare connection to mocked database
@@ -225,8 +236,9 @@ func TestPrintNewReportsForCleanupOnError(t *testing.T) {
 
 	// expected query performed by tested function
 	expectedQuery := "SELECT org_id, account_number, cluster, updated_at, kafka_offset FROM new_reports WHERE updated_at < NOW\\(\\) - \\$1::INTERVAL ORDER BY updated_at"
-
 	mock.ExpectQuery(expectedQuery).WillReturnError(mockedError)
+
+	// result set needs to be closed
 	mock.ExpectClose()
 
 	// prepare connection to mocked database
@@ -258,8 +270,9 @@ func TestPrintOldReportsForCleanup(t *testing.T) {
 
 	// expected query performed by tested function
 	expectedQuery := "SELECT org_id, account_number, cluster, updated_at, 0 FROM reported WHERE updated_at < NOW\\(\\) - \\$1::INTERVAL ORDER BY updated_at"
-
 	mock.ExpectQuery(expectedQuery).WillReturnRows(rows)
+
+	// result set needs to be closed
 	mock.ExpectClose()
 
 	// prepare connection to mocked database
@@ -291,8 +304,9 @@ func TestPrintOldReportsForCleanupOnScanError(t *testing.T) {
 
 	// expected query performed by tested function
 	expectedQuery := "SELECT org_id, account_number, cluster, updated_at, 0 FROM reported WHERE updated_at < NOW\\(\\) - \\$1::INTERVAL ORDER BY updated_at"
-
 	mock.ExpectQuery(expectedQuery).WillReturnRows(rows)
+
+	// result set needs to be closed
 	mock.ExpectClose()
 
 	// prepare connection to mocked database
@@ -322,8 +336,9 @@ func TestPrintOldReportsForCleanupOnError(t *testing.T) {
 
 	// expected query performed by tested function
 	expectedQuery := "SELECT org_id, account_number, cluster, updated_at, 0 FROM reported WHERE updated_at < NOW\\(\\) - \\$1::INTERVAL ORDER BY updated_at"
-
 	mock.ExpectQuery(expectedQuery).WillReturnError(mockedError)
+
+	// result set needs to be closed
 	mock.ExpectClose()
 
 	// prepare connection to mocked database
@@ -349,8 +364,9 @@ func TestCleanupNewReports(t *testing.T) {
 
 	// expected query performed by tested function
 	expectedStatement := "DELETE FROM new_reports WHERE updated_at < NOW\\(\\) - \\$1::INTERVAL"
-
 	mock.ExpectExec(expectedStatement).WillReturnResult(sqlmock.NewResult(1, 1))
+
+	// result set needs to be closed
 	mock.ExpectClose()
 
 	// prepare connection to mocked database
@@ -385,8 +401,9 @@ func TestCleanupNewReportsOnError(t *testing.T) {
 
 	// expected query performed by tested function
 	expectedStatement := "DELETE FROM new_reports WHERE updated_at < NOW\\(\\) - \\$1::INTERVAL"
-
 	mock.ExpectExec(expectedStatement).WillReturnError(mockedError)
+
+	// result set needs to be closed
 	mock.ExpectClose()
 
 	// prepare connection to mocked database
@@ -412,8 +429,9 @@ func TestCleanupOldReports(t *testing.T) {
 
 	// expected query performed by tested function
 	expectedStatement := "DELETE FROM reported WHERE updated_at < NOW\\(\\) - \\$1::INTERVAL"
-
 	mock.ExpectExec(expectedStatement).WillReturnResult(sqlmock.NewResult(1, 1))
+
+	// result set needs to be closed
 	mock.ExpectClose()
 
 	// prepare connection to mocked database
@@ -448,8 +466,9 @@ func TestCleanupOldReportsOnError(t *testing.T) {
 
 	// expected query performed by tested function
 	expectedStatement := "DELETE FROM reported WHERE updated_at < NOW\\(\\) - \\$1::INTERVAL"
-
 	mock.ExpectExec(expectedStatement).WillReturnError(mockedError)
+
+	// result set needs to be closed
 	mock.ExpectClose()
 
 	// prepare connection to mocked database
@@ -512,6 +531,8 @@ func TestWriteReportForClusterOnError(t *testing.T) {
 
 	mock.ExpectBegin()
 	mock.ExpectExec(expectedStatement).WillReturnError(mockedError)
+
+	// rollback in case of error is expected
 	mock.ExpectRollback()
 	mock.ExpectClose()
 
@@ -521,7 +542,31 @@ func TestWriteReportForClusterOnError(t *testing.T) {
 	// call the tested method
 	err := storage.WriteReportForCluster(1, 2, "foo", "", time.Now(), 42)
 	if err == nil {
-		t.Errorf("error was not expected while writing report for cluster: %s", err)
+		t.Errorf("error was expected while writing report for cluster: %s", err)
+	}
+
+	// connection to mocked DB needs to be closed properly
+	checkConnectionClose(t, connection)
+
+	// check if all expectations were met
+	checkAllExpectations(t, mock)
+}
+
+// TestWriteReportForClusterWrongDriver function checks the method
+// Storage.WriteReportForCluster.
+func TestWriteReportForClusterWrongDriver(t *testing.T) {
+	// prepare new mocked connection to database
+	connection, mock := mustCreateMockConnection(t)
+
+	mock.ExpectClose()
+
+	// prepare connection to mocked database
+	storage := main.NewFromConnection(connection, wrongDatabaseDriver)
+
+	// call the tested method
+	err := storage.WriteReportForCluster(1, 2, "foo", "", time.Now(), 42)
+	if err == nil {
+		t.Errorf("error was expected while writing report for cluster")
 	}
 
 	// connection to mocked DB needs to be closed properly
@@ -687,7 +732,7 @@ func TestDatabaseInitialization(t *testing.T) {
 	rows.AddRow(0)
 
 	mock.ExpectBegin()
-	mock.ExpectQuery("SELECT count\\(\\*\\) FROM migration_info;").WillReturnRows(rows)
+	mock.ExpectQuery("SELECT count\\(\\*\\) FROM states;").WillReturnRows(rows)
 	mock.ExpectCommit()
 
 	// prepare connection to mocked database
@@ -812,7 +857,7 @@ func TestDeleteFromTableStatement(t *testing.T) {
 
 // TestNewStorage checks whether constructor for new storage returns error for improper storage configuration
 func TestNewStorageError(t *testing.T) {
-	_, err := main.NewStorage(main.StorageConfiguration{
+	_, err := main.NewStorage(&main.StorageConfiguration{
 		Driver: "non existing driver",
 	})
 	assert.EqualError(t, err, "driver non existing driver is not supported")
@@ -820,7 +865,7 @@ func TestNewStorageError(t *testing.T) {
 
 // TestNewStoragePostgreSQL function tests creating new storage with logs
 func TestNewStoragePostgreSQL(t *testing.T) {
-	_, err := main.NewStorage(main.StorageConfiguration{
+	_, err := main.NewStorage(&main.StorageConfiguration{
 		Driver:        "postgres",
 		PGUsername:    "user",
 		PGPassword:    "password",
@@ -837,7 +882,7 @@ func TestNewStoragePostgreSQL(t *testing.T) {
 
 // TestNewStorageSQLite3 function tests creating new storage with logs
 func TestNewStorageSQLite3(t *testing.T) {
-	_, err := main.NewStorage(main.StorageConfiguration{
+	_, err := main.NewStorage(&main.StorageConfiguration{
 		Driver:        "sqlite3",
 		LogSQLQueries: true,
 	})
@@ -848,17 +893,441 @@ func TestNewStorageSQLite3(t *testing.T) {
 
 // TestClose function tests database close operation.
 func TestClose(t *testing.T) {
-	storage, err := main.NewStorage(main.StorageConfiguration{
+	storage, err := main.NewStorage(&main.StorageConfiguration{
 		Driver:        "sqlite3",
 		LogSQLQueries: true,
 	})
 
 	// we just happen to make connection without trying to actually connect
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 
 	// try to close the storage
 	err = storage.Close()
 
 	// it should not fail
-	assert.Nil(t, err)
+	assert.NoError(t, err)
+}
+
+// TestConnection function checks the method Storage.Connection.
+func TestConnection(t *testing.T) {
+	storage, err := main.NewStorage(&main.StorageConfiguration{
+		Driver:        "sqlite3",
+		LogSQLQueries: false,
+	})
+
+	// we just happen to make connection without trying to actually connect
+	assert.NoError(t, err)
+
+	// try to retrieve connection
+	returned := storage.Connection()
+	assert.NotNil(t, returned)
+
+	// try to close the storage
+	err = storage.Close()
+
+	// it should not fail
+	assert.NoError(t, err)
+}
+
+// TestDatabaseInitMigrationMigrationTableExistAlready function checks the
+// method Storage.DatabaseInitMigration when migration table already exist.
+func TestDatabaseInitMigrationTableExistAlready(t *testing.T) {
+	// prepare new mocked connection to database
+	connection, mock := mustCreateMockConnection(t)
+
+	// expected database version
+	expectedVersion := 42
+
+	// prepare mocked result for SQL query
+	rowsCount := sqlmock.NewRows([]string{"count"})
+	rowsCount.AddRow(1)
+
+	// prepare mocked result for SQL query
+	rowsVersion := sqlmock.NewRows([]string{"version"})
+	rowsVersion.AddRow(expectedVersion)
+
+	// expected SQL statements to be called
+	mock.ExpectBegin()
+
+	// first expected SQL statement
+	mock.ExpectQuery("SELECT count\\(\\*\\) FROM migration_info;").WillReturnRows(rowsCount)
+
+	// second expected SQL statement
+	mock.ExpectQuery("SELECT version FROM migration_info LIMIT 1;").WillReturnRows(rowsVersion)
+
+	// transaction should be commited
+	mock.ExpectCommit()
+
+	// prepare connection to mocked database
+	storage := main.NewFromConnection(connection, 1)
+
+	// call the tested method
+	err := storage.DatabaseInitMigration()
+	assert.NoError(t, err, "error was not expected during migration init")
+
+	// check if all expectations were met
+	checkAllExpectations(t, mock)
+}
+
+// TestDatabaseInitMigrationMigrationTableDoesNotExist function checks the
+// method Storage.DatabaseInitMigration when migration table does not exist or
+// is empty.
+func TestDatabaseInitMigrationTableDoesNotExist(t *testing.T) {
+	// error to be thrown
+	noSuchTable := errors.New("no such table: migration_info")
+
+	// prepare new mocked connection to database
+	connection, mock := mustCreateMockConnection(t)
+
+	// expected SQL statements to be called
+	mock.ExpectBegin()
+
+	// first expected SQL statement - it should mimic empty table
+	mock.ExpectQuery("SELECT count\\(\\*\\) FROM migration_info;").WillReturnError(noSuchTable)
+	mock.ExpectExec("DROP TABLE IF EXISTS migration_info").WillReturnResult(sqlmock.NewResult(1, 1))
+	mock.ExpectExec("CREATE TABLE IF NOT EXISTS migration_info \\( version integer not null \\);").WillReturnResult(sqlmock.NewResult(1, 1))
+	mock.ExpectExec("INSERT INTO migration_info \\(version\\) VALUES \\(0\\);").WillReturnResult(sqlmock.NewResult(1, 1))
+
+	// transaction should be commited
+	mock.ExpectCommit()
+
+	// prepare connection to mocked database
+	storage := main.NewFromConnection(connection, 1)
+
+	// call the tested method
+	err := storage.DatabaseInitMigration()
+	assert.NoError(t, err, "error was not expected during migration init")
+
+	// check if all expectations were met
+	checkAllExpectations(t, mock)
+}
+
+// TestDatabaseInitMigrationDropTableFailure function checks the method
+// Storage.DatabaseInitMigration when DROP migration table operation fails.
+func TestDatabaseInitMigrationDropTableFailure(t *testing.T) {
+	// error to be thrown
+	noSuchTable := errors.New("no such table: migration_info")
+
+	// drop table error
+	dropTableError := errors.New("DROP table error")
+
+	// prepare new mocked connection to database
+	connection, mock := mustCreateMockConnection(t)
+
+	// expected SQL statements to be called
+	mock.ExpectBegin()
+
+	// first expected SQL statement - it should mimic empty table
+	mock.ExpectQuery("SELECT count\\(\\*\\) FROM migration_info;").WillReturnError(noSuchTable)
+	mock.ExpectExec("DROP TABLE IF EXISTS migration_info").WillReturnError(dropTableError)
+
+	// transaction should be rollback-ed
+	mock.ExpectRollback()
+
+	// prepare connection to mocked database
+	storage := main.NewFromConnection(connection, 1)
+
+	// call the tested method
+	err := storage.DatabaseInitMigration()
+	assert.Error(t, err, "error WAS expected during migration init")
+	assert.Equal(t, err, dropTableError)
+
+	// check if all expectations were met
+	checkAllExpectations(t, mock)
+}
+
+// TestDatabaseInitMigrationCreateTableFailure function checks the
+// method Storage.DatabaseInitMigration when migration table can not be created.
+func TestDatabaseInitMigrationCreateTableFailure(t *testing.T) {
+	// error to be thrown
+	noSuchTable := errors.New("no such table: migration_info")
+
+	// create table error
+	createTableError := errors.New("CREATE table error")
+
+	// prepare new mocked connection to database
+	connection, mock := mustCreateMockConnection(t)
+
+	// expected SQL statements to be called
+	mock.ExpectBegin()
+
+	// first expected SQL statement - it should mimic empty table
+	mock.ExpectQuery("SELECT count\\(\\*\\) FROM migration_info;").WillReturnError(noSuchTable)
+	mock.ExpectExec("DROP TABLE IF EXISTS migration_info").WillReturnResult(sqlmock.NewResult(1, 1))
+	mock.ExpectExec("CREATE TABLE IF NOT EXISTS migration_info \\( version integer not null \\);").WillReturnError(createTableError)
+
+	// transaction should be rollback-ed
+	mock.ExpectRollback()
+
+	// prepare connection to mocked database
+	storage := main.NewFromConnection(connection, 1)
+
+	// call the tested method
+	err := storage.DatabaseInitMigration()
+	assert.Error(t, err, "error WAS expected during migration init")
+	assert.Equal(t, err, createTableError)
+
+	// check if all expectations were met
+	checkAllExpectations(t, mock)
+}
+
+// TestDatabaseInitMigrationInsertFailure function checks the method
+// Storage.DatabaseInitMigration when inserting new info into migration table
+// fails.
+func TestDatabaseInitMigrationInsertFailure(t *testing.T) {
+	// error to be thrown
+	noSuchTable := errors.New("no such table: migration_info")
+
+	// insert into table error
+	insertIntoTableError := errors.New("INSERT INTO table error")
+
+	// prepare new mocked connection to database
+	connection, mock := mustCreateMockConnection(t)
+
+	// expected SQL statements to be called
+	mock.ExpectBegin()
+
+	// first expected SQL statement - it should mimic empty table
+	mock.ExpectQuery("SELECT count\\(\\*\\) FROM migration_info;").WillReturnError(noSuchTable)
+	mock.ExpectExec("DROP TABLE IF EXISTS migration_info").WillReturnResult(sqlmock.NewResult(1, 1))
+	mock.ExpectExec("CREATE TABLE IF NOT EXISTS migration_info \\( version integer not null \\);").WillReturnResult(sqlmock.NewResult(1, 1))
+	mock.ExpectExec("INSERT INTO migration_info \\(version\\) VALUES \\(0\\);").WillReturnError(insertIntoTableError)
+
+	// transaction should be rollback-ed
+	mock.ExpectRollback()
+
+	// prepare connection to mocked database
+	storage := main.NewFromConnection(connection, 1)
+
+	// call the tested method
+	err := storage.DatabaseInitMigration()
+	assert.Error(t, err, "error WAS expected during migration init")
+	assert.Equal(t, err, insertIntoTableError)
+
+	// check if all expectations were met
+	checkAllExpectations(t, mock)
+}
+
+// TestCleanupReadErrors function checks the method Storage.CleanupReadErrors.
+func TestCleanupReadErrors(t *testing.T) {
+	// prepare new mocked connection to database
+	connection, mock := mustCreateMockConnection(t)
+
+	// expected query performed by tested function
+	expectedStatement := "DELETE FROM read_errors WHERE updated_at < NOW\\(\\) - \\$1::INTERVAL"
+	mock.ExpectExec(expectedStatement).WillReturnResult(sqlmock.NewResult(1, 1))
+
+	// result set needs to be closed
+	mock.ExpectClose()
+
+	// prepare connection to mocked database
+	storage := main.NewFromConnection(connection, 1)
+
+	// call the tested method
+	deleted, err := storage.CleanupReadErrors("1 day")
+	if err != nil {
+		t.Errorf("error was not expected while cleaning old reports: %s", err)
+	}
+
+	// check number of returned rows
+	if deleted != 1 {
+		t.Errorf("one row should be deleted, but %d rows were deleted", deleted)
+	}
+
+	// connection to mocked DB needs to be closed properly
+	checkConnectionClose(t, connection)
+
+	// check if all expectations were met
+	checkAllExpectations(t, mock)
+}
+
+// TestCleanupReadErrorsOnError function checks the method
+// Storage.CleanupReadErrors.
+func TestCleanupReadErrorsOnError(t *testing.T) {
+	// error to be thrown
+	mockedError := errors.New("mocked error")
+
+	// prepare new mocked connection to database
+	connection, mock := mustCreateMockConnection(t)
+
+	// expected query performed by tested function
+	expectedStatement := "DELETE FROM read_errors WHERE updated_at < NOW\\(\\) - \\$1::INTERVAL"
+	mock.ExpectExec(expectedStatement).WillReturnError(mockedError)
+
+	// result set needs to be closed
+	mock.ExpectClose()
+
+	// prepare connection to mocked database
+	storage := main.NewFromConnection(connection, 1)
+
+	// call the tested method
+	_, err := storage.CleanupReadErrors("1 day")
+	if err == nil {
+		t.Errorf("error was not expected while cleaning old reports: %s", err)
+	}
+
+	// connection to mocked DB needs to be closed properly
+	checkConnectionClose(t, connection)
+
+	// check if all expectations were met
+	checkAllExpectations(t, mock)
+}
+
+// TestPrintReadErrorsForCleanup function checks the method
+// Storage.PrinReadErrorsForCleanup.
+func TestPrintReadErrorsForCleanup(t *testing.T) {
+	// prepare new mocked connection to database
+	connection, mock := mustCreateMockConnection(t)
+
+	// prepare mocked result for SQL query
+	rows := sqlmock.NewRows([]string{"org_id", "account_number", "cluster", "updated_at", "kafka_offset"})
+	updatedAt := time.Now()
+	rows.AddRow(1, 0, "cluster_name", updatedAt, 0)
+
+	// expected query performed by tested function
+	expectedQuery := "SELECT org_id, 0, cluster, updated_at, 0 FROM read_errors WHERE updated_at < NOW\\(\\) - \\$1::INTERVAL ORDER BY updated_at"
+	mock.ExpectQuery(expectedQuery).WillReturnRows(rows)
+
+	// result set needs to be closed
+	mock.ExpectClose()
+
+	// prepare connection to mocked database
+	storage := main.NewFromConnection(connection, 1)
+
+	// call the tested method
+	err := storage.PrintReadErrorsForCleanup("1 day")
+	if err != nil {
+		t.Errorf("error was not expected while printing read errors: %s", err)
+	}
+
+	// connection to mocked DB needs to be closed properly
+	checkConnectionClose(t, connection)
+
+	// check if all expectations were met
+	checkAllExpectations(t, mock)
+}
+
+// TestPrintReadErrorsForCleanupOnScanError function checks the method
+// Storage.PrinReadErrorsForCleanup.
+func TestPrintReadErrorsForCleanupOnScanError(t *testing.T) {
+	// prepare new mocked connection to database
+	connection, mock := mustCreateMockConnection(t)
+
+	// prepare mocked result for SQL query
+	rows := sqlmock.NewRows([]string{"org_id", "account_number", "cluster", "updated_at", "kafka_offset"})
+	updatedAt := time.Now()
+	rows.AddRow(1, 0, nil, updatedAt, 0)
+
+	// expected query performed by tested function
+	expectedQuery := "SELECT org_id, 0, cluster, updated_at, 0 FROM read_errors WHERE updated_at < NOW\\(\\) - \\$1::INTERVAL ORDER BY updated_at"
+	mock.ExpectQuery(expectedQuery).WillReturnRows(rows)
+
+	// result set needs to be closed
+	mock.ExpectClose()
+
+	// prepare connection to mocked database
+	storage := main.NewFromConnection(connection, 1)
+
+	// call the tested method
+	err := storage.PrintReadErrorsForCleanup("1 day")
+	if err == nil {
+		t.Errorf("error was expected while printing records to cleanup: %s", err)
+	}
+
+	// connection to mocked DB needs to be closed properly
+	checkConnectionClose(t, connection)
+
+	// check if all expectations were met
+	checkAllExpectations(t, mock)
+}
+
+// TestPrintReadErrorsForCleanupOnError function checks the method
+// Storage.PrintReadErrorsForCleanup.
+func TestPrintReadErrorsForCleanupOnError(t *testing.T) {
+	// error to be thrown
+	mockedError := errors.New("mocked error")
+
+	// prepare new mocked connection to database
+	connection, mock := mustCreateMockConnection(t)
+
+	// expected query performed by tested function
+	expectedQuery := "SELECT org_id, 0, cluster, updated_at, 0 FROM read_errors WHERE updated_at < NOW\\(\\) - \\$1::INTERVAL ORDER BY updated_at"
+	mock.ExpectQuery(expectedQuery).WillReturnError(mockedError)
+
+	// result set needs to be closed
+	mock.ExpectClose()
+
+	// prepare connection to mocked database
+	storage := main.NewFromConnection(connection, 1)
+
+	// call the tested method
+	err := storage.PrintReadErrorsForCleanup("1 day")
+	if err == nil {
+		t.Errorf("error was expected while printing recorsd to cleanup: %s", err)
+	}
+
+	// connection to mocked DB needs to be closed properly
+	checkConnectionClose(t, connection)
+
+	// check if all expectations were met
+	checkAllExpectations(t, mock)
+}
+
+// TestTruncateOldReports function checks the method Storage.TruncateOldReports.
+func TestTruncateOldReports(t *testing.T) {
+	// prepare new mocked connection to database
+	connection, mock := mustCreateMockConnection(t)
+
+	// expected SQL statement for truncation
+	expectedStatement := "TRUNCATE TABLE reported;"
+	mock.ExpectExec(expectedStatement).WillReturnResult(sqlmock.NewResult(0, 0))
+
+	// result set needs to be closed
+	mock.ExpectClose()
+
+	// prepare connection to mocked database
+	storage := main.NewFromConnection(connection, 1)
+
+	// call the tested method
+	err := storage.TruncateOldReports()
+	if err != nil {
+		t.Errorf("error was not expected while truncating old reports: %s", err)
+	}
+
+	// connection to mocked DB needs to be closed properly
+	checkConnectionClose(t, connection)
+
+	// check if all expectations were met
+	checkAllExpectations(t, mock)
+}
+
+// TestTruncateOldReportsOnError function checks the method Storage.TruncateOldReports when an error occurs.
+func TestTruncateOldReportsOnError(t *testing.T) {
+	// error to be thrown
+	mockedError := errors.New("mocked error")
+
+	// prepare new mocked connection to database
+	connection, mock := mustCreateMockConnection(t)
+
+	// expected SQL statement for truncation
+	expectedStatement := "TRUNCATE TABLE reported;"
+	mock.ExpectExec(expectedStatement).WillReturnError(mockedError)
+
+	// result set needs to be closed
+	mock.ExpectClose()
+
+	// prepare connection to mocked database
+	storage := main.NewFromConnection(connection, 1)
+
+	// call the tested method
+	err := storage.TruncateOldReports()
+	if err == nil {
+		t.Errorf("error was expected while truncating old reports: %s", err)
+	}
+
+	// connection to mocked DB needs to be closed properly
+	checkConnectionClose(t, connection)
+
+	// check if all expectations were met
+	checkAllExpectations(t, mock)
 }

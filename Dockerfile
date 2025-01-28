@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM registry.redhat.io/rhel8/go-toolset:1.16 AS builder
+FROM registry.access.redhat.com/ubi9/go-toolset:9.5-1737480393 AS builder
 
 COPY . .
 
@@ -23,9 +23,13 @@ RUN umask 0022 && \
     make build && \
     chmod a+x ccx-notification-writer
 
-FROM registry.access.redhat.com/ubi8/ubi-minimal:latest
+FROM registry.access.redhat.com/ubi9/ubi-micro:latest
 
 COPY --from=builder /opt/app-root/src/ccx-notification-writer .
+
+# copy the certificates from builder image
+COPY --from=builder /etc/ssl /etc/ssl
+COPY --from=builder /etc/pki /etc/pki
 
 USER 1001
 

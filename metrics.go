@@ -177,5 +177,4 @@ func AddMetricsWithNamespace(namespace string) {
 		Name:      StoredBytesName,
 		Help:      StoredBytesHelp,
 	})
-
 }

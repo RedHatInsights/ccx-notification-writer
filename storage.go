@@ -1,5 +1,5 @@
 /*
-Copyright © 2021 Red Hat, Inc.
+Copyright © 2021, 2022 Red Hat, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -40,6 +40,7 @@ import (
 
 	"database/sql"
 
+	types "github.com/RedHatInsights/insights-results-types"
 	_ "github.com/lib/pq"           // PostgreSQL database driver
 	_ "github.com/mattn/go-sqlite3" // SQLite database driver
 
@@ -48,6 +49,10 @@ import (
 
 // Table creation-related scripts, queries, index creation etc.
 const (
+	// this statement drops the migration_info table
+	dropTableMigrationInfo = `
+		DROP TABLE IF EXISTS migration_info
+`
 	// This table contains information about DB schema version and about
 	// migration status.
 	createTableMigrationInfo = `
@@ -60,12 +65,12 @@ const (
 	// Notification service. Frequency can be specified as in `crontab` -
 	// https://crontab.guru/
 	createTableNotificationTypes = `
-                CREATE TABLE notification_types (
+                CREATE TABLE IF NOT EXISTS notification_types (
                     id          integer not null,
                     value       varchar not null,
                     frequency   varchar not null,
                     comment     varchar,
-                
+
                     PRIMARY KEY (id)
                 );
 `
@@ -75,11 +80,11 @@ const (
 	// same as previous, skipped because of lower pripority, or can be in
 	// error state.
 	createTableStates = `
-                CREATE TABLE states (
+                CREATE TABLE IF NOT EXISTS states (
                     id          integer not null,
                     value       varchar not null,
                     comment     varchar,
-                
+
                     PRIMARY KEY (id)
                 );
 `
@@ -87,7 +92,7 @@ const (
 	// Information of notifications reported to user or skipped due to some
 	// conditions.
 	createTableReported = `
-                CREATE TABLE reported (
+                CREATE TABLE IF NOT EXISTS reported (
                     org_id            integer not null,
                     account_number    integer not null,
                     cluster           character(36) not null,
@@ -97,7 +102,7 @@ const (
                     updated_at        timestamp not null,
                     notified_at       timestamp not null,
 		    error_log         varchar,
-                
+
                     PRIMARY KEY (org_id, cluster, notified_at),
                     CONSTRAINT fk_notification_type
                         foreign key(notification_type)
@@ -111,71 +116,74 @@ const (
 	// This table contains new reports consumed from Kafka topic and stored
 	// to database in shrunk format (some attributes are removed).
 	createTableNewReports = `
-                CREATE TABLE new_reports (
+                CREATE TABLE IF NOT EXISTS new_reports (
                     org_id            integer not null,
                     account_number    integer not null,
                     cluster           character(36) not null,
                     report            varchar not null,
                     updated_at        timestamp not null,
                     kafka_offset      bigint not null default 0,
-                
+
                     PRIMARY KEY (org_id, cluster, updated_at)
                 );
 `
 
 	// Index for the new_reports table
 	createIndexKafkaOffset = `
-                CREATE INDEX report_kafka_offset_btree_idx
+                CREATE INDEX IF NOT EXISTS report_kafka_offset_btree_idx
 		       ON new_reports (kafka_offset)
 `
 
 	// Index for the new_reports table
 	createIndexNewReportsOrgID = `
-                CREATE INDEX new_reports_org_id_idx
+                CREATE INDEX IF NOT EXISTS new_reports_org_id_idx
 		    ON new_reports
 		 USING btree (org_id);
 `
 
 	// Index for the new_reports table
 	createIndexNewReportsCluster = `
-                CREATE INDEX new_reports_cluster_idx
+                CREATE INDEX IF NOT EXISTS new_reports_cluster_idx
 		    ON new_reports
 		 USING btree (cluster);
 `
 	// Index for the new_reports table
 	createIndexNewReportsUpdatedAtAsc = `
-                CREATE INDEX new_reports_updated_at_asc_idx
+                CREATE INDEX IF NOT EXISTS new_reports_updated_at_asc_idx
 		       ON new_reports USING btree (updated_at ASC);
 `
 
 	// Index for the new_reports table
 	createIndexNewReportsUpdatedAtDesc = `
-                CREATE INDEX new_reports_updated_at_desc_idx
+                CREATE INDEX IF NOT EXISTS new_reports_updated_at_desc_idx
 		       ON new_reports USING btree (updated_at DESC);
 `
 
 	// Index for the reported table
 	createIndexReportedNotifiedAtDesc = `
-                CREATE INDEX notified_at_desc_idx
+                CREATE INDEX IF NOT EXISTS notified_at_desc_idx
 		    ON reported
 		 USING btree (notified_at DESC);
 `
 
 	// Index for the reported table
 	createIndexReportedUpdatedAtAsc = `
-                CREATE INDEX updated_at_desc_idx
+                CREATE INDEX IF NOT EXISTS updated_at_desc_idx
 		    ON reported
 		 USING btree (updated_at ASC);
 `
 
 	// Index for the notification_types table
 	createIndexNotificationTypesID = `
-                CREATE INDEX notification_types_id_idx
+                CREATE INDEX IF NOT EXISTS notification_types_id_idx
 		       ON notification_types USING btree (id ASC);
 `
 
 	// Get 0 if DB version is not inserted, 1 instead
 	isDatabaseVersionExist = `SELECT count(*) FROM migration_info;`
+
+	// Get 0 or error if states table is not initialized
+	isStateTableExist = `SELECT count(*) FROM states;`
 
 	// Retrieve DB version
 	getDatabaseVersion = `SELECT version FROM migration_info LIMIT 1;`
@@ -187,14 +195,12 @@ const (
 		 WHERE updated_at < NOW() - $1::INTERVAL
 		 ORDER BY updated_at
 `
-
 	// Delete older records from new_reports table
 	deleteOldRecordsFromNewReportsTable = `
                 DELETE
 		  FROM new_reports
 		 WHERE updated_at < NOW() - $1::INTERVAL
 `
-
 	// Display older records from reported table
 	displayOldRecordsFromReportedTable = `
                 SELECT org_id, account_number, cluster, updated_at, 0
@@ -202,17 +208,32 @@ const (
 		 WHERE updated_at < NOW() - $1::INTERVAL
 		 ORDER BY updated_at
 `
-
 	// Delete older records from reported table
 	deleteOldRecordsFromReportedTable = `
                 DELETE
 		  FROM reported
 		 WHERE updated_at < NOW() - $1::INTERVAL
 `
+
+	// Display older records from reported table
+	displayOldRecordsFromReadErrorsTable = `
+                SELECT org_id, 0, cluster, updated_at, 0
+		  FROM read_errors
+		 WHERE updated_at < NOW() - $1::INTERVAL
+		 ORDER BY updated_at
+`
+
+	// Delete older records from new_reports table
+	deleteOldRecordsFromReadErrorsTable = `
+                DELETE
+		  FROM read_errors
+		 WHERE updated_at < NOW() - $1::INTERVAL
+`
+
 	// Value to be stored in migration_info table
 	insertMigrationVersion = `
                 INSERT INTO migration_info (version)
-		            VALUES (1);
+		            VALUES (0);
 `
 	// Value to be stored in notification_types table
 	insertInstantReport = `
@@ -267,35 +288,31 @@ const (
 	UnableToCloseDBRowsHandle = "Unable to close the DB rows handle"
 	AgeMessage                = "Age"
 	MaxAgeAttribute           = "max age"
-	VersionMessage            = "Retrieve database version"
-)
-
-// Other constants
-const (
-	DatabaseVersion = 1
 )
 
 // Storage represents an interface to almost any database or storage system
 type Storage interface {
 	Close() error
 	WriteReportForCluster(
-		orgID OrgID,
-		accountNumber AccountNumber,
-		clusterName ClusterName,
-		report ClusterReport,
+		orgID types.OrgID,
+		accountNumber types.AccountNumber,
+		clusterName types.ClusterName,
+		report types.ClusterReport,
 		collectedAtTime time.Time,
-		kafkaOffset KafkaOffset,
+		kafkaOffset types.KafkaOffset,
 	) error
 	DatabaseInitialization() error
 	DatabaseCleanup() error
 	DatabaseDropTables() error
 	DatabaseDropIndexes() error
 	DatabaseInitMigration() error
-	GetLatestKafkaOffset() (KafkaOffset, error)
+	GetLatestKafkaOffset() (types.KafkaOffset, error)
 	PrintNewReportsForCleanup(maxAge string) error
 	CleanupNewReports(maxAge string) (int, error)
 	PrintOldReportsForCleanup(maxAge string) error
 	CleanupOldReports(maxAge string) (int, error)
+	PrintReadErrorsForCleanup(maxAge string) error
+	CleanupReadErrors(maxAge string) (int, error)
 }
 
 // DBStorage is an implementation of Storage interface that use selected SQL like database
@@ -309,7 +326,7 @@ type DBStorage struct {
 
 // ErrOldReport is an error returned if a more recent already
 // exists on the storage while attempting to write a report for a cluster.
-var ErrOldReport = errors.New("More recent report already exists in storage")
+var ErrOldReport = errors.New("more recent report already exists in storage")
 
 // tableNames contains names of all tables in the database.
 var tableNames []string
@@ -318,7 +335,7 @@ var tableNames []string
 var initStatements []string
 
 // NewStorage function creates and initializes a new instance of Storage interface
-func NewStorage(configuration StorageConfiguration) (*DBStorage, error) {
+func NewStorage(configuration *StorageConfiguration) (*DBStorage, error) {
 	log.Info().Msg("Initializing connection to storage")
 
 	driverType, driverName, dataSource, err := initAndGetDriver(configuration)
@@ -329,7 +346,6 @@ func NewStorage(configuration StorageConfiguration) (*DBStorage, error) {
 
 	log.Info().
 		Str("driver", driverName).
-		Str("datasource", dataSource).
 		Msg("Making connection to data storage")
 
 	// prepare connection
@@ -367,7 +383,6 @@ func NewStorage(configuration StorageConfiguration) (*DBStorage, error) {
 		createIndexNotificationTypesID,
 
 		// records
-		insertMigrationVersion,
 		insertInstantReport,
 		insertWeeklySummary,
 		insertSentState,
@@ -390,8 +405,7 @@ func NewFromConnection(connection *sql.DB, dbDriverType DBDriver) *DBStorage {
 
 // initAndGetDriver initializes driver(with logs if logSQLQueries is true),
 // checks if it's supported and returns driver type, driver name, dataSource and error
-func initAndGetDriver(configuration StorageConfiguration) (driverType DBDriver, driverName, dataSource string, err error) {
-	// var driver sql_driver.Driver
+func initAndGetDriver(configuration *StorageConfiguration) (driverType DBDriver, driverName, dataSource string, err error) {
 	driverName = configuration.Driver
 
 	switch driverName {
@@ -431,15 +445,15 @@ func (storage DBStorage) Close() error {
 
 // WriteReportForCluster writes result (health status) for selected cluster for given organization
 func (storage DBStorage) WriteReportForCluster(
-	orgID OrgID,
-	accountNumber AccountNumber,
-	clusterName ClusterName,
-	report ClusterReport,
+	orgID types.OrgID,
+	accountNumber types.AccountNumber,
+	clusterName types.ClusterName,
+	report types.ClusterReport,
 	lastCheckedTime time.Time,
-	kafkaOffset KafkaOffset,
+	kafkaOffset types.KafkaOffset,
 ) error {
 	if storage.dbDriverType != DBDriverSQLite3 && storage.dbDriverType != DBDriverPostgres {
-		return fmt.Errorf("Writing report with DB %v is not supported", storage.dbDriverType)
+		return fmt.Errorf("writing report with DB %v is not supported", storage.dbDriverType)
 	}
 
 	// Begin a new transaction.
@@ -464,12 +478,12 @@ func (storage DBStorage) WriteReportForCluster(
 
 func (storage DBStorage) insertReport(
 	tx *sql.Tx,
-	orgID OrgID,
-	accountNumber AccountNumber,
-	clusterName ClusterName,
-	report ClusterReport,
+	orgID types.OrgID,
+	accountNumber types.AccountNumber,
+	clusterName types.ClusterName,
+	report types.ClusterReport,
 	lastCheckedTime time.Time,
-	kafkaOffset KafkaOffset,
+	kafkaOffset types.KafkaOffset,
 ) error {
 	_, err := tx.Exec(InsertNewReportStatement, orgID, accountNumber, clusterName, report, lastCheckedTime, kafkaOffset)
 	if err != nil {
@@ -509,7 +523,6 @@ func tablesRelatedOperation(storage DBStorage, cmd func(string) string) error {
 	}
 
 	err = func(tx *sql.Tx) error {
-
 		// perform some operation to all tables
 		for _, tableName := range tableNames {
 			// it is not possible to use parameter for table name or a key
@@ -601,26 +614,35 @@ func (storage DBStorage) DatabaseInitMigration() error {
 	}
 
 	err = func(tx *sql.Tx) error {
-		// try to retrieve database version info
+		// check if table already exists
 		version, err := storage.GetDatabaseVersionInfo()
 
-		// it is possible (and expected) that version can not be read
-		if err != nil {
-			// just log the error - it is expected
-			log.Info().Str(VersionMessage, createTableMigrationInfo).Msg(SQLStatementMessage)
-		} else if version == DatabaseVersion {
-			// migration table already exists and contains the right version
+		if version >= 0 && err == nil {
+			// version_info table already created
+			log.Info().Msgf("database current version: %v", version)
 			return nil
 		}
+		// erase old migration table
+		log.Info().Str(StatementMessage, dropTableMigrationInfo).Msg(SQLStatementMessage)
+		_, err = tx.Exec(dropTableMigrationInfo)
+		if err != nil {
+			return err
+		}
 
-		// migration_info table initialization
+		// migration_info table creation
 		log.Info().Str(StatementMessage, createTableMigrationInfo).Msg(SQLStatementMessage)
-
-		// perform the SQL statement in transaction
 		_, err = tx.Exec(createTableMigrationInfo)
 		if err != nil {
 			return err
 		}
+
+		// set version to zero
+		log.Info().Str(StatementMessage, insertMigrationVersion).Msg(SQLStatementMessage)
+		_, err = tx.Exec(insertMigrationVersion)
+		if err != nil {
+			return err
+		}
+
 		return nil
 	}(tx)
 
@@ -639,16 +661,10 @@ func (storage DBStorage) DatabaseInitialization() error {
 	}
 
 	err = func(tx *sql.Tx) error {
-		// try to retrieve database version info
-		version, err := storage.GetDatabaseVersionInfo()
-		if err != nil {
-			log.Error().Err(err).Msg("DB version can not be retrieved")
-			log.Error().Msg("Try to run CCX Notification service with --db-init-migration")
-			return err
-		}
-
-		// skip rest of DB initialization, if already initialized
-		if version == DatabaseVersion {
+		// check if database is already initialized
+		var count int
+		err := storage.connection.QueryRow(isStateTableExist).Scan(&count)
+		if count > 0 && err == nil {
 			log.Info().Msg("Database is already initialized")
 			return nil
 		}
@@ -673,8 +689,8 @@ func (storage DBStorage) DatabaseInitialization() error {
 }
 
 // GetLatestKafkaOffset returns latest kafka offset from report table
-func (storage DBStorage) GetLatestKafkaOffset() (KafkaOffset, error) {
-	var offset KafkaOffset
+func (storage DBStorage) GetLatestKafkaOffset() (types.KafkaOffset, error) {
+	var offset types.KafkaOffset
 	err := storage.connection.QueryRow("SELECT COALESCE(MAX(kafka_offset), 0) FROM new_reports;").Scan(&offset)
 	return offset, err
 }
@@ -743,6 +759,12 @@ func (storage DBStorage) PrintOldReportsForCleanup(maxAge string) error {
 	return storage.PrintNewReports(maxAge, displayOldRecordsFromReportedTable, "reported")
 }
 
+// PrintReadErrorsForCleanup method prints all recorsd from `read_errors` table
+// older than specified relative time
+func (storage DBStorage) PrintReadErrorsForCleanup(maxAge string) error {
+	return storage.PrintNewReports(maxAge, displayOldRecordsFromReadErrorsTable, "read_errors")
+}
+
 // Cleanup method deletes all reports older than specified
 // relative time
 func (storage DBStorage) Cleanup(maxAge, statement string) (int, error) {
@@ -775,4 +797,21 @@ func (storage DBStorage) CleanupNewReports(maxAge string) (int, error) {
 // than specified relative time
 func (storage DBStorage) CleanupOldReports(maxAge string) (int, error) {
 	return storage.Cleanup(maxAge, deleteOldRecordsFromReportedTable)
+}
+
+// CleanupReadErrors method deletes all reports from `read_errors` table older
+// than specified relative time
+func (storage DBStorage) CleanupReadErrors(maxAge string) (int, error) {
+	return storage.Cleanup(maxAge, deleteOldRecordsFromReadErrorsTable)
+}
+
+// Connection returns the storage connection
+func (storage DBStorage) Connection() *sql.DB {
+	return storage.connection
+}
+
+// TruncateOldReports method truncates the reported table.
+func (storage DBStorage) TruncateOldReports() error {
+	_, err := storage.connection.Exec("TRUNCATE TABLE reported;")
+	return err
 }

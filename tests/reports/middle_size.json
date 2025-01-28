@@ -1,0 +1,143 @@
+{
+  "analysis_metadata": {
+    "start": "2022-08-18T14:14:05.354895+00:00",
+    "finish": "2022-08-18T14:14:07.036047+00:00",
+    "execution_context": "ccx_ocp_core.context.InsightsOperatorContext",
+    "plugin_sets": {
+      "insights-core": {
+        "version": "insights-core-3.0.290-1",
+        "commit": "placeholder"
+      },
+      "ccx_rules_ocp": {
+        "version": "ccx_rules_ocp-2022.8.17-1",
+        "commit": null
+      },
+      "ccx_ocp_core": {
+        "version": "ccx_ocp_core-2022.8.17-1",
+        "commit": null
+      }
+    }
+  },
+  "reports": [
+    {
+      "rule_id": "container_max_root_partition_size|CONTAINER_ROOT_PARTITION_SIZE",
+      "component": "ccx_rules_ocp.external.rules.container_max_root_partition_size.report",
+      "type": "rule",
+      "key": "CONTAINER_ROOT_PARTITION_SIZE",
+      "details": {
+        "mcps": [
+          "master",
+          "worker",
+          "master"
+        ],
+        "type": "rule",
+        "error_key": "CONTAINER_ROOT_PARTITION_SIZE"
+      },
+      "tags": [],
+      "links": {
+        "kcs": [
+          "https://access.redhat.com/solutions/5216861"
+        ]
+      }
+    },
+    {
+      "rule_id": "nodes_requirements_check|NODES_MINIMUM_REQUIREMENTS_NOT_MET",
+      "component": "ccx_rules_ocp.external.rules.nodes_requirements_check.report",
+      "type": "rule",
+      "key": "NODES_MINIMUM_REQUIREMENTS_NOT_MET",
+      "details": {
+        "nodes": [
+          {
+            "name": "worker-2",
+            "roles": "worker",
+            "cpu": 1,
+            "cpu_req": 2
+          }
+        ],
+        "type": "rule",
+        "error_key": "NODES_MINIMUM_REQUIREMENTS_NOT_MET"
+      },
+      "tags": [],
+      "links": {
+        "docs": [
+          "https://docs.openshift.com/container-platform/4.1/installing/installing_bare_metal/installing-bare-metal.html#minimum-resource-requirements_installing-bare-metal"
+        ]
+      }
+    },
+    {
+      "rule_id": "mcp_set_to_pause|MCP_SET_TO_PAUSE",
+      "component": "ccx_rules_ocp.external.rules.mcp_set_to_pause.report",
+      "type": "rule",
+      "key": "MCP_SET_TO_PAUSE",
+      "details": {
+        "pause": [
+          {
+            "name": "master"
+          }
+        ],
+        "type": "rule",
+        "error_key": "MCP_SET_TO_PAUSE"
+      },
+      "tags": [],
+      "links": {
+        "kcs": [
+          "https://access.redhat.com/solutions/5317441"
+        ],
+        "jira": [
+          "https://issues.redhat.com/browse/INSIGHTOCP-109",
+          "https://issues.redhat.com/browse/INSIGHTOCP-396"
+        ]
+      }
+    },
+    {
+      "rule_id": "image_registry_multiple_storage_types|IMAGE_REGISTRY_MULTIPLE_STORAGE_TYPES",
+      "component": "ccx_rules_ocp.external.rules.image_registry_multiple_storage_types.report",
+      "type": "rule",
+      "key": "IMAGE_REGISTRY_MULTIPLE_STORAGE_TYPES",
+      "details": {
+        "info": {
+          "meta": {
+            "name": "console",
+            "selfLink": null
+          },
+          "condition": {
+            "type": "Degraded",
+            "reason": "Error",
+            "message": "Unable to apply resources: unable to sync storage configuration: exactly one storage type should be configured at the same time",
+            "lastTransitionTime": "2019-09-09T06:41:24Z"
+          }
+        },
+        "type": "rule",
+        "error_key": "IMAGE_REGISTRY_MULTIPLE_STORAGE_TYPES"
+      },
+      "tags": [],
+      "links": {
+        "kcs": [
+          "https://access.redhat.com/solutions/4516391"
+        ]
+      }
+    },
+    {
+      "rule_id": "control_plane_replicas|CONTROL_PLANE_NODE_REPLICAS",
+      "component": "ccx_rules_ocp.external.rules.control_plane_replicas.report",
+      "type": "rule",
+      "key": "CONTROL_PLANE_NODE_REPLICAS",
+      "details": {
+        "version": "4.9",
+        "replica_count": 4,
+        "type": "rule",
+        "error_key": "CONTROL_PLANE_NODE_REPLICAS"
+      },
+      "tags": [],
+      "links": {
+        "jira": [
+          "https://issues.redhat.com/browse/INSIGHTOCP-120"
+        ],
+        "kcs": [
+          "https://access.redhat.com/solutions/4833531"
+        ]
+      }
+    }
+  ]
+}
+1

@@ -13,9 +13,6 @@
 # limitations under the License.
 
 
-# TODO notification-db deployment
-# TODO notification-db-cleaner deployment
-
 ---
 apiVersion: v1
 kind: Template
@@ -27,7 +24,7 @@ objects:
   apiVersion: autoscaling/v1
   metadata:
     labels:
-      app: ccx-notification-writer
+      app: ccx-data-pipeline
     name: ccx-notification-writer
   spec:
     minReplicas: ${{MIN_REPLICAS}}
@@ -35,26 +32,30 @@ objects:
     scaleTargetRef:
       apiVersion: apps/v1
       kind: Deployment
-      name: ccx-notification-writer
+      name: ccx-notification-writer-instance
     targetCPUUtilizationPercentage: 80
 
 - apiVersion: cloud.redhat.com/v1alpha1
   kind: ClowdApp
   metadata:
     name: ccx-notification-writer
+    annotations:
+      ignore-check.kube-linter.io/minimum-three-replicas: "This app doesn't have that much traffic"
   spec:
     envName: ${ENV_NAME}
+    dependencies:
+      - notifications-backend
+      - notifications-engine
     testing:
       iqePlugin: ccx
     deployments:
-      # ccx-notification-writer
-      - name: ccx-notification-writer
+      - name: instance
         minReplicas: ${{MIN_REPLICAS}}
         webServices:
           public:
             enabled: false
           private:
-            enabled: true
+            enabled: false
           metrics:
             enabled: true
         podSpec:
@@ -66,9 +67,10 @@ objects:
                 - '-c'
                 - >-
                   ./ccx-notification-writer --db-init-migration;
-                  ./ccx-notification-writer --db-init
+                  ./ccx-notification-writer --db-init;
+                  ./ccx-notification-writer --migrate ${DB_MIGRATION_VERSION};
               env:
-              - name: CCX_NOTIFICATION_WRITER__BROKER__ADDRESS
+              - name: CCX_NOTIFICATION_WRITER__BROKER__ADDRESSES
                 value: ${KAFKA_BOOTSTRAP_HOST}:${KAFKA_BOOTSTRAP_PORT}
               - name: CCX_NOTIFICATION_WRITER__BROKER__TOPIC
                 value: ${INCOMING_TOPIC}
@@ -78,39 +80,24 @@ objects:
                 value: 'false'
               - name: CCX_NOTIFICATION_WRITER__STORAGE__DB_DRIVER
                 value: postgres
-              - name: CCX_NOTIFICATION_WRITER__STORAGE__PG_USERNAME
-                valueFrom:
-                  secretKeyRef:
-                    key: db.user
-                    name: ${DATABASE_SERVICE_NAME}
-              - name: CCX_NOTIFICATION_WRITER__STORAGE__PG_PASSWORD
-                valueFrom:
-                  secretKeyRef:
-                    key: db.password
-                    name: ${DATABASE_SERVICE_NAME}
-              - name: CCX_NOTIFICATION_WRITER__STORAGE__PG_HOST
-                valueFrom:
-                  secretKeyRef:
-                    key: db.host
-                    name: ${DATABASE_SERVICE_NAME}
-              - name: CCX_NOTIFICATION_WRITER__STORAGE__PG_PORT
-                valueFrom:
-                  secretKeyRef:
-                    key: db.port
-                    name: ${DATABASE_SERVICE_NAME}
-              - name: CCX_NOTIFICATION_WRITER__STORAGE__PG_DB_NAME
-                valueFrom:
-                  secretKeyRef:
-                    key: db.name
-                    name: ${DATABASE_SERVICE_NAME}
               - name: CCX_NOTIFICATION_WRITER__STORAGE__PG_PARAMS
-                value: sslmode=disable
+                value: ${PG_PARAMS}
               - name: CCX_NOTIFICATION_WRITER__STORAGE__LOG_SQL_QUERIES
                 value: 'true'
               - name: CCX_NOTIFICATION_WRITER__LOGGING__DEBUG
                 value: 'true'
               - name: CCX_NOTIFICATION_WRITER__LOGGING__LEVEL
                 value: ''
+              - name: CCX_NOTIFICATION_WRITER__LOGGING__LOGGING_TO_SENTRY_ENABLED
+                value: ${SENTRY_ENABLED}
+              - name: CCX_NOTIFICATION_WRITER__SENTRY__DSN
+                valueFrom:
+                  secretKeyRef:
+                    key: dsn
+                    name: ccx-notification-writer-dsn
+                    optional: true
+              - name: CCX_NOTIFICATION_WRITER__SENTRY__ENVIRONMENT
+                value: ${ENV_NAME}
               - name: CCX_NOTIFICATION_WRITER__METRICS__NAMESPACE
                 value: ${METRICS_NAMESPACE}
               - name: CCX_NOTIFICATION_WRITER__METRICS__ADDRESS
@@ -124,6 +111,24 @@ objects:
                   memory: ${MEMORY_REQUEST}
               # End of initContainer
           image: ${IMAGE}:${IMAGE_TAG}
+          readinessProbe:
+            httpGet:
+              path: /metrics
+              port: 8080
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /metrics
+              port: 8080
+            failureThreshold: 1
+            periodSeconds: 10
+          startupProbe:
+            httpGet:
+              path: /metrics
+              port: 8080
+            # Wait for 10x10 seconds
+            failureThreshold: 10
+            periodSeconds: 10
           resources:
             limits:
               cpu: ${CPU_LIMIT}
@@ -132,7 +137,7 @@ objects:
               cpu: ${CPU_REQUEST}
               memory: ${MEMORY_REQUEST}
           env:
-            - name: CCX_NOTIFICATION_WRITER__BROKER__ADDRESS
+            - name: CCX_NOTIFICATION_WRITER__BROKER__ADDRESSES
               value: ${KAFKA_BOOTSTRAP_HOST}:${KAFKA_BOOTSTRAP_PORT}
             - name: CCX_NOTIFICATION_WRITER__BROKER__TOPIC
               value: ${INCOMING_TOPIC}
@@ -142,33 +147,8 @@ objects:
               value: 'true'
             - name: CCX_NOTIFICATION_WRITER__STORAGE__DB_DRIVER
               value: postgres
-            - name: CCX_NOTIFICATION_WRITER__STORAGE__PG_USERNAME
-              valueFrom:
-                secretKeyRef:
-                  key: db.user
-                  name: ${DATABASE_SERVICE_NAME}
-            - name: CCX_NOTIFICATION_WRITER__STORAGE__PG_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  key: db.password
-                  name: ${DATABASE_SERVICE_NAME}
-            - name: CCX_NOTIFICATION_WRITER__STORAGE__PG_HOST
-              valueFrom:
-                secretKeyRef:
-                  key: db.host
-                  name: ${DATABASE_SERVICE_NAME}
-            - name: CCX_NOTIFICATION_WRITER__STORAGE__PG_PORT
-              valueFrom:
-                secretKeyRef:
-                  key: db.port
-                  name: ${DATABASE_SERVICE_NAME}
-            - name: CCX_NOTIFICATION_WRITER__STORAGE__PG_DB_NAME
-              valueFrom:
-                secretKeyRef:
-                  key: db.name
-                  name: ${DATABASE_SERVICE_NAME}
             - name: CCX_NOTIFICATION_WRITER__STORAGE__PG_PARAMS
-              value: sslmode=disable
+              value: ${PG_PARAMS}
             - name: CCX_NOTIFICATION_WRITER__STORAGE__LOG_SQL_QUERIES
               value: 'true'
             - name: CCX_NOTIFICATION_WRITER__LOGGING__DEBUG
@@ -179,83 +159,61 @@ objects:
               value: ${METRICS_NAMESPACE}
             - name: CCX_NOTIFICATION_WRITER__METRICS__ADDRESS
               value: :8080
-
-      # ccx-notification-db-cleaner
-      - name: ccx-notification-db-cleaner
-        schedule: ${DB_CLEANER_JOB_SCHEDULE}
-        restartPolicy: Never
-        concurrencyPolicy: Forbid
-        activeDeadlineSeconds: 600
-        suspend: ${{SUSPEND_JOB}}
-        podSpec:
-          command:
-            - /bin/sh
-            - '-c'
-            - >-
-              ./ccx-notification-writer --old-reports-cleanup --max-age '8
-              days'; ./ccx-notification-writer --new-reports-cleanup
-              --max-age '8 days' 
-          image: ${IMAGE}:${IMAGE_TAG}
-          resources:
-            limits:
-              cpu: ${CPU_LIMIT}
-              memory: ${MEMORY_LIMIT}
-            requests:
-              cpu: ${CPU_REQUEST}
-              memory: ${MEMORY_REQUEST}
-          env:
-          - name: CCX_NOTIFICATION_WRITER__BROKER__ENABLED
-            value: 'false'
-          - name: CCX_NOTIFICATION_WRITER__STORAGE__DB_DRIVER
-            value: postgres
-          - name: CCX_NOTIFICATION_WRITER__STORAGE__PG_USERNAME
-            valueFrom:
-              secretKeyRef:
-                key: db.user
-                name: ${DATABASE_SERVICE_NAME}
-          - name: CCX_NOTIFICATION_WRITER__STORAGE__PG_PASSWORD
-            valueFrom:
-              secretKeyRef:
-                key: db.password
-                name: ${DATABASE_SERVICE_NAME}
-          - name: CCX_NOTIFICATION_WRITER__STORAGE__PG_HOST
-            valueFrom:
-              secretKeyRef:
-                key: db.host
-                name: ${DATABASE_SERVICE_NAME}
-          - name: CCX_NOTIFICATION_WRITER__STORAGE__PG_PORT
-            valueFrom:
-              secretKeyRef:
-                key: db.port
-                name: ${DATABASE_SERVICE_NAME}
-          - name: CCX_NOTIFICATION_WRITER__STORAGE__PG_DB_NAME
-            valueFrom:
-              secretKeyRef:
-                key: db.name
-                name: ${DATABASE_SERVICE_NAME}
-          - name: CCX_NOTIFICATION_WRITER__STORAGE__PG_PARAMS
-            value: sslmode=disable
-          - name: CCX_NOTIFICATION_WRITER__STORAGE__LOG_SQL_QUERIES
-            value: 'true'
-          - name: CCX_NOTIFICATION_WRITER__LOGGING__DEBUG
-            value: 'true'
-          - name: CCX_NOTIFICATION_WRITER__LOGGING__LEVEL
-            value: ''
+            - name: CCX_NOTIFICATION_WRITER__LOGGING__LOGGING_TO_CLOUD_WATCH_ENABLED
+              value: ${LOGGING_TO_CLOUD_WATCH_ENABLED}
+            - name: CCX_NOTIFICATION_WRITER__CLOUDWATCH__DEBUG
+              value: ${CLOUDWATCH_DEBUG}
+            - name: CCX_NOTIFICATION_WRITER__CLOUDWATCH__STREAM_NAME
+              value: ${IRSP_LOG_STREAM}
+            - name: CCX_NOTIFICATION_WRITER__CLOUDWATCH__CREATE_STREAM_IF_NOT_EXISTS
+              value: ${CREATE_STREAM_IF_NOT_EXISTS}
+            - name: CCX_NOTIFICATION_WRITER__CLOUDWATCH__AWS_REGION
+              valueFrom:
+                secretKeyRef:
+                  name: cloudwatch
+                  key: aws_region
+                  optional: true
+            - name: CCX_NOTIFICATION_WRITER__CLOUDWATCH__LOG_GROUP
+              valueFrom:
+                secretKeyRef:
+                  name: cloudwatch
+                  key: log_group_name
+                  optional: true
+            - name: CCX_NOTIFICATION_WRITER__CLOUDWATCH__AWS_ACCESS_ID
+              valueFrom:
+                secretKeyRef:
+                  name: cloudwatch
+                  key: aws_access_key_id
+                  optional: true
+            - name: CCX_NOTIFICATION_WRITER__CLOUDWATCH__AWS_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: cloudwatch
+                  key: aws_secret_access_key
+                  optional: true
+            - name: CCX_NOTIFICATION_WRITER__TRACKER__TOPIC
+              value: ${PAYLOAD_TRACKER_TOPIC}
+            - name: CCX_NOTIFICATION_WRITER__TRACKER__SERVICE_NAME
+              value: ${PAYLOAD_TRACKER_SERVICE_NAME}
+            - name: CCX_NOTIFICATION_WRITER__LOGGING__LOGGING_TO_SENTRY_ENABLED
+              value: ${SENTRY_ENABLED}
+            - name: CCX_NOTIFICATION_WRITER__SENTRY__DSN
+              valueFrom:
+                secretKeyRef:
+                  key: dsn
+                  name: ccx-notification-writer-dsn
+                  optional: true
+            - name: CCX_NOTIFICATION_WRITER__SENTRY__ENVIRONMENT
+              value: ${ENV_NAME}
 
     database:
       # the DB name should match to app-interface DB name without specifying environment
       name: ccx-notification-db
-      version: 12
+      version: 16
     kafkaTopics:
-      - replicas: 3
-        partitions: 16
-        topicName: platform.upload.buckit
-      - replicas: 3
+      - topicName: ${INCOMING_TOPIC}
         partitions: 1
-        topicName: ccx.ocp.results
-      - replicas: 3
-        partitions: 1
-        topicName: platform.payload-status
+        replicas: 3
 
 # Expose Prometheus metrix
 - kind: Service
@@ -300,7 +258,7 @@ parameters:
 # general params
 - description: Image name
   name: IMAGE
-  value: quay.io/cloudservices/ccx-notification-writer
+  value: quay.io/redhat-services-prod/obsint-processing-tenant/notification-writer/notification-writer
 - description: Image tag
   name: IMAGE_TAG
   required: true
@@ -332,8 +290,6 @@ parameters:
 - name: IRDW_API_PREFIX
   required: true
   value: /
-
-# params ccx-notification-writer
 - name: KAFKA_BOOTSTRAP_HOST
   required: true
   value: mq-kafka
@@ -348,11 +304,25 @@ parameters:
   value: ccx_notification_app
 - name: METRICS_NAMESPACE
   value: ccx_notification_writer
+- name: DB_MIGRATION_VERSION
+  value: latest
+- name: PG_PARAMS
+  value: sslmode=require
+# cloudwatch
+- name: LOGGING_TO_CLOUD_WATCH_ENABLED
+  value: "false"
+  required: true
+- name: CLOUDWATCH_DEBUG
+  value: "false"
+  required: true
+- name: IRSP_LOG_STREAM
+  value: $HOSTNAME
+- name: CREATE_STREAM_IF_NOT_EXISTS
+  value: "true"
+- name: PAYLOAD_TRACKER_TOPIC
+  value: "platform.payload-status"
+- name: PAYLOAD_TRACKER_SERVICE_NAME
+  value: "ccx-notification-writer"
+- name: SENTRY_ENABLED
+  value: "false"
 
-# params ccx-notification-db-cleaner
-- description: Should the cron job be disabled?
-  name: SUSPEND_JOB
-  value: 'false'
-- description: When the cronjob runs
-  name: DB_CLEANER_JOB_SCHEDULE
-  value: 0 0 * * *

@@ -1,0 +1,139 @@
+---
+apiVersion: v1
+kind: Template
+metadata:
+  name: ccx-notification-db-cleaner
+objects:
+
+- apiVersion: cloud.redhat.com/v1alpha1
+  kind: ClowdApp
+  metadata:
+    name: ccx-notification-db-cleaner
+  spec:
+    envName: ${ENV_NAME}
+    dependencies:
+      - ccx-notification-writer
+    database:
+      sharedDbAppName: ccx-notification-writer
+    testing:
+      iqePlugin: ccx
+    jobs:
+      - name: instance
+        schedule: ${JOB_SCHEDULE}
+        restartPolicy: Never
+        concurrencyPolicy: Forbid
+        # In PROD 1 cronjob takes around 45 min. Deadline set to 60 mins.
+        activeDeadlineSeconds: ${{JOB_DEADLINE}}
+        suspend: ${{SUSPEND_JOB}}
+        podSpec:
+          image: ${IMAGE}:${IMAGE_TAG}
+          resources:
+            limits:
+              cpu: ${CPU_LIMIT}
+              memory: ${MEMORY_LIMIT}
+            requests:
+              cpu: ${CPU_REQUEST}
+              memory: ${MEMORY_REQUEST}
+          env:
+          - name: CCX_NOTIFICATION_WRITER__BROKER__ENABLED
+            value: 'false'
+          - name: CCX_NOTIFICATION_WRITER__LOGGING__LOGGING_TO_SENTRY_ENABLED
+            value: ${SENTRY_ENABLED}
+          - name: CCX_NOTIFICATION_WRITER__SENTRY__DSN
+            valueFrom:
+              secretKeyRef:
+                key: dsn
+                name: ccx-notification-db-cleaner-dsn
+                optional: true
+          - name: CCX_NOTIFICATION_WRITER__SENTRY__ENVIRONMENT
+            value: ${ENV_NAME}
+          - name: CCX_NOTIFICATION_WRITER__STORAGE__DB_DRIVER
+            value: postgres
+          - name: CCX_NOTIFICATION_WRITER__STORAGE__PG_USERNAME
+            valueFrom:
+              secretKeyRef:
+                key: db.user
+                name: ${DATABASE_SERVICE_NAME}
+          - name: CCX_NOTIFICATION_WRITER__STORAGE__PG_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                key: db.password
+                name: ${DATABASE_SERVICE_NAME}
+          - name: CCX_NOTIFICATION_WRITER__STORAGE__PG_HOST
+            valueFrom:
+              secretKeyRef:
+                key: db.host
+                name: ${DATABASE_SERVICE_NAME}
+          - name: CCX_NOTIFICATION_WRITER__STORAGE__PG_PORT
+            valueFrom:
+              secretKeyRef:
+                key: db.port
+                name: ${DATABASE_SERVICE_NAME}
+          - name: CCX_NOTIFICATION_WRITER__STORAGE__PG_DB_NAME
+            valueFrom:
+              secretKeyRef:
+                key: db.name
+                name: ${DATABASE_SERVICE_NAME}
+          - name: CCX_NOTIFICATION_WRITER__STORAGE__PG_PARAMS
+            value: ${PG_PARAMS}
+          - name: CCX_NOTIFICATION_WRITER__STORAGE__LOG_SQL_QUERIES
+            value: 'true'
+          - name: CCX_NOTIFICATION_WRITER__LOGGING__DEBUG
+            value: 'true'
+          - name: CCX_NOTIFICATION_WRITER__LOGGING__LEVEL
+            value: ''
+          command:
+            - /bin/sh
+            - '-c'
+            - >-
+              ./ccx-notification-writer --old-reports-cleanup --max-age '${OLD_REPORTS_MAX_AGE}' &&
+              ./ccx-notification-writer --new-reports-cleanup --max-age '${NEW_REPORTS_MAX_AGE}' &&
+              ./ccx-notification-writer --read-errors-cleanup --max-age '${NEW_REPORTS_MAX_AGE}'
+
+
+parameters:
+# general params
+- description: Image name
+  name: IMAGE
+  value: quay.io/redhat-services-prod/obsint-processing-tenant/notification-writer/notification-writer
+- description: Image tag
+  name: IMAGE_TAG
+  required: true
+- description: Determines Clowder deployment
+  name: CLOWDER_ENABLED
+  value: "true"
+- description: Env Name
+  name: ENV_NAME
+  required: true
+- name: CPU_LIMIT
+  value: 500m
+- description: memory limit of service
+  name: MEMORY_LIMIT
+  value: 512Mi
+- name: CPU_REQUEST
+  value: 100m
+- description: memory request of service
+  name: MEMORY_REQUEST
+  value: 256Mi
+- name: DATABASE_SERVICE_NAME
+  required: true
+  value: ccx-notification-db
+- description: Should the cron job be disabled?
+  name: SUSPEND_JOB
+  value: 'false'
+- description: Number of seconds before job is terminated
+  name: JOB_DEADLINE
+  value: "3600"
+- description: When the cronjob runs
+  name: JOB_SCHEDULE
+  value: 0 0 * * *
+- description: Maximum age for old reports cleanup
+  name: OLD_REPORTS_MAX_AGE
+  value: '8 days'
+- description: Maximum age for new reports cleanup
+  name: NEW_REPORTS_MAX_AGE
+  value: '8 days'
+- name: PG_PARAMS
+  value: sslmode=require
+- name: SENTRY_ENABLED
+  value: "false"

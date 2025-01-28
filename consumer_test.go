@@ -1,5 +1,5 @@
 /*
-Copyright © 2021 Red Hat, Inc.
+Copyright © 2021, 2022, 2023 Red Hat, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ package main_test
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"testing"
 	"time"
@@ -32,15 +33,11 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	main "github.com/RedHatInsights/ccx-notification-writer"
+	types "github.com/RedHatInsights/insights-results-types"
 )
 
-// Variables used by unit tests
-var (
-	ExpectedOrgID         = main.OrgID(1)
-	ExpectedAccountNumber = main.AccountNumber(1234)
-	ExpectedClusterName   = main.ClusterName("84f7eedc-0dd8-49cd-9d4d-f6646df3a5bc")
-	LastCheckedAt         = time.Unix(25, 0).UTC()
-
+// Constants used by unit tests
+const (
 	ConsumerReport = `{
 		"fingerprints": [],
 		"info": [],
@@ -50,27 +47,36 @@ var (
 	}`
 )
 
+// Variables used by unit tests
+var (
+	ExpectedOrgID         = types.OrgID(1)
+	ExpectedAccountNumber = types.AccountNumber(1234)
+	ExpectedClusterName   = types.ClusterName("84f7eedc-0dd8-49cd-9d4d-f6646df3a5bc")
+	LastCheckedAt         = time.Unix(25, 0).UTC()
+)
+
 // TestNewConsumerBadBroker function checks the consumer creation by
-// using a non accessible Kafka broker.
-func TestNewConsumerBadBroker(t *testing.T) {
-	const expectedErr = "kafka: client has run out of available brokers to talk to (Is your cluster reachable?)"
+// using a non-accessible Kafka broker.
+func TestNewConsumerBadBrokerNonAccessibleBroker(t *testing.T) {
+	// expected error message
+	const expectedErr = "kafka: client has run out of available brokers to talk to: dial tcp: missing address"
 
 	// invalid broker configuration
 	var brokerConfiguration = main.BrokerConfiguration{
-		Address: "",
-		Topic:   "whatever",
-		Group:   "whatever",
-		Enabled: true,
+		Addresses: "",
+		Topic:     "whatever",
+		Group:     "whatever",
+		Enabled:   true,
 	}
 
-	// dummy storage not really useable as the driver is not specified
+	// dummy storage not really usable as the driver is not specified
 	dummyStorage := main.NewFromConnection(nil, 1)
 
 	// try to construct new consumer
-	mockConsumer, err := main.NewConsumer(brokerConfiguration, dummyStorage)
+	mockConsumer, err := main.NewConsumer(&brokerConfiguration, dummyStorage)
 
 	// check that error is really reported
-	assert.EqualError(t, err, expectedErr)
+	assert.Contains(t, err.Error(), expectedErr)
 
 	// test the return value
 	assert.Equal(
@@ -82,27 +88,28 @@ func TestNewConsumerBadBroker(t *testing.T) {
 }
 
 // TestNewConsumerLocalBroker function checks the consumer creation by using a
-// non accessible Kafka broker. This test assumes there is no local Kafka
+// non-accessible Kafka broker. This test assumes there is no local Kafka
 // instance currently running
-func TestNewConsumerLocalBroker(t *testing.T) {
-	const expectedErr = "kafka: client has run out of available brokers to talk to (Is your cluster reachable?)"
+func TestNewConsumerLocalBrokerNonAccessibleBroker(t *testing.T) {
+	// expected error message
+	const expectedErr = "kafka: client has run out of available brokers to talk to"
 
 	// valid broker configuration for local Kafka instance
 	var brokerConfiguration = main.BrokerConfiguration{
-		Address: "localhost:9092",
-		Topic:   "platform.notifications.ingress",
-		Group:   "",
-		Enabled: true,
+		Addresses: "localhost:9092",
+		Topic:     "platform.notifications.ingress",
+		Group:     "",
+		Enabled:   true,
 	}
 
-	// dummy storage not really useable as the driver is not specified
+	// dummy storage not really usable as the driver is not specified
 	dummyStorage := main.NewFromConnection(nil, 1)
 
 	// try to construct new consumer
-	mockConsumer, err := main.NewConsumer(brokerConfiguration, dummyStorage)
+	mockConsumer, err := main.NewConsumer(&brokerConfiguration, dummyStorage)
 
 	// check that error is really reported
-	assert.EqualError(t, err, expectedErr)
+	assert.Contains(t, err.Error(), expectedErr)
 
 	// test the return value
 	assert.Equal(
@@ -110,6 +117,287 @@ func TestNewConsumerLocalBroker(t *testing.T) {
 		(*main.KafkaConsumer)(nil),
 		mockConsumer,
 		"consumer.New should return nil instead of Consumer implementation",
+	)
+}
+
+// TestNewConsumerConsumerGroup function checks the consumer creation by using a
+// non-accesible Kafka broker. This test assumes there is no local Kafka
+// instance currently running. Consumer group is enabled and setup for this test.
+func TestNewConsumerSaramaConfigNonAccessibleBroker(t *testing.T) {
+	// expected error message
+	const expectedErr = "kafka: client has run out of available brokers to talk to"
+
+	// valid broker configuration for local Kafka instance
+	var brokerConfiguration = main.BrokerConfiguration{
+		Addresses: "localhost:9092",
+		Topic:     "platform.notifications.ingress",
+		Group:     "test-group",
+		Enabled:   true,
+	}
+
+	// dummy storage not really usable as the driver is not specified
+	dummyStorage := main.NewFromConnection(nil, 1)
+
+	// try to construct new consumer
+	mockConsumer, err := main.NewConsumer(&brokerConfiguration, dummyStorage)
+
+	// check that error is really reported
+	assert.Contains(t, err.Error(), expectedErr)
+
+	// test the return value
+	assert.Equal(
+		t,
+		(*main.KafkaConsumer)(nil),
+		mockConsumer,
+		"consumer.New should return nil instead of Consumer implementation",
+	)
+}
+
+// TestNewConsumerTLSEnabled function checks the consumer creation by using a
+// non-accesible Kafka broker. This test assumes there is no local Kafka
+// instance currently running. TSL is enabled in broker configuration.
+func TestNewConsumerTLSEnabledNonAccessibleBroker(t *testing.T) {
+	// expected error message
+	const expectedErr = "kafka: client has run out of available brokers to talk to"
+
+	// valid broker configuration for local Kafka instance
+	var brokerConfiguration = main.BrokerConfiguration{
+		Addresses:        "localhost:9092",
+		Topic:            "platform.notifications.ingress",
+		Group:            "",
+		Enabled:          true,
+		SecurityProtocol: "SSL",
+	}
+
+	// dummy storage not really usable as the driver is not specified
+	dummyStorage := main.NewFromConnection(nil, 1)
+
+	// try to construct new consumer
+	mockConsumer, err := main.NewConsumer(&brokerConfiguration, dummyStorage)
+
+	// check that error is really reported
+	assert.Contains(t, err.Error(), expectedErr)
+
+	// test the return value
+	assert.Equal(
+		t,
+		(*main.KafkaConsumer)(nil),
+		mockConsumer,
+		"consumer.New should return nil instead of Consumer implementation",
+	)
+}
+
+// TestNewConsumerSASLEnabled function checks the consumer creation by using a
+// non-accesible Kafka broker. This test assumes there is no local Kafka
+// instance currently running. SASL is enabled in broker configuration.
+func TestNewConsumerSASLEnabledNonAccessibleBroker(t *testing.T) {
+	// expected error message
+	const expectedErr = "kafka: client has run out of available brokers to talk to"
+
+	// valid broker configuration for local Kafka instance
+	var brokerConfiguration = main.BrokerConfiguration{
+		Addresses:        "localhost:9092",
+		Topic:            "platform.notifications.ingress",
+		Group:            "",
+		Enabled:          true,
+		SecurityProtocol: "SASL_",
+		SaslUsername:     "sasl_user",
+		SaslPassword:     "sasl_password",
+		SaslMechanism:    "",
+	}
+
+	// dummy storage not really usable as the driver is not specified
+	dummyStorage := main.NewFromConnection(nil, 1)
+
+	// try to construct new consumer
+	mockConsumer, err := main.NewConsumer(&brokerConfiguration, dummyStorage)
+
+	// check that error is really reported
+	assert.Contains(t, err.Error(), expectedErr)
+
+	// test the return value
+	assert.Equal(
+		t,
+		(*main.KafkaConsumer)(nil),
+		mockConsumer,
+		"consumer.New should return nil instead of Consumer implementation",
+	)
+}
+
+// TestSaramaConfigFromBrokerWithSASLEnabled function checks that the Sarama config returned
+// for a broker configuration with SASL enabled contains the expected fields
+func TestSaramaConfigFromBrokerWithSASLEnabledNoSASLMechanism(t *testing.T) {
+	// valid broker configuration for local Kafka instance
+	var brokerConfiguration = main.BrokerConfiguration{
+		Addresses:        "localhost:9092",
+		Topic:            "platform.notifications.ingress",
+		Group:            "",
+		Enabled:          true,
+		SecurityProtocol: "SASL_",
+		SaslUsername:     "sasl_user",
+		SaslPassword:     "sasl_password",
+		SaslMechanism:    "",
+	}
+
+	saramaConfig, err := main.SaramaConfigFromBrokerConfig(&brokerConfiguration)
+	assert.Nil(t, err)
+	assert.True(t, saramaConfig.Net.SASL.Enable)
+	assert.Equal(t, saramaConfig.Net.SASL.User, brokerConfiguration.SaslUsername)
+	assert.Equal(t, saramaConfig.Net.SASL.Password, brokerConfiguration.SaslPassword)
+	assert.Nil(t, saramaConfig.Net.SASL.SCRAMClientGeneratorFunc, "SCRAM client generator function should not be created with given config")
+}
+
+// TestSaramaConfigFromBrokerWithSASLEnabled function checks that the Sarama config returned
+// for a broker configuration with SASL enabled using SCRAM authentication mechanism
+// contains expected fields
+func TestSaramaConfigFromBrokerWithSASLEnabledSCRAMAuth(t *testing.T) {
+	// valid broker configuration for local Kafka instance
+	var brokerConfiguration = main.BrokerConfiguration{
+		Addresses:        "localhost:9092",
+		Topic:            "platform.notifications.ingress",
+		Group:            "",
+		Enabled:          true,
+		SecurityProtocol: "SASL_",
+		SaslUsername:     "sasl_user",
+		SaslPassword:     "sasl_password",
+		SaslMechanism:    sarama.SASLTypeSCRAMSHA512,
+	}
+
+	saramaConfig, err := main.SaramaConfigFromBrokerConfig(&brokerConfiguration)
+	assert.Nil(t, err)
+	assert.True(t, saramaConfig.Net.SASL.Enable)
+	assert.Equal(t, saramaConfig.Net.SASL.User, brokerConfiguration.SaslUsername)
+	assert.Equal(t, saramaConfig.Net.SASL.Password, brokerConfiguration.SaslPassword)
+	assert.NotNil(t, saramaConfig.Net.SASL.SCRAMClientGeneratorFunc, "SCRAM client generator function should have been created with given config")
+}
+
+// TestSaramaConfigFromBrokerWithSASLEnabled function checks that the Sarama config returned
+// for a broker configuration with SASL enabled using unhandled authentication mechanism
+// contains expected fields
+func TestSaramaConfigFromBrokerWithSASLEnabledUnexpectedAuthMechanism(t *testing.T) {
+	// valid broker configuration for local Kafka instance
+	var brokerConfiguration = main.BrokerConfiguration{
+		Addresses:        "localhost:9092",
+		Topic:            "platform.notifications.ingress",
+		Group:            "",
+		Enabled:          true,
+		SecurityProtocol: "SASL_",
+		SaslUsername:     "sasl_user",
+		SaslPassword:     "sasl_password",
+		SaslMechanism:    sarama.SASLTypeSCRAMSHA256,
+	}
+
+	saramaConfig, err := main.SaramaConfigFromBrokerConfig(&brokerConfiguration)
+	assert.Nil(t, err)
+	assert.True(t, saramaConfig.Net.SASL.Enable)
+	assert.Equal(t, saramaConfig.Net.SASL.User, brokerConfiguration.SaslUsername)
+	assert.Equal(t, saramaConfig.Net.SASL.Password, brokerConfiguration.SaslPassword)
+	assert.Nil(t, saramaConfig.Net.SASL.SCRAMClientGeneratorFunc, "SCRAM client generator function should not be created with given config")
+}
+
+// TestNewConsumerSASLEnabled function checks the consumer creation by using a
+// non-accesible Kafka broker. This test assumes there is no local Kafka
+// instance currently running. SASL is enabled in broker configuration.
+func TestNewConsumerSASLEnabled(t *testing.T) {
+	// expected error message
+	const expectedErr = "kafka: client has run out of available brokers to talk to"
+
+	// valid broker configuration for local Kafka instance
+	var brokerConfiguration = main.BrokerConfiguration{
+		Addresses:        "localhost:9092",
+		Topic:            "platform.notifications.ingress",
+		Group:            "",
+		Enabled:          true,
+		SecurityProtocol: "SASL_",
+		SaslUsername:     "sasl_user",
+		SaslPassword:     "sasl_password",
+		SaslMechanism:    "",
+	}
+
+	// dummy storage not really usable as the driver is not specified
+	dummyStorage := main.NewFromConnection(nil, 1)
+
+	// try to construct new consumer
+	mockConsumer, err := main.NewConsumer(&brokerConfiguration, dummyStorage)
+
+	// check that error is really reported
+	assert.Contains(t, err.Error(), expectedErr)
+
+	// test the return value
+	assert.Equal(
+		t,
+		(*main.KafkaConsumer)(nil),
+		mockConsumer,
+		"consumer.New should return nil instead of Consumer implementation",
+	)
+}
+
+// TestNewConsumerCertPath function checks the consumer creation by using a
+// non-accesible Kafka broker. This test assumes there is no local Kafka
+// instance currently running. Valid cert. path is provided by tests.
+func TestNewConsumerCertPathNonAccessibleBroker(t *testing.T) {
+	// expected error message
+	const expectedErr = "kafka: client has run out of available brokers to talk to"
+
+	// valid broker configuration for local Kafka instance
+	var brokerConfiguration = main.BrokerConfiguration{
+		Addresses: "localhost:9092",
+		Topic:     "platform.notifications.ingress",
+		Group:     "",
+		Enabled:   true,
+		CertPath:  "testdata/cert.pem",
+	}
+
+	// dummy storage not really usable as the driver is not specified
+	dummyStorage := main.NewFromConnection(nil, 1)
+
+	// try to construct new consumer
+	mockConsumer, err := main.NewConsumer(&brokerConfiguration, dummyStorage)
+
+	// check that error is really reported
+	assert.Contains(t, err.Error(), expectedErr)
+
+	// test the return value
+	assert.Equal(
+		t,
+		(*main.KafkaConsumer)(nil),
+		mockConsumer,
+		"invalid cert path",
+	)
+}
+
+// TestNewConsumerInvalidCertPath function checks the consumer creation by using a
+// non-accesible Kafka broker. This test assumes there is no local Kafka
+// instance currently running. Invalid cert. path is provided by tests.
+func TestNewConsumerInvalidCertPathNonAccessibleBroker(t *testing.T) {
+	// expected error message
+	const expectedErr = "open /foo/bar/baz: no such file or directory"
+
+	// valid broker configuration for local Kafka instance
+	var brokerConfiguration = main.BrokerConfiguration{
+		Addresses:        "localhost:9092",
+		Topic:            "platform.notifications.ingress",
+		Group:            "",
+		Enabled:          true,
+		SecurityProtocol: "SSL",
+		CertPath:         "/foo/bar/baz",
+	}
+
+	// dummy storage not really usable as the driver is not specified
+	dummyStorage := main.NewFromConnection(nil, 1)
+
+	// try to construct new consumer
+	mockConsumer, err := main.NewConsumer(&brokerConfiguration, dummyStorage)
+
+	// check that error is really reported
+	assert.Contains(t, err.Error(), expectedErr)
+
+	// test the return value
+	assert.Equal(
+		t,
+		(*main.KafkaConsumer)(nil),
+		mockConsumer,
+		"invalid cert path",
 	)
 }
 
@@ -176,7 +464,7 @@ func TestParseProperMessage(t *testing.T) {
 	assert.Nil(t, err)
 
 	// check returned values
-	assert.Equal(t, main.OrgID(1), *message.Organization)
+	assert.Equal(t, types.OrgID(1), *message.Organization)
 	assert.Equal(t, ExpectedClusterName, *message.ClusterName)
 	assert.Equal(t, ExpectedAccountNumber, *message.AccountNumber)
 }
@@ -200,7 +488,7 @@ func TestParseProperMessageWrongOrgID(t *testing.T) {
 	assert.EqualError(
 		t,
 		err,
-		"json: cannot unmarshal string into Go struct field IncomingMessage.OrgID of type main.OrgID",
+		"json: cannot unmarshal string into Go struct field IncomingMessage.OrgID of type types.OrgID",
 	)
 }
 
@@ -223,7 +511,7 @@ func TestParseProperMessageWrongAccountNumber(t *testing.T) {
 	assert.EqualError(
 		t,
 		err,
-		"json: cannot unmarshal string into Go struct field IncomingMessage.AccountNumber of type main.AccountNumber",
+		"json: cannot unmarshal string into Go struct field IncomingMessage.AccountNumber of type types.AccountNumber",
 	)
 }
 
@@ -360,9 +648,9 @@ func TestParseMessageNullReport(t *testing.T) {
 // KafkaConsumer.
 func NewDummyConsumer(s main.Storage) *main.KafkaConsumer {
 	brokerCfg := main.BrokerConfiguration{
-		Address: "localhost:1234",
-		Topic:   "topic",
-		Group:   "group",
+		Addresses: "localhost:1234",
+		Topic:     "topic",
+		Group:     "group",
 	}
 	return &main.KafkaConsumer{
 		Configuration: brokerCfg,
@@ -471,7 +759,7 @@ func TestProcessMessageFromFuture(t *testing.T) {
 	_, err := dummyConsumer.ProcessMessage(&message)
 
 	// check for errors - it should be reported
-	assert.EqualError(t, err, "Got a message from the future")
+	assert.EqualError(t, err, "got a message from the future")
 
 	// nothing should be written into storage
 	assert.Equal(t, 0, mockStorage.writeReportCalled)
@@ -590,7 +878,7 @@ func TestConsumerCloseCancel(t *testing.T) {
 
 // TestHandleNilMessage function checks the method
 // KafkaConsumer.HandleMessage() for nil input.
-func TestHandleNilMessage(t *testing.T) {
+func TestHandleNilMessage(_ *testing.T) {
 	// construct mock storage
 	mockStorage := NewMockStorage()
 
@@ -656,4 +944,30 @@ func TestHandleCorrectMessage(t *testing.T) {
 	// counter checks
 	assert.Equal(t, uint64(1), dummyConsumer.GetNumberOfSuccessfullyConsumedMessages())
 	assert.Equal(t, uint64(0), dummyConsumer.GetNumberOfErrorsConsumingMessages())
+}
+
+func testShrinkedMessage(t *testing.T, inputMessage main.Report) {
+	assert.NotContains(t, inputMessage, "system")
+	assert.NotContains(t, inputMessage, "fingerprints")
+	assert.NotContains(t, inputMessage, "skips")
+	assert.NotContains(t, inputMessage, "info")
+	assert.NotContains(t, inputMessage, "pass")
+	assert.NotContains(t, inputMessage, "analysis_metadata")
+}
+
+// TestShrinkEmptyMessage tests the function to remove unneeded attributes from incoming message
+func TestShrinkEmptyMessage(t *testing.T) {
+	var inputMessage main.Report = make(map[string]*json.RawMessage)
+	main.ShrinkMessage(&inputMessage)
+	testShrinkedMessage(t, inputMessage)
+}
+
+// TestShrinkMessageWithAnalysisMetadata tests the function to remove unneeded attributes from incoming message
+func TestShrinkMessageWithAnalysisMetadata(t *testing.T) {
+	var inputMessage main.Report = make(map[string]*json.RawMessage)
+	analysisMetadata := json.RawMessage("{}")
+	inputMessage["analysis_metadata"] = &analysisMetadata
+
+	main.ShrinkMessage(&inputMessage)
+	testShrinkedMessage(t, inputMessage)
 }

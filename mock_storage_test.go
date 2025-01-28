@@ -1,5 +1,5 @@
 /*
-Copyright © 2021 Red Hat, Inc.
+Copyright © 2021, 2022, 2023 Red Hat, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ package main_test
 import (
 	"time"
 
-	main "github.com/RedHatInsights/ccx-notification-writer"
+	types "github.com/RedHatInsights/insights-results-types"
 )
 
 // MockStorage structure represents a mocked implementation of Storage
@@ -40,6 +40,8 @@ type MockStorage struct {
 	cleanupNewReportsCalled         int
 	printOldReportsForCleanupCalled int
 	cleanupOldReportsCalled         int
+	printReadErrorsForCleanupCalled int
+	cleanupReadReportsCalled        int
 	closeCalled                     int
 	writeReportCalled               int
 }
@@ -57,6 +59,8 @@ func NewMockStorage() MockStorage {
 		cleanupNewReportsCalled:         0,
 		printOldReportsForCleanupCalled: 0,
 		cleanupOldReportsCalled:         0,
+		printReadErrorsForCleanupCalled: 0,
+		cleanupReadReportsCalled:        0,
 		closeCalled:                     0,
 		writeReportCalled:               0,
 	}
@@ -65,13 +69,17 @@ func NewMockStorage() MockStorage {
 // Close is a mocked reimplementation of the real Close method.
 func (storage *MockStorage) Close() error {
 	storage.closeCalled++
+
+	// return no error
 	return nil
 }
 
 // WriteReportForCluster is a mocked reimplementation of the real
 // WriteReportForCluster method.
-func (storage *MockStorage) WriteReportForCluster(orgID main.OrgID, accountNumber main.AccountNumber, clusterName main.ClusterName, report main.ClusterReport, collectedAtTime time.Time, kafkaOffset main.KafkaOffset) error {
+func (storage *MockStorage) WriteReportForCluster(_ types.OrgID, _ types.AccountNumber, _ types.ClusterName, _ types.ClusterReport, _ time.Time, _ types.KafkaOffset) error {
 	storage.writeReportCalled++
+
+	// return no error
 	return nil
 }
 
@@ -79,6 +87,8 @@ func (storage *MockStorage) WriteReportForCluster(orgID main.OrgID, accountNumbe
 // DatabaseInitialization method.
 func (storage *MockStorage) DatabaseInitialization() error {
 	storage.databaseInitializationCalled++
+
+	// return no error
 	return nil
 }
 
@@ -86,6 +96,8 @@ func (storage *MockStorage) DatabaseInitialization() error {
 // DatabaseInitMigration method.
 func (storage *MockStorage) DatabaseInitMigration() error {
 	storage.databaseInitMigrationCalled++
+
+	// return no error
 	return nil
 }
 
@@ -93,6 +105,8 @@ func (storage *MockStorage) DatabaseInitMigration() error {
 // method.
 func (storage *MockStorage) DatabaseCleanup() error {
 	storage.databaseCleanupCalled++
+
+	// return no error
 	return nil
 }
 
@@ -100,6 +114,8 @@ func (storage *MockStorage) DatabaseCleanup() error {
 // DatabaseDropTables method.
 func (storage *MockStorage) DatabaseDropTables() error {
 	storage.databaseDropTablesCalled++
+
+	// return no error
 	return nil
 }
 
@@ -107,40 +123,70 @@ func (storage *MockStorage) DatabaseDropTables() error {
 // DatabaseDropIndexes method.
 func (storage *MockStorage) DatabaseDropIndexes() error {
 	storage.databaseDropIndexesCalled++
+
+	// return no error
 	return nil
 }
 
 // GetLatestKafkaOffset is a mocked reimplementation of the real
 // GetLatestKafkaOffset method.
-func (storage *MockStorage) GetLatestKafkaOffset() (main.KafkaOffset, error) {
+func (storage *MockStorage) GetLatestKafkaOffset() (types.KafkaOffset, error) {
 	storage.getLatestKafkaOffsetCalled++
+
+	// return some offset + no error
 	return 1, nil
 }
 
 // PrintNewReportsForCleanup is a mocked reimplementation of the real
 // PrintNewReportsForCleanup method.
-func (storage *MockStorage) PrintNewReportsForCleanup(maxAge string) error {
+func (storage *MockStorage) PrintNewReportsForCleanup(_ string) error {
 	storage.printNewReportsForCleanupCalled++
+
+	// return no error
 	return nil
 }
 
 // CleanupNewReports is a mocked reimplementation of the real CleanupNewReports
 // method.
-func (storage *MockStorage) CleanupNewReports(maxAge string) (int, error) {
+func (storage *MockStorage) CleanupNewReports(_ string) (int, error) {
 	storage.cleanupNewReportsCalled++
+
+	// return number of cleaned records + no error
 	return 1, nil
 }
 
 // PrintOldReportsForCleanup is a mocked reimplementation of the real
 // PrintOldReportsForCleanup method.
-func (storage *MockStorage) PrintOldReportsForCleanup(maxAge string) error {
+func (storage *MockStorage) PrintOldReportsForCleanup(_ string) error {
 	storage.printOldReportsForCleanupCalled++
+
+	// return no error
 	return nil
 }
 
 // CleanupOldReports is a mocked reimplementation of the real CleanupOldReports
 // method.
-func (storage *MockStorage) CleanupOldReports(maxAge string) (int, error) {
+func (storage *MockStorage) CleanupOldReports(_ string) (int, error) {
 	storage.cleanupOldReportsCalled++
+
+	// return number of cleaned records + no error
+	return 1, nil
+}
+
+// PrintReadErrorsForCleanup is a mocked reimplementation of the real
+// PrintReadErrorsForCleanup method.
+func (storage *MockStorage) PrintReadErrorsForCleanup(_ string) error {
+	storage.printReadErrorsForCleanupCalled++
+
+	// return no error
+	return nil
+}
+
+// CleanupReadErrors is a mocked reimplementation of the real CleanupReadErrors
+// method.
+func (storage *MockStorage) CleanupReadErrors(_ string) (int, error) {
+	storage.cleanupOldReportsCalled++
+
+	// return number of cleaned records + no error
 	return 1, nil
 }

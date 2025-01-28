@@ -1,5 +1,5 @@
 [broker]
-address = "kafka:29092"
+addresses = "kafka:29092"
 topic = "ccx.ocp.results"
 group = "test-consumer-group"
 enabled = true
@@ -17,7 +17,22 @@ log_sql_queries = true
 [logging]
 debug = true
 log_level = ""
+logging_to_cloud_watch_enabled = false
+
+[cloudwatch]
+aws_access_id = "a key id"
+aws_secret_key = "tshhhh it is a secret"
+aws_session_token = ""
+aws_region = "us-east-1"
+log_group = "platform-dev"
+stream_name = "ccx-notification-writer"
+debug = false
+create_stream_if_not_exists = true
 
 [metrics]
 namespace = "notification_writer"
 address = ":8080"
+
+[tracker]
+topic = "platform.payload-status"
+service_name = "ccx-notification-writer"

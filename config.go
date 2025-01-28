@@ -1,5 +1,5 @@
 /*
-Copyright © 2021 Red Hat, Inc.
+Copyright © 2021, 2022, 2023 Red Hat, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -37,6 +37,10 @@ package main
 //
 // [broker]
 // address = "kafka:29092"
+// security_protocol = "PLAINTEXT"
+// sasl_mechanism = "not-used"
+// sasl_username = "not-used"
+// sasl_password = "not-used"
 // topic = "ccx.ocp.results"
 // group = "aggregator"
 // enabled = true
@@ -55,8 +59,31 @@ package main
 // debug = true
 // log_level = ""
 //
+// [metrics]
+// namespace = "notification_writer"
+// address = ":8080"
+//
 // Environment variables that can be used to override configuration file settings:
-// TBD
+// CCX_NOTIFICATION_WRITER__BROKER__ADDRESS
+// CCX_NOTIFICATION_WRITER__BROKER__SECURITY_PROTOCOL
+// CCX_NOTIFICATION_WRITER__BROKER__SASL_MECHANISM
+// CCX_NOTIFICATION_WRITER__BROKER__SASL_USERNAME
+// CCX_NOTIFICATION_WRITER__BROKER__SASL_PASSWORD
+// CCX_NOTIFICATION_WRITER__BROKER__TOPIC
+// CCX_NOTIFICATION_WRITER__BROKER__GROUP
+// CCX_NOTIFICATION_WRITER__BROKER__ENABLED
+// CCX_NOTIFICATION_WRITER__STORAGE__DB_DRIVER
+// CCX_NOTIFICATION_WRITER__STORAGE__PG_USERNAME
+// CCX_NOTIFICATION_WRITER__STORAGE__PG_PASSWORD
+// CCX_NOTIFICATION_WRITER__STORAGE__PG_HOST
+// CCX_NOTIFICATION_WRITER__STORAGE__PG_PORT
+// CCX_NOTIFICATION_WRITER__STORAGE__PG_DB_NAME
+// CCX_NOTIFICATION_WRITER__STORAGE__PG_PARAMS
+// CCX_NOTIFICATION_WRITER__STORAGE__LOG_SQL_QUERIES
+// CCX_NOTIFICATION_WRITER__LOGGING__DEBUG
+// CCX_NOTIFICATION_WRITER__LOGGING__LOG_LEVEL
+// CCX_NOTIFICATION_WRITER__METRICS__NAMESPACE
+// CCX_NOTIFICATION_WRITER__METRICS__ADDRESS
 
 import (
 	"bytes"
@@ -65,10 +92,12 @@ import (
 	"strings"
 
 	"github.com/BurntSushi/toml"
+	"github.com/RedHatInsights/insights-operator-utils/logger"
 
 	"path/filepath"
 
 	clowder "github.com/redhatinsights/app-common-go/pkg/api/v1"
+
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/viper"
 )
@@ -77,15 +106,23 @@ import (
 const (
 	filenameAttribute               = "filename"
 	parsingConfigurationFileMessage = "parsing configuration file"
+	noKafkaConfig                   = "no Kafka configuration available in Clowder, using default one"
+	noBrokerConfig                  = "warning: no broker configurations found in clowder config"
+	noSaslConfig                    = "warning: SASL configuration is missing"
+	noTopicMapping                  = "warning: no kafka mapping found for topic %s"
+	noStorage                       = "warning: no storage section in Clowder config"
 )
 
 // ConfigStruct is a structure holding the whole notification service
 // configuration
 type ConfigStruct struct {
-	Broker  BrokerConfiguration  `mapstructure:"broker"  toml:"broker"`
-	Storage StorageConfiguration `mapstructure:"storage" toml:"storage"`
-	Logging LoggingConfiguration `mapstructure:"logging" toml:"logging"`
-	Metrics MetricsConfiguration `mapstructure:"metrics" toml:"metrics"`
+	Broker         BrokerConfiguration               `mapstructure:"broker"  toml:"broker"`
+	Storage        StorageConfiguration              `mapstructure:"storage" toml:"storage"`
+	Logging        logger.LoggingConfiguration       `mapstructure:"logging" toml:"logging"`
+	CloudWatchConf logger.CloudWatchConfiguration    `mapstructure:"cloudwatch" toml:"cloudwatch"`
+	Metrics        MetricsConfiguration              `mapstructure:"metrics" toml:"metrics"`
+	Tracker        TrackerConfiguration              `mapstructure:"tracker" toml:"tracker"`
+	Sentry         logger.SentryLoggingConfiguration `mapstructure:"sentry" toml:"sentry"`
 }
 
 // MetricsConfiguration holds metrics related configuration
@@ -94,26 +131,26 @@ type MetricsConfiguration struct {
 	Address   string `mapstructure:"address" toml:"address"`
 }
 
-// LoggingConfiguration represents configuration for logging in general
-type LoggingConfiguration struct {
-	// Debug enables pretty colored logging
-	Debug bool `mapstructure:"debug" toml:"debug"`
-
-	// LogLevel sets logging level to show. Possible values are:
-	// "debug"
-	// "info"
-	// "warn", "warning"
-	// "error"
-	// "fatal"
-	//
-	// logging level won't be changed if value is not one of listed above
-	LogLevel string `mapstructure:"log_level" toml:"log_level"`
+// TrackerConfiguration holds configuration for payload tracker
+type TrackerConfiguration struct {
+	Topic       string `mapstructure:"topic" toml:"topic"`
+	ServiceName string `mapstructure:"service_name" toml:"service_name"`
 }
 
 // BrokerConfiguration represents configuration for the broker
 type BrokerConfiguration struct {
-	// Address represents Kafka address
-	Address string `mapstructure:"address" toml:"address"`
+	// Addresses represents Kafka broker addresses
+	Addresses string `mapstructure:"addresses" toml:"addresses"`
+	// SecurityProtocol represents the security protocol used by the broker
+	SecurityProtocol string `mapstructure:"security_protocol" toml:"security_protocol"`
+	// 	CertPath is the path to a file containing the certificate to be used with the broker
+	CertPath string `mapstructure:"cert_path" toml:"cert_path"`
+	// SaslMechanism is the SASL mechanism used for authentication
+	SaslMechanism string `mapstructure:"sasl_mechanism" toml:"sasl_mechanism"`
+	// SaslUsername is the username used in case of PLAIN mechanism
+	SaslUsername string `mapstructure:"sasl_username" toml:"sasl_username"`
+	// SaslPassword is the password used in case of PLAIN mechanism
+	SaslPassword string `mapstructure:"sasl_password" toml:"sasl_password"`
 	// Topic is name of Kafka topic
 	Topic string `mapstructure:"topic" toml:"topic"`
 	// Group is name of Kafka group
@@ -137,7 +174,7 @@ type StorageConfiguration struct {
 // LoadConfiguration loads configuration from defaultConfigFile, file set in
 // configFileEnvVariableName or from env
 func LoadConfiguration(configFileEnvVariableName, defaultConfigFile string) (ConfigStruct, error) {
-	var config ConfigStruct
+	var configuration ConfigStruct
 
 	// env. variable holding name of configuration file
 	configFile, specified := os.LookupEnv(configFileEnvVariableName)
@@ -167,9 +204,9 @@ func LoadConfiguration(configFileEnvVariableName, defaultConfigFile string) (Con
 		// itself, so we need to read fake config file
 		fakeTomlConfigWriter := new(bytes.Buffer)
 
-		err := toml.NewEncoder(fakeTomlConfigWriter).Encode(config)
+		err := toml.NewEncoder(fakeTomlConfigWriter).Encode(configuration)
 		if err != nil {
-			return config, err
+			return configuration, err
 		}
 
 		fakeTomlConfig := fakeTomlConfigWriter.String()
@@ -178,14 +215,14 @@ func LoadConfiguration(configFileEnvVariableName, defaultConfigFile string) (Con
 
 		err = viper.ReadConfig(strings.NewReader(fakeTomlConfig))
 		if err != nil {
-			return config, err
+			return configuration, err
 		}
 	} else if err != nil {
 		// error is processed on caller side
-		return config, fmt.Errorf("fatal error config file: %s", err)
+		return configuration, fmt.Errorf("fatal error config file: %s", err)
 	}
 
-	// override config from env if there's variable in env
+	// override configuration from env if there's variable in env
 
 	const envPrefix = "CCX_NOTIFICATION_WRITER_"
 
@@ -193,66 +230,120 @@ func LoadConfiguration(configFileEnvVariableName, defaultConfigFile string) (Con
 	viper.SetEnvPrefix(envPrefix)
 	viper.SetEnvKeyReplacer(strings.NewReplacer("-", "_", ".", "__"))
 
-	err = viper.Unmarshal(&config)
+	err = viper.Unmarshal(&configuration)
 	if err != nil {
-		return config, err
+		return configuration, err
 	}
 
-	if err := updateConfigFromClowder(&config); err != nil {
-		fmt.Println("error loading clowder configuration")
-		return config, err
-	}
+	updateConfigFromClowder(&configuration)
 
 	// everything's should be ok
-	return config, nil
+	return configuration, nil
 }
 
 // GetStorageConfiguration returns storage configuration
-func GetStorageConfiguration(config ConfigStruct) StorageConfiguration {
-	return config.Storage
+func GetStorageConfiguration(configuration *ConfigStruct) StorageConfiguration {
+	return configuration.Storage
 }
 
 // GetLoggingConfiguration returns logging configuration
-func GetLoggingConfiguration(config ConfigStruct) LoggingConfiguration {
-	return config.Logging
+func GetLoggingConfiguration(configuration *ConfigStruct) logger.LoggingConfiguration {
+	return configuration.Logging
+}
+
+// GetCloudWatchConfiguration returns cloudwatch configuration
+func GetCloudWatchConfiguration(configuration *ConfigStruct) logger.CloudWatchConfiguration {
+	return configuration.CloudWatchConf
+}
+
+// GetSentryConfiguration returns sentry configuration
+func GetSentryConfiguration(configuration *ConfigStruct) logger.SentryLoggingConfiguration {
+	return configuration.Sentry
 }
 
 // GetBrokerConfiguration returns broker configuration
-func GetBrokerConfiguration(config ConfigStruct) BrokerConfiguration {
-	return config.Broker
+func GetBrokerConfiguration(configuration *ConfigStruct) BrokerConfiguration {
+	return configuration.Broker
 }
 
 // GetMetricsConfiguration returns metrics configuration
-func GetMetricsConfiguration(config ConfigStruct) MetricsConfiguration {
-	return config.Metrics
+func GetMetricsConfiguration(configuration *ConfigStruct) MetricsConfiguration {
+	return configuration.Metrics
+}
+
+// GetTrackerConfiguration returns payload tracker configuration
+func GetTrackerConfiguration(configuration *ConfigStruct) TrackerConfiguration {
+	return configuration.Tracker
+}
+
+func updateBrokerCfgFromClowder(configuration *ConfigStruct) {
+	// make sure broker(s) are configured in Clowder
+	if len(clowder.LoadedConfig.Kafka.Brokers) > 0 {
+		configuration.Broker.Addresses = ""
+		for _, broker := range clowder.LoadedConfig.Kafka.Brokers {
+			if broker.Port != nil {
+				configuration.Broker.Addresses += fmt.Sprintf("%s:%d", broker.Hostname, *broker.Port) + ","
+			} else {
+				configuration.Broker.Addresses += broker.Hostname + ","
+			}
+		}
+		// remove the extra comma
+		configuration.Broker.Addresses = configuration.Broker.Addresses[:len(configuration.Broker.Addresses)-1]
+
+		// SSL config
+		clowderBrokerCfg := clowder.LoadedConfig.Kafka.Brokers[0]
+		if clowderBrokerCfg.Authtype != nil {
+			fmt.Println("kafka is configured to use authentication")
+			if clowderBrokerCfg.Sasl != nil {
+				configuration.Broker.SaslUsername = *clowderBrokerCfg.Sasl.Username
+				configuration.Broker.SaslPassword = *clowderBrokerCfg.Sasl.Password
+				configuration.Broker.SaslMechanism = *clowderBrokerCfg.Sasl.SaslMechanism
+				configuration.Broker.SecurityProtocol = *clowderBrokerCfg.SecurityProtocol
+				if caPath, err := clowder.LoadedConfig.KafkaCa(clowderBrokerCfg); err == nil {
+					configuration.Broker.CertPath = caPath
+				}
+			} else {
+				fmt.Println(noSaslConfig)
+			}
+		}
+	} else {
+		fmt.Println(noBrokerConfig)
+	}
+	updateTopicsMapping(&configuration.Broker)
 }
 
 // updateConfigFromClowder updates the current config with the values defined in clowder
-func updateConfigFromClowder(c *ConfigStruct) error {
+func updateConfigFromClowder(configuration *ConfigStruct) {
+	// check if Clowder is enabled. If not, simply skip the logic.
 	if !clowder.IsClowderEnabled() || clowder.LoadedConfig == nil {
 		fmt.Println("Clowder is disabled")
-		return nil
+		return
 	}
 
 	fmt.Println("Clowder is enabled")
 	if clowder.LoadedConfig.Kafka == nil {
-		fmt.Println("No Kafka configuration available in Clowder, using default one")
+		fmt.Println(noKafkaConfig)
 	} else {
-		broker := clowder.LoadedConfig.Kafka.Brokers[0]
-		// port can be empty in clowder, so taking it into account
-		if broker.Port != nil {
-			c.Broker.Address = fmt.Sprintf("%s:%d", broker.Hostname, *broker.Port)
-		} else {
-			c.Broker.Address = broker.Hostname
-		}
-
-		// get DB configuration from clowder
-		c.Storage.PGDBName = clowder.LoadedConfig.Database.Name
-		c.Storage.PGHost = clowder.LoadedConfig.Database.Hostname
-		c.Storage.PGPort = clowder.LoadedConfig.Database.Port
-		c.Storage.PGUsername = clowder.LoadedConfig.Database.Username
-		c.Storage.PGPassword = clowder.LoadedConfig.Database.Password
+		updateBrokerCfgFromClowder(configuration)
 	}
 
-	return nil
+	if clowder.LoadedConfig.Database != nil {
+		// get DB configuration from clowder
+		configuration.Storage.PGDBName = clowder.LoadedConfig.Database.Name
+		configuration.Storage.PGHost = clowder.LoadedConfig.Database.Hostname
+		configuration.Storage.PGPort = clowder.LoadedConfig.Database.Port
+		configuration.Storage.PGUsername = clowder.LoadedConfig.Database.Username
+		configuration.Storage.PGPassword = clowder.LoadedConfig.Database.Password
+	} else {
+		fmt.Println(noStorage)
+	}
+}
+
+func updateTopicsMapping(configuration *BrokerConfiguration) {
+	// Get the correct topic name from clowder mapping if available
+	if clowderTopic, ok := clowder.KafkaTopics[configuration.Topic]; ok {
+		configuration.Topic = clowderTopic.Name
+	} else {
+		fmt.Printf(noTopicMapping, configuration.Topic)
+	}
 }

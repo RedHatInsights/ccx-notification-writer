@@ -1,5 +1,23 @@
+# Copyright 2024 Red Hat, Inc
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 [broker]
-address = "localhost:9092"
+addresses = "localhost:9093,localhost:9092"
+security_protocol = "PLAINTEXT"
+sasl_mechanism = "not-used"
+sasl_username = "not-used"
+sasl_password = "not-used"
 topic = "ccx.ocp.results"
 group = "test-consumer-group"
 enabled = true
@@ -16,8 +34,28 @@ log_sql_queries = true
 
 [logging]
 debug = true
-log_level = ""
+log_level = "info"
+logging_to_cloud_watch_enabled = false
+logging_to_sentry_enabled = false
+
+[sentry]
+dsn = ""
+environment = "dev"
+
+[cloudwatch]
+aws_access_id = "a key id"
+aws_secret_key = "tshhhh it is a secret"
+aws_session_token = ""
+aws_region = "us-east-1"
+log_group = "platform-dev"
+stream_name = "ccx-notification-writer"
+debug = false
+create_stream_if_not_exists = true
 
 [metrics]
 namespace = "notification_writer"
 address = ":8080"
+
+[tracker]
+topic = "platform.payload-status"
+service_name = "ccx-notification-writer"
