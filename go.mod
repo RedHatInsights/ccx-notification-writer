@@ -1,6 +1,8 @@
 module github.com/RedHatInsights/ccx-notification-writer
 
-go 1.20
+go 1.23.0
+
+toolchain go1.23.8
 
 require (
 	github.com/BurntSushi/toml v1.5.0
@@ -82,7 +84,7 @@ require (
 	golang.org/x/crypto v0.31.0 // indirect
 	golang.org/x/exp v0.0.0-20230905200255-921286631fa9 // indirect
 	golang.org/x/net v0.33.0 // indirect
-	golang.org/x/sys v0.28.0 // indirect
+	golang.org/x/sys v0.32.0 // indirect
 	golang.org/x/text v0.21.0 // indirect
 	google.golang.org/protobuf v1.34.2 // indirect
 	gopkg.in/h2non/gock.v1 v1.1.2 // indirect
