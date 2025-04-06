@@ -1,6 +1,8 @@
 module github.com/RedHatInsights/ccx-notification-writer
 
-go 1.20
+go 1.22
+
+toolchain go1.22.9
 
 require (
 	github.com/BurntSushi/toml v1.5.0
@@ -52,7 +54,7 @@ require (
 	github.com/jcmturner/gokrb5/v8 v8.4.4 // indirect
 	github.com/jcmturner/rpc/v2 v2.0.3 // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
-	github.com/klauspost/compress v1.17.9 // indirect
+	github.com/klauspost/compress v1.18.0 // indirect
 	github.com/magiconair/properties v1.8.9 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
