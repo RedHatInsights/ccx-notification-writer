@@ -14,8 +14,8 @@ github.com/RedHatInsights/kafka-zerolog v1.0.0/go.mod h1:HJul5oCsCRNiRlh/ayJDGdW
 github.com/Shopify/sarama v1.38.1 h1:lqqPUPQZ7zPqYlWpTh+LQ9bhYNu2xJL6k1SJN4WVe2A=
 github.com/Shopify/sarama v1.38.1/go.mod h1:iwv9a67Ha8VNa+TifujYoWGxWnu2kNVAQdSdZ4X2o5g=
 github.com/Shopify/toxiproxy/v2 v2.5.0 h1:i4LPT+qrSlKNtQf5QliVjdP08GyAH8+BUIc9gT0eahc=
-github.com/archdx/zerolog-sentry v1.8.4 h1:Thxb8Crm+JaV1kcAF2KEcpKwkMtQaj+GazhktFgGTUc=
-github.com/archdx/zerolog-sentry v1.8.4/go.mod h1:XrFHGe1CH5DQk/XSySu/IJSi5C9XR6+zpc97zVf/c4c=
+github.com/archdx/zerolog-sentry v1.8.5 h1:W24e5+yfZiQ83yd9OjBw+o6ERUzyUlCpoBS97gUlwK8=
+github.com/archdx/zerolog-sentry v1.8.5/go.mod h1:XrFHGe1CH5DQk/XSySu/IJSi5C9XR6+zpc97zVf/c4c=
 github.com/aws/aws-sdk-go v1.30.11/go.mod h1:5zCpMtNQVjRREroY7sYe8lOMRSxkhG6MZveU8YkpAk0=
 github.com/aws/aws-sdk-go v1.55.6 h1:cSg4pvZ3m8dgYcgqB97MrcdjUmZ1BeMYKUxMMB89IPk=
 github.com/aws/aws-sdk-go v1.55.6/go.mod h1:eRwEWoyTWFMVYVQzKMNHWP5/RV4xIUGMQfXQHfHkpNU=
