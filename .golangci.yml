@@ -1,4 +1,30 @@
+version: "2"
 run:
-    skip-files:
-        - export_test.go
-        - consumer_iface.go
+    timeout: 3m
+linters:
+    default: all
+    enable:
+      - goconst
+      - gocyclo
+      - gosec
+      - staticcheck
+      - nilerr
+      - prealloc
+      - revive
+      - staticcheck
+      - unconvert
+      - unused
+      - whitespace
+      - zerologlint
+    exclusions:
+        paths:
+          - export_test.go
+          - consumer_iface.go
+formatters:
+  enable:
+    - gofmt
+    - goimports
+  exclusions:
+    paths:
+      - export_test.go
+      - consumer_iface.go
