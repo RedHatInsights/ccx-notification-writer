@@ -10,6 +10,7 @@ CCX Notification Writer service
 [![Build Status](https://travis-ci.com/RedHatInsights/ccx-notification-writer.svg?branch=master)](https://travis-ci.com/RedHatInsights/ccx-notification-writer)
 ![GitHub go.mod Go version](https://img.shields.io/github/go-mod/go-version/RedHatInsights/ccx-notification-writer)
 [![License](https://img.shields.io/badge/license-Apache-blue)](https://github.com/RedHatInsights/ccx-notification-writer/blob/master/LICENSE)
+[![codecov](https://codecov.io/gh/RedHatInsights/ccx-notification-writer/branch/master/graph/badge.svg)](https://codecov.io/gh/RedHatInsights/ccx-notification-writer)
 
 <!-- vim-markdown-toc GFM -->
 
