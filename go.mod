@@ -5,7 +5,7 @@ go 1.20
 require (
 	github.com/BurntSushi/toml v1.5.0
 	github.com/DATA-DOG/go-sqlmock v1.5.2
-	github.com/RedHatInsights/insights-operator-utils v1.25.12
+	github.com/RedHatInsights/insights-operator-utils v1.25.13
 	github.com/RedHatInsights/insights-results-types v1.23.5
 	github.com/Shopify/sarama v1.38.1
 	github.com/google/uuid v1.6.0
