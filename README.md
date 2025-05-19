@@ -10,6 +10,7 @@ CCX Notification Writer service
 [![Build Status](https://travis-ci.com/RedHatInsights/ccx-notification-writer.svg?branch=master)](https://travis-ci.com/RedHatInsights/ccx-notification-writer)
 ![GitHub go.mod Go version](https://img.shields.io/github/go-mod/go-version/RedHatInsights/ccx-notification-writer)
 [![License](https://img.shields.io/badge/license-Apache-blue)](https://github.com/RedHatInsights/ccx-notification-writer/blob/master/LICENSE)
+[![codecov](https://codecov.io/gh/RedHatInsights/ccx-notification-writer/branch/master/graph/badge.svg)](https://codecov.io/gh/RedHatInsights/ccx-notification-writer)
 
 <!-- vim-markdown-toc GFM -->
 
@@ -81,17 +82,10 @@ Available targets are:
 clean                Run go clean
 build                Build binary containing service executable
 build-cover          Build binary with code coverage detection support
-fmt                  Run go fmt -w for all sources
-lint                 Run golint
-vet                  Run go vet. Report likely mistakes in source code
-cyclo                Run gocyclo
-ineffassign          Run ineffassign checker
+golangci-lint        Run all configurated golanci-lint commands
 shellcheck           Run shellcheck
-errcheck             Run errcheck
-goconst              Run goconst checker
-gosec                Run gosec checker
 abcgo                Run ABC metrics checker
-style                Run all the formatting related commands (fmt, vet, lint, cyclo) + check shell scripts
+style                Run all the formatting related commands (golanci-lint) + check shell scripts
 run                  Build the project and executes the binary
 test                 Run the unit tests
 build-test           Build native binary with unit tests and benchmarks
