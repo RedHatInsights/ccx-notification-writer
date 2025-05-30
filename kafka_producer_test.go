@@ -24,10 +24,10 @@ import (
 	"testing"
 	"time"
 
-	main "github.com/RedHatInsights/ccx-notification-writer"
-	"github.com/RedHatInsights/insights-operator-utils/tests/helpers"
 	"github.com/IBM/sarama"
 	"github.com/IBM/sarama/mocks"
+	main "github.com/RedHatInsights/ccx-notification-writer"
+	"github.com/RedHatInsights/insights-operator-utils/tests/helpers"
 	"github.com/stretchr/testify/assert"
 
 	"github.com/rs/zerolog"

@@ -26,8 +26,8 @@ package main
 // https://redhatinsights.github.io/ccx-notification-writer/packages/consumer_iface.html
 
 import (
-	types "github.com/RedHatInsights/insights-results-types"
 	"github.com/IBM/sarama"
+	types "github.com/RedHatInsights/insights-results-types"
 )
 
 // Consumer represents any consumer of insights-rules messages
