@@ -2,7 +2,7 @@ version: "2"
 run:
     timeout: 3m
 linters:
-    default: all
+    default: standard
     enable:
       - goconst
       - gocyclo

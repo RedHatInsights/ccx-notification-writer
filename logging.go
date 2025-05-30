@@ -27,7 +27,7 @@ package main
 import (
 	"time"
 
-	"github.com/Shopify/sarama"
+	"github.com/IBM/sarama"
 	"github.com/rs/zerolog/log"
 )
 

@@ -57,7 +57,7 @@ import (
 	utils "github.com/RedHatInsights/insights-operator-utils/migrations"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 
-	"github.com/Shopify/sarama"
+	"github.com/IBM/sarama"
 
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
