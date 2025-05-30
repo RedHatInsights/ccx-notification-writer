@@ -30,7 +30,7 @@ import (
 	"time"
 
 	types "github.com/RedHatInsights/insights-results-types"
-	"github.com/Shopify/sarama"
+	"github.com/IBM/sarama"
 	"github.com/rs/zerolog/log"
 )
 

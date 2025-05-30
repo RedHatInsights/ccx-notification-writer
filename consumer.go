@@ -35,7 +35,7 @@ import (
 
 	tlsutils "github.com/RedHatInsights/insights-operator-utils/tls"
 	types "github.com/RedHatInsights/insights-results-types"
-	"github.com/Shopify/sarama"
+	"github.com/IBM/sarama"
 	"github.com/google/uuid"
 	"github.com/rs/zerolog/log"
 )

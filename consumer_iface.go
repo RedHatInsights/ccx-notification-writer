@@ -27,7 +27,7 @@ package main
 
 import (
 	types "github.com/RedHatInsights/insights-results-types"
-	"github.com/Shopify/sarama"
+	"github.com/IBM/sarama"
 )
 
 // Consumer represents any consumer of insights-rules messages
