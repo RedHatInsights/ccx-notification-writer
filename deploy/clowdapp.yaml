@@ -163,8 +163,6 @@ objects:
               value: ${LOGGING_TO_CLOUD_WATCH_ENABLED}
             - name: CCX_NOTIFICATION_WRITER__CLOUDWATCH__DEBUG
               value: ${CLOUDWATCH_DEBUG}
-            - name: CCX_NOTIFICATION_WRITER__CLOUDWATCH__STREAM_NAME
-              value: ${IRSP_LOG_STREAM}
             - name: CCX_NOTIFICATION_WRITER__CLOUDWATCH__CREATE_STREAM_IF_NOT_EXISTS
               value: ${CREATE_STREAM_IF_NOT_EXISTS}
             - name: CCX_NOTIFICATION_WRITER__CLOUDWATCH__AWS_REGION
@@ -315,8 +313,6 @@ parameters:
 - name: CLOUDWATCH_DEBUG
   value: "false"
   required: true
-- name: IRSP_LOG_STREAM
-  value: $HOSTNAME
 - name: CREATE_STREAM_IF_NOT_EXISTS
   value: "true"
 - name: PAYLOAD_TRACKER_TOPIC
