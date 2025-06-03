@@ -29,8 +29,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/IBM/sarama"
 	types "github.com/RedHatInsights/insights-results-types"
+	"github.com/Shopify/sarama"
 	"github.com/rs/zerolog/log"
 )
 
