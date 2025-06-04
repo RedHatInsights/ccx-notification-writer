@@ -5,7 +5,7 @@ go 1.23.0
 require (
 	github.com/BurntSushi/toml v1.5.0
 	github.com/DATA-DOG/go-sqlmock v1.5.2
-	github.com/RedHatInsights/insights-operator-utils v1.25.13
+	github.com/RedHatInsights/insights-operator-utils v1.25.14
 	github.com/RedHatInsights/insights-results-types v1.23.5
 	github.com/Shopify/sarama v1.38.1
 	github.com/google/uuid v1.6.0
@@ -24,7 +24,7 @@ require (
 	github.com/RedHatInsights/cloudwatch v0.0.0-20210111105023-1df2bdfe3291 // indirect
 	github.com/RedHatInsights/kafka-zerolog v1.0.0 // indirect
 	github.com/archdx/zerolog-sentry v1.8.5 // indirect
-	github.com/aws/aws-sdk-go v1.55.6 // indirect
+	github.com/aws/aws-sdk-go v1.55.7 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/bitly/go-simplejson v0.5.1 // indirect
 	github.com/bmizerany/assert v0.0.0-20160611221934-b7ed37b82869 // indirect
@@ -35,8 +35,8 @@ require (
 	github.com/eapache/go-xerial-snappy v0.0.0-20230731223053-c322873962e3 // indirect
 	github.com/eapache/queue v1.1.0 // indirect
 	github.com/fsnotify/fsnotify v1.8.0 // indirect
-	github.com/getkin/kin-openapi v0.131.0 // indirect
-	github.com/getsentry/sentry-go v0.32.0 // indirect
+	github.com/getkin/kin-openapi v0.132.0 // indirect
+	github.com/getsentry/sentry-go v0.33.0 // indirect
 	github.com/go-openapi/jsonpointer v0.21.0 // indirect
 	github.com/go-openapi/swag v0.23.0 // indirect
 	github.com/go-viper/mapstructure/v2 v2.2.1 // indirect
