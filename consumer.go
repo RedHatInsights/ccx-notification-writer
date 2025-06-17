@@ -33,9 +33,9 @@ import (
 	"strings"
 	"time"
 
+	"github.com/IBM/sarama"
 	tlsutils "github.com/RedHatInsights/insights-operator-utils/tls"
 	types "github.com/RedHatInsights/insights-results-types"
-	"github.com/Shopify/sarama"
 	"github.com/google/uuid"
 	"github.com/rs/zerolog/log"
 )
@@ -82,6 +82,9 @@ const (
 //
 // TODO: make this value configurable
 const CurrentSchemaVersion = types.SchemaVersion(2)
+
+// SaramaVersion is the version of Kafka API used in sarama client
+var SaramaVersion = sarama.V3_8_0_0
 
 // Report represents report send in a message consumed from any broker
 type Report map[string]*json.RawMessage
@@ -601,7 +604,7 @@ func parseMessage(messageValue []byte) (IncomingMessage, error) {
 // construct configuration compatible with Sarama library
 func saramaConfigFromBrokerConfig(brokerConfiguration *BrokerConfiguration) (*sarama.Config, error) {
 	saramaConfig := sarama.NewConfig()
-	saramaConfig.Version = sarama.V0_10_2_0
+	saramaConfig.Version = SaramaVersion
 
 	/* TODO: we need to do it in production code
 	if brokerCfg.Timeout > 0 {

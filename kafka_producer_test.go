@@ -24,10 +24,10 @@ import (
 	"testing"
 	"time"
 
+	"github.com/IBM/sarama"
+	"github.com/IBM/sarama/mocks"
 	main "github.com/RedHatInsights/ccx-notification-writer"
 	"github.com/RedHatInsights/insights-operator-utils/tests/helpers"
-	"github.com/Shopify/sarama"
-	"github.com/Shopify/sarama/mocks"
 	"github.com/stretchr/testify/assert"
 
 	"github.com/rs/zerolog"
@@ -74,6 +74,14 @@ func TestProducerClose(t *testing.T) {
 }
 
 func TestProducerNew(t *testing.T) {
+	// MockBroker does not currently work with newer Kafka versions,
+	// so it has to be set to an older value
+	defaultVersion := main.SaramaVersion
+	main.SaramaVersion = sarama.V0_10_2_0
+	defer func() {
+		main.SaramaVersion = defaultVersion
+	}()
+
 	mockBroker := sarama.NewMockBroker(t, 0)
 	defer mockBroker.Close()
 
@@ -118,6 +126,14 @@ func TestProducerSendEmptyMessage(t *testing.T) {
 }
 
 func TestPayloadTrackerProducerNew(t *testing.T) {
+	// MockBroker does not currently work with newer Kafka versions,
+	// so it has to be set to an older value
+	defaultVersion := main.SaramaVersion
+	main.SaramaVersion = sarama.V0_10_2_0
+	defer func() {
+		main.SaramaVersion = defaultVersion
+	}()
+
 	mockBroker := sarama.NewMockBroker(t, 0)
 	defer mockBroker.Close()
 
