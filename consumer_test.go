@@ -29,7 +29,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Shopify/sarama"
+	"github.com/IBM/sarama"
 	"github.com/stretchr/testify/assert"
 
 	main "github.com/RedHatInsights/ccx-notification-writer"
