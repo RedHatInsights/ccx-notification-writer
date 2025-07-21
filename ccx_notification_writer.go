@@ -618,7 +618,6 @@ func main() {
 		GetLoggingConfiguration(&configuration),
 		GetCloudWatchConfiguration(&configuration),
 		GetSentryConfiguration(&configuration),
-		logger.KafkaZerologConfiguration{},
 	)
 
 	if err != nil {
