@@ -27,7 +27,6 @@ aws_region = "us-east-1"
 log_group = "platform-dev"
 stream_name = "ccx-notification-writer"
 debug = false
-create_stream_if_not_exists = true
 
 [metrics]
 namespace = "notification_writer"
