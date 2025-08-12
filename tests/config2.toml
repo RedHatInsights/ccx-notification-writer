@@ -40,7 +40,6 @@ aws_secret_key = "aws_secret"
 log_group = "test_group"
 stream_name = "test_stream"
 debug = false
-create_stream_if_not_exists = true
 
 [metrics]
 namespace = "notification_writer"
