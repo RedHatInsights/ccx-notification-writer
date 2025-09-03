@@ -45,7 +45,7 @@ var mig0008AddPerformanceIndexes = mig.Migration{
 		// Add composite index for the main query performance
 		// This index covers the WHERE clause: event_type_id, state, org_id, cluster
 		query1 := `
-			CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_reported_event_state_org_cluster 
+			CREATE INDEX IF NOT EXISTS idx_reported_event_state_org_cluster 
 			ON reported(event_type_id, state, org_id, cluster);
 		`
 		_, err := executeQuery(tx, query1)
@@ -58,7 +58,7 @@ var mig0008AddPerformanceIndexes = mig.Migration{
 		// Add index for cleanup operations on updated_at
 		// This index covers the WHERE clause: updated_at < NOW() - INTERVAL
 		query2 := `
-			CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_reported_updated_at 
+			CREATE INDEX IF NOT EXISTS idx_reported_updated_at 
 			ON reported(updated_at);
 		`
 		_, err = executeQuery(tx, query2)
