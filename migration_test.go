@@ -33,6 +33,14 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+// SQL statements used in multiple tests
+const (
+	createIndexEventStateOrgCluster = "CREATE INDEX IF NOT EXISTS idx_reported_event_state_org_cluster ON reported\\(event_type_id, state, org_id, cluster\\);"
+	createIndexUpdatedAt            = "CREATE INDEX IF NOT EXISTS idx_reported_updated_at ON reported\\(updated_at\\);"
+	dropIndexEventStateOrgCluster   = "DROP INDEX IF EXISTS idx_reported_event_state_org_cluster;"
+	dropIndexUpdatedAt              = "DROP INDEX IF EXISTS idx_reported_updated_at;"
+)
+
 // TestMigrationErrorDuringQueryingMigrationInfo1 test checks proper handling
 // query errors during retrieving migration info from database (concretely
 // during checking if migration table contains any value).
@@ -1350,8 +1358,8 @@ func Test0008MigrationStepUp(t *testing.T) {
 	// expected query performed by tested function
 	expectedQuery0 := "SELECT COUNT\\(\\*\\) FROM migration_info;"
 	expectedQuery1 := "SELECT version FROM migration_info;"
-	expectedCreate1 := "CREATE INDEX IF NOT EXISTS idx_reported_event_state_org_cluster ON reported\\(event_type_id, state, org_id, cluster\\);"
-	expectedCreate2 := "CREATE INDEX IF NOT EXISTS idx_reported_updated_at ON reported\\(updated_at\\);"
+	expectedCreate1 := createIndexEventStateOrgCluster
+	expectedCreate2 := createIndexUpdatedAt
 	expectedUpdate := "UPDATE migration_info SET version=\\$1;"
 
 	mock.ExpectQuery(expectedQuery0).WillReturnRows(count)
@@ -1392,7 +1400,7 @@ func Test0008MigrationStepUpOnMigrationFailure1(t *testing.T) {
 	// expected query performed by tested function
 	expectedQuery0 := "SELECT COUNT\\(\\*\\) FROM migration_info;"
 	expectedQuery1 := "SELECT version FROM migration_info;"
-	expectedCreate1 := "CREATE INDEX IF NOT EXISTS idx_reported_event_state_org_cluster ON reported\\(event_type_id, state, org_id, cluster\\);"
+	expectedCreate1 := createIndexEventStateOrgCluster
 
 	// queries to retrieve DB version should succeed
 	mock.ExpectQuery(expectedQuery0).WillReturnRows(count)
@@ -1437,8 +1445,8 @@ func Test0008MigrationStepUpOnMigrationFailure2(t *testing.T) {
 	// expected query performed by tested function
 	expectedQuery0 := "SELECT COUNT\\(\\*\\) FROM migration_info;"
 	expectedQuery1 := "SELECT version FROM migration_info;"
-	expectedCreate1 := "CREATE INDEX IF NOT EXISTS idx_reported_event_state_org_cluster ON reported\\(event_type_id, state, org_id, cluster\\);"
-	expectedCreate2 := "CREATE INDEX IF NOT EXISTS idx_reported_updated_at ON reported\\(updated_at\\);"
+	expectedCreate1 := createIndexEventStateOrgCluster
+	expectedCreate2 := createIndexUpdatedAt
 
 	// queries to retrieve DB version should succeed
 	mock.ExpectQuery(expectedQuery0).WillReturnRows(count)
@@ -1484,8 +1492,8 @@ func Test0008MigrationStepDown(t *testing.T) {
 	// expected query performed by tested function
 	expectedQuery0 := "SELECT COUNT\\(\\*\\) FROM migration_info;"
 	expectedQuery1 := "SELECT version FROM migration_info;"
-	expectedDrop1 := "DROP INDEX IF EXISTS idx_reported_updated_at;"
-	expectedDrop2 := "DROP INDEX IF EXISTS idx_reported_event_state_org_cluster;"
+	expectedDrop1 := dropIndexUpdatedAt
+	expectedDrop2 := dropIndexEventStateOrgCluster
 	expectedUpdate := "UPDATE migration_info SET version=\\$1;"
 
 	mock.ExpectQuery(expectedQuery0).WillReturnRows(count)
@@ -1528,8 +1536,8 @@ func Test0008MigrationStepDownOnMigrationFailure(t *testing.T) {
 	// expected query performed by tested function
 	expectedQuery0 := "SELECT COUNT\\(\\*\\) FROM migration_info;"
 	expectedQuery1 := "SELECT version FROM migration_info;"
-	expectedDrop1 := "DROP INDEX IF EXISTS idx_reported_updated_at;"
-	expectedDrop2 := "DROP INDEX IF EXISTS idx_reported_event_state_org_cluster;"
+	expectedDrop1 := dropIndexUpdatedAt
+	expectedDrop2 := dropIndexEventStateOrgCluster
 
 	// queries to retrieve DB version should succeed
 	mock.ExpectQuery(expectedQuery0).WillReturnRows(count)
