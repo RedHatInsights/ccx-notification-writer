@@ -11,7 +11,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/lib/pq v1.10.9
 	github.com/mattn/go-sqlite3 v2.0.3+incompatible
-	github.com/prometheus/client_golang v1.23.1
+	github.com/prometheus/client_golang v1.23.2
 	github.com/redhatinsights/app-common-go v1.6.8
 	github.com/rs/zerolog v1.34.0
 	github.com/spf13/viper v1.20.1
@@ -55,7 +55,6 @@ require (
 	github.com/golang/mock v1.6.0 // indirect
 	github.com/golang/snappy v1.0.0 // indirect
 	github.com/gorilla/mux v1.8.1 // indirect
-	github.com/grafana/regexp v0.0.0-20240518133315-a468a5bfb3bc // indirect
 	github.com/h2non/parth v0.0.0-20190131123155-b4df798d6542 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
@@ -81,7 +80,7 @@ require (
 	github.com/pierrec/lz4/v4 v4.1.22 // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/prometheus/client_model v0.6.2 // indirect
-	github.com/prometheus/common v0.66.0 // indirect
+	github.com/prometheus/common v0.66.1 // indirect
 	github.com/prometheus/procfs v0.17.0 // indirect
 	github.com/rcrowley/go-metrics v0.0.0-20250401214520-65e299d6c5c9 // indirect
 	github.com/sagikazarmark/locafero v0.10.0 // indirect
@@ -92,12 +91,12 @@ require (
 	github.com/subosito/gotenv v1.6.0 // indirect
 	github.com/verdverm/frisby v0.0.0-20170604211311-b16556248a9a // indirect
 	github.com/xdg/stringprep v1.0.3 // indirect
+	go.yaml.in/yaml/v2 v2.4.2 // indirect
 	golang.org/x/crypto v0.41.0 // indirect
 	golang.org/x/net v0.43.0 // indirect
 	golang.org/x/sys v0.35.0 // indirect
 	golang.org/x/text v0.28.0 // indirect
 	google.golang.org/protobuf v1.36.8 // indirect
 	gopkg.in/h2non/gock.v1 v1.1.2 // indirect
-	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
