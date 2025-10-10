@@ -72,6 +72,7 @@ func NewProducer(config *BrokerConfiguration) (*Producer, error) {
 	saramaConfig, err := saramaProducerConfigFromBrokerConfig(config)
 	if err != nil {
 		log.Error().Err(err).Msg("Unable to create a valid Kafka configuration")
+		return nil, err
 	}
 
 	producer, err := sarama.NewSyncProducer(strings.Split(config.Addresses, ","), saramaConfig)
