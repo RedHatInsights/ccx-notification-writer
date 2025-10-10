@@ -45,6 +45,7 @@ func init() {
 	zerolog.SetGlobalLevel(zerolog.WarnLevel)
 }
 
+
 // Test Producer creation with a non accessible Kafka broker
 func TestNewProducerBadBroker(t *testing.T) {
 	const expectedErrorMessage1 = "kafka: client has run out of available brokers to talk to: dial tcp: missing address"
@@ -74,14 +75,6 @@ func TestProducerClose(t *testing.T) {
 }
 
 func TestProducerNew(t *testing.T) {
-	// MockBroker does not currently work with newer Kafka versions,
-	// so it has to be set to an older value
-	defaultVersion := main.SaramaVersion
-	main.SaramaVersion = sarama.V0_10_2_0
-	defer func() {
-		main.SaramaVersion = defaultVersion
-	}()
-
 	mockBroker := sarama.NewMockBroker(t, 0)
 	defer mockBroker.Close()
 
@@ -100,9 +93,11 @@ func TestProducerNew(t *testing.T) {
 	}
 	mockBroker.SetHandlerByMap(handlerMap)
 
+	// Use NewProducer with MockBroker-compatible settings
 	prod, err := main.NewProducer(&main.BrokerConfiguration{
-		Addresses: mockBroker.Addr(),
-		Topic:     brokerCfg.Topic,
+		Addresses:                 mockBroker.Addr(),
+		Topic:                     brokerCfg.Topic,
+		DisableAPIVersionsRequest: true, // MockBroker doesn't support API version negotiation
 	})
 	helpers.FailOnError(t, err)
 	helpers.FailOnError(t, prod.Close())
@@ -126,14 +121,6 @@ func TestProducerSendEmptyMessage(t *testing.T) {
 }
 
 func TestPayloadTrackerProducerNew(t *testing.T) {
-	// MockBroker does not currently work with newer Kafka versions,
-	// so it has to be set to an older value
-	defaultVersion := main.SaramaVersion
-	main.SaramaVersion = sarama.V0_10_2_0
-	defer func() {
-		main.SaramaVersion = defaultVersion
-	}()
-
 	mockBroker := sarama.NewMockBroker(t, 0)
 	defer mockBroker.Close()
 
@@ -152,10 +139,12 @@ func TestPayloadTrackerProducerNew(t *testing.T) {
 	}
 	mockBroker.SetHandlerByMap(handlerMap)
 
+	// Use NewPayloadTrackerProducer with MockBroker-compatible settings
 	prod, err := main.NewPayloadTrackerProducer(&main.ConfigStruct{
 		Broker: main.BrokerConfiguration{
-			Addresses: mockBroker.Addr(),
-			Topic:     brokerCfg.Topic,
+			Addresses:                 mockBroker.Addr(),
+			Topic:                     brokerCfg.Topic,
+			DisableAPIVersionsRequest: true, // MockBroker doesn't support API version negotiation
 		},
 		Tracker: main.TrackerConfiguration{
 			ServiceName: "test_service",

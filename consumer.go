@@ -606,6 +606,11 @@ func saramaConfigFromBrokerConfig(brokerConfiguration *BrokerConfiguration) (*sa
 	saramaConfig := sarama.NewConfig()
 	saramaConfig.Version = SaramaVersion
 
+	// Set API version request behavior based on configuration
+	// When DisableAPIVersionsRequest is true, skip API version negotiation
+	// (useful for MockBroker testing or legacy brokers)
+	saramaConfig.ApiVersionsRequest = !brokerConfiguration.DisableAPIVersionsRequest
+
 	/* TODO: we need to do it in production code
 	if brokerCfg.Timeout > 0 {
 		saramaConfig.Net.DialTimeout = brokerConfiguration.Timeout
