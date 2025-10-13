@@ -358,7 +358,6 @@ func (consumer *KafkaConsumer) HandleMessage(msg *sarama.ConsumerMessage) {
 		// The message was processed successfully.
 		consumer.numberOfSuccessfullyConsumedMessages++
 		_ = consumer.Tracker.TrackPayload(requestID, timeAfterProcessingMessage, StatusSuccess)
-
 	}
 
 	totalMessageDuration := time.Since(startTime)

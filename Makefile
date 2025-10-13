@@ -26,11 +26,19 @@ abcgo: ## Run ABC metrics checker
 	@echo "Run ABC metrics checker"
 	./abcgo.sh ${VERBOSE}
 
+fmt: install_golangci_lint ## Run go formatting
+	@echo "Running go formatting"
+	golangci-lint fmt
+
+lint: install_golangci_lint ## Run go linting
+	@echo "Running go linting"
+	golangci-lint run --fix
+
 golangci-lint: install_golangci_lint
 	golangci-lint run
 	glangci-lint fmt
 
-style: shellcheck abcgo golangci-lint
+style: shellcheck abcgo fmt lint
 
 run: ${BINARY} ## Build the project and executes the binary
 	./$^
@@ -86,5 +94,5 @@ install_golangci_lint:
 		brew install golangci-lint; \
 		brew upgrade golangci-lint; \
 	else \
-		go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.0.2; \
+		go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@latest; \
 	fi

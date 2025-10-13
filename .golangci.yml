@@ -25,6 +25,17 @@ linters:
         paths:
           - export_test.go
           - consumer_iface.go
+        rules:
+        # Exclude gosec from running on tests files.
+        - path: _test\.go
+          linters:
+            - goconst
+            - gosec
+            - revive
+        - path: mig_(.+)\.go
+          linters:
+            - revive
+          text: "unused-parameter: parameter 'driver'"
 formatters:
   enable:
     - gofmt
