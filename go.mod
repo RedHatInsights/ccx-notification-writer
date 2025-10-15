@@ -2,11 +2,10 @@ module github.com/RedHatInsights/ccx-notification-writer
 
 go 1.24.0
 
-
 require (
 	github.com/BurntSushi/toml v1.5.0
 	github.com/DATA-DOG/go-sqlmock v1.5.2
-	github.com/IBM/sarama v1.46.1
+	github.com/IBM/sarama v1.46.2
 	github.com/RedHatInsights/insights-operator-utils v1.27.0
 	github.com/RedHatInsights/insights-results-types v1.23.5
 	github.com/google/uuid v1.6.0
