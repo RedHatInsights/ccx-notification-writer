@@ -89,15 +89,12 @@ import (
 	"bytes"
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/BurntSushi/toml"
 	"github.com/RedHatInsights/insights-operator-utils/logger"
-
-	"path/filepath"
-
 	clowder "github.com/redhatinsights/app-common-go/pkg/api/v1"
-
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/viper"
 )
@@ -157,6 +154,10 @@ type BrokerConfiguration struct {
 	Group string `mapstructure:"group" toml:"group"`
 	// Enabled is set to true if Kafka consumer is to be enabled
 	Enabled bool `mapstructure:"enabled" toml:"enabled"`
+	// DisableAPIVersionsRequest disables API version negotiation with the broker.
+	// Set to true when using MockBroker in tests or when broker doesn't support API version requests.
+	// Default is false (API version negotiation enabled).
+	DisableAPIVersionsRequest bool `mapstructure:"disable_api_versions_request" toml:"disable_api_versions_request"`
 }
 
 // StorageConfiguration represents configuration of data storage
