@@ -158,7 +158,7 @@ func (producer *PayloadTrackerProducer) TrackPayload(reqID types.RequestID, time
 	if err != nil {
 		return err
 	}
-	_, _, err = producer.Producer.ProduceMessage(jsonBytes)
+	_, _, err = producer.ProduceMessage(jsonBytes)
 	if err != nil {
 		log.Error().Err(err).Msgf(
 			"unable to produce payload tracker message (request ID: '%s', timestamp: %v, status: '%s')",

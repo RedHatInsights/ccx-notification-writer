@@ -179,7 +179,7 @@ func tryToConnectToKafka(configuration *ConfigStruct) (int, error) {
 
 	// display basic info about broker that will be used
 	log.Info().
-		Str(brokerAddresses, brokerConfiguration.Addresses)
+		Str(brokerAddresses, brokerConfiguration.Addresses).Send()
 
 	var err error
 	for _, addr := range strings.Split(brokerConfiguration.Addresses, ",") {

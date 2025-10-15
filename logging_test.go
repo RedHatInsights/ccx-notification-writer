@@ -81,8 +81,8 @@ func constructTestConsumer() *main.KafkaConsumer {
 // Construct parsed message used only for tests.
 func constructParsedMessage() main.IncomingMessage {
 	// mocked message
-	var orgID types.OrgID = types.OrgID(testOrganizationID)
-	var clusterName types.ClusterName = types.ClusterName(testClusterName)
+	var orgID = types.OrgID(testOrganizationID)
+	var clusterName = types.ClusterName(testClusterName)
 
 	// construct mocked parsed message
 	return main.IncomingMessage{
