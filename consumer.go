@@ -348,7 +348,7 @@ func (consumer *KafkaConsumer) HandleMessage(msg *sarama.ConsumerMessage) {
 		// update metric
 		ConsumingErrors.Inc()
 
-		log.Error().
+		log.Warn().
 			Err(err).
 			Msg("Error processing message consumed from Kafka")
 		consumer.numberOfErrorsConsumingMessages++
