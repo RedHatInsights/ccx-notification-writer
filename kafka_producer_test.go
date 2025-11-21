@@ -119,6 +119,23 @@ func TestProducerSendEmptyMessage(t *testing.T) {
 	helpers.FailOnError(t, kafkaProducer.Close())
 }
 
+func TestProducerFail(t *testing.T) {
+	mockProducer := mocks.NewSyncProducer(t, nil)
+	mockProducer.ExpectSendMessageAndFail(sarama.ErrUnknownTopicOrPartition)
+
+	kafkaProducer := main.Producer{
+		Configuration: &brokerCfg,
+		Producer:      mockProducer,
+	}
+
+	msgBytes, err := json.Marshal("")
+	helpers.FailOnError(t, err)
+
+	_, _, err = kafkaProducer.ProduceMessage(msgBytes)
+	assert.Error(t, err, "Expected error, but succeeded")
+	helpers.FailOnError(t, kafkaProducer.Close())
+}
+
 func TestPayloadTrackerProducerNew(t *testing.T) {
 	mockBroker := sarama.NewMockBroker(t, 0)
 	defer mockBroker.Close()
