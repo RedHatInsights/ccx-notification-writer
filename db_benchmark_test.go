@@ -600,7 +600,7 @@ func benchmarkInsertReportsIntoReportedTableImpl(
 		// new benchmark
 		b.Run(description, func(b *testing.B) {
 			// prepare all SQL statements to be run before benchmark
-			sqlStatements := make([]string, len(initStatements)+len(indexStatements))
+			sqlStatements := make([]string, 0, len(initStatements)+len(indexStatements))
 
 			// add all init statements
 			sqlStatements = append(sqlStatements, initStatements...)
@@ -635,7 +635,7 @@ func benchmarkSelectOrDeleteOldReportsFromReportedTableImpl(
 			benchmarkName := fmt.Sprintf("%s with %d reports", description, reportsCount)
 			b.Run(benchmarkName, func(b *testing.B) {
 				// prepare all SQL statements to be run before benchmark
-				sqlStatements := make([]string, len(initStatements)+len(indexStatements))
+				sqlStatements := make([]string, 0, len(initStatements)+len(indexStatements))
 
 				// add all init statements
 				sqlStatements = append(sqlStatements, initStatements...)
