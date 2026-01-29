@@ -9,7 +9,7 @@ require (
 	github.com/RedHatInsights/insights-operator-utils v1.27.0
 	github.com/RedHatInsights/insights-results-types v1.23.5
 	github.com/google/uuid v1.6.0
-	github.com/lib/pq v1.11.0
+	github.com/lib/pq v1.11.1
 	github.com/mattn/go-sqlite3 v2.0.3+incompatible
 	github.com/prometheus/client_golang v1.23.2
 	github.com/redhatinsights/app-common-go v1.6.9
