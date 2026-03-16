@@ -32,4 +32,3 @@ The "end-to-end" data flow is described there (including Notification Writer ser
 ![sequence_diagram.png](images/sequence_diagram.png)
 
 [Sequence diagram, full scale](images/sequence_diagram.png)
-

@@ -317,4 +317,3 @@ parameters:
   value: "ccx-notification-writer"
 - name: SENTRY_ENABLED
   value: "false"
-
