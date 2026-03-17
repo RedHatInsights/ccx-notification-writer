@@ -38,7 +38,7 @@ namespace main {
 
     }
     interface Consumer  {
-        + Serve() 
+        + Serve()
         + Close() error
         + ProcessMessage(msg *sarama.ConsumerMessage) (RequestID, error)
 
@@ -87,14 +87,14 @@ namespace main {
         + Ready <font color=blue>chan</font> bool
         + Cancel context.CancelFunc
 
-        + Serve() 
+        + Serve()
         + Setup( sarama.ConsumerGroupSession) error
         + Cleanup( sarama.ConsumerGroupSession) error
         + ConsumeClaim(session sarama.ConsumerGroupSession, claim sarama.ConsumerGroupClaim) error
         + Close() error
         + GetNumberOfSuccessfullyConsumedMessages() uint64
         + GetNumberOfErrorsConsumingMessages() uint64
-        + HandleMessage(msg *sarama.ConsumerMessage) 
+        + HandleMessage(msg *sarama.ConsumerMessage)
         + ProcessMessage(msg *sarama.ConsumerMessage) (RequestID, error)
 
     }

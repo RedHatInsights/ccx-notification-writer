@@ -46,4 +46,3 @@ necessary steps to migrate the database from its current version to the highest 
 
 See `migration.go` documentation for an overview of all available DB migration
 functionality.
-

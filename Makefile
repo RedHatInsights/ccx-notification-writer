@@ -1,6 +1,6 @@
 SHELL := /bin/bash
 
-.PHONY: default clean benchmarks build build-tests shellcheck abcgo style run test test-postgres cover integration_tests rest_api_tests sqlite_db license before_commit bdd_tests help godoc install_docgo install_addlicense
+.PHONY: default clean build build-cover shellcheck abcgo lint style run test build-test profiler benchmark cover coverage license bdd_tests before_commit help function_list
 
 SOURCES:=$(shell find . -name '*.go')
 BINARY:=ccx-notification-writer
@@ -20,25 +20,17 @@ ${BINARY}: ${SOURCES}
 	./build.sh
 
 shellcheck: ## Run shellcheck
-	./shellcheck.sh
+	pre-commit run shellcheck --all-files
 
 abcgo: ## Run ABC metrics checker
 	@echo "Run ABC metrics checker"
-	./abcgo.sh ${VERBOSE}
+	pre-commit run abcgo --all-files
 
-fmt: install_golangci_lint ## Run go formatting
-	@echo "Running go formatting"
-	golangci-lint fmt
-
-lint: install_golangci_lint ## Run go linting
+lint: ## Run go linting
 	@echo "Running go linting"
-	golangci-lint run --fix
+	pre-commit run golangci-lint-full --all-files
 
-golangci-lint: install_golangci_lint
-	golangci-lint run
-	glangci-lint fmt
-
-style: shellcheck abcgo fmt lint
+style: shellcheck abcgo lint
 
 run: ${BINARY} ## Build the project and executes the binary
 	./$^
@@ -66,14 +58,15 @@ cover: test ## Generate HTML pages with code coverage
 coverage: ## Display code coverage on terminal
 	@go tool cover -func=coverage.out
 
-license: install_addlicense
+license:
 	addlicense -c "Red Hat, Inc" -l "apache" -v ./
 
 bdd_tests: ## Run BDD tests
 	@echo "Run BDD tests"
 	pushd bdd_tests/ && ./run_tests.sh && popd
 
-before_commit: style test test-postgres integration_tests license ## Checks done before commit
+before_commit: style test license ## Checks done before commit
+	pre-commit run --all-files
 	./check_coverage.sh
 
 help: ## Show this help screen
@@ -88,11 +81,3 @@ help: ## Show this help screen
 function_list: ${BINARY} ## List all functions in generated binary file
 	go tool objdump ${BINARY} | grep ^TEXT | sed "s/^TEXT\s//g"
 	[[ `command -v addlicense` ]] || go install github.com/google/addlicense
-
-install_golangci_lint:
-	@if [ "$$(uname)" = "Darwin" ]; then \
-		brew install golangci-lint; \
-		brew upgrade golangci-lint; \
-	else \
-		go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@latest; \
-	fi

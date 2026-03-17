@@ -88,7 +88,7 @@ conditions.
  report            | character varying           | not null
  updated_at        | timestamp without time zone | not null
  notified_at       | timestamp without time zone | not null
- error_log         | character varying           | 
+ error_log         | character varying           |
  event_type_id     | integer                     | not null
 
 
@@ -124,7 +124,7 @@ Referenced by:
 Currently the following values are stored in this read-only table:
 
 ```
- id |  value  |  frequency  |               comment                
+ id |  value  |  frequency  |               comment
 ----+---------+-------------+--------------------------------------
   1 | instant | * * * * * * | instant notifications performed ASAP
   2 | instant | @weekly     | weekly summary
@@ -152,7 +152,7 @@ Referenced by:
 Currently the following values are stored in this read-only table:
 
 ```
- id | value |                   comment                   
+ id | value |                   comment
 ----+-------+---------------------------------------------
   1 | sent  | notification has been sent to user
   2 | same  | skipped, report is the same as previous one
@@ -167,11 +167,11 @@ This table contains specification of all event targets currently supported.
 
 ```
                  Table "public.event_targets"
-  Column  |       Type        | Collation | Nullable | Default 
+  Column  |       Type        | Collation | Nullable | Default
 ----------+-------------------+-----------+----------+---------
- id       | integer           |           | not null | 
- name     | character varying |           | not null | 
- metainfo | character varying |           | not null | 
+ id       | integer           |           | not null |
+ name     | character varying |           | not null |
+ metainfo | character varying |           | not null |
 
 Indexes:
     "event_targets_pkey" PRIMARY KEY, btree (id)
@@ -184,7 +184,7 @@ Referenced by:
 Currently the following values are stored in this read-only table:
 
 ```
- id |         name          |                             metainfo              
+ id |         name          |                             metainfo
 ----+-----------------------+-------------------------------------------------------------------
   1 | notifications backend | the target of the report is the ccx notification s ervice back end
   2 | service log           | the target of the report is the ServiceLog
@@ -215,4 +215,3 @@ Foreign-key constraints:
     "read_errors_org_id_fkey" FOREIGN KEY (org_id, cluster, updated_at)
     REFERENCES new_reports(org_id, cluster, updated_at)
 ```
-
