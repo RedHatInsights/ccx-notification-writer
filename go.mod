@@ -5,7 +5,7 @@ go 1.25.0
 require (
 	github.com/BurntSushi/toml v1.6.0
 	github.com/DATA-DOG/go-sqlmock v1.5.2
-	github.com/IBM/sarama v1.49.0
+	github.com/IBM/sarama v1.50.1
 	github.com/RedHatInsights/insights-operator-utils v1.28.0
 	github.com/RedHatInsights/insights-results-types v1.23.5
 	github.com/google/uuid v1.6.0
@@ -44,7 +44,6 @@ require (
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/eapache/go-resiliency v1.7.0 // indirect
-	github.com/eapache/queue v1.1.0 // indirect
 	github.com/fsnotify/fsnotify v1.10.1 // indirect
 	github.com/getkin/kin-openapi v0.139.0 // indirect
 	github.com/getsentry/sentry-go v0.46.2 // indirect
